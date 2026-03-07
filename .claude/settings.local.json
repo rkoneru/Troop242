@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "WebFetch(domain:www.scouting.org)",
+      "WebSearch",
+      "Bash(npm run lint)",
+      "Bash(npm run dev)"
+    ]
+  }
+}
