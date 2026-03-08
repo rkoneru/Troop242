@@ -5,25 +5,176 @@ import { motion } from 'framer-motion';
 
 const BADGE_CATEGORIES = [
   {
-    category: 'Outdoor Skills',
+    category: 'Eagle Required',
+    emoji: '🦅',
+    description: 'The 13 required badges for Eagle Scout rank',
+    badges: [
+      { name: 'Camping', url: 'https://www.scouting.org/merit-badges/camping/' },
+      { name: 'Cooking', url: 'https://www.scouting.org/merit-badges/cooking/' },
+      { name: 'First Aid', url: 'https://www.scouting.org/merit-badges/first-aid/' },
+      { name: 'Citizenship in the Community', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-community/' },
+      { name: 'Citizenship in the Nation', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-nation/' },
+      { name: 'Citizenship in Society', url: 'https://www.scouting.org/merit-badges/citizenship-in-society/' },
+      { name: 'Communication', url: 'https://www.scouting.org/merit-badges/communication/' },
+      { name: 'Emergency Preparedness', url: 'https://www.scouting.org/merit-badges/emergency-preparedness/' },
+      { name: 'Environmental Science', url: 'https://www.scouting.org/merit-badges/environmental-science/' },
+      { name: 'Personal Fitness', url: 'https://www.scouting.org/merit-badges/personal-fitness/' },
+      { name: 'Lifesaving', url: 'https://www.scouting.org/merit-badges/lifesaving/' },
+      { name: 'Swimming', url: 'https://www.scouting.org/merit-badges/swimming/' },
+      { name: 'Leadership', url: 'https://www.scouting.org/merit-badges/leadership/' }
+    ]
+  },
+  {
+    category: 'Citizenship & Community',
+    emoji: '🤝',
+    description: 'Make a difference in your community and nation',
+    badges: [
+      { name: 'Leadership', url: 'https://www.scouting.org/merit-badges/leadership/' },
+      { name: 'Communication', url: 'https://www.scouting.org/merit-badges/communication/' },
+      { name: 'Citizenship in the Community', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-community/' },
+      { name: 'Citizenship in the Nation', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-nation/' },
+      { name: 'Citizenship in Society', url: 'https://www.scouting.org/merit-badges/citizenship-in-society/' },
+      { name: 'Public Speaking', url: 'https://www.scouting.org/merit-badges/public-speaking/' },
+      { name: 'Emergency Preparedness', url: 'https://www.scouting.org/merit-badges/emergency-preparedness/' },
+      { name: 'First Aid', url: 'https://www.scouting.org/merit-badges/first-aid/' },
+      { name: 'Family Life', url: 'https://www.scouting.org/merit-badges/family-life/' },
+      { name: 'Personal Safety', url: 'https://www.scouting.org/merit-badges/personal-safety/' },
+      { name: 'Safety', url: 'https://www.scouting.org/merit-badges/safety/' },
+      { name: 'Crime Prevention', url: 'https://www.scouting.org/merit-badges/crime-prevention/' },
+      { name: 'Disabilities Awareness', url: 'https://www.scouting.org/merit-badges/disabilities-awareness/' },
+      { name: 'Diversity and Inclusion', url: 'https://www.scouting.org/merit-badges/diversity-and-inclusion/' },
+      { name: 'United Nations', url: 'https://www.scouting.org/merit-badges/united-nations/' }
+    ]
+  },
+  {
+    category: 'Business & Personal Development',
+    emoji: '💼',
+    description: 'Build skills for personal and professional success',
+    badges: [
+      { name: 'Business', url: 'https://www.scouting.org/merit-badges/business/' },
+      { name: 'Entrepreneurship', url: 'https://www.scouting.org/merit-badges/entrepreneurship/' },
+      { name: 'Personal Management', url: 'https://www.scouting.org/merit-badges/personal-management/' },
+      { name: 'Debt Management', url: 'https://www.scouting.org/merit-badges/debt-management/' },
+      { name: 'Scholarship', url: 'https://www.scouting.org/merit-badges/scholarship/' },
+      { name: 'Salesmanship', url: 'https://www.scouting.org/merit-badges/salesmanship/' },
+      { name: 'Inventing', url: 'https://www.scouting.org/merit-badges/inventing/' },
+      { name: 'Lifeguard', url: 'https://www.scouting.org/merit-badges/lifeguard/' },
+      { name: 'Small Business Management', url: 'https://www.scouting.org/merit-badges/small-business-management/' }
+    ]
+  },
+  {
+    category: 'American History & Culture',
+    emoji: '🇺🇸',
+    description: 'Learn about American heritage and cultures',
+    badges: [
+      { name: 'American Heritage', url: 'https://www.scouting.org/merit-badges/american-heritage/' },
+      { name: 'American Cultures', url: 'https://www.scouting.org/merit-badges/american-cultures/' },
+      { name: 'American Indian Culture', url: 'https://www.scouting.org/merit-badges/american-indian-culture/' },
+      { name: 'American Business', url: 'https://www.scouting.org/merit-badges/american-business/' },
+      { name: 'American Labor', url: 'https://www.scouting.org/merit-badges/american-labor/' },
+      { name: 'Mining in Society', url: 'https://www.scouting.org/merit-badges/mining-in-society/' },
+      { name: 'Composite Materials', url: 'https://www.scouting.org/merit-badges/composite-materials/' },
+      { name: 'Nuclear Science', url: 'https://www.scouting.org/merit-badges/nuclear-science/' },
+      { name: 'Sustainability', url: 'https://www.scouting.org/merit-badges/sustainability/' },
+      { name: 'Energy', url: 'https://www.scouting.org/merit-badges/energy/' },
+      { name: 'Maritime Exploration', url: 'https://www.scouting.org/merit-badges/maritime-exploration/' },
+      { name: 'Money Management', url: 'https://www.scouting.org/merit-badges/money-management/' }
+    ]
+  },
+  {
+    category: 'Hobbies & Collections',
+    emoji: '⭐',
+    description: 'Expand your knowledge and hobbies',
+    badges: [
+      { name: 'Stamp Collecting', url: 'https://www.scouting.org/merit-badges/stamp-collecting/' },
+      { name: 'Coin Collecting', url: 'https://www.scouting.org/merit-badges/coin-collecting/' },
+      { name: 'Archaeology', url: 'https://www.scouting.org/merit-badges/archaeology/' },
+      { name: 'Genealogy', url: 'https://www.scouting.org/merit-badges/genealogy/' },
+      { name: 'Fingerprinting', url: 'https://www.scouting.org/merit-badges/fingerprinting/' },
+      { name: 'Pets', url: 'https://www.scouting.org/merit-badges/pets/' },
+      { name: 'Dog Care', url: 'https://www.scouting.org/merit-badges/dog-care/' },
+      { name: 'Horse', url: 'https://www.scouting.org/merit-badges/horse/' },
+      { name: 'Nutrition', url: 'https://www.scouting.org/merit-badges/nutrition/' },
+      { name: 'Pulp and Paper', url: 'https://www.scouting.org/merit-badges/pulp-and-paper/' },
+      { name: 'Beekeeping', url: 'https://www.scouting.org/merit-badges/beekeeping/' },
+      { name: 'Woodcarving', url: 'https://www.scouting.org/merit-badges/woodcarving/' }
+    ]
+  },
+  {
+    category: 'Games & Mental Skills',
+    emoji: '♟️',
+    description: 'Challenge your mind with games and puzzles',
+    badges: [
+      { name: 'Chess', url: 'https://www.scouting.org/merit-badges/chess/' },
+      { name: 'Multisport', url: 'https://www.scouting.org/merit-badges/multisport/' },
+      { name: 'Drafting', url: 'https://www.scouting.org/merit-badges/drafting/' },
+      { name: 'Game Design', url: 'https://www.scouting.org/merit-badges/game-design/' }
+    ]
+  },
+  {
+    category: 'Arts, Crafts & Design',
+    emoji: '🎨',
+    description: 'Express creativity through various mediums',
+    badges: [
+      { name: 'Painting', url: 'https://www.scouting.org/merit-badges/painting/' },
+      { name: 'Sculpture', url: 'https://www.scouting.org/merit-badges/sculpture/' },
+      { name: 'Music', url: 'https://www.scouting.org/merit-badges/music/' },
+      { name: 'Theater', url: 'https://www.scouting.org/merit-badges/theater/' },
+      { name: 'Writing', url: 'https://www.scouting.org/merit-badges/writing/' },
+      { name: 'Reading', url: 'https://www.scouting.org/merit-badges/reading/' },
+      { name: 'Journalism', url: 'https://www.scouting.org/merit-badges/journalism/' },
+      { name: 'Graphic Arts', url: 'https://www.scouting.org/merit-badges/graphic-arts/' },
+      { name: 'Woodwork', url: 'https://www.scouting.org/merit-badges/woodwork/' },
+      { name: 'Leatherwork', url: 'https://www.scouting.org/merit-badges/leatherwork/' },
+      { name: 'Pottery', url: 'https://www.scouting.org/merit-badges/pottery/' },
+      { name: 'Metalwork', url: 'https://www.scouting.org/merit-badges/metalwork/' },
+      { name: 'Model Design and Building', url: 'https://www.scouting.org/merit-badges/model-design-and-building/' },
+      { name: 'Collections', url: 'https://www.scouting.org/merit-badges/collections/' },
+      { name: 'Basketry', url: 'https://www.scouting.org/merit-badges/basketry/' },
+      { name: 'Animation', url: 'https://www.scouting.org/merit-badges/animation/' },
+      { name: 'Digital Arts and Photography', url: 'https://www.scouting.org/merit-badges/digital-arts-and-photography/' },
+      { name: 'Textile and Fiber Arts', url: 'https://www.scouting.org/merit-badges/textile-and-fiber-arts/' }
+    ]
+  },
+  {
+    category: 'Sports & Recreation',
+    emoji: '⚽',
+    description: 'Challenge yourself with active pursuits',
+    badges: [
+      { name: 'Archery', url: 'https://www.scouting.org/merit-badges/archery/' },
+      { name: 'Water Sports', url: 'https://www.scouting.org/merit-badges/water-sports/' },
+      { name: 'Rifle Shooting', url: 'https://www.scouting.org/merit-badges/rifle-shooting/' },
+      { name: 'Shotgun Shooting', url: 'https://www.scouting.org/merit-badges/shotgun-shooting/' },
+      { name: 'Cycling', url: 'https://www.scouting.org/merit-badges/cycling/' },
+      { name: 'Sports', url: 'https://www.scouting.org/merit-badges/sports/' },
+      { name: 'Fitness', url: 'https://www.scouting.org/merit-badges/fitness/' },
+      { name: 'Physical Fitness', url: 'https://www.scouting.org/merit-badges/personal-fitness/' },
+      { name: 'Skating', url: 'https://www.scouting.org/merit-badges/skating/' },
+      { name: 'Snow Sports', url: 'https://www.scouting.org/merit-badges/snow-sports/' },
+      { name: 'Golf', url: 'https://www.scouting.org/merit-badges/golf/' },
+      { name: 'Horsemanship', url: 'https://www.scouting.org/merit-badges/horsemanship/' },
+      { name: 'Hang Gliding', url: 'https://www.scouting.org/merit-badges/hang-gliding/' }
+    ]
+  },
+  {
+    category: 'Outdoor Skills & Camping',
     emoji: '🏕️',
     description: 'Master camping, hiking, and outdoor survival',
     badges: [
       { name: 'Camping', url: 'https://www.scouting.org/merit-badges/camping/' },
       { name: 'Hiking', url: 'https://www.scouting.org/merit-badges/hiking/' },
+      { name: 'Backpacking', url: 'https://www.scouting.org/merit-badges/backpacking/' },
       { name: 'Cooking', url: 'https://www.scouting.org/merit-badges/cooking/' },
       { name: 'Fire Safety', url: 'https://www.scouting.org/merit-badges/fire-safety/' },
-      { name: 'Water Sports', url: 'https://www.scouting.org/merit-badges/water-sports/' },
-      { name: 'Archery', url: 'https://www.scouting.org/merit-badges/archery/' },
-      { name: 'Fishing', url: 'https://www.scouting.org/merit-badges/fishing/' },
-      { name: 'Orienteering', url: 'https://www.scouting.org/merit-badges/orienteering/' },
-      { name: 'Backpacking', url: 'https://www.scouting.org/merit-badges/backpacking/' },
       { name: 'Wilderness Survival', url: 'https://www.scouting.org/merit-badges/wilderness-survival-skills/' },
-      { name: 'Shotgun Shooting', url: 'https://www.scouting.org/merit-badges/shotgun-shooting/' },
-      { name: 'Rifle Shooting', url: 'https://www.scouting.org/merit-badges/rifle-shooting/' },
-      { name: 'Pistol Shooting', url: 'https://www.scouting.org/merit-badges/pistol-shooting/' },
+      { name: 'Orienteering', url: 'https://www.scouting.org/merit-badges/orienteering/' },
+      { name: 'Pioneering', url: 'https://www.scouting.org/merit-badges/pioneering/' },
+      { name: 'Soil and Water Conservation', url: 'https://www.scouting.org/merit-badges/soil-and-water-conservation/' },
+      { name: 'Gardening', url: 'https://www.scouting.org/merit-badges/gardening/' },
       { name: 'Forestry', url: 'https://www.scouting.org/merit-badges/forestry/' },
-      { name: 'Soil and Water Conservation', url: 'https://www.scouting.org/merit-badges/soil-and-water-conservation/' }
+      { name: 'Weather', url: 'https://www.scouting.org/merit-badges/weather/' },
+      { name: 'Whitewater Rafting', url: 'https://www.scouting.org/merit-badges/whitewater/' },
+      { name: 'Snowsports', url: 'https://www.scouting.org/merit-badges/snow-sports/' }
     ]
   },
   {
@@ -33,75 +184,56 @@ const BADGE_CATEGORIES = [
     badges: [
       { name: 'Kayaking', url: 'https://www.scouting.org/merit-badges/kayaking/' },
       { name: 'Canoeing', url: 'https://www.scouting.org/merit-badges/canoeing/' },
-      { name: 'Sailing', url: 'https://www.scouting.org/merit-badges/sailing/' },
+      { name: 'Small-Boat Sailing', url: 'https://www.scouting.org/merit-badges/small-boat-sailing/' },
       { name: 'Swimming', url: 'https://www.scouting.org/merit-badges/swimming/' },
       { name: 'Scuba Diving', url: 'https://www.scouting.org/merit-badges/scuba-diving/' },
-      { name: 'Lifeguarding', url: 'https://www.scouting.org/merit-badges/lifeguarding/' },
-      { name: 'Whitewater Rafting', url: 'https://www.scouting.org/merit-badges/whitewater-rafting/' },
-      { name: 'Small-Boat Sailing', url: 'https://www.scouting.org/merit-badges/small-boat-sailing/' },
+      { name: 'Lifesaving', url: 'https://www.scouting.org/merit-badges/lifesaving/' },
       { name: 'Motorboating', url: 'https://www.scouting.org/merit-badges/motorboating/' },
+      { name: 'Rowing', url: 'https://www.scouting.org/merit-badges/rowing/' },
+      { name: 'Fishing', url: 'https://www.scouting.org/merit-badges/fishing/' },
+      { name: 'Fly Fishing', url: 'https://www.scouting.org/merit-badges/fly-fishing/' },
+      { name: 'Fish & Wildlife Management', url: 'https://www.scouting.org/merit-badges/fish-and-wildlife-management/' },
+      { name: 'Snorkeling', url: 'https://www.scouting.org/merit-badges/snorkeling/' },
       { name: 'Surfing', url: 'https://www.scouting.org/merit-badges/surfing/' },
-      { name: 'Fly Fishing', url: 'https://www.scouting.org/merit-badges/fly-fishing/' }
+      { name: 'Water Skiing', url: 'https://www.scouting.org/merit-badges/water-skiing/' }
     ]
   },
   {
-    category: 'Climbing & Adventure',
+    category: 'Adventure & Climbing',
     emoji: '🧗',
     description: 'Challenge yourself with exciting adventures',
     badges: [
-      { name: 'Rock Climbing', url: 'https://www.scouting.org/merit-badges/rock-climbing/' },
-      { name: 'Mountaineering', url: 'https://www.scouting.org/merit-badges/mountaineering/' },
-      { name: 'Rappelling', url: 'https://www.scouting.org/merit-badges/rock-climbing/' },
-      { name: 'Geocaching', url: 'https://www.scouting.org/merit-badges/geocaching/' },
-      { name: 'Skate Sports', url: 'https://www.scouting.org/merit-badges/skate-sports/' },
       { name: 'Climbing', url: 'https://www.scouting.org/merit-badges/climbing/' },
-      { name: 'Skiing', url: 'https://www.scouting.org/merit-badges/skiing/' },
-      { name: 'Snowboarding', url: 'https://www.scouting.org/merit-badges/snowboarding/' },
-      { name: 'Bugling', url: 'https://www.scouting.org/merit-badges/bugling/' }
+      { name: 'Geocaching', url: 'https://www.scouting.org/merit-badges/geocaching/' },
+      { name: 'Whitewater', url: 'https://www.scouting.org/merit-badges/whitewater/' },
+      { name: 'Bugling', url: 'https://www.scouting.org/merit-badges/bugling/' },
+      { name: 'Signs, Signals, and Codes', url: 'https://www.scouting.org/merit-badges/signs-signals-and-codes/' },
+      { name: 'Scouting Heritage', url: 'https://www.scouting.org/merit-badges/scouting-heritage/' },
+      { name: 'Search and Rescue', url: 'https://www.scouting.org/merit-badges/search-and-rescue/' },
+      { name: 'Rappelling', url: 'https://www.scouting.org/merit-badges/rappelling/' },
+      { name: 'Skydiving', url: 'https://www.scouting.org/merit-badges/skydiving/' },
+      { name: 'Scuba Diving', url: 'https://www.scouting.org/merit-badges/scuba-diving/' }
     ]
   },
   {
-    category: 'Technology & Innovation',
+    category: 'Technology & Digital',
     emoji: '💻',
     description: 'Develop skills in modern technology',
     badges: [
       { name: 'Programming', url: 'https://www.scouting.org/merit-badges/programming/' },
       { name: 'Robotics', url: 'https://www.scouting.org/merit-badges/robotics/' },
+      { name: 'Artificial Intelligence', url: 'https://www.scouting.org/merit-badges/artificial-intelligence/' },
+      { name: 'Digital Technology', url: 'https://www.scouting.org/merit-badges/digital-technology/' },
       { name: 'Electronics', url: 'https://www.scouting.org/merit-badges/electronics/' },
       { name: 'Cybersecurity', url: 'https://www.scouting.org/merit-badges/cybersecurity/' },
-      { name: 'Web Design & Development', url: 'https://www.scouting.org/merit-badges/web-design-and-development/' },
-      { name: 'Game Design & Development', url: 'https://www.scouting.org/merit-badges/game-design-and-development/' },
-      { name: 'Digital Photography', url: 'https://www.scouting.org/merit-badges/digital-photography/' },
-      { name: 'Drone Pilot', url: 'https://www.scouting.org/merit-badges/drone-pilot/' },
       { name: 'Radio', url: 'https://www.scouting.org/merit-badges/radio/' },
-      { name: 'Computers', url: 'https://www.scouting.org/merit-badges/computers/' },
-      { name: 'Geocaching', url: 'https://www.scouting.org/merit-badges/geocaching/' },
-      { name: 'Sustainability', url: 'https://www.scouting.org/merit-badges/sustainability/' },
-      { name: 'Animation', url: 'https://www.scouting.org/merit-badges/animation/' },
-      { name: 'Coding', url: 'https://www.scouting.org/merit-badges/programming/' },
-      { name: 'Search and Rescue', url: 'https://www.scouting.org/merit-badges/search-and-rescue/' }
-    ]
-  },
-  {
-    category: 'Arts & Crafts',
-    emoji: '🎨',
-    description: 'Express creativity through various mediums',
-    badges: [
-      { name: 'Painting', url: 'https://www.scouting.org/merit-badges/painting/' },
-      { name: 'Sculpture', url: 'https://www.scouting.org/merit-badges/sculpture/' },
+      { name: 'Game Design', url: 'https://www.scouting.org/merit-badges/game-design/' },
+      { name: 'Moviemaking', url: 'https://www.scouting.org/merit-badges/moviemaking/' },
       { name: 'Photography', url: 'https://www.scouting.org/merit-badges/photography/' },
-      { name: 'Music', url: 'https://www.scouting.org/merit-badges/music/' },
-      { name: 'Theater', url: 'https://www.scouting.org/merit-badges/theater/' },
-      { name: 'Writing', url: 'https://www.scouting.org/merit-badges/writing/' },
-      { name: 'Woodworking', url: 'https://www.scouting.org/merit-badges/woodworking/' },
-      { name: 'Leatherworking', url: 'https://www.scouting.org/merit-badges/leatherworking/' },
-      { name: 'Graphic Design', url: 'https://www.scouting.org/merit-badges/graphic-design/' },
-      { name: 'Animation', url: 'https://www.scouting.org/merit-badges/animation/' },
-      { name: 'Jewelry', url: 'https://www.scouting.org/merit-badges/jewelry/' },
-      { name: 'Metalworking', url: 'https://www.scouting.org/merit-badges/metalworking/' },
-      { name: 'Pottery', url: 'https://www.scouting.org/merit-badges/pottery/' },
-      { name: 'Glass Blowing', url: 'https://www.scouting.org/merit-badges/glass-blowing/' },
-      { name: 'Quilting', url: 'https://www.scouting.org/merit-badges/quilting/' }
+      { name: 'Coding', url: 'https://www.scouting.org/merit-badges/coding/' },
+      { name: '3D Printing', url: 'https://www.scouting.org/merit-badges/3d-printing/' },
+      { name: 'Drone Technology', url: 'https://www.scouting.org/merit-badges/drone-technology/' },
+      { name: 'Masonry', url: 'https://www.scouting.org/merit-badges/masonry/' }
     ]
   },
   {
@@ -110,126 +242,61 @@ const BADGE_CATEGORIES = [
     description: 'Explore the natural and scientific world',
     badges: [
       { name: 'Environmental Science', url: 'https://www.scouting.org/merit-badges/environmental-science/' },
+      { name: 'Astronomy', url: 'https://www.scouting.org/merit-badges/astronomy/' },
+      { name: 'Space Exploration', url: 'https://www.scouting.org/merit-badges/space-exploration/' },
+      { name: 'Chemistry', url: 'https://www.scouting.org/merit-badges/chemistry/' },
+      { name: 'Geology', url: 'https://www.scouting.org/merit-badges/geology/' },
+      { name: 'Oceanography', url: 'https://www.scouting.org/merit-badges/oceanography/' },
+      { name: 'Weather', url: 'https://www.scouting.org/merit-badges/weather/' },
+      { name: 'Plant Science', url: 'https://www.scouting.org/merit-badges/plant-science/' },
       { name: 'Botany', url: 'https://www.scouting.org/merit-badges/botany/' },
       { name: 'Zoology', url: 'https://www.scouting.org/merit-badges/zoology/' },
-      { name: 'Geology', url: 'https://www.scouting.org/merit-badges/geology/' },
-      { name: 'Astronomy', url: 'https://www.scouting.org/merit-badges/astronomy/' },
-      { name: 'Weather', url: 'https://www.scouting.org/merit-badges/weather/' },
-      { name: 'Sustainability', url: 'https://www.scouting.org/merit-badges/sustainability/' },
-      { name: 'Mammal Study', url: 'https://www.scouting.org/merit-badges/mammal-study/' },
       { name: 'Bird Study', url: 'https://www.scouting.org/merit-badges/bird-study/' },
+      { name: 'Mammal Study', url: 'https://www.scouting.org/merit-badges/mammal-study/' },
       { name: 'Insect Study', url: 'https://www.scouting.org/merit-badges/insect-study/' },
-      { name: 'Fish and Wildlife Management', url: 'https://www.scouting.org/merit-badges/fish-and-wildlife-management/' },
-      { name: 'Plant Science', url: 'https://www.scouting.org/merit-badges/plant-science/' },
-      { name: 'Oceanography', url: 'https://www.scouting.org/merit-badges/oceanography/' },
-      { name: 'Space Exploration', url: 'https://www.scouting.org/merit-badges/space-exploration/' },
-      { name: 'Reptile and Amphibian Study', url: 'https://www.scouting.org/merit-badges/reptile-and-amphibian-study/' }
-    ]
-  },
-  {
-    category: 'Community Service',
-    emoji: '🤝',
-    description: 'Make a difference in your community',
-    badges: [
-      { name: 'Emergency Preparedness', url: 'https://www.scouting.org/merit-badges/emergency-preparedness/' },
-      { name: 'First Aid', url: 'https://www.scouting.org/merit-badges/first-aid/' },
-      { name: 'Leadership', url: 'https://www.scouting.org/merit-badges/leadership/' },
-      { name: 'Public Speaking', url: 'https://www.scouting.org/merit-badges/public-speaking/' },
-      { name: 'Community Service', url: 'https://www.scouting.org/merit-badges/community-service/' },
-      { name: 'Diversity & Inclusion', url: 'https://www.scouting.org/merit-badges/diversity-and-inclusion/' },
-      { name: 'Family Life', url: 'https://www.scouting.org/merit-badges/family-life/' },
-      { name: 'Personal Fitness', url: 'https://www.scouting.org/merit-badges/personal-fitness/' },
-      { name: 'Citizenship in the Community', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-community/' },
-      { name: 'Lifesaving', url: 'https://www.scouting.org/merit-badges/lifesaving/' },
-      { name: 'Citizenship in the Nation', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-nation/' },
-      { name: 'Citizenship in the World', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-world/' },
-      { name: 'Communication', url: 'https://www.scouting.org/merit-badges/communication/' },
-      { name: 'Disability Awareness', url: 'https://www.scouting.org/merit-badges/disability-awareness/' },
-      { name: 'Personal Safety', url: 'https://www.scouting.org/merit-badges/personal-safety/' }
-    ]
-  },
-  {
-    category: 'Health & Fitness',
-    emoji: '💪',
-    description: 'Build strength, endurance, and wellness',
-    badges: [
-      { name: 'Sports', url: 'https://www.scouting.org/merit-badges/sports/' },
-      { name: 'Fitness', url: 'https://www.scouting.org/merit-badges/fitness/' },
-      { name: 'Nutrition', url: 'https://www.scouting.org/merit-badges/nutrition/' },
-      { name: 'Mental Health', url: 'https://www.scouting.org/merit-badges/mental-health/' },
-      { name: 'Personal Safety', url: 'https://www.scouting.org/merit-badges/personal-safety/' },
-      { name: 'Physical Fitness', url: 'https://www.scouting.org/merit-badges/physical-fitness/' },
-      { name: 'Backpacking', url: 'https://www.scouting.org/merit-badges/backpacking/' },
-      { name: 'Medical Preparedness', url: 'https://www.scouting.org/merit-badges/emergency-preparedness/' },
-      { name: 'First Responder', url: 'https://www.scouting.org/merit-badges/first-aid/' },
-      { name: 'Cycling', url: 'https://www.scouting.org/merit-badges/cycling/' }
+      { name: 'Reptile and Amphibian Study', url: 'https://www.scouting.org/merit-badges/reptile-and-amphibian-study/' },
+      { name: 'Nature', url: 'https://www.scouting.org/merit-badges/nature/' },
+      { name: 'Microbiology', url: 'https://www.scouting.org/merit-badges/microbiology/' },
+      { name: 'Physics', url: 'https://www.scouting.org/merit-badges/physics/' },
+      { name: 'Paleontology', url: 'https://www.scouting.org/merit-badges/paleontology/' },
+      { name: 'Water Safety', url: 'https://www.scouting.org/merit-badges/water-safety/' }
     ]
   },
   {
     category: 'Career Exploration',
     emoji: '🎯',
-    description: 'Discover your path to success',
+    description: 'Discover careers and professional paths',
     badges: [
-      { name: 'Business', url: 'https://www.scouting.org/merit-badges/business/' },
       { name: 'Engineering', url: 'https://www.scouting.org/merit-badges/engineering/' },
-      { name: 'Medicine', url: 'https://www.scouting.org/merit-badges/medicine/' },
-      { name: 'Law', url: 'https://www.scouting.org/merit-badges/law/' },
-      { name: 'Teaching', url: 'https://www.scouting.org/merit-badges/teaching/' },
-      { name: 'Military Service', url: 'https://www.scouting.org/merit-badges/military-service/' },
-      { name: 'Entrepreneurship', url: 'https://www.scouting.org/merit-badges/entrepreneurship/' },
-      { name: 'Career Exploration', url: 'https://www.scouting.org/merit-badges/career-exploration/' },
+      { name: 'Architecture', url: 'https://www.scouting.org/merit-badges/architecture/' },
       { name: 'Construction', url: 'https://www.scouting.org/merit-badges/construction/' },
       { name: 'Plumbing', url: 'https://www.scouting.org/merit-badges/plumbing/' },
       { name: 'Automotive Maintenance', url: 'https://www.scouting.org/merit-badges/automotive-maintenance/' },
       { name: 'Welding', url: 'https://www.scouting.org/merit-badges/welding/' },
+      { name: 'Electricity', url: 'https://www.scouting.org/merit-badges/electricity/' },
       { name: 'Farm Mechanics', url: 'https://www.scouting.org/merit-badges/farm-mechanics/' },
       { name: 'Landscape Architecture', url: 'https://www.scouting.org/merit-badges/landscape-architecture/' },
-      { name: 'Public Health', url: 'https://www.scouting.org/merit-badges/public-health/' }
+      { name: 'Law', url: 'https://www.scouting.org/merit-badges/law/' },
+      { name: 'Medicine', url: 'https://www.scouting.org/merit-badges/medicine/' },
+      { name: 'Health Care Professions', url: 'https://www.scouting.org/merit-badges/health-care-professions/' },
+      { name: 'Public Health', url: 'https://www.scouting.org/merit-badges/public-health/' },
+      { name: 'Dentistry', url: 'https://www.scouting.org/merit-badges/dentistry/' },
+      { name: 'Veterinary Medicine', url: 'https://www.scouting.org/merit-badges/veterinary-medicine/' },
+      { name: 'Teaching', url: 'https://www.scouting.org/merit-badges/teaching/' },
+      { name: 'Surveying', url: 'https://www.scouting.org/merit-badges/surveying/' },
+      { name: 'Railroading', url: 'https://www.scouting.org/merit-badges/railroading/' },
+      { name: 'Truck Transportation', url: 'https://www.scouting.org/merit-badges/truck-transportation/' },
+      { name: 'Military Service', url: 'https://www.scouting.org/merit-badges/military-service/' },
+      { name: 'Farmer', url: 'https://www.scouting.org/merit-badges/farming/' },
+      { name: 'Horticulture', url: 'https://www.scouting.org/merit-badges/horticulture/' },
+      { name: 'Environmental Conservation', url: 'https://www.scouting.org/merit-badges/environmental-conservation/' },
+      { name: 'Aviation', url: 'https://www.scouting.org/merit-badges/aviation/' },
+      { name: 'Automotive Repair', url: 'https://www.scouting.org/merit-badges/automotive-repair/' }
     ]
   },
-  {
-    category: 'Additional Skills',
-    emoji: '⭐',
-    description: 'Expand your knowledge and abilities',
-    badges: [
-      { name: 'Cooking', url: 'https://www.scouting.org/merit-badges/cooking/' },
-      { name: 'Camping', url: 'https://www.scouting.org/merit-badges/camping/' },
-      { name: 'Orienteering', url: 'https://www.scouting.org/merit-badges/orienteering/' },
-      { name: 'Identification', url: 'https://www.scouting.org/merit-badges/identification/' },
-      { name: 'Model Design and Building', url: 'https://www.scouting.org/merit-badges/model-design-and-building/' },
-      { name: 'Debt Management', url: 'https://www.scouting.org/merit-badges/debt-management/' },
-      { name: 'Personal Management', url: 'https://www.scouting.org/merit-badges/personal-management/' },
-      { name: 'Scholarship', url: 'https://www.scouting.org/merit-badges/scholarship/' },
-      { name: 'Safety', url: 'https://www.scouting.org/merit-badges/personal-safety/' },
-      { name: 'Lifeguard', url: 'https://www.scouting.org/merit-badges/lifeguarding/' },
-      { name: 'Swimming', url: 'https://www.scouting.org/merit-badges/swimming/' },
-      { name: 'Canoeing', url: 'https://www.scouting.org/merit-badges/canoeing/' },
-      { name: 'Hiking', url: 'https://www.scouting.org/merit-badges/hiking/' },
-      { name: 'Camping', url: 'https://www.scouting.org/merit-badges/camping/' },
-      { name: 'Fishing', url: 'https://www.scouting.org/merit-badges/fishing/' }
-    ]
-  },
-  {
-    category: 'Eagle Required',
-    emoji: '🦅',
-    description: 'Required badges to achieve Eagle Scout rank',
-    badges: [
-      { name: 'First Aid', url: 'https://www.scouting.org/merit-badges/first-aid/' },
-      { name: 'Cooking', url: 'https://www.scouting.org/merit-badges/cooking/' },
-      { name: 'Camping', url: 'https://www.scouting.org/merit-badges/camping/' },
-      { name: 'Citizenship in the Community', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-community/' },
-      { name: 'Citizenship in the Nation', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-nation/' },
-      { name: 'Citizenship in the World', url: 'https://www.scouting.org/merit-badges/citizenship-in-the-world/' },
-      { name: 'Emergency Preparedness', url: 'https://www.scouting.org/merit-badges/emergency-preparedness/' },
-      { name: 'Lifesaving', url: 'https://www.scouting.org/merit-badges/lifesaving/' },
-      { name: 'Swimming', url: 'https://www.scouting.org/merit-badges/swimming/' },
-      { name: 'Environmental Science', url: 'https://www.scouting.org/merit-badges/environmental-science/' },
-      { name: 'Personal Fitness', url: 'https://www.scouting.org/merit-badges/personal-fitness/' },
-      { name: 'Leadership', url: 'https://www.scouting.org/merit-badges/leadership/' },
-      { name: 'Communication', url: 'https://www.scouting.org/merit-badges/communication/' }
-    ]
-  }
 ];
+
+const BEGINNER_BADGES = ['Cooking', 'Camping', 'First Aid', 'Pets', 'Collections', 'Photography', 'Fingerprinting', 'Communication', 'Chess', 'Reading'];
 
 export default function Badges() {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -396,34 +463,54 @@ export default function Badges() {
                     style={{ overflow: 'hidden' }}
                   >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
-                      {catItem.badges.map((badge, j) => (
-                        <motion.a
-                          key={j}
-                          href={badge.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            padding: '8px 12px',
-                            background: 'var(--accent-dim)',
-                            borderRadius: 8,
-                            fontSize: '0.85rem',
-                            textAlign: 'center',
-                            border: '1px solid var(--accent-dim)',
-                            display: 'block',
-                            textDecoration: 'none',
-                            color: 'var(--text-primary)',
-                            transition: 'all 0.3s ease'
-                          }}
-                          whileHover={{
-                            background: 'var(--accent-dim)',
-                            borderColor: 'var(--accent)',
-                            scale: 1.05
-                          }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          {badge.name}
-                        </motion.a>
-                      ))}
+                      {catItem.badges.map((badge, j) => {
+                        const isBeginnerBadge = BEGINNER_BADGES.includes(badge.name);
+                        return (
+                          <motion.div key={j} style={{ position: 'relative', display: 'flex', alignItems: 'stretch' }}>
+                            <motion.a
+                              href={badge.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                padding: '8px 12px',
+                                background: 'var(--accent-dim)',
+                                borderRadius: 8,
+                                fontSize: '0.85rem',
+                                textAlign: 'center',
+                                border: '1px solid var(--accent-dim)',
+                                flex: 1,
+                                textDecoration: 'none',
+                                color: 'var(--text-primary)',
+                                transition: 'all 0.3s ease'
+                              }}
+                              whileHover={{
+                                background: 'var(--accent-dim)',
+                                borderColor: 'var(--accent)',
+                                scale: 1.05
+                              }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              {badge.name}
+                            </motion.a>
+                            {isBeginnerBadge && (
+                              <div style={{
+                                position: 'absolute',
+                                top: -8,
+                                right: 20,
+                                background: '#10b981',
+                                color: 'white',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                fontSize: '0.65rem',
+                                fontWeight: 700,
+                                textTransform: 'uppercase'
+                              }}>
+                                Beginner
+                              </div>
+                            )}
+                          </motion.div>
+                        );
+                      })}
                     </div>
                   </motion.div>
 

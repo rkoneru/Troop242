@@ -1,7 +1,9 @@
 
 import { CheckCircle, Clock, Users, TrendingUp } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { saveData, loadData, generateId, DEFAULT_EVENTS } from '../utils/adminData';
 
 const SCOUTS_DATA = [
   {
@@ -77,12 +79,29 @@ const ACTIVITY_SIGNUPS = [
 ];
 
 export default function LeaderDashboard() {
+  const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState('scouts');
   const [scoutsData, setScoutsData] = useState(SCOUTS_DATA);
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState(() => loadData('troop_events', DEFAULT_EVENTS));
   const [invitations, setInvitations] = useState([]);
   const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
   const [newInvitationForm, setNewInvitationForm] = useState({ name: '', email: '', type: 'scout', tempPassword: '' });
+
+  useEffect(() => {
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+      navigate('/member-login');
+      return;
+    }
+    try {
+      const user = JSON.parse(loggedInUser);
+      if (user.profile !== 'leader') {
+        navigate('/member-login');
+      }
+    } catch {
+      navigate('/member-login');
+    }
+  }, [navigate]);
 
   const handleApprove = (scoutId) => {
     setScoutsData(scoutsData.map(scout =>
@@ -101,11 +120,13 @@ export default function LeaderDashboard() {
   const handleCreateEvent = () => {
     if (newEventForm.title && newEventForm.date && newEventForm.time) {
       const newEvent = {
-        id: events.length + 1,
+        id: generateId(),
         ...newEventForm,
         createdAt: new Date().toISOString()
       };
-      setEvents([...events, newEvent]);
+      const updated = [...events, newEvent];
+      setEvents(updated);
+      saveData('troop_events', updated);
       setNewEventForm({ title: '', date: '', time: '', location: '', description: '' });
     }
   };

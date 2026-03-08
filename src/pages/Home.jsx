@@ -1,9 +1,105 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Calendar, Users, Zap, Award, MapPin, Clock, Mail, Heart, Shield } from 'lucide-react';
+import { ChevronRight, Calendar, Users, Zap, Award, MapPin, Clock, Mail, Heart, Shield, ChevronLeft } from 'lucide-react';
 import ConstellationBackground from '../components/ConstellationBackground';
 import CampfireIllustration from './troop242-campfire';
 import { useState, useEffect, useMemo } from 'react';
+import { SCOUTING_FACTS } from '../utils/facts';
+import { loadData, DEFAULT_STATS } from '../utils/adminData';
+
+// Did You Know Carousel Component
+function DidYouKnowCarousel() {
+  const [currentFact, setCurrentFact] = useState(0);
+  const facts = SCOUTING_FACTS;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFact((prev) => (prev + 1) % facts.length);
+    }, 30000); // 30 seconds
+    return () => clearInterval(interval);
+  }, [facts.length]);
+
+  const nextFact = () => setCurrentFact((prev) => (prev + 1) % facts.length);
+  const prevFact = () => setCurrentFact((prev) => (prev - 1 + facts.length) % facts.length);
+
+  return (
+    <section className="section">
+      <div className="container">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }}>
+          <h2 style={{ textAlign: 'center', marginBottom: 60 }}>💡 Did You Know?</h2>
+        </motion.div>
+
+        <motion.div
+          className="glass-card"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          style={{ padding: 48, textAlign: 'center', maxWidth: 900, margin: '0 auto' }}
+        >
+          {/* Fact Display */}
+          <motion.p
+            key={currentFact}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ fontSize: '1.3rem', lineHeight: 1.8, color: 'var(--text-muted)', marginBottom: 32, minHeight: 80 }}
+          >
+            {facts[currentFact]}
+          </motion.p>
+
+          {/* Navigation Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginBottom: 24 }}>
+            <motion.button
+              onClick={prevFact}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--accent)',
+                color: 'var(--accent)',
+                borderRadius: '50%',
+                width: 44,
+                height: 44,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <ChevronLeft size={20} />
+            </motion.button>
+
+            <motion.button
+              onClick={nextFact}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--accent)',
+                color: 'var(--accent)',
+                borderRadius: '50%',
+                width: 44,
+                height: 44,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <ChevronRight size={20} />
+            </motion.button>
+          </div>
+
+          {/* Counter */}
+          <p style={{ fontSize: '0.9rem', color: 'var(--accent)', fontWeight: 600 }}>
+            Fact {currentFact + 1} of {facts.length}
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
 
 // Flip Card Component
 function WhyUsCard({ icon: Icon, title, desc }) {
@@ -158,7 +254,7 @@ export default function Home() {
             animate="visible"
           >
             {/* Hero Heading with Letter Reveal */}
-            <motion.h1 className="text-shimmer" style={{ fontSize: 'clamp(3.5rem, 10vw, 6.0rem)' }}>
+            <motion.h1 className="text-shimmer" style={{ fontSize: 'clamp(2rem, 8vw, 5.5rem)', lineHeight: 1.2, wordWrap: 'break-word', maxWidth: '95vw' }}>
               {Array.from('Build Tomorrow\'s Leaders').map((char, i) => (
                 <motion.span
                   key={i}
@@ -172,7 +268,7 @@ export default function Home() {
             </motion.h1>
 
             {/* Subheading */}
-            <motion.p variants={itemVariants} style={{ fontSize: '1.25rem', color: 'var(--text-muted)', maxWidth: 600 }}>
+            <motion.p variants={itemVariants} style={{ fontSize: 'clamp(1rem, 4vw, 1.25rem)', color: 'var(--text-muted)', maxWidth: '95vw', margin: '0 auto' }}>
               Adventure · Brotherhood · Eagle Scout Excellence
             </motion.p>
 
@@ -197,26 +293,60 @@ export default function Home() {
             </motion.div>
 
               {/* Stats Highlights */}
-               <div style={{ position: 'absolute', opacity:1.5, inset: 0, zIndex: 0, width: '100%',  height: '200%', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                    <motion.div variants={itemVariants} className="grid grid--cols-3" style={{ marginTop: 0.5, maxWidth: 1000 }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <div className="stat-counter">25+</div>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Eagle Scouts</p>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div className="stat-counter">20</div>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Years Strong</p>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div className="stat-counter">50+</div>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Active Scouts</p>
-                  </div>
-                </motion.div>
-              </div>
+              {(() => {
+                const stats = loadData('troop_stats', DEFAULT_STATS);
+                return (
+                  <motion.div variants={itemVariants} className="grid grid--cols-3" style={{ gap: 70, maxWidth: 1000, margin: '0 auto', marginTop: 120 }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div className="stat-counter">{stats.eagleScouts}</div>
+                      <p style={{ fontSize: 'clamp(0.8rem, 2vw, 0.9rem)', color: 'var(--text-muted)' }}>Eagle Scouts</p>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div className="stat-counter">{stats.yearsServing}</div>
+                      <p style={{ fontSize: 'clamp(0.8rem, 2vw, 0.9rem)', color: 'var(--text-muted)' }}>Years Strong</p>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div className="stat-counter">{stats.activeScouts}</div>
+                      <p style={{ fontSize: 'clamp(0.8rem, 2vw, 0.9rem)', color: 'var(--text-muted)' }}>Active Scouts</p>
+                    </div>
+                  </motion.div>
+                );
+              })()}
           </motion.div>
         </div>
       </section>
-     
+
+      {/* NEW SCOUT BANNER */}
+      <section className="section">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            className="glass-card"
+            style={{
+              padding: 48,
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
+              border: '2px solid rgba(16, 185, 129, 0.3)',
+              textAlign: 'center'
+            }}
+          >
+            <h2 style={{ marginBottom: 16, color: 'var(--accent)' }}>🎯 New Scout? Start Here</h2>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', marginBottom: 32, maxWidth: 600, margin: '0 auto 32px' }}>
+              Welcome to Troop 242! Our New Scout Guide will help you understand ranks, badges, and what to expect on your scouting journey.
+            </p>
+            <motion.button
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/new-scout')}
+            >
+              Explore the New Scout Guide
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
       {/* WHY US SECTION */}
       <section className="section section--dark">
         <div className="container">
@@ -474,6 +604,9 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* DID YOU KNOW CAROUSEL */}
+      <DidYouKnowCarousel />
 
       {/* CONTACT SECTION */}
       <section className="section section--dark">

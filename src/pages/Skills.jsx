@@ -273,16 +273,16 @@ export default function Skills() {
                 >
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--divider)' }}>
                     {category.skills.map((skill, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                      >
-                        <CheckCircle2 size={16} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-                        <span style={{ fontSize: '0.9rem' }}>{skill}</span>
-                      </motion.div>
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.05 }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                        >
+                          <CheckCircle2 size={16} style={{ color: 'var(--text-muted)', opacity: 0.5, flexShrink: 0 }} />
+                          <span style={{ fontSize: '0.9rem' }}>{skill}</span>
+                        </motion.div>
                     ))}
                   </div>
                 </motion.div>
@@ -317,13 +317,6 @@ export default function Skills() {
             <p style={{ color: 'var(--text-muted)', marginBottom: 32, fontSize: '1rem' }}>
               Click on any skill category to expand and see detailed skills. Work on these throughout your scout journey and track your progress through merit badges and rank requirements.
             </p>
-            <motion.button
-              className="btn btn-primary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Track My Skills
-            </motion.button>
           </motion.div>
         </div>
       </section>

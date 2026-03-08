@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowRight } from 'lucide-react';
+import { Search, X, ArrowRight, ExternalLink } from 'lucide-react';
 import { search } from '../utils/SearchIndex';
 import '../styles/search-widget.css';
 
 export default function SearchWidget() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -56,17 +58,13 @@ export default function SearchWidget() {
   const handleResultClick = (result) => {
     setOpen(false);
     setQuery('');
-    // In a real app, use navigate() from react-router-dom
-    // For now, just scroll to anchor or navigate
-    if (result.url.includes('#')) {
-      const [, hash] = result.url.split('#');
-      setTimeout(() => {
-        window.location.hash = hash;
-      }, 0);
+
+    // External links (http/https) open in new tab
+    if (result.url.startsWith('http')) {
+      window.open(result.url, '_blank', 'noopener,noreferrer');
     } else {
-      setTimeout(() => {
-        window.location.href = result.url;
-      }, 0);
+      // Internal routes use React Router navigate
+      navigate(result.url);
     }
   };
 

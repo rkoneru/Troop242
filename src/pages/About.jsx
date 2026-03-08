@@ -1,8 +1,12 @@
 
 import { Users, Zap, Award, Heart, Target, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { loadData, DEFAULT_STATS, DEFAULT_LEADERS } from '../utils/adminData';
 
 export default function About() {
+  const navigate = useNavigate();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -129,44 +133,9 @@ export default function About() {
             <h2 style={{ textAlign: 'center', marginBottom: 40 }}>Troop Leadership</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
-              {[
-                {
-                  role: 'Scoutmaster',
-                  name: 'Rich Lester',
-                  experience: '20+ years in scouting',
-                  bio: 'Dedicated to developing the next generation of leaders through outdoor skills and mentorship.'
-                },
-                {
-                  role: 'Assistant Scoutmaster',
-                  name: 'Mike',
-                  experience: '15+ years in scouting',
-                  bio: 'Passionate about creating inclusive experiences for all scouts and fostering outdoor adventures.'
-                },
-                {
-                  role: 'Assistant Scoutmaster',
-                  name: 'Mike',
-                  experience: '12+ years in scouting',
-                  bio: 'Focused on merit badge programs and helping scouts achieve their advancement goals.'
-                },
-                {
-                  role: 'Advancement Chair',
-                  name: 'Mike',
-                  experience: '10+ years in scouting',
-                  bio: 'Manages rank advancement and ensures scouts have clear paths to Eagle Scout.'
-                },
-                {
-                  role: 'Treasurer',
-                  name: 'Bridget Kroll',
-                  experience: '8+ years in scouting',
-                  bio: 'Oversees troop finances and ensures resources are available for programs and activities.'
-                },
-                {
-                  role: 'Outdoor Activities Director',
-                  name: 'Felicia Griffin',
-                  experience: '14+ years in scouting',
-                  bio: 'Plans and coordinates all campouts, hikes, and outdoor experiences for the troop.'
-                }
-              ].map((leader, i) => (
+              {(() => {
+                const leaders = loadData('troop_leaders', DEFAULT_LEADERS);
+                return leaders.map((leader, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
@@ -201,7 +170,8 @@ export default function About() {
                     {leader.bio}
                   </p>
                 </motion.div>
-              ))}
+              ));
+              })()}
             </div>
           </motion.div>
         </div>
@@ -218,26 +188,29 @@ export default function About() {
             <h2 style={{ textAlign: 'center', marginBottom: 48 }}>Troop 242 by the Numbers</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
-              {[
-                { number: '80+', label: 'Eagle Scout Alumni', icon: '🦅' },
-                { number: '50+', label: 'Active Scouts', icon: '👥' },
-                { number: '145+', label: 'Merit Badges Offered', icon: '🎖️' },
-                { number: '20+', label: 'Years of Service', icon: '📅' }
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.1 }}
-                  viewport={{ once: true }}
-                  className="glass-card"
-                  style={{ padding: 32, textAlign: 'center' }}
-                >
-                  <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{stat.icon}</div>
-                  <h3 style={{ color: 'var(--accent)', marginBottom: 8 }}>{stat.number}</h3>
-                  <p style={{ color: 'var(--text-muted)' }}>{stat.label}</p>
-                </motion.div>
-              ))}
+              {(() => {
+                const stats = loadData('troop_stats', DEFAULT_STATS);
+                return [
+                  { number: stats.eagleScouts, label: 'Eagle Scout Alumni', icon: '🦅' },
+                  { number: stats.activeScouts, label: 'Active Scouts', icon: '👥' },
+                  { number: '145+', label: 'Merit Badges Offered', icon: '🎖️' },
+                  { number: stats.yearsServing, label: 'Years of Service', icon: '📅' }
+                ].map((stat, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                    className="glass-card"
+                    style={{ padding: 32, textAlign: 'center' }}
+                  >
+                    <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{stat.icon}</div>
+                    <h3 style={{ color: 'var(--accent)', marginBottom: 8 }}>{stat.number}</h3>
+                    <p style={{ color: 'var(--text-muted)' }}>{stat.label}</p>
+                  </motion.div>
+                ));
+              })()}
             </div>
           </motion.div>
         </div>
@@ -260,6 +233,7 @@ export default function About() {
               className="btn btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/contact')}
             >
               Join Troop 242 Today
             </motion.button>

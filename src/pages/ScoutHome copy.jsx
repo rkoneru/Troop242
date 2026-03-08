@@ -1,6 +1,5 @@
-
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Calendar, Users, Zap, Award, MapPin, Clock, Mail } from 'lucide-react';
+import { ChevronRight, Calendar, Users, Zap, Award, MapPin, Clock, Mail, ArrowRight, Star, Shield, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ConstellationBackground from '../components/ConstellationBackground';
 import { useState, useEffect, useMemo } from 'react';
@@ -46,7 +45,7 @@ export default function Home() {
     };
 
     updateCountdowns();
-    const interval = setInterval(updateCountdowns, 1000); // Update every second
+    const interval = setInterval(updateCountdowns, 1000);
 
     return () => clearInterval(interval);
   }, [events]);
@@ -96,25 +95,66 @@ export default function Home() {
               Adventure · Brotherhood · Eagle Scout Excellence
             </motion.p>
 
-            {/* CTAs */}
-            <motion.div variants={itemVariants} className="flex flex--center flex--wrap">
+            {/* PRIMARY CTAs — 3-button hero layout */}
+            <motion.div variants={itemVariants} className="flex flex--center flex--wrap" style={{ gap: 16 }}>
+              {/* Primary CTA */}
               <motion.button
                 className="btn btn-primary"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/contact')}
+                style={{ padding: '16px 36px', fontSize: '1.1rem', fontWeight: 700 }}
               >
-                Start Your Journey
+                <UserPlus size={20} style={{ marginRight: 8 }} />
+                Join Troop 242
               </motion.button>
+
+              {/* Secondary CTA */}
               <motion.button
                 className="btn btn-outline"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/ranks')}
+                onClick={() => navigate('/new-scout')}
+                style={{ padding: '16px 36px', fontSize: '1.1rem', fontWeight: 700 }}
               >
-                Learn More
+                I'm a New Scout
+              </motion.button>
+
+              {/* Tertiary CTA */}
+              <motion.button
+                whileHover={{ scale: 1.05, x: 4 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/gallery')}
+                style={{
+                  padding: '16px 24px',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#9ca3af',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8
+                }}
+              >
+                See What Scouts Do <ArrowRight size={18} />
               </motion.button>
             </motion.div>
+
+            {/* Low-barrier CTA */}
+            <motion.p
+              variants={itemVariants}
+              style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: 8 }}
+            >
+              <span
+                onClick={() => navigate('/contact')}
+                style={{ color: '#00d68f', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}
+              >
+                Come to a Tuesday meeting
+              </span>
+              {' '}— no commitment, no uniform needed
+            </motion.p>
 
             {/* Stats Highlights */}
             <motion.div variants={itemVariants} className="grid grid--cols-3" style={{ marginTop: 60, maxWidth: 600 }}>
@@ -135,7 +175,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* COUNTDOWN STRIP */}
+      {/* COUNTDOWN STRIP — with CTA */}
       <section className="countdown-strip">
         <div className="container">
           <div className="flex flex--center flex--wrap" style={{ gap: 32 }}>
@@ -154,11 +194,25 @@ export default function Home() {
                 <div className="countdown-label">Days</div>
               </div>
             </motion.div>
+
+            {/* CTA in countdown strip */}
+            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+              <motion.button
+                className="btn btn-primary"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/calendar')}
+                style={{ padding: '12px 24px' }}
+              >
+                <Calendar size={18} style={{ marginRight: 8 }} />
+                View Full Calendar
+              </motion.button>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* STATS SECTION */}
+      {/* WHY JOIN SECTION — with CTAs per card */}
       <section className="section section--dark">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }}>
@@ -173,16 +227,44 @@ export default function Home() {
             viewport={{ once: true, margin: '-100px' }}
           >
             {[
-              { icon: Zap, title: 'Build Your Skills', desc: 'Master 145+ merit badges covering outdoor adventures, leadership, STEM, and more. Progress through 7 scout ranks with hands-on training.' },
-              { icon: Award, title: 'Achieve Eagle Scout', desc: 'Earn the highest Boy Scout rank with our expert mentorship. Follow a proven pathway with 50+ active scouts and 80+ Eagle Scout alumni.' },
-              { icon: Users, title: 'Join Our Brotherhood', desc: 'Connect with scouts your age, experienced leaders, and lifelong friends. Build bonds through weekly meetings, campouts, and community service.' }
+              { icon: Zap, title: 'Build Your Skills', desc: 'Master 145+ merit badges covering outdoor adventures, leadership, STEM, and more. Progress through 7 scout ranks with hands-on training.', cta: 'Browse Merit Badges', route: '/badges' },
+              { icon: Award, title: 'Achieve Eagle Scout', desc: 'Earn the highest Boy Scout rank with our expert mentorship. Follow a proven pathway with 50+ active scouts and 80+ Eagle Scout alumni.', cta: 'See the Eagle Path', route: '/ranks' },
+              { icon: Users, title: 'Join Our Brotherhood', desc: 'Connect with scouts your age, experienced leaders, and lifelong friends. Build bonds through weekly meetings, campouts, and community service.', cta: 'Meet the Troop', route: '/about' }
             ].map((item, i) => (
-              <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: 32, textAlign: 'center' }}>
+              <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
                 <item.icon size={48} style={{ color: '#00d68f', marginBottom: 16 }} />
                 <h3 style={{ marginBottom: 12 }}>{item.title}</h3>
-                <p style={{ color: '#9ca3af', lineHeight: 1.6 }}>{item.desc}</p>
+                <p style={{ color: '#9ca3af', lineHeight: 1.6, flex: 1 }}>{item.desc}</p>
+                <motion.button
+                  className="btn btn-outline"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate(item.route)}
+                  style={{ marginTop: 20, width: '100%', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                >
+                  {item.cta} <ChevronRight size={16} />
+                </motion.button>
               </motion.div>
             ))}
+          </motion.div>
+
+          {/* Section-level CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ textAlign: 'center', marginTop: 48 }}
+          >
+            <motion.button
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/new-scout')}
+              style={{ padding: '14px 32px', fontSize: '1rem' }}
+            >
+              <Star size={18} style={{ marginRight: 8 }} />
+              Start Your Scouting Journey
+            </motion.button>
           </motion.div>
         </div>
       </section>
@@ -191,7 +273,10 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: 60 }}>Upcoming Events</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: 16 }}>Upcoming Events</h2>
+            <p style={{ textAlign: 'center', color: '#9ca3af', marginBottom: 60, maxWidth: 500, margin: '0 auto 60px' }}>
+              Campouts, meetings, and adventures — there's always something happening at Troop 242
+            </p>
           </motion.div>
 
           <motion.div
@@ -220,13 +305,12 @@ export default function Home() {
                         </span>
                       </div>
 
-                          <div style={{ fontSize: '0.9rem', color: '#9ca3af', marginBottom: 12 }}>{formattedDate} - ({event.day})</div>
-                          <h3 style={{ marginTop: 0, marginBottom: 'auto' }}>{event.title}</h3>
+                      <div style={{ fontSize: '0.9rem', color: '#9ca3af', marginBottom: 12 }}>{formattedDate} - ({event.day})</div>
+                      <h3 style={{ marginTop: 0, marginBottom: 'auto' }}>{event.title}</h3>
 
-                      {/* Countdown Timer - Synced Flip Animation */}
+                      {/* Countdown Timer */}
                       {countdown && (
                         <div style={{ display: 'flex', gap: 6, marginBottom: 20, justifyContent: 'center' }}>
-                          {/* Days - Flips every 24 hours (86400 seconds) */}
                           <motion.div
                             style={{ textAlign: 'center' }}
                             animate={{ rotateX: countdown.days % 24 === 0 ? [0, 360] : 0 }}
@@ -238,12 +322,10 @@ export default function Home() {
                             <div style={{ fontSize: '0.65rem', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 600 }}>Days</div>
                           </motion.div>
 
-                          {/* Separator */}
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
                             <div style={{ fontSize: '1.2rem', color: '#00d68f', fontWeight: 700 }}>:</div>
                           </div>
 
-                          {/* Hours - Flips every 60 minutes */}
                           <motion.div
                             style={{ textAlign: 'center' }}
                             animate={{ rotateX: countdown.hours % 24 === 0 ? [0, 360] : 0 }}
@@ -255,12 +337,10 @@ export default function Home() {
                             <div style={{ fontSize: '0.65rem', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 600 }}>Hrs</div>
                           </motion.div>
 
-                          {/* Separator */}
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
                             <div style={{ fontSize: '1.2rem', color: '#00d68f', fontWeight: 700 }}>:</div>
                           </div>
 
-                          {/* Minutes - Flips every 60 seconds */}
                           <motion.div
                             style={{ textAlign: 'center' }}
                             animate={{ rotateX: countdown.minutes % 60 === 0 ? [0, 360] : 0 }}
@@ -272,12 +352,10 @@ export default function Home() {
                             <div style={{ fontSize: '0.65rem', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 600 }}>Min</div>
                           </motion.div>
 
-                          {/* Separator */}
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
                             <div style={{ fontSize: '1.2rem', color: '#00d68f', fontWeight: 700 }}>:</div>
                           </div>
 
-                          {/* Seconds - Flips every 1 second */}
                           <div style={{ textAlign: 'center' }}>
                             <motion.div
                               key={countdown.seconds}
@@ -292,7 +370,6 @@ export default function Home() {
                         </div>
                       )}
 
-                    
                       <div style={{ fontSize: '0.9rem', color: '#9ca3af', marginTop: 16 }}>Click to learn more →</div>
                     </div>
 
@@ -314,7 +391,6 @@ export default function Home() {
                           </div>
                         </div>
 
-                        {/* Countdown on back */}
                         {countdown && (
                           <div style={{ marginTop: 16, padding: 12, background: 'rgba(0,214,143,0.1)', borderRadius: 8, textAlign: 'center' }}>
                             <div style={{ fontSize: '0.9rem', color: '#00d68f', fontWeight: 600 }}>
@@ -332,6 +408,32 @@ export default function Home() {
               );
             })}
           </motion.div>
+
+          {/* Events section CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ textAlign: 'center', marginTop: 48, display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}
+          >
+            <motion.button
+              className="btn btn-outline"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/calendar')}
+            >
+              <Calendar size={18} style={{ marginRight: 8 }} />
+              View Full Calendar
+            </motion.button>
+            <motion.button
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/contact')}
+            >
+              Come to a Meeting — No Commitment
+            </motion.button>
+          </motion.div>
         </div>
       </section>
 
@@ -339,7 +441,10 @@ export default function Home() {
       <section className="section section--dark">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: 60 }}>Your Path to Eagle Scout</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: 16 }}>Your Path to Eagle Scout</h2>
+            <p style={{ textAlign: 'center', color: '#9ca3af', marginBottom: 60, maxWidth: 500, margin: '0 auto 60px' }}>
+              Only 4% of Scouts earn Eagle — Troop 242 has produced 80+ Eagles. Here's the journey.
+            </p>
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: '-100px' }}>
@@ -355,15 +460,41 @@ export default function Home() {
                     onClick={() => navigate('/ranks')}
                     style={{ cursor: 'pointer' }}
                   >
-                    <div className="rank-timeline__emoji" style={{ fontSize: i === 7 ? '4.5rem' : '4rem' }}>
+                    <div className="rank-timeline__emoji" style={{ fontSize: i === 6 ? '4.5rem' : '4rem' }}>
                       {['⚜️', '🎖️', '🗝️', '🛡️', '⭐', '✨', '🦅'][i]}
                     </div>
                     <div className="rank-timeline__name">{rank}</div>
                   </motion.div>
-                  {i < 7 && <div className="rank-timeline__connector" />}
+                  {i < 6 && <div className="rank-timeline__connector" />}
                 </div>
               ))}
             </div>
+          </motion.div>
+
+          {/* Rank section CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ textAlign: 'center', marginTop: 48, display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}
+          >
+            <motion.button
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/ranks')}
+            >
+              <Shield size={18} style={{ marginRight: 8 }} />
+              Explore All Ranks & Requirements
+            </motion.button>
+            <motion.button
+              className="btn btn-outline"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/eagle-scouts')}
+            >
+              Meet Our Eagle Scouts <ChevronRight size={16} />
+            </motion.button>
           </motion.div>
         </div>
       </section>
@@ -372,7 +503,10 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: 60 }}>Explore Merit Badges</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: 16 }}>Explore Merit Badges</h2>
+            <p style={{ textAlign: 'center', color: '#9ca3af', marginBottom: 60, maxWidth: 500, margin: '0 auto 60px' }}>
+              From camping to coding — discover skills that last a lifetime
+            </p>
           </motion.div>
 
           <motion.div
@@ -400,7 +534,13 @@ export default function Home() {
             ))}
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} style={{ textAlign: 'center', marginTop: 60 }}>
+          {/* Merit badge section CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ textAlign: 'center', marginTop: 60, display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}
+          >
             <motion.button
               className="btn btn-outline"
               whileHover={{ scale: 1.05, gap: 12 }}
@@ -408,6 +548,48 @@ export default function Home() {
               onClick={() => navigate('/badges')}
             >
               View All 145+ Badges <ChevronRight size={18} />
+            </motion.button>
+            <motion.button
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/new-scout')}
+            >
+              <UserPlus size={18} style={{ marginRight: 8 }} />
+              I'm Ready to Join
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* TESTIMONIAL / SOCIAL PROOF BANNER — NEW SECTION */}
+      <section style={{
+        padding: '48px 0',
+        background: 'linear-gradient(135deg, rgba(0,214,143,0.08), rgba(0,214,143,0.02))',
+        borderTop: '1px solid rgba(0,214,143,0.15)',
+        borderBottom: '1px solid rgba(0,214,143,0.15)'
+      }}>
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{ textAlign: 'center', maxWidth: 700, margin: '0 auto' }}
+          >
+            <p style={{ fontSize: '1.4rem', fontStyle: 'italic', color: '#e5e7eb', marginBottom: 16, lineHeight: 1.6 }}>
+              "Scouting taught me leadership, resilience, and how to serve my community. Earning Eagle Scout was the proudest moment of my life."
+            </p>
+            <p style={{ color: '#00d68f', fontWeight: 600, fontSize: '1rem' }}>
+              — Eagle Scout, Troop 242 Alumni
+            </p>
+            <motion.button
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/contact')}
+              style={{ marginTop: 24, padding: '14px 32px' }}
+            >
+              Talk to a Scout Leader
             </motion.button>
           </motion.div>
         </div>
@@ -417,7 +599,10 @@ export default function Home() {
       <section className="section section--dark">
         <div className="container">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: 60 }}>Get In Touch</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: 16 }}>Get In Touch</h2>
+            <p style={{ textAlign: 'center', color: '#9ca3af', marginBottom: 60, maxWidth: 500, margin: '0 auto 60px' }}>
+              Have questions? We'd love to hear from you — parents and scouts are welcome to reach out
+            </p>
           </motion.div>
 
           <motion.div
@@ -493,15 +678,100 @@ export default function Home() {
             ))}
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} style={{ textAlign: 'center', marginTop: 60 }}>
+          {/* Contact section CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ textAlign: 'center', marginTop: 60, display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}
+          >
             <motion.button
               className="btn btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/contact')}
+              style={{ padding: '16px 36px', fontSize: '1.1rem' }}
             >
-              Send Us An Email
+              <Mail size={20} style={{ marginRight: 8 }} />
+              Send Us a Message
             </motion.button>
+            <motion.button
+              className="btn btn-outline"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/new-scout')}
+              style={{ padding: '16px 36px', fontSize: '1.1rem' }}
+            >
+              New Scout Guide <ChevronRight size={18} />
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FINAL CONVERSION BANNER — NEW SECTION */}
+      <section style={{
+        padding: '80px 0',
+        background: 'linear-gradient(135deg, #00d68f, #00b377)',
+        textAlign: 'center'
+      }}>
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#0a0a0a', marginBottom: 16, fontWeight: 800 }}>
+              Ready to Begin Your Adventure?
+            </h2>
+            <p style={{ fontSize: '1.2rem', color: 'rgba(0,0,0,0.7)', marginBottom: 32, maxWidth: 600, margin: '0 auto 32px' }}>
+              Join 50+ active Scouts building skills, earning badges, and making lifelong memories every week.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/contact')}
+                style={{
+                  padding: '18px 40px',
+                  fontSize: '1.15rem',
+                  fontWeight: 800,
+                  borderRadius: 12,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: '#0a0a0a',
+                  color: '#00d68f',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10
+                }}
+              >
+                <UserPlus size={22} />
+                Join Troop 242 Today
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/new-scout')}
+                style={{
+                  padding: '18px 40px',
+                  fontSize: '1.15rem',
+                  fontWeight: 700,
+                  borderRadius: 12,
+                  border: '2px solid #0a0a0a',
+                  cursor: 'pointer',
+                  background: 'transparent',
+                  color: '#0a0a0a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10
+                }}
+              >
+                I'm a New Scout — Help Me Start
+              </motion.button>
+            </div>
+            <p style={{ marginTop: 20, fontSize: '0.9rem', color: 'rgba(0,0,0,0.5)' }}>
+              Tuesdays at 7:00 PM · 3512 S Orlando Dr, Sanford, FL · No commitment to visit
+            </p>
           </motion.div>
         </div>
       </section>

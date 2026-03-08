@@ -1,8 +1,16 @@
 
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import '../styles/calendar.css';
 
+const PACKING_LISTS = {
+  meetings: ['Uniform (shirt, neckerchief, slide)', 'Scout Handbook', 'Pencil & notebook', 'Water bottle', 'Any merit badge materials'],
+  campouts: ['Tent & sleeping bag', 'Change of clothes', 'Toiletries & medications', 'Headlamp or flashlight', 'Warm jacket', 'Sturdy shoes', 'Backpack', 'Water bottle'],
+  hikes: ['Comfortable hiking shoes', 'Backpack (20-30L)', 'Water bottle', 'Snacks & lunch', 'Sunscreen', 'Insect repellent', 'Lightweight jacket', 'First aid kit', 'Map or trail info']
+};
+
 export default function Calendar() {
+  const [activeTab, setActiveTab] = useState('meetings');
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -116,6 +124,79 @@ export default function Calendar() {
                 <p style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>{item.desc}</p>
               </motion.div>
             ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* What to Bring Section */}
+      <section className="section section--dark">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            style={{ maxWidth: 800, margin: '0 auto' }}
+          >
+            <h2 style={{ textAlign: 'center', marginBottom: 40 }}>What to Bring</h2>
+
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {['meetings', 'campouts', 'hikes'].map(tab => (
+                <motion.button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    padding: '10px 20px',
+                    background: activeTab === tab ? 'var(--accent)' : 'transparent',
+                    color: activeTab === tab ? 'white' : 'var(--text-muted)',
+                    border: `2px solid ${activeTab === tab ? 'var(--accent)' : 'var(--divider)'}`,
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    fontWeight: 600,
+                    textTransform: 'capitalize',
+                    transition: 'all 0.3s ease'
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {tab}
+                </motion.button>
+              ))}
+            </div>
+
+            {/* Packing List */}
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="glass-card"
+              style={{ padding: 32 }}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                {PACKING_LISTS[activeTab].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '12px 16px',
+                      background: 'var(--accent-dim)',
+                      borderRadius: 8,
+                      fontSize: '0.95rem'
+                    }}
+                  >
+                    <span style={{ color: 'var(--accent)', fontWeight: 700 }}>✓</span>
+                    <span>{item}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>

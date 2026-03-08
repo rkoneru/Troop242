@@ -7,7 +7,7 @@ import '../styles/member-login.css';
 
 // Dummy credentials for testing
 const DUMMY_USERS = {
-  scout: { email: 'scout@troop242.com', password: 'scout123', redirect: '/scout-signup' },
+  scout: { email: 'scout@troop242.com', password: 'scout123', redirect: '/scout-dashboard' },
   leader: { email: 'leader@troop242.com', password: 'leader123', redirect: '/leader-dashboard' },
   admin: { email: 'admin@troop242.com', password: 'admin123', redirect: '/admin-dashboard' }
 };

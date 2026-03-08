@@ -49,9 +49,12 @@ export default function Footer() {
           <div className="footer-section">
             <h4 style={{ marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Guide</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <FooterLink to="/ranks">Rank Path</FooterLink>
-              <FooterLink to="/badges">Merit Badges</FooterLink>
+              <FooterLink to="/new-scout">New Scout</FooterLink>
+              <FooterLink to="/scout-principles">Scout Principles</FooterLink>
               <FooterLink to="/skills">Scout Skills</FooterLink>
+              <FooterLink to="/ranks">Ranks</FooterLink>
+              <FooterLink to="/badges">Merit Badges</FooterLink>
+              <FooterLink to="/glossary">Glossary</FooterLink>
             </div>
           </div>
 
@@ -59,7 +62,7 @@ export default function Footer() {
           <div className="footer-section">
             <h4 style={{ marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Resources</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <a href="https://www.scouting.org" target="_blank" rel="noopener noreferrer">Scouting.org</a>
+              <a href="https://www.scouting.org" target="_blank" rel="noopener noreferrer">Scouting America</a>
               <a href="https://scoutbook.scouting.org/" target="_blank" rel="noopener noreferrer">Scoutbook</a>
               <FooterLink to="/calendar">Troop Calendar</FooterLink>
               <FooterLink to="/member-login">Member Login</FooterLink>
@@ -107,6 +110,7 @@ export default function Footer() {
         <div style={{ borderTop: '1px solid var(--divider)', marginTop: 40, paddingTop: 24 }}>
           <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
             <p>© {currentYear} Troop 242 Sanford. Scouting America | Adventure · Brotherhood · Service</p>
+            <p style={{ marginTop: 12 }}>Maintained by troop webmaster : Rakesh K</p>
           </div>
         </div>
       </div>

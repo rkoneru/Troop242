@@ -91,9 +91,12 @@ export default function Header() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
+                <Link to="/new-scout" onClick={handleNavClick()} className="header-dropdown-item">New Scout</Link>
+                <Link to="/scout-principles" onClick={handleNavClick()} className="header-dropdown-item">Scout Principles</Link>
+                <Link to="/skills" onClick={handleNavClick()} className="header-dropdown-item">Scout Skills</Link>
                 <Link to="/ranks" onClick={handleNavClick()} className="header-dropdown-item">Ranks</Link>
-                <Link to="/badges" onClick={handleNavClick()} className="header-dropdown-item">Badges</Link>
-                <Link to="/skills" onClick={handleNavClick()} className="header-dropdown-item">Skills</Link>
+                <Link to="/badges" onClick={handleNavClick()} className="header-dropdown-item">Merit Badges</Link>
+                <Link to="/glossary" onClick={handleNavClick()} className="header-dropdown-item">Glossary</Link>
               </motion.div>
             )}
           </div>
@@ -112,7 +115,7 @@ export default function Header() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <a href="https://www.scouting.org" target="_blank" rel="noopener noreferrer" className="header-dropdown-item">Scouting.org</a>
+                <a href="https://www.scouting.org" target="_blank" rel="noopener noreferrer" className="header-dropdown-item">Scouting America</a>
                 <a href="https://scoutbook.scouting.org/" target="_blank" rel="noopener noreferrer" className="header-dropdown-item">Scoutbook</a>
                 <Link to="/calendar" onClick={handleNavClick()} className="header-dropdown-item">Troop Calendar</Link>
                 <Link to="/member-login" onClick={handleNavClick()} className="header-dropdown-item">Member Login</Link>
@@ -170,9 +173,12 @@ export default function Header() {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
                 >
+                  <Link to="/new-scout" onClick={handleNavClick(() => { setMobileMenuOpen(false); setGuideDropdownOpen(false); })} className="header-mobile-dropdown-item">New Scout Guide</Link>
                   <Link to="/ranks" onClick={handleNavClick(() => { setMobileMenuOpen(false); setGuideDropdownOpen(false); })} className="header-mobile-dropdown-item">Ranks</Link>
                   <Link to="/badges" onClick={handleNavClick(() => { setMobileMenuOpen(false); setGuideDropdownOpen(false); })} className="header-mobile-dropdown-item">Badges</Link>
                   <Link to="/skills" onClick={handleNavClick(() => { setMobileMenuOpen(false); setGuideDropdownOpen(false); })} className="header-mobile-dropdown-item">Skills</Link>
+                  <Link to="/scout-principles" onClick={handleNavClick(() => { setMobileMenuOpen(false); setGuideDropdownOpen(false); })} className="header-mobile-dropdown-item">Scout Principles</Link>
+                  <Link to="/glossary" onClick={handleNavClick(() => { setMobileMenuOpen(false); setGuideDropdownOpen(false); })} className="header-mobile-dropdown-item">Glossary</Link>
                 </motion.div>
               )}
             </div>

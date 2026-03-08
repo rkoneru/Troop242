@@ -1,6 +1,7 @@
 
 import { CheckCircle, MapPin, Calendar, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const ACTIVITIES = [
@@ -67,16 +68,43 @@ const ACTIVITIES = [
 ];
 
 export default function ScoutSignup() {
-  const [signedUp, setSignedUp] = useState([]);
+  const navigate = useNavigate();
+  const [signedUp, setSignedUp] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('scoutSignups') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+      navigate('/member-login');
+      return;
+    }
+    try {
+      const user = JSON.parse(loggedInUser);
+      if (user.profile !== 'scout') {
+        navigate('/member-login');
+      }
+    } catch {
+      navigate('/member-login');
+    }
+  }, [navigate]);
 
   const handleSignup = (activityId) => {
     if (!signedUp.includes(activityId)) {
-      setSignedUp([...signedUp, activityId]);
+      const updated = [...signedUp, activityId];
+      setSignedUp(updated);
+      localStorage.setItem('scoutSignups', JSON.stringify(updated));
     }
   };
 
   const handleCancel = (activityId) => {
-    setSignedUp(signedUp.filter(id => id !== activityId));
+    const updated = signedUp.filter(id => id !== activityId);
+    setSignedUp(updated);
+    localStorage.setItem('scoutSignups', JSON.stringify(updated));
   };
 
   const containerVariants = {

@@ -1,5 +1,5 @@
 
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const RANKS = [
@@ -55,6 +55,7 @@ const RANKS = [
 ];
 
 export default function Ranks() {
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -119,10 +120,7 @@ export default function Ranks() {
                   <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 12, color: 'var(--accent)' }}>Requirements</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {rank.requirements.map((req, j) => (
-                      <div key={j} className="flex" style={{ gap: 8, fontSize: '0.95rem' }}>
-                        <CheckCircle size={16} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 2 }} />
-                        <span>{req}</span>
-                      </div>
+                      <div key={j} style={{ fontSize: '0.95rem' }}>• {req}</div>
                     ))}
                   </div>
                 </div>
