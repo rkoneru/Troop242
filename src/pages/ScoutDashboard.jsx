@@ -106,8 +106,16 @@ export default function ScoutDashboard() {
   };
 
   const getMeritProgress = () => {
-    const total = badgeWishlist.length > 0 ? badgeWishlist.length : 1;
-    return { wishlisted: badgeWishlist.length, percentage: badgeWishlist.length > 0 ? 100 : 0 };
+    const meritProgress = (() => {
+      try {
+        return JSON.parse(localStorage.getItem('meritProgress') || '{}');
+      } catch {
+        return {};
+      }
+    })();
+    const completed = Object.values(meritProgress).filter((v) => v === 'completed').length;
+    const working = Object.values(meritProgress).filter((v) => v === 'working').length;
+    return { completed, working, total: completed + working };
   };
 
   const getSkillsProgress = () => {
@@ -117,7 +125,15 @@ export default function ScoutDashboard() {
   };
 
   const getActivityProgress = () => {
-    return { signedUp: signedUpActivities.length, total: ACTIVITIES.length };
+    const activities = (() => {
+      try {
+        return JSON.parse(localStorage.getItem('troopActivities') || '[]');
+      } catch {
+        return [];
+      }
+    })();
+    const total = Math.max(activities.length, 1);
+    return { signedUp: signedUpActivities.length, total };
   };
 
   const rankProgress = getRankProgress();
@@ -321,7 +337,7 @@ export default function ScoutDashboard() {
               style={{ padding: 32, cursor: 'pointer' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/badges')}
+              onClick={() => navigate('/merit-tracker')}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ fontSize: '2.5rem' }}>🎖️</div>
@@ -335,42 +351,12 @@ export default function ScoutDashboard() {
 
               <div style={{ marginBottom: 20 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Wishlist</span>
-                  <span style={{ fontWeight: 600 }}>{meritProgress.wishlisted} badges</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Progress</span>
+                  <span style={{ fontWeight: 600 }}>{meritProgress.completed} completed</span>
                 </div>
-                {meritProgress.wishlisted > 0 && (
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 16 }}>
-                    <div style={{ maxHeight: '60px', overflow: 'hidden', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {badgeWishlist.slice(0, 5).map((badge, idx) => (
-                        <span
-                          key={idx}
-                          style={{
-                            background: 'rgba(var(--accent-rgb), 0.1)',
-                            color: 'var(--accent)',
-                            padding: '4px 8px',
-                            borderRadius: 4,
-                            fontSize: '0.75rem',
-                          }}
-                        >
-                          {badge}
-                        </span>
-                      ))}
-                      {meritProgress.wishlisted > 5 && (
-                        <span
-                          style={{
-                            background: 'rgba(var(--accent-rgb), 0.1)',
-                            color: 'var(--accent)',
-                            padding: '4px 8px',
-                            borderRadius: 4,
-                            fontSize: '0.75rem',
-                          }}
-                        >
-                          +{meritProgress.wishlisted - 5}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  {meritProgress.working > 0 && <span>{meritProgress.working} in progress</span>}
+                </div>
               </div>
 
               <motion.button
@@ -389,7 +375,7 @@ export default function ScoutDashboard() {
               style={{ padding: 32, cursor: 'pointer' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/scout-signup')}
+              onClick={() => navigate('/activities')}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ fontSize: '2.5rem' }}>📅</div>
@@ -437,7 +423,7 @@ export default function ScoutDashboard() {
               style={{ padding: 32, cursor: 'pointer' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/skills')}
+              onClick={() => navigate('/skills-tracker')}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ fontSize: '2.5rem' }}>⚡</div>

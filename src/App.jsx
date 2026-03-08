@@ -22,6 +22,9 @@ import NewScout from './pages/NewScout';
 import Glossary from './pages/Glossary';
 import ScoutDashboard from './pages/ScoutDashboard';
 import RankTrackerWizard from './pages/RankTrackerWizard';
+import MeritTrackerWizard from './pages/MeritTrackerWizard';
+import SkillsTrackerWizard from './pages/SkillsTrackerWizard';
+import ActivitiesPage from './pages/ActivitiesPage';
 import './App.css';
 
 function App() {
@@ -58,6 +61,9 @@ function App() {
           <Route path="/glossary" element={<Glossary />} />
           <Route path="/scout-dashboard" element={<ScoutDashboard />} />
           <Route path="/rank-tracker" element={<RankTrackerWizard />} />
+          <Route path="/merit-tracker" element={<MeritTrackerWizard />} />
+          <Route path="/skills-tracker" element={<SkillsTrackerWizard />} />
+          <Route path="/activities" element={<ActivitiesPage />} />
         </Routes>
         <Footer />
         <SearchWidget />

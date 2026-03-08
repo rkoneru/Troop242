@@ -48,41 +48,13 @@ const SCOUTS_DATA = [
   }
 ];
 
-const ACTIVITY_SIGNUPS = [
-  {
-    id: 1,
-    activity: 'Camping Trip',
-    date: '2026-04-15',
-    scouts: ['John Smith', 'Tom Wilson', 'Lisa Brown'],
-    pendingApprovals: 1,
-    totalCapacity: 20,
-    status: 'active'
-  },
-  {
-    id: 2,
-    activity: 'Car Wash',
-    date: '2026-03-22',
-    scouts: ['Mike Johnson', 'Sarah Davis'],
-    pendingApprovals: 1,
-    totalCapacity: 15,
-    status: 'active'
-  },
-  {
-    id: 3,
-    activity: 'Chop & Sell',
-    date: '2026-03-29',
-    scouts: ['Sarah Davis'],
-    pendingApprovals: 0,
-    totalCapacity: 25,
-    status: 'active'
-  }
-];
 
 export default function LeaderDashboard() {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState('scouts');
   const [scoutsData, setScoutsData] = useState(SCOUTS_DATA);
   const [events, setEvents] = useState(() => loadData('troop_events', DEFAULT_EVENTS));
+  const [troopActivities, setTroopActivities] = useState(() => loadData('troopActivities', []));
   const [invitations, setInvitations] = useState([]);
   const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
   const [newInvitationForm, setNewInvitationForm] = useState({ name: '', email: '', type: 'scout', tempPassword: '' });
@@ -424,67 +396,75 @@ export default function LeaderDashboard() {
                 gap: 20
               }}
             >
-              {ACTIVITY_SIGNUPS.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="glass-card"
-                  style={{ padding: 24 }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
-                    <div>
-                      <h3 style={{ color: '#fff', marginBottom: 4 }}>{activity.activity}</h3>
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem' }}>
-                        {new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
-                    </div>
-                    <span style={{
-                      padding: '4px 12px',
-                      background: 'rgba(0, 214, 143, 0.2)',
-                      color: '#00d68f',
-                      borderRadius: 20,
-                      fontSize: '0.75rem',
-                      fontWeight: 600
-                    }}>
-                      {activity.scouts.length}/{activity.totalCapacity}
-                    </span>
-                  </div>
-
-                  {activity.pendingApprovals > 0 && (
-                    <div style={{
-                      padding: 12,
-                      background: 'rgba(212, 168, 83, 0.1)',
-                      borderLeft: '3px solid #d4a853',
-                      borderRadius: 6,
-                      marginBottom: 16
-                    }}>
-                      <p style={{ color: '#d4a853', fontSize: '0.85rem', fontWeight: 600 }}>
-                        ⚠ {activity.pendingApprovals} pending approval{activity.pendingApprovals !== 1 ? 's' : ''}
-                      </p>
-                    </div>
-                  )}
-
-                  <div>
-                    <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginBottom: 12 }}>Registered Scouts:</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {activity.scouts.map((scout, idx) => (
-                        <div key={idx} style={{
-                          padding: '10px 12px',
-                          background: 'rgba(255, 255, 255, 0.05)',
-                          borderRadius: 6,
-                          fontSize: '0.9rem',
-                          color: '#d1d5db',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8
-                        }}>
-                          <CheckCircle size={16} style={{ color: '#00d68f' }} />
-                          {scout}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+              {troopActivities.length === 0 ? (
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#9ca3af' }}>
+                  No activities created yet. Go to Activities page to create one!
                 </div>
-              ))}
+              ) : (
+                troopActivities.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="glass-card"
+                    style={{ padding: 24 }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
+                      <div>
+                        <h3 style={{ color: '#fff', marginBottom: 4 }}>{activity.title}</h3>
+                        <p style={{ color: '#9ca3af', fontSize: '0.85rem' }}>
+                          {new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </div>
+                      <span style={{
+                        padding: '4px 12px',
+                        background: 'rgba(0, 214, 143, 0.2)',
+                        color: '#00d68f',
+                        borderRadius: 20,
+                        fontSize: '0.75rem',
+                        fontWeight: 600
+                      }}>
+                        {activity.signups.length}/{activity.spots}
+                      </span>
+                    </div>
+
+                    {activity.description && (
+                      <p style={{ color: '#d1d5db', fontSize: '0.9rem', marginBottom: 16 }}>
+                        {activity.description}
+                      </p>
+                    )}
+
+                    {activity.location && (
+                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginBottom: 12 }}>
+                        📍 {activity.location}
+                      </p>
+                    )}
+
+                    <div>
+                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginBottom: 12 }}>Signed Up:</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {activity.signups.length === 0 ? (
+                          <p style={{ color: '#9ca3af', fontSize: '0.85rem', margin: 0 }}>No signups yet</p>
+                        ) : (
+                          activity.signups.map((scout, idx) => (
+                            <div key={idx} style={{
+                              padding: '10px 12px',
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              borderRadius: 6,
+                              fontSize: '0.9rem',
+                              color: '#d1d5db',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8
+                            }}>
+                              <CheckCircle size={16} style={{ color: '#00d68f' }} />
+                              {scout}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </motion.div>
           )}
 

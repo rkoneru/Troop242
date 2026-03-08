@@ -3,7 +3,7 @@ import { Search, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const SKILL_CATEGORIES = [
+export const SKILL_CATEGORIES = [
   {
     category: 'Outdoor Survival',
     emoji: '🔥',

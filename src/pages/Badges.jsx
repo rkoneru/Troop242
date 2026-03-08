@@ -3,7 +3,7 @@ import { Search, ArrowRight, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const BADGE_CATEGORIES = [
+export const BADGE_CATEGORIES = [
   {
     category: 'Eagle Required',
     emoji: '🦅',
