@@ -95,24 +95,25 @@ export default function ActivitiesPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] pt-20 pb-10">
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: 40 }}>
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 bg-[var(--bg-secondary)] border-b border-[var(--divider)] z-100 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+      <div style={{ background: 'var(--bg-secondary)', borderBottom: `1px solid var(--divider)`, padding: '16px 24px', marginBottom: 32 }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <motion.button
             className="btn btn-outline"
             onClick={() => navigate(backRoute)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
           >
             <ArrowLeft size={18} /> Back to Dashboard
           </motion.button>
-          <h1 className="text-2xl font-semibold">Troop Activities</h1>
-          <div className="w-32" />
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Troop Activities</h1>
+          <div style={{ width: 120 }} />
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6">
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
         {/* LEADER VIEW */}
         {user.profile === 'leader' && (
           <>

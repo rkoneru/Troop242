@@ -141,33 +141,6 @@ export default function NewScout() {
         </div>
       </section>
 
-      {/* TRACK YOUR PROGRESS BANNER */}
-      <section className="section">
-        <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            className="glass-card"
-            style={{ padding: 40, maxWidth: 700, margin: '0 auto', textAlign: 'center', border: '1px solid var(--accent-border)' }}
-          >
-            <Lock size={40} style={{ color: 'var(--accent)', marginBottom: 16 }} />
-            <h3 style={{ marginBottom: 12 }}>Track Your Progress</h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: 28, maxWidth: 500, margin: '0 auto 28px', lineHeight: 1.7 }}>
-              Log in to save your rank checklist, skill progress, and badge wishlist — and pick up where you left off.
-            </p>
-            <motion.button
-              className="btn btn-primary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/member-login')}
-            >
-              Log In & Track Progress
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
-
       {/* YOUR FIRST 30 DAYS */}
       <section className="section">
         <div className="container">
@@ -433,6 +406,33 @@ export default function NewScout() {
           </div>
         </div>
       </section>
+
+        {/* TRACK YOUR PROGRESS BANNER */}
+        <section className="section">
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              className="glass-card"
+              style={{ padding: 40, maxWidth: 700, margin: '0 auto', textAlign: 'center', border: '1px solid var(--accent-border)' }}
+            >
+              <Lock size={40} style={{ color: 'var(--accent)', marginBottom: 16 }} />
+              <h3 style={{ marginBottom: 12 }}>Track Your Progress</h3>
+              <p style={{ color: 'var(--text-muted)', marginBottom: 28, maxWidth: 500, margin: '0 auto 28px', lineHeight: 1.7 }}>
+                Log in to save your rank checklist, skill progress, and badge wishlist — and pick up where you left off.
+              </p>
+              <motion.button
+                className="btn btn-primary"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/member-login')}
+              >
+                Log In & Track Progress
+              </motion.button>
+            </motion.div>
+          </div>
+        </section>  
 
       {/* READY TO JOIN CTA */}
       <section className="section section--dark">

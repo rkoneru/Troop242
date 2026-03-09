@@ -41,31 +41,32 @@ function App() {
   return (
     <Router basename="/Troop242/">
       <div className="app">
-        <Header />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/ranks" element={<Ranks />} />
-          <Route path="/badges" element={<Badges />} />
-          <Route path="/skills" element={<Skills />} />
-          <Route path="/scout-principles" element={<ScoutPrinciples />} />
-          <Route path="/stories" element={<Stories />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/appearance" element={<Appearance />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/member-login" element={<MemberLogin />} />
-          <Route path="/scout-signup" element={<ScoutSignup />} />
-          <Route path="/leader-dashboard" element={<LeaderDashboard />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/new-scout" element={<NewScout />} />
-          <Route path="/glossary" element={<Glossary />} />
-          <Route path="/scout-dashboard" element={<ScoutDashboard />} />
+          {/* Pages with global header/footer */}
+          <Route path="/" element={<><Header /><Home /><Footer /></>} />
+          <Route path="/ranks" element={<><Header /><Ranks /><Footer /></>} />
+          <Route path="/badges" element={<><Header /><Badges /><Footer /></>} />
+          <Route path="/skills" element={<><Header /><Skills /><Footer /></>} />
+          <Route path="/scout-principles" element={<><Header /><ScoutPrinciples /><Footer /></>} />
+          <Route path="/stories" element={<><Header /><Stories /><Footer /></>} />
+          <Route path="/about" element={<><Header /><About /><Footer /></>} />
+          <Route path="/appearance" element={<><Header /><Appearance /><Footer /></>} />
+          <Route path="/calendar" element={<><Header /><Calendar /><Footer /></>} />
+          <Route path="/contact" element={<><Header /><Contact /><Footer /></>} />
+          <Route path="/member-login" element={<><Header /><MemberLogin /><Footer /></>} />
+          <Route path="/scout-signup" element={<><Header /><ScoutSignup /><Footer /></>} />
+          <Route path="/leader-dashboard" element={<><Header /><LeaderDashboard /><Footer /></>} />
+          <Route path="/admin-dashboard" element={<><Header /><AdminDashboard /><Footer /></>} />
+          <Route path="/new-scout" element={<><Header /><NewScout /><Footer /></>} />
+          <Route path="/glossary" element={<><Header /><Glossary /><Footer /></>} />
+          <Route path="/scout-dashboard" element={<><Header /><ScoutDashboard /><Footer /></>} />
+
+          {/* Wizard pages with custom headers - no global header/footer */}
           <Route path="/rank-tracker" element={<RankTrackerWizard />} />
           <Route path="/merit-tracker" element={<MeritTrackerWizard />} />
           <Route path="/skills-tracker" element={<SkillsTrackerWizard />} />
           <Route path="/activities" element={<ActivitiesPage />} />
         </Routes>
-        <Footer />
         <SearchWidget />
       </div>
     </Router>
