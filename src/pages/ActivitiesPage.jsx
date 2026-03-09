@@ -95,92 +95,62 @@ export default function ActivitiesPage() {
   if (!user) return null;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: 80, paddingBottom: 40 }}>
+    <div className="min-h-screen bg-[var(--bg-primary)] pt-20 pb-10">
       {/* Header */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'var(--bg-secondary)', borderBottom: `1px solid var(--divider)`, zIndex: 100, padding: '16px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="fixed top-0 left-0 right-0 bg-[var(--bg-secondary)] border-b border-[var(--divider)] z-100 px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
           <motion.button
             className="btn btn-outline"
             onClick={() => navigate(backRoute)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
           >
             <ArrowLeft size={18} /> Back to Dashboard
           </motion.button>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Troop Activities</h1>
-          <div style={{ width: 120 }} />
+          <h1 className="text-2xl font-semibold">Troop Activities</h1>
+          <div className="w-32" />
         </div>
       </div>
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }}>
+      <div className="max-w-5xl mx-auto px-6">
         {/* LEADER VIEW */}
         {user.profile === 'leader' && (
           <>
             {/* Create Activity Form */}
             <motion.div
-              className="glass-card"
-              style={{ padding: 32, marginBottom: 48 }}
+              className="glass-card p-8 mb-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginTop: 0, marginBottom: 24 }}>Create New Activity</h2>
+              <h2 className="text-2xl font-bold mt-0 mb-6">Create New Activity</h2>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <input
                   type="text"
                   placeholder="Activity Title"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  style={{
-                    padding: 12,
-                    border: `1px solid var(--divider)`,
-                    background: 'var(--bg-primary)',
-                    color: 'var(--text-main)',
-                    borderRadius: 8,
-                    fontSize: '0.95rem',
-                  }}
+                  className="px-3 py-3 border border-[var(--divider)] bg-[var(--bg-primary)] text-[var(--text-main)] rounded-lg text-sm"
                 />
                 <input
                   type="date"
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  style={{
-                    padding: 12,
-                    border: `1px solid var(--divider)`,
-                    background: 'var(--bg-primary)',
-                    color: 'var(--text-main)',
-                    borderRadius: 8,
-                    fontSize: '0.95rem',
-                  }}
+                  className="px-3 py-3 border border-[var(--divider)] bg-[var(--bg-primary)] text-[var(--text-main)] rounded-lg text-sm"
                 />
                 <input
                   type="text"
                   placeholder="Location"
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
-                  style={{
-                    padding: 12,
-                    border: `1px solid var(--divider)`,
-                    background: 'var(--bg-primary)',
-                    color: 'var(--text-main)',
-                    borderRadius: 8,
-                    fontSize: '0.95rem',
-                  }}
+                  className="px-3 py-3 border border-[var(--divider)] bg-[var(--bg-primary)] text-[var(--text-main)] rounded-lg text-sm"
                 />
                 <input
                   type="number"
                   placeholder="Spots Available"
                   value={form.spots}
                   onChange={(e) => setForm({ ...form, spots: e.target.value })}
-                  style={{
-                    padding: 12,
-                    border: `1px solid var(--divider)`,
-                    background: 'var(--bg-primary)',
-                    color: 'var(--text-main)',
-                    borderRadius: 8,
-                    fontSize: '0.95rem',
-                  }}
+                  className="px-3 py-3 border border-[var(--divider)] bg-[var(--bg-primary)] text-[var(--text-main)] rounded-lg text-sm"
                 />
               </div>
 
@@ -188,92 +158,70 @@ export default function ActivitiesPage() {
                 placeholder="Activity Description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                style={{
-                  width: '100%',
-                  height: 100,
-                  padding: 12,
-                  border: `1px solid var(--divider)`,
-                  background: 'var(--bg-primary)',
-                  color: 'var(--text-main)',
-                  borderRadius: 8,
-                  fontSize: '0.95rem',
-                  marginBottom: 16,
-                  fontFamily: 'inherit',
-                  resize: 'none',
-                }}
+                className="w-full h-24 px-3 py-3 border border-[var(--divider)] bg-[var(--bg-primary)] text-[var(--text-main)] rounded-lg text-sm font-inherit mb-4 resize-none"
               />
 
               <motion.button
-                className="btn btn-primary"
+                className="btn btn-primary flex items-center gap-2"
                 onClick={handleCreateActivity}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                style={{ display: 'flex', alignItems: 'center', gap: 8 }}
               >
                 <Plus size={18} /> Create Activity
               </motion.button>
             </motion.div>
 
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 20 }}>Upcoming Activities</h2>
+            <h2 className="text-xl font-bold mb-5">Upcoming Activities</h2>
           </>
         )}
 
         {/* ACTIVITY CARDS */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {activities.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
+            <div className="col-span-full text-center py-10 text-[var(--text-muted)]">
               <p>No activities yet. {user?.profile === 'leader' ? 'Create one above!' : 'Check back soon!'}</p>
             </div>
           ) : (
             activities.map((activity) => (
               <motion.div
                 key={activity.id}
-                className="glass-card"
-                style={{ padding: 24 }}
+                className="glass-card p-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: 0, marginBottom: 12, color: 'var(--text-main)' }}>
+                <h3 className="text-lg font-bold mt-0 mb-3 text-[var(--text-main)]">
                   {activity.title}
                 </h3>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
                   <Calendar size={16} /> {activity.date}
                 </div>
 
                 {activity.location && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                  <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
                     <MapPin size={16} /> {activity.location}
                   </div>
                 )}
 
                 {activity.description && (
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 12, marginTop: 8 }}>
+                  <p className="text-[var(--text-muted)] text-sm mb-3 mt-2">
                     {activity.description}
                   </p>
                 )}
 
                 <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: 12,
-                    background: 'var(--bg-primary)',
-                    borderRadius: 8,
-                    marginBottom: 16,
-                    fontSize: '0.9rem',
-                    color: isFull(activity) ? '#ef4444' : 'var(--accent)',
-                  }}
+                  className={`flex items-center gap-2 px-3 py-3 bg-[var(--bg-primary)] rounded-lg mb-4 text-sm ${
+                    isFull(activity) ? 'text-red-500' : 'text-[var(--accent)]'
+                  }`}
                 >
                   <Users size={16} /> {activity.signups.length}/{activity.spots} Spots {isFull(activity) ? '(Full)' : 'Available'}
                 </div>
 
                 {/* Leader view: show signups */}
                 {user?.profile === 'leader' && activity.signups.length > 0 && (
-                  <div style={{ marginBottom: 16, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                    <p style={{ fontWeight: 500, marginBottom: 8 }}>Signed Up:</p>
-                    <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  <div className="mb-4 text-sm text-[var(--text-muted)]">
+                    <p className="font-medium mb-2">Signed Up:</p>
+                    <ul className="m-0 pl-5">
                       {activity.signups.map((name, idx) => (
                         <li key={idx}>{name}</li>
                       ))}
@@ -286,22 +234,21 @@ export default function ActivitiesPage() {
                   <>
                     {!isSignedUp(activity) && !isFull(activity) && (
                       <motion.button
-                        className="btn btn-primary"
+                        className="btn btn-primary w-full"
                         onClick={() => handleSignup(activity.id)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        style={{ width: '100%' }}
                       >
                         Sign Up
                       </motion.button>
                     )}
                     {isSignedUp(activity) && (
-                      <div style={{ padding: 12, textAlign: 'center', background: 'var(--bg-primary)', borderRadius: 8, color: 'var(--accent)', fontWeight: 600 }}>
+                      <div className="px-3 py-3 text-center bg-[var(--bg-primary)] rounded-lg text-[var(--accent)] font-semibold">
                         ✓ Signed Up!
                       </div>
                     )}
                     {isFull(activity) && !isSignedUp(activity) && (
-                      <div style={{ padding: 12, textAlign: 'center', background: 'var(--bg-primary)', borderRadius: 8, color: '#ef4444', fontWeight: 600 }}>
+                      <div className="px-3 py-3 text-center bg-[var(--bg-primary)] rounded-lg text-red-500 font-semibold">
                         Activity Full
                       </div>
                     )}
@@ -311,11 +258,10 @@ export default function ActivitiesPage() {
                 {/* Leader view: delete button */}
                 {user?.profile === 'leader' && (
                   <motion.button
-                    className="btn btn-outline"
+                    className="btn btn-outline w-full flex items-center justify-center gap-2 text-red-500 border-red-500"
                     onClick={() => handleDeleteActivity(activity.id)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#ef4444', borderColor: '#ef4444' }}
                   >
                     <Trash2 size={16} /> Delete
                   </motion.button>
