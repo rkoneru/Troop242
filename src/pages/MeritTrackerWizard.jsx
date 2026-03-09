@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ArrowLeft, Copy, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Copy, ExternalLink } from 'lucide-react';
 import { BADGE_CATEGORIES } from './Badges';
 
 export default function MeritTrackerWizard() {
@@ -29,7 +29,6 @@ export default function MeritTrackerWizard() {
 
   // State
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
-  const [currentBadgeIdx, setCurrentBadgeIdx] = useState(0);
   const [meritProgress, setMeritProgress] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('meritProgress') || '{}');
@@ -46,6 +45,17 @@ export default function MeritTrackerWizard() {
   });
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [expandedBadge, setExpandedBadge] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [categoryViewOpen, setCategoryViewOpen] = useState(true);
+
+  // Detect mobile on mount
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Handlers
   const cycleBadgeStatus = (badgeName) => {
@@ -64,28 +74,16 @@ export default function MeritTrackerWizard() {
     localStorage.setItem('meritNotes', JSON.stringify(updated));
   };
 
-  const nextBadge = () => {
-    const currentCategory = BADGE_CATEGORIES[selectedCategoryIdx];
-    if (currentBadgeIdx < currentCategory.badges.length - 1) {
-      setCurrentBadgeIdx(currentBadgeIdx + 1);
-    }
-  };
-
-  const prevBadge = () => {
-    if (currentBadgeIdx > 0) {
-      setCurrentBadgeIdx(currentBadgeIdx - 1);
-    }
-  };
-
-  const selectCategory = (catIdx) => {
-    setSelectedCategoryIdx(catIdx);
-    setCurrentBadgeIdx(0);
-  };
-
   // Compute progress
   const getCompletedCountForCategory = (catIdx) => {
     return BADGE_CATEGORIES[catIdx].badges.filter(
       (b) => meritProgress[b.name] === 'completed'
+    ).length;
+  };
+
+  const getWorkingCountForCategory = (catIdx) => {
+    return BADGE_CATEGORIES[catIdx].badges.filter(
+      (b) => meritProgress[b.name] === 'working'
     ).length;
   };
 
@@ -137,19 +135,25 @@ export default function MeritTrackerWizard() {
 
   // Render state
   const currentCategory = BADGE_CATEGORIES[selectedCategoryIdx];
-  const currentBadge = currentCategory.badges[currentBadgeIdx];
-  const badgeStatus = meritProgress[currentBadge.name];
-  const currentNote = meritNotes[currentBadge.name] || '';
+  const completedCount = getCompletedCountForCategory(selectedCategoryIdx);
+  const workingCount = getWorkingCountForCategory(selectedCategoryIdx);
 
-  const statusColor =
-    badgeStatus === 'completed'
-      ? 'var(--accent)'
-      : badgeStatus === 'working'
-      ? '#f59e0b'
-      : 'var(--divider)';
+  const getStatusColor = (badgeName) => {
+    const status = meritProgress[badgeName];
+    if (status === 'completed') return '#22c55e'; // green
+    if (status === 'working') return '#f59e0b'; // amber
+    return '#6b7280'; // gray
+  };
+
+  const getStatusLabel = (badgeName) => {
+    const status = meritProgress[badgeName];
+    if (status === 'completed') return 'Completed';
+    if (status === 'working') return 'In Progress';
+    return 'Not Started';
+  };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: 80, paddingBottom: 100 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: 80, paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'var(--bg-secondary)', borderBottom: `1px solid var(--divider)`, zIndex: 100, padding: '16px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -167,164 +171,249 @@ export default function MeritTrackerWizard() {
         </div>
       </div>
 
-      {/* Category Selector Grid */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }}>
-        <h2 style={{ fontSize: '1rem', fontWeight: 600, marginTop: 0, marginBottom: 16, color: 'var(--text-muted)' }}>SELECT CATEGORY</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 12, marginBottom: 48 }}>
-          {BADGE_CATEGORIES.map((cat, idx) => {
-            const completed = getCompletedCountForCategory(idx);
-            const isSelected = idx === selectedCategoryIdx;
-            return (
-              <motion.button
-                key={idx}
-                className="glass-card"
-                onClick={() => selectCategory(idx)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  padding: 12,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  border: isSelected ? `2px solid var(--accent)` : '1px solid var(--divider)',
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>{cat.emoji}</div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 500, marginBottom: 4, color: isSelected ? 'var(--accent)' : 'var(--text-main)' }}>{cat.category}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{completed} completed</div>
-              </motion.button>
-            );
-          })}
-        </div>
+        {/* Category Selector Grid - Hidden on mobile when selected */}
+        {(!isMobile || categoryViewOpen) && (
+          <>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600, marginTop: 0, marginBottom: 16, color: 'var(--text-muted)' }}>SELECT CATEGORY</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 48 }}>
+              {BADGE_CATEGORIES.map((cat, idx) => {
+                const completed = getCompletedCountForCategory(idx);
+                const isSelected = idx === selectedCategoryIdx;
+                return (
+                  <motion.button
+                    key={idx}
+                    className="glass-card"
+                    onClick={() => {
+                      setSelectedCategoryIdx(idx);
+                      if (isMobile) setCategoryViewOpen(false);
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{
+                      padding: '20px 16px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      border: isSelected ? `2px solid var(--accent)` : '1px solid var(--divider)',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      minHeight: 140,
+                    }}
+                  >
+                    <div style={{ fontSize: '2rem' }}>{cat.emoji}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: isSelected ? 'var(--accent)' : 'var(--text-main)', lineHeight: 1.3 }}>{cat.category}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent)' }}>{completed}</div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </>
+        )}
 
-        {/* Breadcrumb & Progress */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: 12 }}>
-            {currentCategory.emoji} {currentCategory.category} • Badge {currentBadgeIdx + 1} of {currentCategory.badges.length}
-          </div>
-          <div style={{ width: '100%', height: 6, background: 'var(--bg-secondary)', borderRadius: 3, overflow: 'hidden' }}>
-            <motion.div
-              style={{
-                height: '100%',
-                background: 'var(--accent)',
-                width: `${((currentBadgeIdx + 1) / currentCategory.badges.length) * 100}%`,
-              }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-            />
-          </div>
-        </div>
-
-        {/* Wizard Card */}
-        <div style={{ maxWidth: 600, margin: '0 auto 48px' }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${selectedCategoryIdx}-${currentBadgeIdx}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="glass-card"
-              style={{ padding: 32 }}
-            >
-              <div style={{ textAlign: 'center', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>{currentBadge.name}</h2>
-                <motion.a
-                  href={currentBadge.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.9 }}
-                  style={{ color: 'var(--accent)', cursor: 'pointer', display: 'inline-flex' }}
-                >
-                  <ExternalLink size={20} />
-                </motion.a>
-              </div>
-
-              {/* 3-State Toggle Button */}
-              <div style={{ marginBottom: 24 }}>
-                <motion.button
-                  onClick={() => cycleBadgeStatus(currentBadge.name)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.92 }}
-                  style={{
-                    width: '100%',
-                    padding: '16px 24px',
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    borderRadius: 8,
-                    border: `2px solid ${statusColor}`,
-                    background: statusColor === 'var(--divider)' ? 'transparent' : statusColor + '20',
-                    color: statusColor === 'var(--divider)' ? 'var(--text-muted)' : statusColor,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  {!badgeStatus
-                    ? 'Not Started'
-                    : badgeStatus === 'working'
-                    ? '⏳ Working On'
-                    : '✓ Completed'}
-                </motion.button>
-                <p style={{ textAlign: 'center', marginTop: 12, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                  Click to cycle through progress stages
-                </p>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 500, marginBottom: 8, color: 'var(--text-muted)' }}>
-                  Notes (optional)
-                </label>
-                <textarea
-                  value={currentNote}
-                  onChange={(e) => saveBadgeNote(currentBadge.name, e.target.value)}
-                  placeholder="Add requirements completed, learning notes, or plans..."
-                  style={{
-                    width: '100%',
-                    height: 100,
-                    padding: 12,
-                    border: `1px solid var(--divider)`,
-                    background: 'var(--bg-primary)',
-                    color: 'var(--text-main)',
-                    borderRadius: 8,
-                    fontFamily: 'inherit',
-                    fontSize: '0.9rem',
-                    resize: 'none',
-                  }}
-                />
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '8px 0 0', textAlign: 'right' }}>Saved</p>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Navigation */}
-        <div style={{ maxWidth: 600, margin: '0 auto 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        {/* Back to Categories Button - Mobile Only */}
+        {isMobile && !categoryViewOpen && (
           <motion.button
             className="btn btn-outline"
-            onClick={prevBadge}
-            disabled={currentBadgeIdx === 0}
+            onClick={() => setCategoryViewOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            style={{ opacity: currentBadgeIdx === 0 ? 0.5 : 1 }}
+            style={{ marginBottom: 24, display: 'block' }}
           >
-            <ChevronLeft size={18} /> Previous
+            ← Back to Categories
           </motion.button>
+        )}
 
-          <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            {currentBadgeIdx + 1} of {currentCategory.badges.length}
+        {/* Category Header */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+            <div style={{ fontSize: '2.5rem' }}>{currentCategory.emoji}</div>
+            <div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, marginBottom: 4, color: 'var(--text-main)' }}>
+                {currentCategory.category}
+              </h2>
+              <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                {currentCategory.description}
+              </p>
+            </div>
           </div>
 
-          <motion.button
-            className="btn btn-primary"
-            onClick={nextBadge}
-            disabled={currentBadgeIdx === currentCategory.badges.length - 1}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{ opacity: currentBadgeIdx === currentCategory.badges.length - 1 ? 0.5 : 1 }}
-          >
-            Next <ChevronRight size={18} />
-          </motion.button>
+          {/* Progress Stats */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            <div className="glass-card" style={{ padding: 16, textAlign: 'center' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#22c55e' }}>{completedCount}</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Completed</div>
+            </div>
+            <div className="glass-card" style={{ padding: 16, textAlign: 'center' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b' }}>{workingCount}</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>In Progress</div>
+            </div>
+            <div className="glass-card" style={{ padding: 16, textAlign: 'center' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+                {currentCategory.badges.length - completedCount - workingCount}
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Not Started</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Badges List Table */}
+        <div className="glass-card" style={{ padding: 24 }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginTop: 0, marginBottom: 20, color: 'var(--text-main)' }}>
+            Badges in this Category
+          </h3>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 8, overflow: 'hidden', border: `1px solid var(--divider)` }}>
+            {/* Table Header */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1.5fr 1fr 1fr auto',
+                gap: 16,
+                padding: '16px',
+                background: 'var(--bg-primary)',
+                borderBottom: `1px solid var(--divider)`,
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                color: 'var(--text-muted)',
+              }}
+            >
+              <div>Badge Name</div>
+              <div style={{ textAlign: 'center' }}>Status</div>
+              <div style={{ textAlign: 'center' }}>Link</div>
+              <div style={{ textAlign: 'center' }}>Notes</div>
+            </div>
+
+            {/* Table Rows */}
+            {currentCategory.badges.map((badge, idx) => {
+              const status = meritProgress[badge.name];
+              const note = meritNotes[badge.name] || '';
+              const isExpanded = expandedBadge === badge.name;
+
+              return (
+                <div key={idx}>
+                  {/* Main Row */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1.5fr 1fr 1fr auto',
+                      gap: 16,
+                      padding: '16px',
+                      background: isExpanded ? 'var(--bg-primary)' : 'transparent',
+                      borderBottom: `1px solid var(--divider)`,
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(var(--accent-rgb, 0, 214, 143), 0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = isExpanded ? 'var(--bg-primary)' : 'transparent';
+                    }}
+                  >
+                    {/* Badge Name */}
+                    <div style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-main)' }}>
+                      {badge.name}
+                    </div>
+
+                    {/* Status Button */}
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <motion.button
+                        onClick={() => cycleBadgeStatus(badge.name)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        style={{
+                          padding: '6px 16px',
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          borderRadius: 20,
+                          border: `2px solid ${getStatusColor(badge.name)}`,
+                          background: getStatusColor(badge.name) + '20',
+                          color: getStatusColor(badge.name),
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          minWidth: 120,
+                        }}
+                      >
+                        {getStatusLabel(badge.name)}
+                      </motion.button>
+                    </div>
+
+                    {/* Link to Scouting.org */}
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <motion.a
+                        href={badge.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
+                        style={{ color: 'var(--accent)', cursor: 'pointer', display: 'inline-flex' }}
+                      >
+                        <ExternalLink size={18} />
+                      </motion.a>
+                    </div>
+
+                    {/* Expand/Collapse Notes Indicator */}
+                    <div
+                      onClick={() => setExpandedBadge(isExpanded ? null : badge.name)}
+                      style={{
+                        textAlign: 'center',
+                        fontSize: '0.9rem',
+                        color: note ? 'var(--accent)' : 'var(--text-muted)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {note ? '📝' : '○'}
+                    </div>
+                  </div>
+
+                  {/* Expanded Notes Section */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{
+                          padding: '16px',
+                          background: 'var(--bg-primary)',
+                          borderBottom: `1px solid var(--divider)`,
+                          borderTop: `1px solid var(--divider)`,
+                        }}
+                      >
+                        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 500, marginBottom: 8, color: 'var(--text-muted)' }}>
+                          Notes for {badge.name}
+                        </label>
+                        <textarea
+                          value={note}
+                          onChange={(e) => saveBadgeNote(badge.name, e.target.value)}
+                          placeholder="Add requirements completed, learning notes, or plans..."
+                          style={{
+                            width: '100%',
+                            height: 80,
+                            padding: 12,
+                            border: `1px solid var(--divider)`,
+                            background: 'var(--bg-secondary)',
+                            color: 'var(--text-main)',
+                            borderRadius: 8,
+                            fontFamily: 'inherit',
+                            fontSize: '0.9rem',
+                            resize: 'none',
+                          }}
+                        />
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '8px 0 0', textAlign: 'right' }}>Saved</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Submit to Scoutbook Button */}
@@ -334,7 +423,7 @@ export default function MeritTrackerWizard() {
             onClick={() => setShowSubmitModal(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            style={{ width: '100%', maxWidth: 600, margin: '0 auto', display: 'block' }}
+            style={{ width: '100%', maxWidth: 600, margin: '32px auto 0', display: 'block' }}
           >
             Submit to Scoutbook
           </motion.button>

@@ -94,7 +94,7 @@ export default function Header() {
                 <Link to="/new-scout" onClick={handleNavClick()} className="header-dropdown-item">New Scout</Link>
                 <Link to="/scout-principles" onClick={handleNavClick()} className="header-dropdown-item">Scout Principles</Link>
                 <Link to="/skills" onClick={handleNavClick()} className="header-dropdown-item">Scout Skills</Link>
-                <Link to="/ranks" onClick={handleNavClick()} className="header-dropdown-item">Ranks</Link>
+                <Link to="/ranks" onClick={handleNavClick()} className="header-dropdown-item">Scout Ranks</Link>
                 <Link to="/badges" onClick={handleNavClick()} className="header-dropdown-item">Merit Badges</Link>
                 <Link to="/glossary" onClick={handleNavClick()} className="header-dropdown-item">Glossary</Link>
               </motion.div>

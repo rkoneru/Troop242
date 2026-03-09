@@ -368,6 +368,52 @@ export default function ScoutDashboard() {
               </motion.button>
             </motion.div>
 
+            {/* SKILLS TRACKER TILE */}
+            <motion.div
+              variants={itemVariants}
+              className="glass-card"
+              style={{ padding: 32, cursor: 'pointer' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/skills-tracker')}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                <div style={{ fontSize: '2.5rem' }}>⚡</div>
+                <div>
+                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Essential Skills</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
+                    Master scout skills
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: 8 }}>Skills Tracked</p>
+                <div style={{ background: 'var(--divider)', borderRadius: 99, height: 8 }}>
+                  <div
+                    style={{
+                      width: `${skillsProgress.percentage}%`,
+                      background: 'var(--accent)',
+                      height: '100%',
+                      borderRadius: 99,
+                      transition: 'width 0.6s ease',
+                    }}
+                  />
+                </div>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '8px 0 0 0' }}>
+                  {skillsProgress.tracked}/{skillsProgress.total} skills
+                </p>
+              </div>
+
+              <motion.button
+                className="btn btn-primary"
+                whileHover={{ gap: 16 }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
+              >
+                Track Skills <ChevronRight size={18} />
+              </motion.button>
+            </motion.div>
+
             {/* ACTIVITY SIGNUP TILE */}
             <motion.div
               variants={itemVariants}
@@ -416,51 +462,7 @@ export default function ScoutDashboard() {
               </motion.button>
             </motion.div>
 
-            {/* SKILLS TRACKER TILE */}
-            <motion.div
-              variants={itemVariants}
-              className="glass-card"
-              style={{ padding: 32, cursor: 'pointer' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/skills-tracker')}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: '2.5rem' }}>⚡</div>
-                <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Essential Skills</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Master scout skills
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: 8 }}>Skills Tracked</p>
-                <div style={{ background: 'var(--divider)', borderRadius: 99, height: 8 }}>
-                  <div
-                    style={{
-                      width: `${skillsProgress.percentage}%`,
-                      background: 'var(--accent)',
-                      height: '100%',
-                      borderRadius: 99,
-                      transition: 'width 0.6s ease',
-                    }}
-                  />
-                </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '8px 0 0 0' }}>
-                  {skillsProgress.tracked}/{skillsProgress.total} skills
-                </p>
-              </div>
-
-              <motion.button
-                className="btn btn-primary"
-                whileHover={{ gap: 16 }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
-              >
-                Track Skills <ChevronRight size={18} />
-              </motion.button>
-            </motion.div>
+            
 
             {/* FUNDRAISING TILE */}
             <motion.div
@@ -497,7 +499,7 @@ export default function ScoutDashboard() {
             </motion.div>
 
             {/* ADVANCEMENT GUIDE TILE */}
-            <motion.div
+           {/*  <motion.div
               variants={itemVariants}
               className="glass-card"
               style={{ padding: 32, cursor: 'pointer' }}
@@ -528,8 +530,8 @@ export default function ScoutDashboard() {
               >
                 Explore Guide <ChevronRight size={18} />
               </motion.button>
-            </motion.div>
-          </motion.div>
+            </motion.div>*/}
+          </motion.div> 
         </div>
       </section>
     </>

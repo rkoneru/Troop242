@@ -80,7 +80,7 @@ export default function Ranks() {
             transition={{ duration: 0.6 }}
             style={{ textAlign: 'center' }}
           >
-            <h1 style={{ marginBottom: 24 }}>Scout Ranks</h1>
+            <h1 style={{ marginBottom: 24 }}>Advancement Ranks</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: 600, margin: '0 auto' }}>
               Progress through seven ranks from Scout to Eagle Scout. Each rank represents growth in leadership, outdoor skills, and character development.
             </p>
