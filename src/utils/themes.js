@@ -78,5 +78,25 @@ export const THEMES = {
       '--divider': 'rgba(0, 0, 0, 0.05)',
       '--header-bg': 'rgba(214, 206, 189, 0.95)'
     }
+  },
+  blue: {
+    name: 'Scout Blue',
+    description: 'Deep scout blue background with bright accents',
+    tokens: {
+      '--bg-primary': '#003f87',
+      '--bg-secondary': '#082854',
+      '--bg-tertiary': '#0a3366',
+      '--text-primary': '#ffffff',
+      '--text-muted': '#b3d9ff',
+      '--accent': '#2196F3',
+      '--accent-dim': 'rgba(33, 150, 243, 0.12)',
+      '--accent-border': 'rgba(33, 150, 243, 0.3)',
+      '--glass-bg': 'rgba(255, 255, 255, 0.08)',
+      '--glass-border': 'rgba(255, 255, 255, 0.15)',
+      '--input-bg': 'rgba(255, 255, 255, 0.05)',
+      '--input-border': 'rgba(255, 255, 255, 0.12)',
+      '--divider': 'rgba(255, 255, 255, 0.1)',
+      '--header-bg': 'rgba(0, 63, 135, 0.95)'
+    }
   }
 };

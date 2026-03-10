@@ -185,8 +185,11 @@ export default function Appearance() {
               <p style={{ marginBottom: 16 }}>
                 <strong style={{ color: 'var(--accent)' }}>Scout Green:</strong> A thematic deep green background inspired by scouting traditions, evoking nature and outdoor adventures.
               </p>
-              <p>
+              <p style={{ marginBottom: 16 }}>
                 <strong style={{ color: 'var(--accent)' }}>Scout Tan:</strong> A traditional tan color representing classic scouting heritage and outdoor expeditions.
+              </p>
+              <p>
+                <strong style={{ color: 'var(--accent)' }}>Scout Blue:</strong> A deep blue background inspired by scout leadership and unity, with bright blue accents for vibrant visual appeal.
               </p>
             </div>
 
