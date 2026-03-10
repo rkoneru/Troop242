@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Troop 242 — Day & Night Sky</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body { width:100vw; height:100vh; overflow:hidden; font-family:'Raleway',sans-serif; }
+
+  /* ── SKY ── */
+  .sky { position:absolute; inset:0; }
+
+  /* ── STARS ── */
+  #stars { position:absolute; inset:0; pointer-events:none; }
+  .star {
+    position:absolute; border-radius:50%; background:#fff;
+    animation: twinkle 2s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    from { opacity:0.15; transform:scale(0.8); }
+    to   { opacity:1;    transform:scale(1.3); }
+  }
+
+  /* ── SUN RAYS ── */
+  .ray {
+    position:absolute; left:50%; top:50%;
+    width:2px; border-radius:2px;
+    transform-origin:50% 0%;
+    background:rgba(255,235,100,0.5);
+    animation:rayPulse 2.2s ease-in-out infinite alternate;
+  }
+  @keyframes rayPulse {
+    from { opacity:0.25; }
+    to   { opacity:0.75; }
+  }
+
+  /* ── CLOUDS ── */
+  #clouds { position:absolute; inset:0; pointer-events:none; }
+  .cloud {
+    position:absolute; border-radius:60px;
+    background:rgba(255,255,255,0.88);
+    filter:blur(3px);
+  }
+  .cloud::before, .cloud::after {
+    content:''; position:absolute;
+    background:rgba(255,255,255,0.92); border-radius:50%;
+  }
+
+  /* ── AURORA ── */
+  #aurora {
+    position:absolute; width:140%; height:45%; top:0; left:-20%;
+    background:linear-gradient(180deg,
+      transparent 0%, rgba(0,210,120,0.09) 35%,
+      rgba(80,0,210,0.07) 65%, transparent 100%);
+    filter:blur(28px); pointer-events:none;
+    animation:auroraWave 9s ease-in-out infinite;
+  }
+  @keyframes auroraWave {
+    0%  { transform:skewX(-6deg) translateX(0);   }
+    50% { transform:skewX(6deg)  translateX(40px); }
+    100%{ transform:skewX(-6deg) translateX(0);   }
+  }
+
+  /* ── FOREST ── */
+  #forest {
+    position:absolute; bottom:0; left:0; right:0;
+    height:32%; pointer-events:none; z-index:5;
+  }
+  #forest svg { width:100%; height:100%; display:block; }
+
+  /* ── FIREFLIES ── */
+  .firefly {
+    position:absolute; width:4px; height:4px;
+    border-radius:50%; background:#c8ff00;
+    box-shadow:0 0 6px 3px rgba(200,255,0,0.8);
+    pointer-events:none; z-index:6;
+    animation:ffFloat linear infinite;
+  }
+  @keyframes ffFloat {
+    0%  { transform:translate(0,0);      }
+    25% { transform:translate(6px,-8px); }
+    50% { transform:translate(-4px,-14px);}
+    75% { transform:translate(8px,-6px); }
+    100%{ transform:translate(0,0);      }
+  }
+
+  /* ── BRANDING ── */
+  #branding {
+    position:absolute; top:48%; left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center; z-index:10; pointer-events:none;
+  }
+  .fleur { font-size:clamp(2rem,6vw,4rem); display:block; margin-bottom:0.1em; }
+  .scout-label {
+    font-family:'Raleway',sans-serif;
+    font-size:clamp(0.75rem,2vw,1.2rem);
+    font-weight:300; letter-spacing:0.55em; text-transform:uppercase;
+  }
+  .troop-num {
+    font-family:'Cinzel',serif;
+    font-size:clamp(4rem,13vw,9rem);
+    font-weight:900; letter-spacing:0.04em; line-height:1;
+  }
+  .location-label {
+    font-family:'Raleway',sans-serif;
+    font-size:clamp(0.65rem,1.5vw,0.95rem);
+    font-weight:300; letter-spacing:0.4em; text-transform:uppercase;
+    margin-top:0.6em; opacity:0.8;
+  }
+
+  /* ── TIME BADGE ── */
+  #time-badge {
+    position:absolute; bottom:16%; left:50%;
+    transform:translateX(-50%);
+    font-family:'Raleway',sans-serif;
+    font-size:0.72rem; letter-spacing:0.35em; text-transform:uppercase;
+    color:rgba(255,255,255,0.55); z-index:10; pointer-events:none;
+  }
+
+  /* ── CONTROLS ── */
+  #controls {
+    position:absolute; bottom:1.4rem; right:1.4rem;
+    z-index:20; display:flex; gap:0.5rem;
+  }
+  .ctrl {
+    background:rgba(255,255,255,0.13);
+    border:1px solid rgba(255,255,255,0.28);
+    color:#fff; font-family:'Raleway',sans-serif;
+    font-size:0.72rem; letter-spacing:0.12em;
+    padding:0.38rem 0.8rem; border-radius:4px;
+    cursor:pointer; backdrop-filter:blur(6px); transition:background 0.2s;
+  }
+  .ctrl:hover  { background:rgba(255,255,255,0.22); }
+  .ctrl.active { background:rgba(255,255,255,0.32); border-color:rgba(255,255,255,0.65); }
+
+  /* ── HOME BUTTON ── */
+  #home-button-container {
+    position:absolute; bottom:1.4rem; left:1.4rem;
+    z-index:20;
+  }
+  .home-btn {
+    background:rgba(255,255,255,0.13);
+    border:1px solid rgba(255,255,255,0.28);
+    color:#fff; font-family:'Raleway',sans-serif;
+    font-size:0.72rem; letter-spacing:0.12em;
+    padding:0.38rem 0.8rem; border-radius:4px;
+    cursor:pointer; backdrop-filter:blur(6px);
+    transition:background 0.2s;
+    display:inline-block;
+    text-decoration:none;
+  }
+  .home-btn:hover  { background:rgba(255,255,255,0.22); }
+
+  /* ── CLOCK ── */
+  #clock-display {
+    position:absolute; bottom:1.4rem; left:50%;
+    transform:translateX(-50%);
+    z-index:20;
+    background:rgba(255,255,255,0.13);
+    border:1px solid rgba(255,255,255,0.28);
+    color:#fff; font-family:'Raleway',sans-serif;
+    font-size:0.72rem; letter-spacing:0.12em;
+    padding:0.38rem 0.8rem; border-radius:4px;
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" id="sky"></div>
+<div id="aurora"></div>
+<div id="stars"></div>
+<div id="clouds"></div>
+
+<!-- Horizon glow -->
+<div id="horizon-glow" style="position:absolute;left:0;right:0;pointer-events:none;z-index:2;filter:blur(14px);"></div>
+
+<!-- Sun rays (behind sun) -->
+<div id="sun-rays" style="position:absolute;width:0;height:0;pointer-events:none;z-index:3;"></div>
+<!-- Sun disc -->
+<div id="sun" style="position:absolute;width:68px;height:68px;border-radius:50%;pointer-events:none;z-index:4;transform:translate(-50%,-50%);"></div>
+
+<!-- Moon glow -->
+<div id="moon-glow" style="position:absolute;border-radius:50%;pointer-events:none;z-index:3;transform:translate(-50%,-50%);"></div>
+<!-- Moon disc -->
+<div id="moon" style="position:absolute;width:54px;height:54px;border-radius:50%;pointer-events:none;z-index:4;transform:translate(-50%,-50%);background:radial-gradient(circle at 38% 38%,#fffde7 0%,#e8e8f0 55%,#c0c0d8 100%);"></div>
+
+<!-- Forest -->
+<div id="forest">
+<svg viewBox="0 0 1440 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#1a3818" d="M0,280 L0,195 L22,175 L44,148 L58,172 L72,128 L88,158 L104,108
+    L120,143 L136,98 L152,134 L168,88 L184,126 L200,75 L216,118 L232,68 L248,108
+    L264,82 L280,62 L296,98 L312,72 L328,102 L344,52 L360,92 L376,58 L392,98
+    L408,44 L424,88 L440,48 L456,82 L472,108 L488,58 L504,95 L520,48 L536,84
+    L552,38 L568,78 L584,54 L600,88 L616,44 L632,84 L648,48 L664,76 L680,42
+    L696,80 L712,48 L728,88 L744,54 L760,82 L776,38 L792,74 L808,50 L824,90
+    L840,44 L856,80 L872,50 L888,84 L904,38 L920,78 L936,54 L952,90 L968,48
+    L984,84 L1000,38 L1016,76 L1032,50 L1048,90 L1064,44 L1080,80 L1096,54
+    L1112,84 L1128,38 L1144,76 L1160,50 L1176,90 L1192,44 L1208,80 L1224,54
+    L1240,80 L1256,48 L1272,88 L1288,58 L1304,94 L1320,54 L1336,84 L1352,48
+    L1368,88 L1384,64 L1400,98 L1416,68 L1432,108 L1440,96 L1440,280 Z"/>
+  <path fill="#112611" d="M0,280 L0,238 L28,218 L58,200 L80,212 L110,190 L140,208
+    L172,178 L202,204 L232,186 L262,212 L292,180 L322,208 L352,186 L382,216
+    L412,188 L442,212 L472,184 L502,216 L532,188 L562,212 L592,184 L622,216
+    L652,188 L682,212 L712,184 L742,216 L772,188 L802,212 L832,184 L862,216
+    L892,188 L922,212 L952,184 L982,216 L1012,188 L1042,212 L1072,184 L1102,216
+    L1132,188 L1162,212 L1192,184 L1222,216 L1252,188 L1282,212 L1312,184
+    L1342,216 L1372,190 L1402,210 L1440,192 L1440,280 Z"/>
+</svg>
+</div>
+
+<div id="fireflies-layer"></div>
+
+<div id="branding">
+  <span class="fleur">⚜</span>
+  <div class="scout-label">Scouting America</div>
+  <div class="troop-num">TROOP 242</div>
+  <div class="location-label">Central Florida &nbsp;·&nbsp; Be Prepared</div>
+</div>
+
+<div id="time-badge">Night</div>
+
+<div id="controls">
+  <button class="ctrl" onclick="setSpeed(60)">Slow</button>
+  <button class="ctrl active" onclick="setSpeed(20)">Normal</button>
+  <button class="ctrl" onclick="setSpeed(8)">Fast</button>
+</div>
+
+<div id="home-button-container">
+  <a href="/Troop242/" class="home-btn">🏠 Home</a>
+</div>
+
+<div id="clock-display">--:--:--</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+let CYCLE_MS   = 20000;
+let cycleStart = performance.now();
+
+// Cycle fractions
+const SUN_RISE  = 0.25;   // t when sun crests the left horizon
+const SUN_SET   = 0.75;   // t when sun sinks below right horizon
+const MOON_RISE = 0.75;   // t when moon crests the left horizon (night starts)
+const MOON_SET  = 0.25;   // t when moon sinks (wraps through 1→0)
+
+// ══════════════════════════════════════════
+// DOM REFS
+// ══════════════════════════════════════════
+const skyEl      = document.getElementById('sky');
+const sunEl      = document.getElementById('sun');
+const sunRaysEl  = document.getElementById('sun-rays');
+const moonEl     = document.getElementById('moon');
+const moonGlowEl = document.getElementById('moon-glow');
+const starsEl    = document.getElementById('stars');
+const cloudsEl   = document.getElementById('clouds');
+const auroraEl   = document.getElementById('aurora');
+const forestEl   = document.getElementById('forest');
+const hGlowEl    = document.getElementById('horizon-glow');
+const ffLayer    = document.getElementById('fireflies-layer');
+const brandingEl = document.getElementById('branding');
+const timeBadge  = document.getElementById('time-badge');
+
+// ══════════════════════════════════════════
+// STARS
+// ══════════════════════════════════════════
+for (let i = 0; i < 230; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const sz = Math.random() * 2.4 + 0.5;
+  s.style.cssText = `
+    width:${sz}px;height:${sz}px;
+    top:${(Math.random()*68).toFixed(1)}%;
+    left:${(Math.random()*100).toFixed(1)}%;
+    animation-delay:${(Math.random()*4).toFixed(2)}s;
+    animation-duration:${(1.4+Math.random()*2.6).toFixed(2)}s;
+  `;
+  starsEl.appendChild(s);
+}
+
+// ══════════════════════════════════════════
+// SUN RAYS
+// ══════════════════════════════════════════
+const RAY_LENS = [55,40,70,44,62,36,68,42,58,38,72,46,52,34,64,48];
+RAY_LENS.forEach((len, i) => {
+  const r = document.createElement('div');
+  r.className = 'ray';
+  r.style.cssText = `
+    width:2px;height:${len}px;
+    margin-left:-1px;margin-top:-${len}px;
+    transform:rotate(${(i/RAY_LENS.length*360).toFixed(1)}deg);
+    animation-delay:${(i*0.13).toFixed(2)}s;
+  `;
+  sunRaysEl.appendChild(r);
+});
+
+// ══════════════════════════════════════════
+// CLOUDS
+// ══════════════════════════════════════════
+const ss = document.createElement('style');
+ss.textContent = `@keyframes cloudDrift{from{transform:translateX(-350px)}to{transform:translateX(110vw)}}`;
+document.head.appendChild(ss);
+
+[{top:10,w:240,h:65,dur:38,delay:0},
+ {top:20,w:320,h:85,dur:52,delay:-14},
+ {top:8, w:190,h:52,dur:42,delay:-26},
+ {top:26,w:270,h:72,dur:47,delay:-9},
+ {top:16,w:210,h:58,dur:40,delay:-21},
+ {top:30,w:180,h:50,dur:35,delay:-32}
+].forEach(c => {
+  const el = document.createElement('div');
+  el.className = 'cloud';
+  el.style.cssText = `top:${c.top}%;left:0;width:${c.w}px;height:${c.h}px;animation:cloudDrift ${c.dur}s linear ${c.delay}s infinite;`;
+  ['before','after'].forEach((which, idx) => {
+    const b = document.createElement('div');
+    b.style.cssText = `width:${c.w*(0.48-idx*0.1)}px;height:${c.h*(1.5-idx*0.2)}px;top:${-45+idx*10}%;left:${12+idx*34}%;border-radius:50%;position:absolute;`;
+    el.appendChild(b);
+  });
+  cloudsEl.appendChild(el);
+});
+
+// ══════════════════════════════════════════
+// FIREFLIES
+// ══════════════════════════════════════════
+const fireflies = [];
+for (let i = 0; i < 22; i++) {
+  const ff = document.createElement('div');
+  ff.className = 'firefly';
+  ff.style.cssText = `
+    left:${(4+Math.random()*92).toFixed(1)}%;
+    top:${(58+Math.random()*22).toFixed(1)}%;
+    animation-duration:${(3+Math.random()*4).toFixed(1)}s;
+    animation-delay:${(Math.random()*4).toFixed(1)}s;
+    opacity:0;
+  `;
+  ffLayer.appendChild(ff);
+  fireflies.push(ff);
+}
+
+// ══════════════════════════════════════════
+// MATH HELPERS
+// ══════════════════════════════════════════
+const lerp        = (a,b,t) => a+(b-a)*t;
+const clamp       = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+const smoothstep  = (e0,e1,x) => { const t=clamp((x-e0)/(e1-e0),0,1); return t*t*(3-2*t); };
+const lerpC       = (c1,c2,t) => c1.map((v,i) => Math.round(lerp(v,c2[i],t)));
+const rgb         = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+
+// ══════════════════════════════════════════
+// SKY PALETTE  [t, topRGB, midRGB, botRGB]
+// ══════════════════════════════════════════
+const SKY = [
+  [0.00, [6,6,38],    [18,18,68],   [36,22,68]  ],
+  [0.18, [14,6,48],   [48,20,85],   [80,30,95]  ],
+  [0.24, [36,12,66],  [100,44,115], [165,68,105]],
+  [0.28, [255,88,48], [255,158,35], [255,205,28]],
+  [0.36, [82,162,235],[132,195,248],[255,215,115]],
+  [0.50, [15,85,185], [55,148,235], [170,220,250]],
+  [0.65, [15,85,185], [55,148,235], [170,220,250]],
+  [0.70, [82,162,235],[132,195,248],[255,215,115]],
+  [0.74, [255,88,48], [255,158,35], [255,205,28]],
+  [0.80, [36,12,66],  [100,44,115], [165,68,105]],
+  [0.90, [6,6,38],    [18,18,68],   [36,22,68]  ],
+  [1.00, [6,6,38],    [18,18,68],   [36,22,68]  ],
+];
+
+function getSkyColors(t) {
+  let lo = SKY[0], hi = SKY[SKY.length-1];
+  for (let i = 0; i < SKY.length-1; i++) {
+    if (t >= SKY[i][0] && t <= SKY[i+1][0]) { lo = SKY[i]; hi = SKY[i+1]; break; }
+  }
+  const f = lo[0] === hi[0] ? 0 : (t-lo[0])/(hi[0]-lo[0]);
+  return [lerpC(lo[1],hi[1],f), lerpC(lo[2],hi[2],f), lerpC(lo[3],hi[3],f)];
+}
+
+// ══════════════════════════════════════════
+// CELESTIAL ARC
+//   progress 0→1 maps to left-horizon → zenith → right-horizon
+//   Arc is a semicircle; centre at bottom-centre of sky area
+// ══════════════════════════════════════════
+function arcPos(progress) {
+  const W = window.innerWidth, H = window.innerHeight;
+  const cy  = H * 0.70;       // horizon Y
+  const R   = W * 0.52;       // arc radius
+  const ang = progress * Math.PI;          // 0 → π
+  return {
+    x: W * 0.5 - R * Math.cos(ang),       // starts left, ends right
+    y: cy       - R * Math.sin(ang),       // peaks high at ang=π/2
+  };
+}
+
+// ══════════════════════════════════════════
+// TIME LABELS
+// ══════════════════════════════════════════
+const LABELS = [
+  [0.00,'Midnight'],[0.18,'Pre-Dawn'],[0.24,'Dawn'],
+  [0.28,'Sunrise'], [0.36,'Morning'],[0.50,'Midday'],
+  [0.65,'Afternoon'],[0.70,'Evening'],[0.74,'Sunset'],
+  [0.80,'Dusk'],    [0.88,'Night'],
+];
+function getLabel(t) {
+  let lbl = 'Night';
+  for (let i = LABELS.length-1; i>=0; i--) { if (t >= LABELS[i][0]) { lbl=LABELS[i][1]; break; } }
+  return lbl;
+}
+
+// ══════════════════════════════════════════
+// MAIN LOOP
+// ══════════════════════════════════════════
+let lastLbl = '', frameIdx = 0;
+
+function tick(now) {
+  const t = ((now - cycleStart) % CYCLE_MS) / CYCLE_MS;
+  const W = window.innerWidth, H = window.innerHeight;
+  const horizY = H * 0.70;
+
+  // ── Sky ──
+  const [tc,mc,bc] = getSkyColors(t);
+  skyEl.style.background =
+    `linear-gradient(180deg,${rgb(tc)} 0%,${rgb(mc)} 45%,${rgb(bc)} 100%)`;
+
+  // ──────────────────────────────────────
+  // SUN  (visible t=0.25→0.75)
+  // ──────────────────────────────────────
+  const sunIn  = t >= SUN_RISE && t <= SUN_SET;
+  const sunProg = sunIn ? (t - SUN_RISE) / (SUN_SET - SUN_RISE) : -1;
+
+  if (sunProg >= 0) {
+    const { x: sx, y: sy } = arcPos(sunProg);
+    const high = Math.sin(sunProg * Math.PI);              // 0 at horizon, 1 at zenith
+    const below = sy > horizY + 28;
+
+    // Sun colour: warm orange at horizon, bright yellow-white at zenith
+    const r1 = 255, g1 = Math.round(lerp(240,252,high)), b1 = Math.round(lerp(160,220,high));
+    const r2 = 255, g2 = Math.round(lerp(130,230,high)), b2 = Math.round(lerp(0,40,high));
+    const r3 = Math.round(lerp(195,255,high)), g3 = Math.round(lerp(70,150,high)), b3 = 0;
+    const glow1Size = Math.round(lerp(24,50,high)), glow1Blur = Math.round(lerp(28,52,high));
+    const glow2Size = Math.round(lerp(15,38,high)), glow2Blur = Math.round(lerp(55,110,high));
+    const glowAlpha1 = lerp(0.45,0.72,high).toFixed(2);
+    const glowAlpha2 = lerp(0.18,0.32,high).toFixed(2);
+
+    sunEl.style.cssText = `
+      position:absolute; width:68px; height:68px; border-radius:50%;
+      pointer-events:none; z-index:4; transform:translate(-50%,-50%);
+      left:${sx.toFixed(1)}px; top:${sy.toFixed(1)}px;
+      background:radial-gradient(circle at 42% 38%,
+        rgb(${r1},${g1},${b1}) 0%,
+        rgb(${r2},${g2},${b2}) 48%,
+        rgb(${r3},${g3},${b3}) 100%);
+      box-shadow:
+        0 0 ${glow1Blur}px ${glow1Size}px rgba(255,${g2},0,${glowAlpha1}),
+        0 0 ${glow2Blur}px ${glow2Size}px rgba(255,${Math.round(g2*0.7)},0,${glowAlpha2});
+      opacity:${below ? 0 : 1};
+    `;
+
+    // Rays — rotate slowly, fade at horizon
+    const rayOpacity = (below ? 0 : high * 0.82).toFixed(3);
+    const rayRot = (now * 0.008) % 360;
+    sunRaysEl.style.cssText = `
+      position:absolute; left:${sx.toFixed(1)}px; top:${sy.toFixed(1)}px;
+      width:0; height:0; transform:translate(-50%,-50%) rotate(${rayRot.toFixed(1)}deg);
+      z-index:3; pointer-events:none; opacity:${rayOpacity};
+    `;
+
+    // Horizon glow at sunrise/sunset
+    const hPeak = 1 - clamp(Math.abs(sunProg - 0.0)*6, 0, 1) *
+                      clamp(Math.abs(sunProg - 1.0)*6, 0, 1);
+    // sharper at edges (sunProg near 0 or 1)
+    const edgeness = Math.max(
+      smoothstep(0.08, 0, sunProg),
+      smoothstep(0.92, 1, sunProg)
+    );
+    const gr = Math.round(lerp(255, 255, edgeness));
+    const gg = Math.round(lerp(100, 60, edgeness));
+    const gb = Math.round(lerp(30, 10, edgeness));
+    hGlowEl.style.cssText = `
+      position:absolute; left:0; right:0;
+      bottom:${((1 - horizY/H)*100).toFixed(1)}%;
+      height:90px; filter:blur(14px); z-index:2; pointer-events:none;
+      background:radial-gradient(ellipse at 50% 100%,rgba(${gr},${gg},${gb},0.75) 0%,transparent 70%);
+      opacity:${edgeness.toFixed(3)};
+    `;
+  } else {
+    sunEl.style.opacity  = '0';
+    sunRaysEl.style.opacity = '0';
+    hGlowEl.style.opacity = '0';
+  }
+
+  // ──────────────────────────────────────
+  // MOON  (visible t=0.75→1.0→0.25)
+  //  moonProgress: 0=moonrise, 0.5=zenith(midnight), 1=moonset
+  // ──────────────────────────────────────
+  const nightDur = 1 - (SUN_SET - SUN_RISE);  // = 0.5
+  let moonProg = -1;
+  if (t >= MOON_RISE) {
+    moonProg = (t - MOON_RISE) / nightDur;
+  } else if (t <= MOON_SET) {
+    moonProg = (1 - MOON_RISE + t) / nightDur;
+  }
+
+  if (moonProg >= 0 && moonProg <= 1) {
+    const { x: mx, y: my } = arcPos(moonProg);
+    const moonHigh = Math.sin(moonProg * Math.PI);
+    const below = my > horizY + 22;
+    const vis = below ? 0 : 1;
+    const glowR = Math.round(lerp(65, 95, moonHigh));
+
+    moonEl.style.left = `${mx.toFixed(1)}px`;
+    moonEl.style.top  = `${my.toFixed(1)}px`;
+    moonEl.style.opacity = vis;
+
+    // shadow mask on moon to suggest crescent phase (subtle)
+    const phase = moonProg; // 0=new(rising), 0.5=full, 1=new(setting)
+    const crescentOffset = Math.round(lerp(-14, 14, moonProg));
+
+    moonEl.style.boxShadow = `
+      0 0 26px 7px rgba(180,180,255,0.32),
+      0 0 55px 18px rgba(140,140,220,0.16),
+      inset ${crescentOffset}px -4px 0 4px rgba(30,30,70,${lerp(0.35,0,moonHigh).toFixed(2)})
+    `;
+
+    moonGlowEl.style.cssText = `
+      position:absolute; border-radius:50%;
+      width:${glowR}px; height:${glowR}px;
+      left:${mx.toFixed(1)}px; top:${my.toFixed(1)}px;
+      transform:translate(-50%,-50%); z-index:3; pointer-events:none;
+      background:radial-gradient(circle, rgba(180,190,255,0.18) 0%, transparent 70%);
+      opacity:${vis};
+    `;
+  } else {
+    moonEl.style.opacity      = '0';
+    moonGlowEl.style.opacity  = '0';
+  }
+
+  // ──────────────────────────────────────
+  // STARS
+  // ──────────────────────────────────────
+  let starOp;
+  if      (t < 0.20) starOp = 1;
+  else if (t < 0.32) starOp = lerp(1, 0, smoothstep(0.20, 0.32, t));
+  else if (t < 0.70) starOp = 0;
+  else if (t < 0.82) starOp = lerp(0, 1, smoothstep(0.70, 0.82, t));
+  else               starOp = 1;
+  starsEl.style.opacity = starOp.toFixed(3);
+
+  // ──────────────────────────────────────
+  // CLOUDS
+  // ──────────────────────────────────────
+  let cloudOp;
+  if      (t < 0.30) cloudOp = 0;
+  else if (t < 0.40) cloudOp = smoothstep(0.30, 0.40, t);
+  else if (t < 0.68) cloudOp = 1;
+  else if (t < 0.78) cloudOp = lerp(1, 0, smoothstep(0.68, 0.78, t));
+  else               cloudOp = 0;
+  cloudsEl.style.opacity = cloudOp.toFixed(3);
+
+  // ──────────────────────────────────────
+  // AURORA
+  // ──────────────────────────────────────
+  let auroraOp;
+  if      (t < 0.08) auroraOp = 0.85;
+  else if (t < 0.24) auroraOp = lerp(0.85, 0, smoothstep(0.08, 0.24, t));
+  else if (t < 0.80) auroraOp = 0;
+  else if (t < 0.94) auroraOp = lerp(0,  0.85, smoothstep(0.80, 0.94, t));
+  else               auroraOp = 0.85;
+  auroraEl.style.opacity = auroraOp.toFixed(3);
+
+  // ──────────────────────────────────────
+  // FOREST BRIGHTNESS
+  // ──────────────────────────────────────
+  let fb;
+  if      (t < 0.24) fb = 0.12;
+  else if (t < 0.38) fb = lerp(0.12, 0.78, smoothstep(0.24, 0.38, t));
+  else if (t < 0.65) fb = lerp(0.78, 0.92, smoothstep(0.38, 0.65, t));
+  else if (t < 0.75) fb = lerp(0.92, 0.48, smoothstep(0.65, 0.75, t));
+  else if (t < 0.86) fb = lerp(0.48, 0.12, smoothstep(0.75, 0.86, t));
+  else               fb = 0.12;
+  forestEl.style.filter = `brightness(${fb.toFixed(3)})`;
+
+  // ──────────────────────────────────────
+  // FIREFLIES — flicker at night
+  // ──────────────────────────────────────
+  let ffBase;
+  if      (t < 0.20) ffBase = 1;
+  else if (t < 0.32) ffBase = lerp(1, 0, smoothstep(0.20, 0.32, t));
+  else if (t < 0.72) ffBase = 0;
+  else if (t < 0.82) ffBase = lerp(0, 1, smoothstep(0.72, 0.82, t));
+  else               ffBase = 1;
+
+  fireflies.forEach((ff, i) => {
+    const flicker = ffBase > 0.05
+      ? clamp(Math.sin(now * 0.0028 + i * 1.9) * 0.35 + 0.72, 0, 1)
+      : 0;
+    ff.style.opacity = (ffBase * flicker).toFixed(3);
+  });
+
+  // ──────────────────────────────────────
+  // BRANDING COLOUR
+  // ──────────────────────────────────────
+  let bc2, bs;
+  if      (t < 0.28 || t > 0.82) { bc2='rgba(255,255,255,0.96)'; bs='0 0 30px rgba(160,160,255,0.6)'; }
+  else if (t < 0.38)              { bc2='rgba(255,218,128,0.95)'; bs='0 0 38px rgba(255,155,0,0.55)'; }
+  else if (t < 0.68)              { bc2='rgba(255,255,255,1)';    bs='0 2px 20px rgba(0,45,155,0.42)';}
+  else                            { bc2='rgba(255,205,118,0.95)'; bs='0 0 38px rgba(255,95,0,0.5)';   }
+  brandingEl.style.color      = bc2;
+  brandingEl.style.textShadow = bs;
+
+  // ──────────────────────────────────────
+  // TIME BADGE (throttled)
+  // ──────────────────────────────────────
+  if (frameIdx % 38 === 0) {
+    const lbl = getLabel(t);
+    if (lbl !== lastLbl) { timeBadge.textContent = lbl; lastLbl = lbl; }
+  }
+
+  // ──────────────────────────────────────
+  // CLOCK (synced to cycle)
+  // ──────────────────────────────────────
+  if (frameIdx % 2 === 0) {  // Update every 2 frames for performance
+    clockEl.textContent = getClockTime(t);
+  }
+
+  frameIdx++;
+
+  requestAnimationFrame(tick);
+}
+
+requestAnimationFrame(tick);
+
+// ══════════════════════════════════════════
+// SPEED CONTROL
+// ══════════════════════════════════════════
+function setSpeed(s) {
+  const now  = performance.now();
+  const phase = ((now - cycleStart) % CYCLE_MS) / CYCLE_MS;
+  CYCLE_MS   = s * 1000;
+  cycleStart = now - phase * CYCLE_MS;
+  document.querySelectorAll('.ctrl').forEach(b => {
+    b.classList.toggle('active',
+      (s===60 && b.textContent==='Slow') ||
+      (s===20 && b.textContent==='Normal') ||
+      (s===8  && b.textContent==='Fast'));
+  });
+}
+
+// ══════════════════════════════════════════
+// CLOCK DISPLAY (synced to day/night cycle)
+// ══════════════════════════════════════════
+const clockEl = document.getElementById('clock-display');
+function getClockTime(t) {
+  // Map cycle progress (0-1) to 24-hour time (0-24 hours)
+  // 0.0 = midnight (00:00:00)
+  // 0.5 = noon (12:00:00)
+  const totalSeconds = t * 24 * 3600;  // Convert to seconds in 24 hours
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+  const h = String(hours).padStart(2, '0');
+  const m = String(minutes).padStart(2, '0');
+  const s = String(seconds).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+</script>
+</body>
+</html>

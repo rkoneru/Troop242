@@ -42,6 +42,7 @@ export default function Footer() {
               <FooterLink to="/about">About Us</FooterLink>
               <FooterLink to="/stories">Stories</FooterLink>
               <FooterLink to="/contact">Contact Us</FooterLink>
+              <a href="/Troop242/troop242-day-night.html" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'opacity 0.2s' }}>🌅 Day & Night Sky</a>
             </div>
           </div>
 
