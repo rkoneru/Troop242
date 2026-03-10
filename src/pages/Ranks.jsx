@@ -81,9 +81,20 @@ export default function Ranks() {
             style={{ textAlign: 'center' }}
           >
             <h1 style={{ marginBottom: 24 }}>Advancement Ranks</h1>
-            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: 600, margin: '0 auto' }}>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: 600, margin: '0 auto 24px' }}>
               Progress through seven ranks from Scout to Eagle Scout. Each rank represents growth in leadership, outdoor skills, and character development.
             </p>
+            <motion.a
+              href="https://filestore.scouting.org/filestore/pdf/33088.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <ArrowRight size={18} /> Official Ranks Guide (PDF)
+            </motion.a>
           </motion.div>
         </div>
       </section>
