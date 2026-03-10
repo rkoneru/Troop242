@@ -98,5 +98,65 @@ export const THEMES = {
       '--divider': 'rgba(255, 255, 255, 0.1)',
       '--header-bg': 'rgba(0, 63, 135, 0.95)'
     }
+  },
+  brown: {
+    name: 'Scout Brown',
+    description: 'Rich brown background inspired by campfire and nature',
+    tokens: {
+      '--bg-primary': '#3d2817',
+      '--bg-secondary': '#2f1f0f',
+      '--bg-tertiary': '#251608',
+      '--text-primary': '#ffffff',
+      '--text-muted': '#e8d4b8',
+      '--accent': '#D4A574',
+      '--accent-dim': 'rgba(212, 165, 116, 0.12)',
+      '--accent-border': 'rgba(212, 165, 116, 0.3)',
+      '--glass-bg': 'rgba(255, 255, 255, 0.08)',
+      '--glass-border': 'rgba(255, 255, 255, 0.15)',
+      '--input-bg': 'rgba(255, 255, 255, 0.05)',
+      '--input-border': 'rgba(255, 255, 255, 0.12)',
+      '--divider': 'rgba(255, 255, 255, 0.1)',
+      '--header-bg': 'rgba(39, 24, 15, 0.95)'
+    }
+  },
+  gold: {
+    name: 'Scout Gold',
+    description: 'Bright gold background symbolizing achievement and excellence',
+    tokens: {
+      '--bg-primary': '#2d2416',
+      '--bg-secondary': '#1f180f',
+      '--bg-tertiary': '#16100a',
+      '--text-primary': '#ffffff',
+      '--text-muted': '#ffe9b5',
+      '--accent': '#FFD700',
+      '--accent-dim': 'rgba(255, 215, 0, 0.12)',
+      '--accent-border': 'rgba(255, 215, 0, 0.3)',
+      '--glass-bg': 'rgba(255, 255, 255, 0.08)',
+      '--glass-border': 'rgba(255, 255, 255, 0.15)',
+      '--input-bg': 'rgba(255, 255, 255, 0.05)',
+      '--input-border': 'rgba(255, 255, 255, 0.12)',
+      '--divider': 'rgba(255, 255, 255, 0.1)',
+      '--header-bg': 'rgba(32, 28, 18, 0.95)'
+    }
+  },
+  red: {
+    name: 'Scout Red',
+    description: 'Deep red background representing leadership and courage',
+    tokens: {
+      '--bg-primary': '#3d1a1f',
+      '--bg-secondary': '#2f1219',
+      '--bg-tertiary': '#250d12',
+      '--text-primary': '#ffffff',
+      '--text-muted': '#f5c5cc',
+      '--accent': '#FF5252',
+      '--accent-dim': 'rgba(255, 82, 82, 0.12)',
+      '--accent-border': 'rgba(255, 82, 82, 0.3)',
+      '--glass-bg': 'rgba(255, 255, 255, 0.08)',
+      '--glass-border': 'rgba(255, 255, 255, 0.15)',
+      '--input-bg': 'rgba(255, 255, 255, 0.05)',
+      '--input-border': 'rgba(255, 255, 255, 0.12)',
+      '--divider': 'rgba(255, 255, 255, 0.1)',
+      '--header-bg': 'rgba(40, 18, 22, 0.95)'
+    }
   }
 };

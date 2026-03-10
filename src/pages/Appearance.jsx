@@ -185,7 +185,7 @@ export default function Appearance() {
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
             >
               {Object.entries(THEMES)
-                .filter(([key]) => ['green', 'tan', 'blue'].includes(key))
+                .filter(([key]) => ['green', 'tan', 'blue', 'brown', 'gold', 'red'].includes(key))
                 .map(([key, theme]) => (
                 <motion.div
                   key={key}
@@ -294,8 +294,17 @@ export default function Appearance() {
               <p style={{ marginBottom: 16 }}>
                 <strong style={{ color: 'var(--accent)' }}>Scout Tan:</strong> A traditional tan color representing classic scouting heritage and outdoor expeditions.
               </p>
-              <p>
+              <p style={{ marginBottom: 16 }}>
                 <strong style={{ color: 'var(--accent)' }}>Scout Blue:</strong> A deep blue background inspired by scout leadership and unity, with bright blue accents for vibrant visual appeal.
+              </p>
+              <p style={{ marginBottom: 16 }}>
+                <strong style={{ color: 'var(--accent)' }}>Scout Brown:</strong> A rich brown background evoking campfires and wilderness, symbolizing outdoor tradition and adventure.
+              </p>
+              <p style={{ marginBottom: 16 }}>
+                <strong style={{ color: 'var(--accent)' }}>Scout Gold:</strong> A bright gold theme representing achievement, excellence, and the pursuit of honor in scouting.
+              </p>
+              <p>
+                <strong style={{ color: 'var(--accent)' }}>Scout Red:</strong> A deep red background symbolizing leadership, courage, and the passion of the scouting spirit.
               </p>
             </div>
 
