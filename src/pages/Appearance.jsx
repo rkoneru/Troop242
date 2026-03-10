@@ -59,7 +59,7 @@ export default function Appearance() {
         </div>
       </section>
 
-      {/* Theme Selector */}
+      {/* General Colors Section */}
       <section className="section section--dark">
         <div className="container">
           <motion.div
@@ -68,9 +68,9 @@ export default function Appearance() {
             viewport={{ once: true, margin: '-50px' }}
             style={{ marginBottom: 48 }}
           >
-            <h2 style={{ textAlign: 'center', marginBottom: 12 }}>Choose Your Theme</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: 12 }}>General Colors</h2>
             <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: 40, maxWidth: '600px', margin: '0 auto 40px' }}>
-              Select a color scheme that best suits your preference. Your choice will be saved automatically.
+              Choose between light and dark themes for your preferred viewing experience.
             </p>
 
             <motion.div
@@ -80,7 +80,113 @@ export default function Appearance() {
               viewport={{ once: true, margin: '-50px' }}
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
             >
-              {Object.entries(THEMES).map(([key, theme]) => (
+              {Object.entries(THEMES)
+                .filter(([key]) => ['current', 'white'].includes(key))
+                .map(([key, theme]) => (
+                <motion.div
+                  key={key}
+                  variants={itemVariants}
+                  className="glass-card"
+                  onClick={() => handleThemeChange(key)}
+                  style={{
+                    padding: 24,
+                    cursor: 'pointer',
+                    border: currentTheme === key ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
+                    transition: 'all 0.3s ease',
+                    overflow: 'hidden'
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {/* Theme Preview */}
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '120px',
+                      borderRadius: '12px',
+                      backgroundColor: theme.tokens['--bg-primary'],
+                      marginBottom: 16,
+                      border: `2px solid ${theme.tokens['--glass-border']}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '8px',
+                        backgroundColor: theme.tokens['--accent'],
+                        boxShadow: `0 0 20px ${theme.tokens['--accent']}80`
+                      }}
+                    />
+                  </div>
+
+                  {/* Theme Name */}
+                  <h3 style={{ marginBottom: 8, fontSize: '1.2rem', color: 'var(--text-primary)' }}>
+                    {theme.name}
+                  </h3>
+
+                  {/* Theme Description */}
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 16 }}>
+                    {theme.description}
+                  </p>
+
+                  {/* Selection Status */}
+                  {currentTheme === key && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '8px 12px',
+                        backgroundColor: 'var(--accent-dim)',
+                        borderRadius: '8px',
+                        color: 'var(--accent)',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <span>✓</span>
+                      <span>Selected</span>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Scout Colors Section */}
+      <section className="section section--dark">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ marginBottom: 48 }}
+          >
+            <h2 style={{ textAlign: 'center', marginBottom: 12 }}>Scout Colors</h2>
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: 40, maxWidth: '600px', margin: '0 auto 40px' }}>
+              Select a scouting-inspired color theme that reflects the spirit of adventure and leadership.
+            </p>
+
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
+            >
+              {Object.entries(THEMES)
+                .filter(([key]) => ['green', 'tan', 'blue'].includes(key))
+                .map(([key, theme]) => (
                 <motion.div
                   key={key}
                   variants={itemVariants}
