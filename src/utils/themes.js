@@ -43,20 +43,20 @@ export const THEMES = {
     name: 'Scout Green',
     description: 'Deep scout green background',
     tokens: {
-      '--bg-primary': '#1a472a',
-      '--bg-secondary': '#153922',
-      '--bg-tertiary': '#0f2e1b',
+      '--bg-primary': '#243E2C',
+      '--bg-secondary': '#1d3324',
+      '--bg-tertiary': '#16281d',
       '--text-primary': '#ffffff',
-      '--text-muted': '#d1fae5',
-      '--accent': '#4CAF50',
-      '--accent-dim': 'rgba(76, 175, 80, 0.12)',
-      '--accent-border': 'rgba(76, 175, 80, 0.3)',
+      '--text-muted': '#c8e6c9',
+      '--accent': '#66BB6A',
+      '--accent-dim': 'rgba(102, 187, 106, 0.12)',
+      '--accent-border': 'rgba(102, 187, 106, 0.3)',
       '--glass-bg': 'rgba(255, 255, 255, 0.08)',
       '--glass-border': 'rgba(255, 255, 255, 0.15)',
       '--input-bg': 'rgba(255, 255, 255, 0.05)',
       '--input-border': 'rgba(255, 255, 255, 0.12)',
       '--divider': 'rgba(255, 255, 255, 0.1)',
-      '--header-bg': 'rgba(10, 35, 20, 0.95)'
+      '--header-bg': 'rgba(18, 32, 24, 0.95)'
     }
   },
   tan: {
