@@ -140,7 +140,7 @@ export default function LeaderDashboard() {
 
   const pendingCount = scoutsData.filter(s => s.status === 'pending').length;
   const approvedCount = scoutsData.filter(s => s.status === 'approved').length;
-  const totalActivitySignups = ACTIVITY_SIGNUPS.reduce((sum, a) => sum + a.scouts.length, 0);
+  const totalActivitySignups = troopActivities.reduce((sum, a) => sum + a.signups.length, 0);
   const allEvents = [tuesdayMeeting, ...events];
 
   return (
@@ -239,7 +239,7 @@ export default function LeaderDashboard() {
                 transition: 'all 0.2s ease'
               }}
             >
-              📅 Activities ({ACTIVITY_SIGNUPS.length})
+              📅 Activities ({troopActivities.length})
             </button>
             <button
               onClick={() => setSelectedTab('events')}
