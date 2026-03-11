@@ -166,6 +166,78 @@
     -webkit-backdrop-filter:blur(6px);
     backdrop-filter:blur(6px);
   }
+
+  /* ── TENTS ── */
+  #tents { position:absolute; bottom:0; left:0; right:0; height:100%; pointer-events:none; z-index:6; }
+
+  /* ── CAMPFIRE ── */
+  #campfire-container { position:absolute; bottom:8%; left:50%; transform:translateX(-50%); z-index:7; pointer-events:none; width:80px; height:100px; }
+
+  .flame {
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    border-radius:50% 50% 30% 30%;
+    animation: flicker linear infinite alternate;
+  }
+  .flame-outer { width:60px; height:70px; background:rgba(255,100,0,0.8); animation-duration:0.4s; }
+  .flame-mid { width:40px; height:50px; background:rgba(255,180,0,0.9); animation-duration:0.3s; animation-delay:0.05s; }
+  .flame-inner { width:20px; height:30px; background:rgba(255,255,80,1); animation-duration:0.25s; animation-delay:0.1s; }
+
+  @keyframes flicker {
+    0%   { transform:translateX(-50%) scaleX(1)   scaleY(1)    rotate(-3deg); opacity:0.9; }
+    50%  { transform:translateX(-50%) scaleX(0.85) scaleY(1.15) rotate(2deg); opacity:1;   }
+    100% { transform:translateX(-50%) scaleX(1.1)  scaleY(0.9)  rotate(-2deg); opacity:0.85;}
+  }
+
+  .smoke {
+    position:absolute; bottom:70px; left:50%;
+    width:8px; height:8px; border-radius:50%;
+    background:rgba(180,180,180,0.4);
+    animation: smokeRise 3s ease-out forwards;
+  }
+
+  @keyframes smokeRise {
+    0%   { transform:translateX(-50%) translateY(0) scale(0.3); opacity:0.6; }
+    50%  { transform:translateX(-50%) translateY(-30px) scale(0.6); opacity:0.3; }
+    100% { transform:translateX(-50%) translateY(-80px) scale(1); opacity:0; }
+  }
+
+  /* ── SCOUT ACTIVITY BADGE ── */
+  #scout-activity {
+    position:absolute; top:1.4rem; left:1.4rem;
+    z-index:10;
+    background:rgba(255,255,255,0.13);
+    border:1px solid rgba(255,255,255,0.28);
+    color:#fff; font-family:'Raleway',sans-serif;
+    font-size:0.72rem; letter-spacing:0.12em;
+    padding:0.38rem 0.8rem; border-radius:4px;
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    transition:opacity 0.8s ease-in-out;
+    pointer-events:none;
+  }
+
+  /* ── BIRDS LAYER ── */
+  #birds-layer { position:absolute; inset:0; pointer-events:none; z-index:8; }
+
+  .bird-group { position:absolute; display:flex; gap:8px; animation:birdFly linear infinite; }
+
+  @keyframes birdFly {
+    from { transform: translateX(-100px); }
+    to   { transform: translateX(110vw); }
+  }
+
+  .bird {
+    width:14px; height:7px;
+    border-top:2px solid currentColor; border-radius:50% 50% 0 0;
+    position:relative;
+  }
+
+  .bird::after {
+    content:''; position:absolute;
+    width:14px; height:7px;
+    border-top:2px solid currentColor; border-radius:50% 50% 0 0;
+    left:12px; top:0;
+  }
 </style>
 </head>
 <body>
@@ -214,6 +286,60 @@
 
 <div id="fireflies-layer"></div>
 
+<!-- Tent silhouettes overlay on forest -->
+<div id="tents">
+  <svg viewBox="0 0 1440 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;">
+    <!-- Left tent -->
+    <path fill="#334d2d" d="M120,220 L80,180 L40,220 Z M100,220 L100,200 L80,200 M140,220 L140,200 L160,200"/>
+    <!-- Center tent -->
+    <path fill="#334d2d" d="M720,230 L680,180 L640,230 Z M700,230 L700,205 L680,205 M740,230 L740,205 L760,205"/>
+    <!-- Right tent -->
+    <path fill="#334d2d" d="M1320,225 L1280,175 L1240,225 Z M1300,225 L1300,200 L1280,200 M1340,225 L1340,200 L1360,200"/>
+  </svg>
+</div>
+
+<!-- Campfire -->
+<div id="campfire-container">
+  <div class="flame flame-outer"></div>
+  <div class="flame flame-mid"></div>
+  <div class="flame flame-inner"></div>
+  <div class="smoke" style="animation-delay:0s;"></div>
+  <div class="smoke" style="animation-delay:0.3s;"></div>
+  <div class="smoke" style="animation-delay:0.6s;"></div>
+  <div class="smoke" style="animation-delay:0.9s;"></div>
+  <div class="smoke" style="animation-delay:1.2s;"></div>
+</div>
+
+<!-- Birds layer -->
+<div id="birds-layer">
+  <div class="bird-group" style="top:10%; animation-duration:48s;">
+    <div class="bird"></div>
+    <div class="bird"></div>
+    <div class="bird"></div>
+  </div>
+  <div class="bird-group" style="top:18%; animation-duration:52s; animation-delay:-10s;">
+    <div class="bird"></div>
+    <div class="bird"></div>
+  </div>
+  <div class="bird-group" style="top:12%; animation-duration:44s; animation-delay:-20s;">
+    <div class="bird"></div>
+    <div class="bird"></div>
+    <div class="bird"></div>
+  </div>
+  <div class="bird-group" style="top:8%; animation-duration:50s; animation-delay:-15s;">
+    <div class="bird"></div>
+    <div class="bird"></div>
+  </div>
+  <div class="bird-group" style="top:14%; animation-duration:46s; animation-delay:-25s;">
+    <div class="bird"></div>
+    <div class="bird"></div>
+    <div class="bird"></div>
+  </div>
+</div>
+
+<!-- Scout activity badge -->
+<div id="scout-activity">Morning Assembly</div>
+
 <div id="branding">
   <span class="fleur">⚜</span>
   <div class="scout-label">Scouting America</div>
@@ -251,19 +377,23 @@ const MOON_SET  = 0.25;   // t when moon sinks (wraps through 1→0)
 // ══════════════════════════════════════════
 // DOM REFS
 // ══════════════════════════════════════════
-const skyEl      = document.getElementById('sky');
-const sunEl      = document.getElementById('sun');
-const sunRaysEl  = document.getElementById('sun-rays');
-const moonEl     = document.getElementById('moon');
-const moonGlowEl = document.getElementById('moon-glow');
-const starsEl    = document.getElementById('stars');
-const cloudsEl   = document.getElementById('clouds');
-const auroraEl   = document.getElementById('aurora');
-const forestEl   = document.getElementById('forest');
-const hGlowEl    = document.getElementById('horizon-glow');
-const ffLayer    = document.getElementById('fireflies-layer');
-const brandingEl = document.getElementById('branding');
-const timeBadge  = document.getElementById('time-badge');
+const skyEl           = document.getElementById('sky');
+const sunEl           = document.getElementById('sun');
+const sunRaysEl       = document.getElementById('sun-rays');
+const moonEl          = document.getElementById('moon');
+const moonGlowEl      = document.getElementById('moon-glow');
+const starsEl         = document.getElementById('stars');
+const cloudsEl        = document.getElementById('clouds');
+const auroraEl        = document.getElementById('aurora');
+const forestEl        = document.getElementById('forest');
+const hGlowEl         = document.getElementById('horizon-glow');
+const ffLayer         = document.getElementById('fireflies-layer');
+const tentsEl         = document.getElementById('tents');
+const campfireEl      = document.getElementById('campfire-container');
+const birdsLayerEl    = document.getElementById('birds-layer');
+const scoutActivityEl = document.getElementById('scout-activity');
+const brandingEl      = document.getElementById('branding');
+const timeBadge       = document.getElementById('time-badge');
 
 // ══════════════════════════════════════════
 // STARS
@@ -339,6 +469,31 @@ for (let i = 0; i < 22; i++) {
   `;
   ffLayer.appendChild(ff);
   fireflies.push(ff);
+}
+
+// ══════════════════════════════════════════
+// SCOUT ACTIVITIES LABELS
+// ══════════════════════════════════════════
+const SCOUT_ACTIVITIES = [
+  [0.00, '😴 Sleeping'],
+  [0.24, '🥾 Wake Up Call'],
+  [0.28, '🏕️ Morning Assembly'],
+  [0.36, '🍳 Breakfast'],
+  [0.42, '⚒️ Skills Training'],
+  [0.50, '🧭 Navigation Hike'],
+  [0.60, '🏊 Free Time'],
+  [0.65, '🍽️ Dinner Prep'],
+  [0.70, '🔥 Campfire Circle'],
+  [0.74, '📖 Evening Reflection'],
+  [0.80, '🌙 Lights Out'],
+];
+
+function getActivityLabel(t) {
+  let lbl = '😴 Sleeping';
+  for (let i = SCOUT_ACTIVITIES.length-1; i>=0; i--) {
+    if (t >= SCOUT_ACTIVITIES[i][0]) { lbl=SCOUT_ACTIVITIES[i][1]; break; }
+  }
+  return lbl;
 }
 
 // ══════════════════════════════════════════
@@ -608,6 +763,53 @@ function tick(now) {
   else                            { bc2='rgba(255,205,118,0.95)'; bs='0 0 38px rgba(255,95,0,0.5)';   }
   brandingEl.style.color      = bc2;
   brandingEl.style.textShadow = bs;
+
+  // ──────────────────────────────────────
+  // TENTS BRIGHTNESS
+  // ──────────────────────────────────────
+  tentsEl.style.filter = `brightness(${fb.toFixed(3)})`;
+
+  // ──────────────────────────────────────
+  // CAMPFIRE (day dim → night bright)
+  // ──────────────────────────────────────
+  let campfireOp;
+  if      (t < 0.30) campfireOp = 1;       // full night brightness
+  else if (t < 0.40) campfireOp = lerp(1, 0.35, smoothstep(0.30, 0.40, t)); // fade down morning
+  else if (t < 0.72) campfireOp = 0.35;    // dim all day
+  else if (t < 0.80) campfireOp = lerp(0.35, 1, smoothstep(0.72, 0.80, t)); // fade up evening
+  else               campfireOp = 1;        // full night brightness
+
+  campfireEl.style.opacity = campfireOp.toFixed(3);
+
+  // Glow effect at night
+  const campfireGlow = campfireOp > 0.8 ? `0 0 40px 15px rgba(255,100,0,${(campfireOp*0.4).toFixed(2)})` : 'none';
+  const campfireBase = campfireEl.querySelector('.flame-outer');
+  if (campfireBase) campfireBase.style.boxShadow = campfireGlow;
+
+  // ──────────────────────────────────────
+  // BIRDS (daytime only)
+  // ──────────────────────────────────────
+  let birdOp;
+  if      (t < 0.30) birdOp = 0;
+  else if (t < 0.40) birdOp = smoothstep(0.30, 0.40, t);
+  else if (t < 0.72) birdOp = 1;
+  else if (t < 0.78) birdOp = lerp(1, 0, smoothstep(0.72, 0.78, t));
+  else               birdOp = 0;
+
+  birdsLayerEl.style.opacity = birdOp.toFixed(3);
+
+  // Bird color: white during day, golden at sunrise/sunset
+  const birdColor = (t > 0.35 && t < 0.65) ? 'rgba(200,200,200,0.7)' : 'rgba(255,200,100,0.7)';
+  const birdDivs = birdsLayerEl.querySelectorAll('.bird');
+  birdDivs.forEach(bird => { bird.style.color = birdColor; });
+
+  // ──────────────────────────────────────
+  // SCOUT ACTIVITY TEXT
+  // ──────────────────────────────────────
+  if (frameIdx % 38 === 0) {
+    const actLbl = getActivityLabel(t);
+    scoutActivityEl.textContent = actLbl;
+  }
 
   // ──────────────────────────────────────
   // TIME BADGE (throttled)
