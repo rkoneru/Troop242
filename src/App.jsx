@@ -21,6 +21,7 @@ import ScoutPrinciples from './pages/ScoutPrinciples';
 import NewScout from './pages/NewScout';
 import Glossary from './pages/Glossary';
 import ScoutDashboard from './pages/ScoutDashboard';
+import TroopFinances from './pages/TroopFinances';
 import RankTrackerWizard from './pages/RankTrackerWizard';
 import MeritTrackerWizard from './pages/MeritTrackerWizard';
 import SkillsTrackerWizard from './pages/SkillsTrackerWizard';
@@ -60,6 +61,7 @@ function App() {
           <Route path="/new-scout" element={<><Header /><NewScout /><Footer /></>} />
           <Route path="/glossary" element={<><Header /><Glossary /><Footer /></>} />
           <Route path="/scout-dashboard" element={<><Header /><ScoutDashboard /><Footer /></>} />
+          <Route path="/troop-finances" element={<><Header /><TroopFinances /><Footer /></>} />
 
           {/* Wizard pages with custom headers - no global header/footer */}
           <Route path="/rank-tracker" element={<RankTrackerWizard />} />
