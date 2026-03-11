@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Award, Badge, LogOut, ChevronRight, Zap, Users } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
+import { saveData, loadData } from '../utils/adminData';
 
 const RANKS = [
   { name: 'Scout', emoji: '⚜️' },
@@ -38,6 +39,7 @@ const itemVariants = {
 export default function ScoutDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [activities, setActivities] = useState(() => loadData('troopActivities', []));
 
   // Auth guard
   useEffect(() => {
@@ -91,6 +93,39 @@ export default function ScoutDashboard() {
     }
   })();
 
+  // Activity helpers
+  const isSignedUp = (activity) =>
+    activity.signups.some((s) =>
+      typeof s === 'object' ? s.scoutId === user?.email : s === (user?.name || user?.email)
+    );
+
+  const isFull = (activity) => activity.signups.length >= activity.spots;
+
+  const handleSignup = (activityId) => {
+    if (!user) return;
+    const updated = activities.map((act) => {
+      if (act.id !== activityId) return act;
+      const alreadyIn = act.signups.some(
+        (s) => (typeof s === 'object' ? s.scoutId : s) === user.email
+      );
+      if (alreadyIn) return act;
+      const newEntry = {
+        scoutId: user.email,
+        scoutName: user.name || user.email,
+        signedUpAt: new Date().toISOString().split('T')[0],
+      };
+      return { ...act, signups: [...act.signups, newEntry] };
+    });
+    setActivities(updated);
+    saveData('troopActivities', updated);
+  };
+
+  const mySignupCount = activities.filter((act) =>
+    act.signups.some((s) =>
+      typeof s === 'object' ? s.scoutId === user?.email : s === (user?.name || user?.email)
+    )
+  ).length;
+
   // Compute progress percentages
   const getRankProgress = () => {
     let totalReqs = 0;
@@ -125,15 +160,8 @@ export default function ScoutDashboard() {
   };
 
   const getActivityProgress = () => {
-    const activities = (() => {
-      try {
-        return JSON.parse(localStorage.getItem('troopActivities') || '[]');
-      } catch {
-        return [];
-      }
-    })();
     const total = Math.max(activities.length, 1);
-    return { signedUp: signedUpActivities.length, total };
+    return { signedUp: mySignupCount, total };
   };
 
   const rankProgress = getRankProgress();
@@ -531,7 +559,161 @@ export default function ScoutDashboard() {
                 Explore Guide <ChevronRight size={18} />
               </motion.button>
             </motion.div>*/}
-          </motion.div> 
+          </motion.div>
+        </div>
+
+        {/* ── ACTIVITIES INLINE SECTION ── */}
+        <div style={{ marginTop: 64 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, marginLeft: 20, marginRight: 20 }}>
+            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>🏕️ Upcoming Activities</h2>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              {mySignupCount} signed up
+            </span>
+          </div>
+
+          {activities.length === 0 ? (
+            <div className="glass-card" style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', margin: '0 20px' }}>
+              No activities scheduled yet. Check back soon!
+            </div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: 20,
+                padding: '0 20px'
+              }}
+            >
+              {activities
+                .slice()
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map((activity) => {
+                  const signedUp = isSignedUp(activity);
+                  const full = isFull(activity);
+
+                  return (
+                    <motion.div
+                      key={activity.id}
+                      variants={itemVariants}
+                      className="glass-card"
+                      style={{
+                        padding: 24,
+                        border: signedUp
+                          ? '1px solid var(--accent-border)'
+                          : '1px solid var(--glass-border)',
+                      }}
+                    >
+                      {/* Title + signed-up badge */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>{activity.title}</h3>
+                        {signedUp && (
+                          <span style={{
+                            padding: '3px 10px',
+                            background: 'var(--accent-dim)',
+                            color: 'var(--accent)',
+                            border: '1px solid var(--accent-border)',
+                            borderRadius: 20,
+                            fontSize: '0.72rem',
+                            fontWeight: 600,
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4
+                          }}>
+                            <CheckCircle size={12} />
+                            Signed Up
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Meta */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14, color: 'var(--text-muted)', fontSize: '0.87rem' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <Calendar size={14} />
+                          {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                          {activity.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {activity.time}</>}
+                        </span>
+                        {activity.location && (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <MapPin size={14} /> {activity.location}
+                          </span>
+                        )}
+                      </div>
+
+                      {activity.description && (
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: 16, lineHeight: 1.5 }}>
+                          {activity.description}
+                        </p>
+                      )}
+
+                      {/* Spots bar */}
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : 'var(--text-muted)', marginBottom: 6 }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <Users size={13} /> {activity.signups.length}/{activity.spots} spots
+                          </span>
+                          <span>{full ? 'Full' : `${activity.spots - activity.signups.length} remaining`}</span>
+                        </div>
+                        <div style={{ background: 'var(--divider)', borderRadius: 99, height: 6 }}>
+                          <div style={{
+                            width: `${Math.min((activity.signups.length / activity.spots) * 100, 100)}%`,
+                            background: full ? '#ff6464' : 'var(--accent)',
+                            height: '100%',
+                            borderRadius: 99,
+                            transition: 'width 0.4s ease',
+                          }} />
+                        </div>
+                      </div>
+
+                      {/* CTA */}
+                      {!signedUp && !full && (
+                        <motion.button
+                          className="btn btn-primary"
+                          style={{ width: '100%', justifyContent: 'center' }}
+                          onClick={() => handleSignup(activity.id)}
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          Sign Up
+                        </motion.button>
+                      )}
+                      {signedUp && (
+                        <div style={{
+                          padding: '10px 16px',
+                          textAlign: 'center',
+                          background: 'var(--accent-dim)',
+                          border: '1px solid var(--accent-border)',
+                          borderRadius: 10,
+                          color: 'var(--accent)',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                        }}>
+                          You're signed up!
+                        </div>
+                      )}
+                      {!signedUp && full && (
+                        <div style={{
+                          padding: '10px 16px',
+                          textAlign: 'center',
+                          background: 'rgba(255, 100, 100, 0.1)',
+                          border: '1px solid rgba(255, 100, 100, 0.3)',
+                          borderRadius: 10,
+                          color: '#ff6464',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                        }}>
+                          Activity Full
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+            </motion.div>
+          )}
         </div>
       </section>
     </>

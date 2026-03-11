@@ -296,7 +296,7 @@ export default function Home() {
               {(() => {
                 const stats = loadData('troop_stats', DEFAULT_STATS);
                 return (
-                  <motion.div variants={itemVariants} className="grid grid--cols-3" style={{ gap: 70, maxWidth: 1000, margin: '0 auto', marginTop: 120 }}>
+                  <motion.div variants={itemVariants} className="grid grid--cols-3" style={{ gap: 70, maxWidth: 1000, margin: '0 auto', marginTop: 110 }}>
                     <div style={{ textAlign: 'center' }}>
                       <div className="stat-counter">{stats.eagleScouts}</div>
                       <p style={{ fontSize: 'clamp(0.8rem, 2vw, 0.9rem)', color: 'var(--text-muted)' }}>Eagle Scouts</p>
@@ -363,10 +363,10 @@ export default function Home() {
           >
             {[
               { icon: Users, title: 'Brotherhood & Belonging', desc: 'More than a troop — a family. Weekly meetings, campouts, and service projects build lifelong friendships and mutual respect.' },
-              { icon: Shield, title: '30 Years of Excellence', desc: 'Troop 242 has served Sanford, FL for 30+ years under dedicated adult leaders and a strong charter organization.' },
+              { icon: Shield, title: '20 Years of Excellence', desc: 'Troop 242 has served Sanford, FL for 20+ years under dedicated adult leaders and a strong charter organization.' },
               { icon: Heart, title: 'Community Service', desc: 'Give back to Sanford and Central Florida. Eagle projects, food drives, park cleanups, and more — scouts lead real change.' },
               { icon: Zap, title: '145+ Merit Badges', desc: 'Explore STEM, outdoor survival, leadership, arts, and more. Our experienced leaders guide you through every badge with hands-on sessions.' },
-              { icon: Award, title: '80+ Eagle Scouts', desc: 'A proven track record — 80+ Eagle Scout alumni from Troop 242. Our mentorship program keeps you on the path from Scout to Eagle.' },
+              { icon: Award, title: '25+ Eagle Scouts', desc: 'A proven track record — 25+ Eagle Scout alumni from Troop 242. Our mentorship program keeps you on the path from Scout to Eagle.' },
               { icon: MapPin, title: 'Florida Keys Adventures', desc: 'Annual spring campouts in the Florida Keys. Snorkeling, kayaking, fishing and wilderness camping with your troop brothers.' }
               
             ].map((item, i) => (

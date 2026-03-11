@@ -1,4 +1,4 @@
-import { DollarSign, TrendingUp, Users, AlertCircle, Plus, Edit2, Trash2 } from 'lucide-react';
+import { DollarSign, TrendingUp, Users, AlertCircle, Plus, Edit2, Trash2, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -127,13 +127,41 @@ export default function TroopFinances() {
       {/* Header */}
       <div style={{ background: 'var(--bg-secondary)', borderBottom: `1px solid var(--divider)`, padding: '16px 24px', marginBottom: 32 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <DollarSign size={32} style={{ color: 'var(--accent)' }} />
-            Troop 242 Finances
-          </h1>
-          <p style={{ color: 'var(--text-muted)', margin: '8px 0 0 0', fontSize: '0.95rem' }}>
-            Manage dues, payments, and financial records
-          </p>
+          <button
+            onClick={() => navigate('/leader-dashboard')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 16px',
+              background: 'transparent',
+              border: `1px solid var(--accent)`,
+              color: 'var(--accent)',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              marginBottom: 16,
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'rgba(0, 214, 143, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'transparent';
+            }}
+          >
+            <ArrowLeft size={20} />
+            Back </button>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center' }}>
+              <DollarSign size={32} style={{ color: 'var(--accent)' }} />
+              Troop 242 Finances
+            </h1>
+            <p style={{ color: 'var(--text-muted)', margin: '8px 0 0 0', fontSize: '0.95rem' }}>
+              Manage dues, payments, and financial records
+            </p>
+          </div>
         </div>
       </div>
 

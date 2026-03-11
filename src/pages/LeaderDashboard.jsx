@@ -1,5 +1,5 @@
 
-import { CheckCircle, Clock, Users, TrendingUp } from 'lucide-react';
+import { CheckCircle, Clock, Users, TrendingUp, Calendar, MapPin, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -58,6 +58,8 @@ export default function LeaderDashboard() {
   const [invitations, setInvitations] = useState([]);
   const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
   const [newInvitationForm, setNewInvitationForm] = useState({ name: '', email: '', type: 'scout', tempPassword: '' });
+  const [newActivityForm, setNewActivityForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '' });
+  const [expandedRosters, setExpandedRosters] = useState({});
 
   useEffect(() => {
     const loggedInUser = sessionStorage.getItem('loggedInUser');
@@ -118,6 +120,36 @@ export default function LeaderDashboard() {
     }
   };
 
+  const handleCreateActivity = () => {
+    if (!newActivityForm.title || !newActivityForm.date) return;
+    const newActivity = {
+      id: generateId(),
+      title: newActivityForm.title,
+      date: newActivityForm.date,
+      time: newActivityForm.time,
+      location: newActivityForm.location,
+      description: newActivityForm.description,
+      spots: parseInt(newActivityForm.spots) || 20,
+      signups: [],
+    };
+    const updated = [...troopActivities, newActivity];
+    setTroopActivities(updated);
+    saveData('troopActivities', updated);
+    setNewActivityForm({ title: '', date: '', time: '', location: '', description: '', spots: '' });
+  };
+
+  const handleDeleteActivity = (activityId) => {
+    const updated = troopActivities.filter((a) => a.id !== activityId);
+    setTroopActivities(updated);
+    saveData('troopActivities', updated);
+  };
+
+  const toggleRoster = (activityId) => {
+    setExpandedRosters((prev) => ({ ...prev, [activityId]: !prev[activityId] }));
+  };
+
+  const getSignupName = (s) => (typeof s === 'object' && s !== null ? s.scoutName : s);
+
   const getNextTuesdayWithTime = () => {
     const today = new Date();
     let nextTuesday = new Date(today);
@@ -158,7 +190,7 @@ export default function LeaderDashboard() {
             <p style={{ fontSize: '1.1rem', color: '#9ca3af', maxWidth: '600px', margin: '0 auto 24px' }}>
               Manage scouts, activities, and approvals for Troop 242
             </p>
-            <a
+          {/*   <a
               href="/Troop242/troop-finances"
               style={{
                 display: 'inline-block',
@@ -180,7 +212,7 @@ export default function LeaderDashboard() {
               }}
             >
               💰 Troop Finances
-            </a>
+            </a> */}
           </motion.div>
         </div>
       </section>
@@ -413,81 +445,262 @@ export default function LeaderDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                gap: 20
-              }}
             >
-              {troopActivities.length === 0 ? (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#9ca3af' }}>
-                  No activities created yet. Go to Activities page to create one!
+              {/* Create Activity Form */}
+              <div className="glass-card" style={{ padding: 32, marginBottom: 32 }}>
+                <h3 style={{ color: '#fff', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Plus size={20} /> Create New Activity
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 16 }}>
+                  <input
+                    type="text"
+                    placeholder="Activity Title"
+                    value={newActivityForm.title}
+                    onChange={(e) => setNewActivityForm({ ...newActivityForm, title: e.target.value })}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                  <input
+                    type="date"
+                    value={newActivityForm.date}
+                    onChange={(e) => setNewActivityForm({ ...newActivityForm, date: e.target.value })}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                  <input
+                    type="time"
+                    value={newActivityForm.time}
+                    onChange={(e) => setNewActivityForm({ ...newActivityForm, time: e.target.value })}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Location"
+                    value={newActivityForm.location}
+                    onChange={(e) => setNewActivityForm({ ...newActivityForm, location: e.target.value })}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Available Spots"
+                    value={newActivityForm.spots}
+                    onChange={(e) => setNewActivityForm({ ...newActivityForm, spots: e.target.value })}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      fontFamily: 'inherit'
+                    }}
+                  />
                 </div>
-              ) : (
-                troopActivities.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="glass-card"
-                    style={{ padding: 24 }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
-                      <div>
-                        <h3 style={{ color: '#fff', marginBottom: 4 }}>{activity.title}</h3>
-                        <p style={{ color: '#9ca3af', fontSize: '0.85rem' }}>
-                          {new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </p>
-                      </div>
-                      <span style={{
-                        padding: '4px 12px',
-                        background: 'rgba(0, 214, 143, 0.2)',
-                        color: '#00d68f',
-                        borderRadius: 20,
-                        fontSize: '0.75rem',
-                        fontWeight: 600
-                      }}>
-                        {activity.signups.length}/{activity.spots}
-                      </span>
-                    </div>
+                <textarea
+                  placeholder="Description (optional)"
+                  value={newActivityForm.description}
+                  onChange={(e) => setNewActivityForm({ ...newActivityForm, description: e.target.value })}
+                  style={{
+                    width: '100%',
+                    minHeight: 80,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: '#fff',
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    fontFamily: 'inherit',
+                    marginBottom: 16,
+                    resize: 'vertical'
+                  }}
+                />
+                <button
+                  onClick={handleCreateActivity}
+                  style={{
+                    padding: '12px 32px',
+                    background: 'rgba(0, 214, 143, 0.2)',
+                    color: '#00d68f',
+                    border: '1px solid #00d68f',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = 'rgba(0, 214, 143, 0.3)'}
+                  onMouseLeave={(e) => e.target.style.background = 'rgba(0, 214, 143, 0.2)'}
+                >
+                  <Plus size={18} /> Create Activity
+                </button>
+              </div>
 
-                    {activity.description && (
-                      <p style={{ color: '#d1d5db', fontSize: '0.9rem', marginBottom: 16 }}>
-                        {activity.description}
-                      </p>
-                    )}
-
-                    {activity.location && (
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginBottom: 12 }}>
-                        📍 {activity.location}
-                      </p>
-                    )}
-
-                    <div>
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginBottom: 12 }}>Signed Up:</p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {activity.signups.length === 0 ? (
-                          <p style={{ color: '#9ca3af', fontSize: '0.85rem', margin: 0 }}>No signups yet</p>
-                        ) : (
-                          activity.signups.map((scout, idx) => (
-                            <div key={idx} style={{
-                              padding: '10px 12px',
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              borderRadius: 6,
-                              fontSize: '0.9rem',
-                              color: '#d1d5db',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 8
-                            }}>
-                              <CheckCircle size={16} style={{ color: '#00d68f' }} />
-                              {scout}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
+              {/* Activities List */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 20 }}>
+                {troopActivities.length === 0 ? (
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#9ca3af' }}>
+                    No activities yet. Create one above!
                   </div>
-                ))
-              )}
+                ) : (
+                  troopActivities
+                    .slice()
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .map((activity) => (
+                      <motion.div
+                        key={activity.id}
+                        className="glass-card"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{ padding: 24 }}
+                      >
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                          <h3 style={{ color: '#fff', margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>{activity.title}</h3>
+                          <span style={{
+                            padding: '4px 12px',
+                            background: activity.signups.length >= activity.spots ? 'rgba(255, 100, 100, 0.2)' : 'rgba(0, 214, 143, 0.2)',
+                            color: activity.signups.length >= activity.spots ? '#ff6464' : '#00d68f',
+                            borderRadius: 20,
+                            fontSize: '0.75rem',
+                            fontWeight: 600
+                          }}>
+                            {activity.signups.length}/{activity.spots}
+                          </span>
+                        </div>
+
+                        {/* Meta row */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16, color: '#9ca3af', fontSize: '0.85rem' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Calendar size={14} />
+                            {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                            {activity.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {activity.time}</>}
+                          </span>
+                          {activity.location && (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <MapPin size={14} /> {activity.location}
+                            </span>
+                          )}
+                        </div>
+
+                        {activity.description && (
+                          <p style={{ color: '#d1d5db', fontSize: '0.9rem', marginBottom: 16 }}>
+                            {activity.description}
+                          </p>
+                        )}
+
+                        {/* Roster toggle */}
+                        <button
+                          onClick={() => toggleRoster(activity.id)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#00d68f',
+                            cursor: 'pointer',
+                            padding: '8px 0',
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            marginBottom: 16,
+                            transition: 'color 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => e.target.style.color = '#66BB6A'}
+                          onMouseLeave={(e) => e.target.style.color = '#00d68f'}
+                        >
+                          <Users size={14} /> {activity.signups.length} Scout{activity.signups.length !== 1 ? 's' : ''} Signed Up
+                          {expandedRosters[activity.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+
+                        {/* Expanded Roster */}
+                        {expandedRosters[activity.id] && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            style={{ marginBottom: 16, paddingBottom: 16, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 12 }}
+                          >
+                            {activity.signups.length === 0 ? (
+                              <p style={{ color: '#9ca3af', fontSize: '0.85rem', margin: 0 }}>No signups yet</p>
+                            ) : (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                {activity.signups.map((s, idx) => (
+                                  <div key={idx} style={{
+                                    padding: '8px 12px',
+                                    background: 'rgba(255, 255, 255, 0.03)',
+                                    borderRadius: 6,
+                                    fontSize: '0.85rem',
+                                    color: '#d1d5db',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8
+                                  }}>
+                                    <CheckCircle size={14} style={{ color: '#00d68f' }} />
+                                    {getSignupName(s)}
+                                    {typeof s === 'object' && s.signedUpAt && (
+                                      <span style={{ color: '#9ca3af', fontSize: '0.75rem', marginLeft: 'auto' }}>
+                                        {s.signedUpAt}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+
+                        {/* Delete button */}
+                        <button
+                          onClick={() => handleDeleteActivity(activity.id)}
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            background: 'rgba(255, 100, 100, 0.1)',
+                            border: '1px solid rgba(255, 100, 100, 0.3)',
+                            color: '#ff6464',
+                            borderRadius: 8,
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            fontSize: '0.9rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 6,
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => e.target.style.background = 'rgba(255, 100, 100, 0.2)'}
+                          onMouseLeave={(e) => e.target.style.background = 'rgba(255, 100, 100, 0.1)'}
+                        >
+                          <Trash2 size={14} /> Delete Activity
+                        </button>
+                      </motion.div>
+                    ))
+                )}
+              </div>
             </motion.div>
           )}
 
