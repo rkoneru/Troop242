@@ -155,9 +155,32 @@ export default function LeaderDashboard() {
             style={{ textAlign: 'center' }}
           >
             <h1 style={{ marginBottom: 16 }}>📊 Leader Dashboard</h1>
-            <p style={{ fontSize: '1.1rem', color: '#9ca3af', maxWidth: '600px', margin: '0 auto' }}>
+            <p style={{ fontSize: '1.1rem', color: '#9ca3af', maxWidth: '600px', margin: '0 auto 24px' }}>
               Manage scouts, activities, and approvals for Troop 242
             </p>
+            <a
+              href="/Troop242/troop-finances"
+              style={{
+                display: 'inline-block',
+                padding: '10px 24px',
+                background: 'rgba(0, 214, 143, 0.2)',
+                color: '#00d68f',
+                border: '1px solid rgba(0, 214, 143, 0.3)',
+                borderRadius: 8,
+                textDecoration: 'none',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = 'rgba(0, 214, 143, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'rgba(0, 214, 143, 0.2)';
+              }}
+            >
+              💰 Troop Finances
+            </a>
           </motion.div>
         </div>
       </section>
