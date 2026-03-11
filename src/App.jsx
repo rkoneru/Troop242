@@ -61,7 +61,7 @@ function App() {
           <Route path="/new-scout" element={<><Header /><NewScout /><Footer /></>} />
           <Route path="/glossary" element={<><Header /><Glossary /><Footer /></>} />
           <Route path="/scout-dashboard" element={<><Header /><ScoutDashboard /><Footer /></>} />
-          <Route path="/troop-finances" element={<><Header /><TroopFinances /><Footer /></>} />
+          <Route path="/troop-finances" element={<TroopFinances />} />
 
           {/* Wizard pages with custom headers - no global header/footer */}
           <Route path="/rank-tracker" element={<RankTrackerWizard />} />
