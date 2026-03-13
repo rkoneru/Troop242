@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scout Rank Trivia — Scout Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --g:#1B4332;--gm:#2D6A4F;--gl:#52B788;--gp:#D8F3DC;
+  --gold:#C8960C;--goldp:#FEF9C3;--blue:#1E40AF;--bluep:#EFF6FF;
+  --purple:#7C3AED;--purplep:#EDE9FE;--red:#DC2626;--redp:#FEE2E2;
+  --bg:#F7F8F5;--w:#fff;--bd:#E2E8F0;--t:#111827;--mu:#6B7280;
+  --correct:#16A34A;--correctp:#DCFCE7;--wrong:#DC2626;--wrongp:#FEE2E2;
+  --r:12px;--sh:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+.hdr{background:var(--g);padding:16px 20px;display:flex;align-items:center;gap:14px}
+.back{text-decoration:none;color:rgba(255,255,255,.65);font-size:14px;font-weight:500;transition:.15s}
+.back:hover{color:#fff}
+.hdr-title{color:#fff;font-size:17px;font-weight:700}
+.hdr-sub{color:rgba(255,255,255,.55);font-size:12px}
+
+.screen{display:none;animation:fadeIn .3s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 57px);padding:32px 20px;text-align:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--g);color:#fff;border:none;border-radius:10px;
+  padding:13px 30px;font-size:15px;font-weight:700;cursor:pointer;
+  transition:.2s;font-family:'Outfit',sans-serif}
+.btn:hover{background:var(--gm);transform:translateY(-1px);box-shadow:0 4px 16px rgba(27,67,50,.25)}
+.btn:active{transform:none}
+.btn-outline{background:var(--w);color:var(--g);border:2px solid var(--bd)}
+.btn-outline:hover{background:var(--gp);border-color:var(--gl);transform:none;box-shadow:none}
+
+.intro-card{background:var(--w);border:1px solid var(--bd);border-radius:16px;
+  padding:40px 36px;max-width:480px;width:100%;box-shadow:var(--sh)}
+.intro-icon{font-size:52px;margin-bottom:16px}
+.intro-card h2{font-size:26px;font-weight:800;margin-bottom:10px;letter-spacing:-.5px}
+.intro-card p{color:var(--mu);font-size:15px;line-height:1.65;margin-bottom:20px}
+.cats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:28px}
+.cat{font-size:12px;font-weight:600;padding:4px 12px;border-radius:100px}
+
+.progress-wrap{max-width:640px;margin:24px auto 0;padding:0 20px}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-left{display:flex;align-items:center;gap:12px}
+.prog-label{font-size:13px;font-weight:600;color:var(--mu)}
+.streak{background:var(--goldp);color:var(--gold);border-radius:100px;
+  padding:2px 10px;font-size:12px;font-weight:700;display:none}
+.streak.show{display:inline-flex;align-items:center;gap:3px}
+.prog-score{font-size:14px;font-weight:700;color:var(--gm)}
+.progress-bar{height:6px;background:var(--bd);border-radius:100px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gl);border-radius:100px;transition:width .4s ease}
+
+.q-wrap{max-width:640px;margin:20px auto 0;padding:0 20px 40px}
+.q-card{background:var(--w);border:1px solid var(--bd);border-radius:16px;
+  padding:28px;box-shadow:var(--sh);margin-bottom:14px}
+.q-meta{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.q-num{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.cat-badge{font-size:11px;font-weight:600;padding:2px 10px;border-radius:100px}
+.q-text{font-size:17px;font-weight:600;line-height:1.55;color:var(--t)}
+
+.options{display:flex;flex-direction:column;gap:9px}
+.opt{background:var(--w);border:2px solid var(--bd);border-radius:10px;
+  padding:13px 18px;font-size:14px;font-weight:600;cursor:pointer;
+  transition:.18s;text-align:left;font-family:'Outfit',sans-serif;color:var(--t);
+  display:flex;align-items:center;gap:10px}
+.opt-letter{width:24px;height:24px;min-width:24px;background:var(--bg);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--mu)}
+.opt:hover:not(.disabled){border-color:var(--gl);background:var(--gp)}
+.opt:hover:not(.disabled) .opt-letter{background:var(--gp);color:var(--gm)}
+.opt.correct{border-color:var(--correct);background:var(--correctp);color:var(--correct)}
+.opt.correct .opt-letter{background:var(--correct);color:#fff}
+.opt.wrong{border-color:var(--wrong);background:var(--wrongp);color:var(--wrong)}
+.opt.wrong .opt-letter{background:var(--wrong);color:#fff}
+.opt.disabled{cursor:default;pointer-events:none}
+
+.fact-box{background:var(--gp);border:1px solid var(--gl);border-radius:10px;
+  padding:14px 18px;font-size:13.5px;color:var(--gm);line-height:1.6;
+  margin-top:12px;font-weight:500;display:none}
+.fact-box.show{display:block;animation:fadeIn .3s ease}
+.next-row{display:flex;justify-content:flex-end;margin-top:14px}
+
+/* RESULTS */
+.report{background:var(--w);border:1px solid var(--bd);border-radius:16px;
+  padding:36px;max-width:560px;width:100%;box-shadow:var(--sh)}
+.report-hero{text-align:center;margin-bottom:28px}
+.report-badge{font-size:56px;margin-bottom:8px}
+.report-score{font-size:56px;font-weight:800;color:var(--g);line-height:1}
+.report-rank{font-size:18px;font-weight:700;color:var(--gm);margin:6px 0 4px}
+.report-sub{font-size:14px;color:var(--mu)}
+.breakdown{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px}
+.bk{background:var(--bg);border-radius:10px;padding:14px;text-align:center}
+.bk-num{font-size:24px;font-weight:800}
+.bk-num.c{color:var(--correct)}
+.bk-num.w{color:var(--wrong)}
+.bk-num.s{color:var(--gold)}
+.bk-lbl{font-size:11px;color:var(--mu);font-weight:500;margin-top:2px}
+.cat-breakdown{margin-bottom:24px}
+.cb-title{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.cb-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.cb-label{font-size:13px;font-weight:600;width:80px;flex-shrink:0}
+.cb-bar{flex:1;height:8px;background:var(--bd);border-radius:100px;overflow:hidden}
+.cb-fill{height:100%;border-radius:100px;transition:width .6s ease}
+.cb-pct{font-size:12px;font-weight:600;color:var(--mu);width:32px;text-align:right}
+.results-btns{display:flex;gap:10px;flex-wrap:wrap}
+
+@media(max-width:500px){.breakdown{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <a href="scout-games-hub.html" class="back">← Games</a>
+  <div>
+    <div class="hdr-title">🎖️ Scout Rank Trivia</div>
+    <div class="hdr-sub">15 questions · BSA Knowledge</div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div id="intro-screen" class="screen active">
+  <div class="center">
+    <div class="intro-card">
+      <div class="intro-icon">🎖️</div>
+      <h2>Scout Rank Trivia</h2>
+      <p>15 questions spanning the full world of Scouting. How well do you know your ranks, history, values, and outdoor skills?</p>
+      <div class="cats">
+        <span class="cat" style="background:var(--gp);color:var(--gm)">🏅 Ranks</span>
+        <span class="cat" style="background:var(--bluep);color:var(--blue)">📜 History</span>
+        <span class="cat" style="background:var(--goldp);color:var(--gold)">⚖️ Values</span>
+        <span class="cat" style="background:var(--purplep);color:var(--purple)">🌲 Skills</span>
+      </div>
+      <button class="btn" onclick="startQuiz()">▶ Start Trivia</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <div class="prog-left">
+        <span class="prog-label" id="q-label">Question 1 of 15</span>
+        <span class="streak" id="streak">🔥 2</span>
+      </div>
+      <span class="prog-score" id="q-score">Score: 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="q-wrap">
+    <div class="q-card">
+      <div class="q-meta">
+        <span class="q-num" id="q-num-text">Q1</span>
+        <span class="cat-badge" id="cat-badge"></span>
+      </div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+    <div class="options" id="options"></div>
+    <div class="fact-box" id="fact-box"></div>
+    <div class="next-row">
+      <button class="btn" id="next-btn" style="display:none" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen" class="screen">
+  <div class="center">
+    <div class="report">
+      <div class="report-hero">
+        <div class="report-badge" id="r-badge"></div>
+        <div class="report-score" id="r-score"></div>
+        <div class="report-rank" id="r-rank"></div>
+        <div class="report-sub" id="r-sub"></div>
+      </div>
+      <div class="breakdown">
+        <div class="bk"><div class="bk-num c" id="rc">0</div><div class="bk-lbl">✅ Correct</div></div>
+        <div class="bk"><div class="bk-num w" id="rw">0</div><div class="bk-lbl">❌ Wrong</div></div>
+        <div class="bk"><div class="bk-num s" id="rs">0</div><div class="bk-lbl">🔥 Best Streak</div></div>
+      </div>
+      <div class="cat-breakdown">
+        <div class="cb-title">By Category</div>
+        <div id="cat-results"></div>
+      </div>
+      <div class="results-btns">
+        <button class="btn" onclick="startQuiz()">🔄 Try Again</button>
+        <button class="btn btn-outline" onclick="location.href='scout-games-hub.html'">← All Games</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CAT_STYLES={
+  Ranks:{bg:'var(--gp)',color:'var(--gm)',fill:'#52B788'},
+  History:{bg:'var(--bluep)',color:'var(--blue)',fill:'#3B82F6'},
+  Values:{bg:'var(--goldp)',color:'var(--gold)',fill:'#EAB308'},
+  Skills:{bg:'var(--purplep)',color:'var(--purple)',fill:'#8B5CF6'}
+};
+
+const QUESTIONS=[
+  {q:"What is the Scout Motto?",opts:["Be Prepared","Do Your Best","Always Ready","Honor and Duty"],ans:0,cat:"Values",
+   fact:"'Be Prepared' was chosen by Baden-Powell. When asked 'Prepared for what?' he answered: 'Why, for any old thing!'"},
+  {q:"What is the very first rank a Scout earns after joining BSA?",opts:["Tenderfoot","Scout","Second Class","Bobcat"],ans:1,cat:"Ranks",
+   fact:"The Scout rank is earned right after joining by learning the Scout Oath, Law, motto, slogan, and sign. It's the foundation of everything that follows."},
+  {q:"How many points does the Scout Law have?",opts:["10","11","12","14"],ans:2,cat:"Values",
+   fact:"The 12 points of the Scout Law: Trustworthy, Loyal, Helpful, Friendly, Courteous, Kind, Obedient, Cheerful, Thrifty, Brave, Clean, and Reverent."},
+  {q:"Which rank comes immediately after First Class?",opts:["Star","Life","Eagle","Merit"],ans:0,cat:"Ranks",
+   fact:"After First Class comes Star (6 merit badges + leadership), then Life, then Eagle. These are sometimes called the 'Eagle path' ranks."},
+  {q:"How many total merit badges must be earned for Eagle Scout?",opts:["15","18","21","24"],ans:2,cat:"Ranks",
+   fact:"Eagle Scout requires 21 merit badges: 13 Eagle-required (First Aid, Camping, Cooking, Citizenship in the Community, Nation, and World, etc.) plus 8 electives."},
+  {q:"What is the Scout Slogan?",opts:["Always Be Helpful","Do a Good Turn Daily","Ready for Anything","Serve with Honor"],ans:1,cat:"Values",
+   fact:"'Do a Good Turn Daily' encourages Scouts to perform at least one act of service or kindness every day — big or small. It doesn't have to be heroic!"},
+  {q:"What does 'OA' stand for in BSA Scouting?",opts:["Outdoor Adventure","Order of the Arrow","Outstanding Achievement","Official Association"],ans:1,cat:"History",
+   fact:"The Order of the Arrow is Scouting's honor camping society. OA members are elected by their peers as those who best exemplify the Scout Oath and Law."},
+  {q:"What year was the Boy Scouts of America officially founded?",opts:["1905","1907","1910","1916"],ans:2,cat:"History",
+   fact:"BSA was founded on February 8, 1910 by W.D. Boyce, inspired by a Good Turn he received from an unknown Scout in foggy London who refused a tip."},
+  {q:"Which rank comes between Star Scout and Eagle Scout?",opts:["Merit","Honor","Life","Silver"],ans:2,cat:"Ranks",
+   fact:"Life Scout requires 11 merit badges (including 7 Eagle-required), a leadership position in the troop, and planning and participating in a service project."},
+  {q:"Baden-Powell, founder of Scouting, was from which country?",opts:["United States","Canada","Australia","England"],ans:3,cat:"History",
+   fact:"Robert Baden-Powell was a British Army Lieutenant-General who founded Scouting in 1907-08. His experimental camp on Brownsea Island in 1907 was the very first Scout camp."},
+  {q:"In the Scout Oath, after '...to do my duty to God and my country, and to obey the Scout Law,' what comes next?",opts:["...to be a good citizen","...to help other people at all times","...to keep myself physically strong","...to follow my leaders"],ans:1,cat:"Values",
+   fact:"The Scout Oath continues: '...to help other people at all times; to keep myself physically strong, mentally awake, and morally straight.'"},
+  {q:"Which rank is the only one requiring a major community service project planned and led by the Scout?",opts:["Star","Life","Eagle","First Class"],ans:2,cat:"Ranks",
+   fact:"The Eagle Scout service project must benefit the community, a school, or a religious institution. The Scout must plan, develop, and lead the project — not just participate."},
+  {q:"How many fingers does a Scout extend for the Scout sign?",opts:["2 fingers","3 fingers","4 fingers","Full hand"],ans:1,cat:"Values",
+   fact:"Three fingers represent the three parts of the Scout Oath. The thumb and little finger touch to symbolize the bond of all Scouts worldwide."},
+  {q:"BSA's first Scout handbook 'Scouting for Boys' was originally published by Baden-Powell in what year?",opts:["1907","1908","1910","1912"],ans:1,cat:"History",
+   fact:"'Scouting for Boys' was published in 1908, serialized in six fortnightly parts. It became one of the best-selling books of the 20th century and launched the Scout movement worldwide."},
+  {q:"What is the traditional Scout handshake, and which hand is used?",opts:["Right hand, firm grip","Left hand, little finger extended","Both hands clasped","Left hand, standard grip"],ans:1,cat:"Values",
+   fact:"Scouts shake with the left hand. Baden-Powell said the left hand is closer to the heart. The Wagadugu warrior chiefs in Africa greeted Baden-Powell this way as a sign of trust."}
+];
+
+let curQ=0, score=0, streak=0, bestStreak=0, answered=false;
+let catResults={Ranks:{c:0,t:0},History:{c:0,t:0},Values:{c:0,t:0},Skills:{c:0,t:0}};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startQuiz(){
+  curQ=0; score=0; streak=0; bestStreak=0;
+  catResults={Ranks:{c:0,t:0},History:{c:0,t:0},Values:{c:0,t:0},Skills:{c:0,t:0}};
+  renderQuestion();
+  showScreen('quiz-screen');
+}
+
+function renderQuestion(){
+  answered=false;
+  const q=QUESTIONS[curQ];
+  const total=QUESTIONS.length;
+  document.getElementById('q-label').textContent=`Question ${curQ+1} of ${total}`;
+  document.getElementById('q-score').textContent=`Score: ${score}`;
+  document.getElementById('q-num-text').textContent=`Q${curQ+1}`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('prog-fill').style.width=`${(curQ/total)*100}%`;
+
+  const cb=document.getElementById('cat-badge');
+  const cs=CAT_STYLES[q.cat]||CAT_STYLES.Values;
+  cb.textContent=q.cat;
+  cb.style.background=cs.bg; cb.style.color=cs.color;
+
+  const sk=document.getElementById('streak');
+  if(streak>=2){sk.classList.add('show');sk.textContent=`🔥 ${streak}`}
+  else{sk.classList.remove('show')}
+
+  document.getElementById('fact-box').classList.remove('show');
+  document.getElementById('fact-box').style.display='none';
+  document.getElementById('next-btn').style.display='none';
+
+  document.getElementById('options').innerHTML=q.opts.map((o,i)=>`
+    <button class="opt" onclick="answer(${i})">
+      <span class="opt-letter">${String.fromCharCode(65+i)}</span>
+      <span>${o}</span>
+    </button>`).join('');
+}
+
+function answer(i){
+  if(answered) return;
+  answered=true;
+  const q=QUESTIONS[curQ];
+  const ok=(i===q.ans);
+  if(ok){score++;streak++;if(streak>bestStreak)bestStreak=streak;}
+  else{streak=0;}
+  catResults[q.cat].t++;
+  if(ok) catResults[q.cat].c++;
+
+  document.querySelectorAll('.opt').forEach((b,j)=>{
+    b.classList.add('disabled');
+    if(j===q.ans) b.classList.add('correct');
+    else if(j===i&&!ok) b.classList.add('wrong');
+  });
+  const fb=document.getElementById('fact-box');
+  fb.textContent=`💡 ${q.fact}`;
+  fb.style.display='block'; fb.classList.add('show');
+  document.getElementById('q-score').textContent=`Score: ${score}`;
+  const sk=document.getElementById('streak');
+  if(streak>=2){sk.classList.add('show');sk.textContent=`🔥 ${streak}`}
+  else{sk.classList.remove('show')}
+  const nb=document.getElementById('next-btn');
+  nb.style.display='flex';
+  nb.textContent=curQ<QUESTIONS.length-1?'Next →':'See Results';
+}
+
+function nextQuestion(){
+  curQ++;
+  if(curQ>=QUESTIONS.length){showResults();return;}
+  renderQuestion();
+}
+
+function showResults(){
+  document.getElementById('prog-fill').style.width='100%';
+  const pct=score/15;
+  const ranks=[
+    [15,'🦅','Eagle Scout','Perfect! You have true Eagle-level knowledge.'],
+    [13,'⭐','Life Scout','Outstanding! Nearly perfect.'],
+    [10,'🌟','Star Scout','Great job — solid Scouting knowledge!'],
+    [7,'👍','First Class','Good work! A few more meetings to go.'],
+    [4,'💪','Tenderfoot','Keep going — practice makes perfect!'],
+    [0,'🎯','Scout','Welcome! There\'s a lot to learn and it\'s all great.']
+  ];
+  const [,badge,rank,msg]=ranks.find(([t])=>score>=t);
+  document.getElementById('r-badge').textContent=badge;
+  document.getElementById('r-score').textContent=`${score}/15`;
+  document.getElementById('r-rank').textContent=rank+' Level';
+  document.getElementById('r-sub').textContent=msg;
+  document.getElementById('rc').textContent=score;
+  document.getElementById('rw').textContent=15-score;
+  document.getElementById('rs').textContent=bestStreak;
+
+  const cats=document.getElementById('cat-results');
+  cats.innerHTML=Object.entries(catResults).filter(([,v])=>v.t>0).map(([cat,v])=>{
+    const pct=v.t?Math.round(v.c/v.t*100):0;
+    const cs=CAT_STYLES[cat]||CAT_STYLES.Values;
+    return`<div class="cb-row">
+      <span class="cb-label" style="color:${cs.color};font-size:12px">${cat}</span>
+      <div class="cb-bar"><div class="cb-fill" style="width:${pct}%;background:${cs.fill}"></div></div>
+      <span class="cb-pct">${v.c}/${v.t}</span>
+    </div>`;
+  }).join('');
+
+  showScreen('results-screen');
+}
+</script>
+</body>
+</html>

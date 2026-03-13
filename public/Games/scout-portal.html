@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scout Portal — Troop 242</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --g:#1B4332;--gd:#0F2B1E;--gm:#2D6A4F;--gl:#52B788;--gp:#D8F3DC;--gpp:#F0FAF4;
+  --gold:#B45309;--goldp:#FEF3C7;--goldb:#D97706;
+  --red:#DC2626;--redp:#FEE2E2;--blue:#1D4ED8;--bluep:#DBEAFE;
+  --bg:#F5F7F4;--w:#fff;--bd:#E5EAE3;--t:#111827;--mu:#6B7280;--ms:#9CA3AF;
+  --r:12px;--r2:16px;--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --nav-w:220px;--hdr:58px
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column}
+
+/* ═══ HEADER ═══ */
+.hdr{height:var(--hdr);background:var(--g);display:flex;align-items:center;padding:0 20px;gap:14px;
+  z-index:100;flex-shrink:0;position:relative}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:rgba(255,255,255,.08)}
+.troop-badge{display:flex;align-items:center;gap:9px}
+.fleur{font-size:22px;line-height:1}
+.troop-name{color:#fff;font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1}
+.troop-sub{color:rgba(255,255,255,.45);font-size:10.5px;font-weight:500;letter-spacing:.2px}
+.hdr-sep{width:1px;height:22px;background:rgba(255,255,255,.15);margin:0 4px}
+.portal-title{color:rgb(255, 255, 255);font-size:24px;font-weight:600;text-align:center; margin:auto;}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdr-back{display:none;align-items:center;gap:6px;color:rgba(255,255,255,.7);
+  background:rgba(255,255,255,.1);border:none;border-radius:8px;
+  padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;
+  transition:.15s}
+.hdr-back:hover{background:rgba(255,255,255,.18);color:#fff}
+.hdr-back.show{display:flex}
+.panel-title{color:#fff;font-size:15px;font-weight:700;display:none}
+.panel-title.show{display:block}
+.menu-btn{display:none;background:rgba(255,255,255,.1);border:none;border-radius:8px;
+  color:#fff;padding:7px 10px;cursor:pointer;font-size:18px;line-height:1}
+
+/* ═══ LAYOUT ═══ */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{width:var(--nav-w);background:var(--w);border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.nav-section{padding:14px 10px 6px}
+.nav-section-title{font-size:10px;font-weight:700;color:var(--ms);text-transform:uppercase;
+  letter-spacing:1px;padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;
+  cursor:pointer;transition:.15s;font-size:13.5px;font-weight:500;color:var(--mu);
+  border:none;background:none;width:100%;text-align:left;font-family:'Outfit',sans-serif}
+.nav-item:hover{background:var(--gpp);color:var(--gm)}
+.nav-item.active{background:var(--gp);color:var(--g);font-weight:700}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-divider{height:1px;background:var(--bd);margin:8px 10px}
+
+/* ═══ MAIN ═══ */
+.main{flex:1;overflow-y:auto;position:relative}
+
+/* ═══ DASHBOARD ═══ */
+#dashboard{padding:28px 24px}
+.dash-hero{margin-bottom:24px}
+.dash-hero h2{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.dash-hero p{font-size:14px;color:var(--mu)}
+.cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.cat-tab{border:1.5px solid var(--bd);background:var(--w);border-radius:100px;
+  padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;
+  font-family:'Outfit',sans-serif;color:var(--mu)}
+.cat-tab:hover{border-color:var(--gl);color:var(--gm);background:var(--gpp)}
+.cat-tab.active{background:var(--g);border-color:var(--g);color:#fff}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.feat-card{background:var(--w);border:1.5px solid var(--bd);border-radius:var(--r2);
+  padding:20px 18px 16px;cursor:pointer;transition:.2s;text-align:left}
+.feat-card:hover{border-color:var(--gl);transform:translateY(-2px);box-shadow:var(--sh2)}
+.feat-card.hidden{display:none}
+.feat-icon{font-size:28px;margin-bottom:12px;display:block}
+.feat-name{font-size:14px;font-weight:700;margin-bottom:4px;color:var(--t)}
+.feat-desc{font-size:12px;color:var(--mu);line-height:1.55}
+.feat-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;
+  border-radius:100px;margin-top:10px}
+
+/* ═══ PANEL SYSTEM ═══ */
+.panel{display:none;height:100%;overflow-y:auto;padding:24px}
+.panel.active{display:block;animation:panelIn .3s ease}
+@keyframes panelIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+.panel-inner{max-width:820px;margin:0 auto}
+.panel h2{font-size:20px;font-weight:800;margin-bottom:4px;letter-spacing:-.4px}
+.panel-subtitle{font-size:13px;color:var(--mu);margin-bottom:24px}
+
+/* ═══ SHARED UI ═══ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  background:var(--g);color:#fff;border:none;border-radius:9px;
+  padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;
+  transition:.18s;font-family:'Outfit',sans-serif;letter-spacing:-.2px}
+.btn:hover{background:var(--gm);transform:translateY(-1px);box-shadow:0 4px 12px rgba(27,67,50,.25)}
+.btn:active{transform:none}
+.btn-sm{padding:8px 16px;font-size:13px}
+.btn-xs{padding:5px 12px;font-size:12px;border-radius:7px}
+.btn-outline{background:var(--w);color:var(--g);border:2px solid var(--bd)}
+.btn-outline:hover{background:var(--gp);border-color:var(--gl);transform:none;box-shadow:none}
+.btn-red{background:#DC2626}
+.btn-red:hover{background:#B91C1C}
+.btn-gold{background:#B45309}
+.btn-gold:hover{background:#92400E}
+.card{background:var(--w);border:1.5px solid var(--bd);border-radius:var(--r2);padding:22px;box-shadow:var(--sh)}
+.input{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 14px;
+  font-size:14px;font-family:'Outfit',sans-serif;color:var(--t);outline:none;
+  transition:.15s;background:var(--w)}
+.input:focus{border-color:var(--gl);box-shadow:0 0 0 3px rgba(82,183,136,.12)}
+.select{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 14px;
+  font-size:14px;font-family:'Outfit',sans-serif;color:var(--t);outline:none;
+  background:var(--w);cursor:pointer}
+.select:focus{border-color:var(--gl)}
+.label{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:100px;padding:3px 10px;font-size:12px;font-weight:600}
+.pill.green{background:var(--gp);color:var(--gm)}
+.pill.gold{background:var(--goldp);color:var(--gold)}
+.pill.red{background:var(--redp);color:var(--red)}
+.pill.blue{background:var(--bluep);color:var(--blue)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.col{display:flex;flex-direction:column;gap:10px}
+.divider{height:1px;background:var(--bd);margin:16px 0}
+.feedback-ok{background:var(--gp);border:1px solid var(--gl);border-radius:9px;
+  padding:12px 16px;color:var(--gm);font-size:13.5px;font-weight:600;margin-top:12px;display:none}
+.feedback-err{background:var(--redp);border:1px solid #FCA5A5;border-radius:9px;
+  padding:12px 16px;color:var(--red);font-size:13.5px;font-weight:600;margin-top:12px;display:none}
+.feedback-ok.show,.feedback-err.show{display:block;animation:panelIn .25s ease}
+.progress-bar{height:8px;background:var(--bd);border-radius:100px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--gl);border-radius:100px;transition:width .4s ease}
+.score-ring{font-size:48px;font-weight:900;color:var(--g);line-height:1}
+.q-counter{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.opt-btn{background:var(--w);border:2px solid var(--bd);border-radius:9px;
+  padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;
+  transition:.18s;font-family:'Outfit',sans-serif;color:var(--t)}
+.opt-btn:hover:not(.disabled){border-color:var(--gl);background:var(--gpp)}
+.opt-btn.correct{border-color:#16A34A;background:#DCFCE7;color:#16A34A}
+.opt-btn.wrong{border-color:#DC2626;background:#FEE2E2;color:#DC2626}
+.opt-btn.disabled{cursor:default;pointer-events:none}
+.fact{background:var(--gpp);border:1px solid var(--gp);border-radius:9px;
+  padding:12px 16px;font-size:13px;color:var(--gm);line-height:1.6;margin-top:12px;display:none}
+.fact.show{display:block;animation:panelIn .25s ease}
+
+/* ═══ STAR QUIZ ═══ */
+.constellation-display{background:#0B1120;border-radius:14px;padding:20px;margin-bottom:16px;
+  display:flex;justify-content:center;align-items:center;min-height:200px}
+.constellation-display svg{filter:drop-shadow(0 0 4px rgba(147,210,255,.4))}
+
+/* ═══ CIPHER ═══ */
+.cipher-ref{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:20px}
+.cipher-cell{background:var(--bg);border:1.5px solid var(--bd);border-radius:6px;
+  padding:6px 4px;text-align:center}
+.cipher-letter{font-size:11px;font-weight:800;color:var(--g)}
+.cipher-symbol{font-size:9px;color:var(--mu);margin-top:2px;letter-spacing:1px;line-height:1.4}
+.cipher-display{font-family:monospace;font-size:22px;letter-spacing:4px;
+  background:#0F172A;color:#4ADE80;border-radius:10px;padding:18px;text-align:center;
+  margin-bottom:16px;min-height:60px;word-break:break-all}
+
+/* ═══ STORY BUILDER ═══ */
+.story-output{background:var(--gd);color:var(--gp);border-radius:14px;padding:24px;
+  font-size:15px;line-height:1.85;margin-bottom:16px;min-height:160px;display:none;
+  animation:panelIn .4s ease}
+.story-output.show{display:block}
+
+/* ═══ ATTENDANCE ═══ */
+.scout-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.scout-row{background:var(--w);border:1.5px solid var(--bd);border-radius:10px;
+  padding:12px 16px;display:flex;align-items:center;gap:12px}
+.scout-name{flex:1;font-size:14px;font-weight:600}
+.scout-status{width:90px;text-align:center}
+.scout-del{background:none;border:none;cursor:pointer;color:var(--ms);font-size:16px;
+  padding:4px;border-radius:5px;transition:.15s}
+.scout-del:hover{color:var(--red);background:var(--redp)}
+.attendance-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.att-stat{background:var(--w);border:1.5px solid var(--bd);border-radius:10px;
+  padding:14px;text-align:center}
+.att-num{font-size:24px;font-weight:800}
+.att-lbl{font-size:11px;color:var(--mu);font-weight:500}
+
+/* ═══ MERIT BADGES ═══ */
+.badge-section{margin-bottom:20px}
+.badge-section-title{font-size:13px;font-weight:700;color:var(--g);margin-bottom:10px;
+  display:flex;align-items:center;gap:6px}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.badge-item{display:flex;align-items:center;gap:8px;background:var(--w);
+  border:1.5px solid var(--bd);border-radius:8px;padding:10px 12px;gap:8px;cursor:pointer;transition:.15s}
+.badge-item:hover{border-color:var(--gl);background:var(--gpp)}
+.badge-item input[type=checkbox]{accent-color:var(--g);width:15px;height:15px;cursor:pointer;flex-shrink:0}
+.badge-item label{font-size:13px;font-weight:500;cursor:pointer;flex:1}
+.badge-req{font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase}
+.badge-progress-wrap{background:var(--w);border:1.5px solid var(--bd);border-radius:12px;
+  padding:16px;margin-bottom:20px}
+.bp-label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:8px}
+.bp-pct{color:var(--gm)}
+
+/* ═══ PACKING LIST ═══ */
+.trip-types{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.trip-type{border:1.5px solid var(--bd);background:var(--w);border-radius:9px;
+  padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;
+  font-family:'Outfit',sans-serif;color:var(--mu)}
+.trip-type.active{background:var(--g);border-color:var(--g);color:#fff}
+.pack-section{margin-bottom:18px}
+.pack-section-title{font-size:13px;font-weight:700;color:var(--t);margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.4px}
+.pack-items{display:flex;flex-direction:column;gap:5px}
+.pack-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--w);
+  border-radius:7px;border:1px solid var(--bd)}
+.pack-item input[type=checkbox]{accent-color:var(--g);width:15px;height:15px;cursor:pointer}
+.pack-item label{font-size:13.5px;font-weight:500;cursor:pointer;flex:1}
+.pack-item.checked label{text-decoration:line-through;color:var(--ms)}
+.pack-stats{display:flex;gap:16px;font-size:13px;font-weight:600;color:var(--mu);
+  margin-bottom:16px;padding:10px 14px;background:var(--w);border:1px solid var(--bd);border-radius:9px}
+.pack-stats span.hi{color:var(--gm)}
+
+/* ═══ DUTY ROSTER ═══ */
+.roster-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.roster-role{background:var(--w);border:1.5px solid var(--bd);border-radius:10px;padding:14px}
+.roster-role-name{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:6px}
+.roster-assign{font-size:14px;font-weight:600;color:var(--t);min-height:24px;
+  border-bottom:2px dashed var(--bd);padding-bottom:4px;cursor:pointer;transition:.15s}
+.roster-assign:hover{border-color:var(--gl);color:var(--gm)}
+.roster-assign.filled{border-style:solid;border-color:var(--gl);background:var(--gpp);
+  border-radius:6px;padding:4px 8px}
+.roster-members{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.roster-member{background:var(--gp);color:var(--gm);border-radius:100px;
+  padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;border:2px solid transparent}
+.roster-member:hover{border-color:var(--gm)}
+.roster-member.assigned{opacity:.4;cursor:default}
+
+/* ═══ SCOUT LAW ═══ */
+.law-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+.law-card{background:var(--w);border:1.5px solid var(--bd);border-radius:12px;
+  padding:16px 14px;cursor:pointer;transition:.2s;text-align:center}
+.law-card:hover{border-color:var(--gl);transform:translateY(-2px);box-shadow:var(--sh2)}
+.law-card.active{border-color:var(--g);background:var(--gp)}
+.law-num{font-size:10px;font-weight:700;color:var(--ms);text-transform:uppercase;letter-spacing:.5px}
+.law-word{font-size:15px;font-weight:800;color:var(--g);margin-top:4px}
+.law-icon{font-size:24px;margin-bottom:8px}
+.law-detail{background:var(--w);border:1.5px solid var(--gp);border-radius:14px;
+  padding:24px;display:none;animation:panelIn .3s ease}
+.law-detail.show{display:block}
+.law-detail h3{font-size:20px;font-weight:800;color:var(--g);margin-bottom:8px}
+.law-detail p{font-size:14px;color:var(--mu);line-height:1.7;margin-bottom:12px}
+.law-example{background:var(--gpp);border-radius:9px;padding:12px 16px;
+  font-size:13px;color:var(--gm);line-height:1.6;font-style:italic}
+
+/* ═══ RANK ROADMAP ═══ */
+.roadmap{display:flex;flex-direction:column;gap:0;margin-bottom:20px}
+.roadmap-rank{display:flex;gap:16px;cursor:pointer}
+.roadmap-spine{display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0}
+.spine-dot{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:18px;border:3px solid var(--bd);background:var(--w);z-index:1;flex-shrink:0;transition:.2s}
+.roadmap-rank.active .spine-dot{border-color:var(--g);background:var(--gp)}
+.spine-line{width:3px;background:var(--bd);flex:1;min-height:16px}
+.roadmap-content{flex:1;padding:8px 0 20px}
+.rank-name{font-size:16px;font-weight:800;color:var(--t)}
+.rank-badge-req{font-size:12px;color:var(--mu);margin-top:2px}
+.rank-detail{display:none;margin-top:10px;padding:14px;background:var(--gpp);
+  border-radius:10px;font-size:13px;color:var(--gm);line-height:1.7}
+.rank-detail.show{display:block;animation:panelIn .25s ease}
+
+/* ═══ FIELD GUIDE ═══ */
+.guide-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.guide-tab{border:1.5px solid var(--bd);background:var(--w);border-radius:100px;
+  padding:6px 16px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.18s;
+  font-family:'Outfit',sans-serif;color:var(--mu)}
+.guide-tab.active{background:var(--g);border-color:var(--g);color:#fff}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.guide-card{background:var(--w);border:1.5px solid var(--bd);border-radius:12px;
+  padding:16px;text-align:center;cursor:pointer;transition:.2s}
+.guide-card:hover{border-color:var(--gl);transform:translateY(-2px);box-shadow:var(--sh2)}
+.guide-card.hidden{display:none}
+.guide-emoji{font-size:36px;margin-bottom:10px}
+.guide-name{font-size:13px;font-weight:700}
+.guide-type{font-size:11px;color:var(--mu);margin-top:3px}
+.guide-detail-card{background:var(--w);border:1.5px solid var(--gp);border-radius:14px;
+  padding:20px;display:none;margin-bottom:16px}
+.guide-detail-card.show{display:flex;gap:16px;animation:panelIn .25s ease}
+.guide-detail-emoji{font-size:48px;flex-shrink:0}
+.guide-detail h3{font-size:16px;font-weight:800;margin-bottom:6px}
+.guide-detail p{font-size:13px;color:var(--mu);line-height:1.65}
+.guide-detail .pill{margin-top:8px}
+
+/* ═══ KNOT LIBRARY ═══ */
+.knot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.knot-card{background:var(--w);border:1.5px solid var(--bd);border-radius:12px;
+  padding:18px;cursor:pointer;transition:.2s}
+.knot-card:hover{border-color:var(--gl);transform:translateY(-2px);box-shadow:var(--sh2)}
+.knot-card.active{border-color:var(--g);background:var(--gpp)}
+.knot-emoji{font-size:28px;margin-bottom:10px}
+.knot-name{font-size:14px;font-weight:700}
+.knot-use{font-size:12px;color:var(--mu);margin-top:3px}
+.knot-detail{background:var(--w);border:1.5px solid var(--gp);border-radius:14px;
+  padding:24px;display:none;animation:panelIn .25s ease}
+.knot-detail.show{display:block}
+.knot-detail h3{font-size:18px;font-weight:800;margin-bottom:6px}
+.knot-steps{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.knot-step{display:flex;gap:10px;font-size:13.5px;line-height:1.6}
+.step-n{width:24px;height:24px;min-width:24px;background:var(--gp);color:var(--gm);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:11px;margin-top:2px}
+
+/* ═══ COUNTDOWN ═══ */
+.countdown-display{background:var(--gd);border-radius:16px;padding:36px;text-align:center;margin-bottom:20px}
+.countdown-event{color:rgba(255,255,255,.6);font-size:13px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.countdown-time{display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+.cd-unit{display:flex;flex-direction:column;align-items:center}
+.cd-num{font-size:clamp(36px,8vw,64px);font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
+.cd-lbl{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.cd-sep{font-size:48px;font-weight:300;color:rgba(255,255,255,.3);align-self:flex-start;padding-top:6px}
+
+/* ═══ SCOREBOARD ═══ */
+.score-table{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.score-row{background:var(--w);border:1.5px solid var(--bd);border-radius:10px;
+  padding:12px 16px;display:flex;align-items:center;gap:12px;transition:.2s}
+.score-row:first-child{border-color:var(--goldb);background:var(--goldp)}
+.score-rank{font-size:18px;font-weight:900;color:var(--mu);width:28px;text-align:center;flex-shrink:0}
+.score-row:first-child .score-rank{color:var(--gold)}
+.score-patrol{flex:1;font-size:15px;font-weight:700}
+.score-pts{font-size:20px;font-weight:900;color:var(--g);min-width:50px;text-align:right}
+.score-controls{display:flex;gap:6px}
+.score-btn{width:30px;height:30px;border:none;border-radius:7px;font-size:16px;font-weight:800;
+  cursor:pointer;font-family:'Outfit',sans-serif;transition:.15s;display:flex;align-items:center;justify-content:center}
+.score-btn.plus{background:var(--gp);color:var(--gm)}
+.score-btn.plus:hover{background:var(--gl);color:#fff}
+.score-btn.minus{background:var(--redp);color:var(--red)}
+.score-btn.minus:hover{background:var(--red);color:#fff}
+.score-btn.del{background:var(--bg);color:var(--ms)}
+.score-btn.del:hover{background:var(--redp);color:var(--red)}
+
+/* ═══ MENU PLANNER ═══ */
+.day-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.day-tab{border:1.5px solid var(--bd);background:var(--w);border-radius:8px;
+  padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;
+  font-family:'Outfit',sans-serif;color:var(--mu)}
+.day-tab.active{background:var(--g);border-color:var(--g);color:#fff}
+.meal-slots{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.meal-slot{background:var(--w);border:1.5px solid var(--bd);border-radius:12px;padding:16px}
+.meal-slot-name{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:8px}
+.meal-slot-input{width:100%;border:1.5px solid var(--bd);border-radius:8px;padding:9px 12px;
+  font-size:14px;font-family:'Outfit',sans-serif;color:var(--t);outline:none;transition:.15s}
+.meal-slot-input:focus{border-color:var(--gl)}
+.shopping-output{background:var(--gd);color:var(--gp);border-radius:12px;padding:20px;
+  font-size:13.5px;line-height:2;display:none;white-space:pre-wrap}
+.shopping-output.show{display:block;animation:panelIn .3s ease}
+
+/* ═══ REGISTRATION ═══ */
+.reg-form{display:flex;flex-direction:column;gap:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group .label{margin-bottom:4px}
+.reg-success{background:var(--gp);border:1px solid var(--gl);border-radius:12px;
+  padding:24px;text-align:center;display:none}
+.reg-success.show{display:block;animation:panelIn .3s ease}
+.reg-success .big{font-size:36px;margin-bottom:8px}
+.reg-success h3{font-size:18px;font-weight:800;color:var(--g)}
+.reg-entries{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.reg-entry{background:var(--w);border:1px solid var(--bd);border-radius:8px;
+  padding:10px 14px;font-size:13px;display:flex;justify-content:space-between}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  :root{--nav-w:0px;--hdr:52px}
+  .hdr{padding:0 12px;gap:8px}
+  .fleur{font-size:18px}
+  .troop-name{font-size:13px}
+  .troop-sub{font-size:9px}
+  .hdr-sep{display:none}
+  .portal-title{font-size:16px}
+  .sidebar{position:fixed;left:-260px;top:var(--hdr);height:calc(100vh - var(--hdr));
+    width:260px;z-index:200;transition:.3s ease;box-shadow:var(--sh2)}
+  .sidebar.open{left:0}
+  .menu-btn{display:block}
+  .overlay{display:none;position:fixed;inset:0;top:var(--hdr);background:rgba(0,0,0,.3);z-index:150}
+  .overlay.show{display:block}
+  #dashboard{padding:16px}
+  .panel{padding:16px}
+  .form-row{grid-template-columns:1fr}
+  .roster-grid{grid-template-columns:1fr}
+  .countdown-time{gap:12px}
+  footer{display:none}
+}
+@media print{
+  .sidebar,.hdr,.cat-tabs,.btn,.nav-section,.hdr-right{display:none!important}
+  .panel{display:block!important;padding:0}
+  .main{overflow:visible}
+}
+</style>
+</head>
+<body>
+<!-- OVERLAY (mobile) -->
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- HEADER -->
+<div class="hdr" >
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <a href="../" style="color:rgb(255, 255, 255);text-decoration:none" class="troop-badge">
+    <span class="fleur">⚜️</span>
+    <div>
+      <div class="troop-name">Troop 242</div>
+      <div class="troop-sub">Sanford</div>
+    </div>
+  </a>
+
+  <div class="hdr-sep"></div>
+  <span class="portal-title">Scout Portal</span>
+  <div class="hdr-right">
+    <!-- <span class="panel-title" id="panel-hdr-title"></span> -->
+    <button class="hdr-back" id="hdr-back" onclick="showDashboard()">← Back </button>
+  </div>
+</div>
+
+
+<div class="app-body">
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+
+  <div class="nav-section">
+    <div class="nav-section-title">🛠️ Tools</div>
+    <button class="nav-item" onclick="openPanel('attendance','📋 Attendance Tracker')">
+      <span class="nav-icon">📋</span>Attendance Tracker
+    </button>
+    <button class="nav-item" onclick="openPanel('merit','🎖️ Merit Badge Tracker')">
+      <span class="nav-icon">🎖️</span>Merit Badge Tracker
+    </button>
+    <button class="nav-item" onclick="openPanel('packing','🎒 Packing List Generator')">
+      <span class="nav-icon">🎒</span>Packing List Generator
+    </button>
+    <button class="nav-item" onclick="openPanel('roster','👥 Duty Roster Builder')">
+      <span class="nav-icon">👥</span>Duty Roster Builder
+    </button>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-section">
+    <div class="nav-section-title">📚 Learning</div>
+    <button class="nav-item" onclick="openPanel('scout-law','⚖️ Scout Law Explorer')">
+      <span class="nav-icon">⚖️</span>Scout Law Explorer
+    </button>
+    <button class="nav-item" onclick="openPanel('roadmap','🗺️ Rank Roadmap')">
+      <span class="nav-icon">🗺️</span>Rank Requirements Roadmap
+    </button>
+    <button class="nav-item" onclick="openPanel('field-guide','🌿 Florida Field Guide')">
+      <span class="nav-icon">🌿</span>Field Guide (FL)
+    </button>
+    <button class="nav-item" onclick="openPanel('knots','🪢 Knot Library')">
+      <span class="nav-icon">🪢</span>Knot Library
+    </button>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-section">
+    <div class="nav-section-title">🏕️ Events</div>
+    <button class="nav-item" onclick="openPanel('countdown','⏱️ Countdown Timer')">
+      <span class="nav-icon">⏱️</span>Campout Countdown Timer
+    </button>
+    <button class="nav-item" onclick="openPanel('scoreboard','🏆 Patrol Scoreboard')">
+      <span class="nav-icon">🏆</span>Patrol Scoreboard
+    </button>
+    <button class="nav-item" onclick="openPanel('menu','🍳 Menu Planner')">
+      <span class="nav-icon">🍳</span>Menu Planner
+    </button>
+    <button class="nav-item" onclick="openPanel('registration','📝 Event Registration')">
+      <span class="nav-icon">📝</span>Event Registration
+    </button>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-section">
+    <div class="nav-section-title">🎮 Games</div>
+    <button class="nav-item" onclick="openPanel('star-quiz','⭐ Star Navigation Quiz')">
+      <span class="nav-icon">⭐</span>Star Navigation Quiz
+    </button>
+    <button class="nav-item" onclick="openPanel('first-aid','🩹 First Aid Simulator')">
+      <span class="nav-icon">🩹</span>First Aid Simulator
+    </button>
+    <button class="nav-item" onclick="openPanel('cipher','🔐 Cipher Challenge')">
+      <span class="nav-icon">🔐</span>Cipher Challenge
+    </button>
+    <button class="nav-item" onclick="openPanel('story','🔥 Story Builder')">
+      <span class="nav-icon">🔥</span>Campfire Story Builder
+    </button>
+    <button class="nav-item" onclick="window.location.href='../Games/scout-games-hub.html'">
+      <span class="nav-icon">🎲</span> More Scout Games
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+    <div class="dash-hero" style="margin-bottom:0">
+      <h2>Welcome to Scout Portal</h2>
+      <p> 12 tools & 10 games for Troop 242 — tools, learning, event management and games</p>
+    </div>
+    <button class="btn btn-outline" onclick="goToScoutDashboard()" style="white-space:nowrap;flex-shrink:0">← Scout Dashboard</button>
+  </div>
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="filterCat('all',this)">All (22)</button>
+    <button class="cat-tab" onclick="filterCat('tools',this)">🛠️ Tools</button>
+    <button class="cat-tab" onclick="filterCat('learning',this)">📚 Learning</button>
+    <button class="cat-tab" onclick="filterCat('events',this)">🏕️ Events</button>
+    <button class="cat-tab" onclick="filterCat('games',this)">🎮 Games</button>
+  </div>
+  <div class="dash-grid" id="dash-grid">
+    
+    <div class="feat-card" data-cat="tools" onclick="openPanel('attendance','📋 Attendance Tracker')">
+      <span class="feat-icon">📋</span>
+      <div class="feat-name">Attendance Tracker</div>
+      <div class="feat-desc">Check Scouts in/out with printable meeting roster</div>
+      <span class="feat-tag pill gold">Tool</span>
+    </div>
+    <div class="feat-card" data-cat="tools" onclick="openPanel('merit','🎖️ Merit Badge Tracker')">
+      <span class="feat-icon">🎖️</span>
+      <div class="feat-name">Merit Badge Tracker</div>
+      <div class="feat-desc">Track required & elective merit badges toward Eagle</div>
+      <span class="feat-tag pill gold">Tool</span>
+    </div>
+    <div class="feat-card" data-cat="tools" onclick="openPanel('packing','🎒 Packing List Generator')">
+      <span class="feat-icon">🎒</span>
+      <div class="feat-name">Packing List Generator</div>
+      <div class="feat-desc">Customizable gear checklists by trip type</div>
+      <span class="feat-tag pill gold">Tool</span>
+    </div>
+    <div class="feat-card" data-cat="tools" onclick="openPanel('roster','👥 Duty Roster Builder')">
+      <span class="feat-icon">👥</span>
+      <div class="feat-name">Duty Roster Builder</div>
+      <div class="feat-desc">Assign patrol jobs — KP, fire, flag, and more</div>
+      <span class="feat-tag pill gold">Tool</span>
+    </div>
+    <div class="feat-card" data-cat="learning" onclick="openPanel('scout-law','⚖️ Scout Law Explorer')">
+      <span class="feat-icon">⚖️</span>
+      <div class="feat-name">Scout Law Explorer</div>
+      <div class="feat-desc">Click each of the 12 points for stories and real examples</div>
+      <span class="feat-tag pill blue">Learning</span>
+    </div>
+    <div class="feat-card" data-cat="learning" onclick="openPanel('roadmap','🗺️ Rank Roadmap')">
+      <span class="feat-icon">🗺️</span>
+      <div class="feat-name">Rank Requirements Roadmap</div>
+      <div class="feat-desc">Visual journey from Scout to Eagle with all requirements</div>
+      <span class="feat-tag pill blue">Learning</span>
+    </div>
+    <div class="feat-card" data-cat="learning" onclick="openPanel('field-guide','🌿 Florida Field Guide')">
+      <span class="feat-icon">🌿</span>
+      <div class="feat-name">Florida Field Guide</div>
+      <div class="feat-desc">Identify Central Florida plants, animals & tracks</div>
+      <span class="feat-tag pill blue">Learning</span>
+    </div>
+    <div class="feat-card" data-cat="learning" onclick="openPanel('knots','🪢 Knot Library')">
+      <span class="feat-icon">🪢</span>
+      <div class="feat-name">Knot Library</div>
+      <div class="feat-desc">Step-by-step instructions for all 10 Scout knots</div>
+      <span class="feat-tag pill blue">Learning</span>
+    </div>
+    <div class="feat-card" data-cat="events" onclick="openPanel('countdown','⏱️ Countdown Timer')">
+      <span class="feat-icon">⏱️</span>
+      <div class="feat-name">Campout Countdown</div>
+      <div class="feat-desc">Live countdown to your next campout or event</div>
+      <span class="feat-tag pill red">Event</span>
+    </div>
+    <div class="feat-card" data-cat="events" onclick="openPanel('scoreboard','🏆 Patrol Scoreboard')">
+      <span class="feat-icon">🏆</span>
+      <div class="feat-name">Patrol Scoreboard</div>
+      <div class="feat-desc">Live leaderboard for inter-patrol competitions</div>
+      <span class="feat-tag pill red">Event</span>
+    </div>
+    <div class="feat-card" data-cat="events" onclick="openPanel('menu','🍳 Menu Planner')">
+      <span class="feat-icon">🍳</span>
+      <div class="feat-name">Menu Planner</div>
+      <div class="feat-desc">Plan meals by day with auto-generated shopping list</div>
+      <span class="feat-tag pill red">Event</span>
+    </div>
+    <div class="feat-card" data-cat="events" onclick="openPanel('registration','📝 Event Registration')">
+      <span class="feat-icon">📝</span>
+      <div class="feat-name">Event Registration</div>
+      <div class="feat-desc">Sign-up form with parent contact and emergency info</div>
+      <span class="feat-tag pill red">Event</span>
+    </div>
+    <div class="feat-card" data-cat="games" onclick="openPanel('star-quiz','⭐ Star Navigation Quiz')">
+      <span class="feat-icon">⭐</span>
+      <div class="feat-name">Star Navigation Quiz</div>
+      <div class="feat-desc">Identify constellations and navigate by the night sky</div>
+      <span class="feat-tag pill green">Game</span>
+    </div>
+    <div class="feat-card" data-cat="games" onclick="openPanel('first-aid','🩹 First Aid Simulator')">
+      <span class="feat-icon">🩹</span>
+      <div class="feat-name">First Aid Simulator</div>
+      <div class="feat-desc">Make real decisions in branching emergency scenarios</div>
+      <span class="feat-tag pill green">Game</span>
+    </div>
+    <div class="feat-card" data-cat="games" onclick="openPanel('cipher','🔐 Cipher Challenge')">
+      <span class="feat-icon">🔐</span>
+      <div class="feat-name">Cipher Challenge</div>
+      <div class="feat-desc">Decode messages using the Scout pigpen cipher</div>
+      <span class="feat-tag pill green">Game</span>
+    </div>
+    <div class="feat-card" data-cat="games" onclick="openPanel('story','🔥 Story Builder')">
+      <span class="feat-icon">🔥</span>
+      <div class="feat-name">Campfire Story Builder</div>
+      <div class="feat-desc">Generate unique Scout adventure stories around the fire</div>
+      <span class="feat-tag pill green">Game</span>
+    </div>
+    <div class="feat-card" data-cat="games" onclick="window.location.href='../Games/scout-games-hub.html'">
+      <span class="feat-icon">🎲</span>
+      <div class="feat-name">More Games</div>
+      <div class="feat-desc">Explore additional Scout games and challenges</div>
+      <span class="feat-tag pill green">Game</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: STAR NAVIGATION QUIZ -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-star-quiz">
+<div class="panel-inner">
+  <h2>⭐ Star Navigation Quiz</h2>
+  <p class="panel-subtitle">Identify constellations used by Scouts for night navigation</p>
+  <div id="sq-intro">
+    <div class="card" style="text-align:center;padding:32px">
+      <div style="font-size:48px;margin-bottom:12px">🌌</div>
+      <p style="color:var(--mu);margin-bottom:20px;font-size:15px">8 questions · Identify constellations and navigation stars</p>
+      <button class="btn" onclick="SQ.start()">▶ Begin Star Quiz</button>
+    </div>
+  </div>
+  <div id="sq-game" style="display:none">
+    <div class="card" style="margin-bottom:14px">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <span class="q-counter" id="sq-counter">Question 1 of 8</span>
+        <span style="font-size:14px;font-weight:700;color:var(--gm)" id="sq-score">Score: 0</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="sq-prog" style="width:0%"></div></div>
+      <div class="constellation-display" id="sq-canvas" style="margin-top:14px"></div>
+      <div style="font-size:16px;font-weight:700;margin-top:14px" id="sq-question"></div>
+    </div>
+    <div class="opts" id="sq-opts"></div>
+    <div class="fact" id="sq-fact"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn" id="sq-next" style="display:none" onclick="SQ.next()">Next →</button>
+    </div>
+  </div>
+  <div id="sq-result" style="display:none">
+    <div class="card" style="text-align:center;padding:36px">
+      <div class="score-ring" id="sq-final"></div>
+      <div style="font-size:14px;color:var(--mu);margin:8px 0 24px" id="sq-result-msg"></div>
+      <div class="row" style="justify-content:center;gap:12px">
+        <button class="btn" onclick="SQ.start()">🔄 Try Again</button>
+        <button class="btn btn-outline" onclick="showDashboard()">← Hub</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: FIRST AID SIMULATOR -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-first-aid">
+<div class="panel-inner">
+  <h2>🩹 First Aid Simulator</h2>
+  <p class="panel-subtitle">Make real decisions in emergency scenarios — every choice matters</p>
+  <div id="fa-intro">
+    <div class="card" style="text-align:center;padding:32px">
+      <div style="font-size:48px;margin-bottom:12px">🚨</div>
+      <p style="color:var(--mu);margin-bottom:12px;font-size:15px">3 emergency scenarios with branching choices. Score based on correct decisions.</p>
+      <p style="color:var(--red);font-weight:600;font-size:13px;margin-bottom:24px">⚠️ In a real emergency, always call 911 first</p>
+      <button class="btn" onclick="FA.start()">▶ Start Simulation</button>
+    </div>
+  </div>
+  <div id="fa-game" style="display:none">
+    <div class="card" style="margin-bottom:14px">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <span class="pill red" id="fa-scenario-badge">Scenario 1 of 3</span>
+        <span style="font-size:14px;font-weight:700;color:var(--gm)" id="fa-pts">Points: 0</span>
+      </div>
+      <div style="font-size:18px;margin-bottom:10px" id="fa-icon"></div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px" id="fa-title"></div>
+      <div style="font-size:14px;color:var(--mu);line-height:1.7;margin-bottom:4px" id="fa-desc"></div>
+      <div style="font-size:13px;font-weight:700;color:var(--t);margin-top:14px" id="fa-question"></div>
+    </div>
+    <div class="opts" id="fa-opts"></div>
+    <div class="fact" id="fa-fact"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn" id="fa-next" style="display:none" onclick="FA.nextStep()">Continue →</button>
+    </div>
+  </div>
+  <div id="fa-result" style="display:none">
+    <div class="card" style="text-align:center;padding:36px">
+      <div class="score-ring" id="fa-final"></div>
+      <div style="font-size:14px;color:var(--mu);margin:8px 0 24px" id="fa-result-msg"></div>
+      <div class="row" style="justify-content:center;gap:12px">
+        <button class="btn" onclick="FA.start()">🔄 Try Again</button>
+        <button class="btn btn-outline" onclick="showDashboard()">← Hub</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: CIPHER CHALLENGE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-cipher">
+<div class="panel-inner">
+  <h2>🔐 Cipher Challenge</h2>
+  <p class="panel-subtitle">Decode secret messages using the Scout pigpen cipher</p>
+  <div class="card" style="margin-bottom:14px">
+    <div style="font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">🔑 Pigpen Reference Chart</div>
+    <div id="cipher-ref-grid"></div>
+    <div style="font-size:11px;color:var(--ms);margin-top:10px">Each letter maps to the shape of its position in the grid. Dots indicate the second set of 9.</div>
+  </div>
+  <div id="ci-intro">
+    <div class="card" style="text-align:center;padding:24px">
+      <p style="color:var(--mu);margin-bottom:20px">Decode 6 Scout messages using the chart above</p>
+      <button class="btn" onclick="CI.start()">▶ Start Decoding</button>
+    </div>
+  </div>
+  <div id="ci-game" style="display:none">
+    <div class="card" style="margin-bottom:14px">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <span class="q-counter" id="ci-counter">Message 1 of 6</span>
+        <span style="font-size:14px;font-weight:700;color:var(--gm)" id="ci-score">Score: 0</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="ci-prog" style="width:0%"></div></div>
+      <div style="font-size:13px;color:var(--mu);margin-top:12px;margin-bottom:8px">Decode this message:</div>
+      <div class="cipher-display" id="ci-display"></div>
+      <div style="font-size:12px;color:var(--ms);margin-bottom:12px" id="ci-hint-text"></div>
+      <div class="row">
+        <input class="input" id="ci-input" placeholder="Type decoded word here..." style="flex:1;text-transform:uppercase"
+          oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')CI.check()">
+        <button class="btn" onclick="CI.check()">Check</button>
+      </div>
+    </div>
+    <div class="feedback-ok" id="ci-ok">✅ Correct! Well decoded, Scout!</div>
+    <div class="feedback-err" id="ci-err"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn" id="ci-next" style="display:none" onclick="CI.next()">Next →</button>
+    </div>
+  </div>
+  <div id="ci-result" style="display:none">
+    <div class="card" style="text-align:center;padding:36px">
+      <div class="score-ring" id="ci-final"></div>
+      <div style="font-size:14px;color:var(--mu);margin:8px 0 24px" id="ci-result-msg"></div>
+      <div class="row" style="justify-content:center;gap:12px">
+        <button class="btn" onclick="CI.start()">🔄 Try Again</button>
+        <button class="btn btn-outline" onclick="showDashboard()">← Hub</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: STORY BUILDER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-story">
+<div class="panel-inner">
+  <h2>🔥 Campfire Story Builder</h2>
+  <p class="panel-subtitle">Generate unique Scout adventure stories — perfect for around the fire</p>
+  <div class="card" style="margin-bottom:14px">
+    <div class="row" style="flex-wrap:wrap;gap:12px;margin-bottom:16px">
+      <div style="flex:1;min-width:160px">
+        <div class="label">Hero name</div>
+        <input class="input" id="story-hero" placeholder="e.g. Scout Jamie">
+      </div>
+      <div style="flex:1;min-width:140px">
+        <div class="label">Setting</div>
+        <select class="select" id="story-setting">
+          <option>Deep forest</option>
+          <option>Mountain peak</option>
+          <option>Florida swamp</option>
+          <option>Coastal island</option>
+          <option>Desert canyon</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:140px">
+        <div class="label">Challenge type</div>
+        <select class="select" id="story-challenge">
+          <option>Survival emergency</option>
+          <option>Wildlife encounter</option>
+          <option>Navigation mystery</option>
+          <option>Rescue mission</option>
+          <option>Weather crisis</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn" onclick="ST.generate()" style="width:100%">🔥 Generate Story</button>
+  </div>
+  <div class="story-output" id="story-output"></div>
+  <div id="story-share" style="display:none">
+    <div class="row" style="gap:10px">
+      <button class="btn btn-outline" onclick="ST.generate()">🔄 New Story</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: ATTENDANCE TRACKER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-attendance">
+<div class="panel-inner">
+  <h2>📋 Attendance Tracker</h2>
+  <p class="panel-subtitle">Check Scouts in and out · printable roster</p>
+  <div class="attendance-stats" id="att-stats">
+    <div class="att-stat"><div class="att-num" id="att-total" style="color:var(--g)">0</div><div class="att-lbl">Total Scouts</div></div>
+    <div class="att-stat"><div class="att-num" id="att-present" style="color:#16A34A">0</div><div class="att-lbl">Present</div></div>
+    <div class="att-stat"><div class="att-num" id="att-absent" style="color:#DC2626">0</div><div class="att-lbl">Absent</div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div style="font-size:13px;font-weight:700;color:var(--mu);margin-bottom:10px">Add Scout</div>
+    <div class="row">
+      <input class="input" id="att-name-input" placeholder="Scout name..." style="flex:1"
+        onkeydown="if(event.key==='Enter')ATT.add()">
+      <button class="btn" onclick="ATT.add()">+ Add</button>
+    </div>
+  </div>
+  <div class="scout-list" id="scout-list"></div>
+  <div class="row" style="gap:10px;flex-wrap:wrap">
+    <button class="btn btn-outline btn-sm" onclick="ATT.markAll(true)">✅ Mark All Present</button>
+    <button class="btn btn-outline btn-sm" onclick="ATT.markAll(false)">❌ Mark All Absent</button>
+    <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print Roster</button>
+    <button class="btn btn-outline btn-sm btn-red" style="margin-left:auto" onclick="ATT.clear()">🗑️ Clear All</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: MERIT BADGE TRACKER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-merit">
+<div class="panel-inner">
+  <h2>🎖️ Merit Badge Tracker</h2>
+  <p class="panel-subtitle">Track progress toward Eagle Scout — required + elective badges</p>
+  <div class="badge-progress-wrap">
+    <div class="bp-label">
+      <span>Eagle Progress</span>
+      <span class="bp-pct"><span id="mb-done">0</span> / 21 badges</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="mb-prog" style="width:0%"></div></div>
+    <div style="font-size:12px;color:var(--mu);margin-top:6px" id="mb-status"></div>
+  </div>
+  <div id="mb-content"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: PACKING LIST -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-packing">
+<div class="panel-inner">
+  <h2>🎒 Packing List Generator</h2>
+  <p class="panel-subtitle">Customizable Scout gear checklist by trip type</p>
+  <div class="trip-types" id="trip-types">
+    <button class="trip-type active" onclick="PL.setTrip('weekend',this)">Weekend Campout</button>
+    <button class="trip-type" onclick="PL.setTrip('backpacking',this)">Backpacking</button>
+    <button class="trip-type" onclick="PL.setTrip('water',this)">Water Activity</button>
+    <button class="trip-type" onclick="PL.setTrip('winter',this)">Cold Weather</button>
+    <button class="trip-type" onclick="PL.setTrip('service',this)">Service Project</button>
+  </div>
+  <div class="pack-stats" id="pack-stats">
+    <span>Packed: <span class="hi" id="pl-packed">0</span></span>
+    <span>Remaining: <span class="hi" id="pl-remain">0</span></span>
+    <span>Total: <span class="hi" id="pl-total">0</span></span>
+  </div>
+  <div id="pack-list-content"></div>
+  <div class="row" style="gap:10px;margin-top:8px">
+    <button class="btn btn-outline btn-sm" onclick="PL.checkAll()">✅ Check All</button>
+    <button class="btn btn-outline btn-sm" onclick="PL.uncheckAll()">↩️ Reset</button>
+    <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print List</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: DUTY ROSTER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-roster">
+<div class="panel-inner">
+  <h2>👥 Duty Roster Builder</h2>
+  <p class="panel-subtitle">Assign patrol jobs for your next campout</p>
+  <div class="card" style="margin-bottom:16px">
+    <div class="label">Patrol Members</div>
+    <div class="row" style="margin-bottom:10px">
+      <input class="input" id="roster-input" placeholder="Add member name..." style="flex:1"
+        onkeydown="if(event.key==='Enter')RO.addMember()">
+      <button class="btn" onclick="RO.addMember()">+ Add</button>
+    </div>
+    <div class="roster-members" id="roster-members-list"></div>
+  </div>
+  <div class="roster-grid" id="roster-grid"></div>
+  <div class="row" style="gap:10px;flex-wrap:wrap">
+    <button class="btn" onclick="RO.autoAssign()">⚡ Auto-Assign All</button>
+    <button class="btn btn-outline" onclick="RO.clearAssign()">↩️ Clear Assignments</button>
+    <button class="btn btn-outline" onclick="window.print()">🖨️ Print Roster</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: SCOUT LAW EXPLORER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-scout-law">
+<div class="panel-inner">
+  <h2>⚖️ Scout Law Explorer</h2>
+  <p class="panel-subtitle">Click any point to explore its meaning, examples, and challenges</p>
+  <div class="law-grid" id="law-grid"></div>
+  <div class="law-detail" id="law-detail"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: RANK ROADMAP -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-roadmap">
+<div class="panel-inner">
+  <h2>🗺️ Rank Requirements Roadmap</h2>
+  <p class="panel-subtitle">Click any rank to explore its requirements on the path to Eagle</p>
+  <div class="roadmap" id="roadmap-content"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: FIELD GUIDE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-field-guide">
+<div class="panel-inner">
+  <h2>🌿 Florida Field Guide</h2>
+  <p class="panel-subtitle">Identify Central Florida wildlife, plants, and tracks found on Scout outings</p>
+  <div class="guide-filter">
+    <button class="guide-tab active" onclick="FG.filter('all',this)">All</button>
+    <button class="guide-tab" onclick="FG.filter('mammal',this)">🦌 Mammals</button>
+    <button class="guide-tab" onclick="FG.filter('bird',this)">🦅 Birds</button>
+    <button class="guide-tab" onclick="FG.filter('reptile',this)">🐊 Reptiles</button>
+    <button class="guide-tab" onclick="FG.filter('plant',this)">🌿 Plants</button>
+    <button class="guide-tab" onclick="FG.filter('insect',this)">🐝 Insects</button>
+  </div>
+  <div class="guide-detail-card" id="guide-detail"></div>
+  <div class="guide-grid" id="guide-grid"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: KNOT LIBRARY -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-knots">
+<div class="panel-inner">
+  <h2>🪢 Knot Library</h2>
+  <p class="panel-subtitle">Step-by-step tying instructions for all 10 essential Scout knots</p>
+  <div class="knot-grid" id="knot-grid"></div>
+  <div class="knot-detail" id="knot-detail"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: COUNTDOWN TIMER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-countdown">
+<div class="panel-inner">
+  <h2>⏱️ Campout Countdown Timer</h2>
+  <p class="panel-subtitle">Set your next event and watch the countdown live</p>
+  <div class="card" style="margin-bottom:16px">
+    <div class="row" style="flex-wrap:wrap;gap:12px">
+      <div style="flex:1;min-width:180px">
+        <div class="label">Event Name</div>
+        <input class="input" id="cd-name" placeholder="e.g. Summer Camp 2026">
+      </div>
+      <div style="flex:1;min-width:180px">
+        <div class="label">Event Date</div>
+        <input class="input" id="cd-date" type="date">
+      </div>
+      <div style="align-self:flex-end">
+        <button class="btn" onclick="CD.set()">Set Countdown</button>
+      </div>
+    </div>
+  </div>
+  <div class="countdown-display" id="cd-display">
+    <div class="countdown-event" id="cd-event-name">Set an event above to start counting down</div>
+    <div class="countdown-time">
+      <div class="cd-unit"><div class="cd-num" id="cd-days">—</div><div class="cd-lbl">Days</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cd-hours">—</div><div class="cd-lbl">Hours</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cd-mins">—</div><div class="cd-lbl">Minutes</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cd-secs">—</div><div class="cd-lbl">Seconds</div></div>
+    </div>
+  </div>
+  <div class="row" style="gap:10px;justify-content:center;margin-top:12px">
+    <button class="btn btn-outline" onclick="CD.savedEvents()">📅 Recent Events</button>
+    <button class="btn btn-outline" onclick="window.print()">🖨️ Print Timer</button>
+  </div>
+  <div id="cd-saved" style="display:none;margin-top:14px"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: PATROL SCOREBOARD -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-scoreboard">
+<div class="panel-inner">
+  <h2>🏆 Patrol Points Scoreboard</h2>
+  <p class="panel-subtitle">Live leaderboard for inter-patrol competitions and camporees</p>
+  <div class="card" style="margin-bottom:16px">
+    <div class="row">
+      <input class="input" id="patrol-name-input" placeholder="Patrol name..." style="flex:1"
+        onkeydown="if(event.key==='Enter')SB.addPatrol()">
+      <button class="btn" onclick="SB.addPatrol()">+ Add Patrol</button>
+    </div>
+  </div>
+  <div class="score-table" id="score-table">
+    <div style="text-align:center;color:var(--ms);padding:24px;font-size:14px">Add patrols above to start the scoreboard</div>
+  </div>
+  <div class="row" style="gap:10px;flex-wrap:wrap">
+    <button class="btn btn-outline btn-sm" onclick="SB.reset()">↩️ Reset All Scores</button>
+    <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print Scoreboard</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: MENU PLANNER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-menu">
+<div class="panel-inner">
+  <h2>🍳 Menu Planner</h2>
+  <p class="panel-subtitle">Plan meals day by day — auto-generates a shopping list</p>
+  <div class="card" style="margin-bottom:14px">
+    <div class="label">Number of Days</div>
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      <button class="trip-type active" onclick="MP.setDays(2,this)">2 Days</button>
+      <button class="trip-type" onclick="MP.setDays(3,this)">3 Days</button>
+      <button class="trip-type" onclick="MP.setDays(4,this)">4 Days</button>
+      <button class="trip-type" onclick="MP.setDays(5,this)">5 Days</button>
+    </div>
+  </div>
+  <div class="day-tabs" id="menu-day-tabs"></div>
+  <div class="meal-slots" id="menu-slots"></div>
+  <div class="row" style="gap:10px;margin-bottom:14px">
+    <button class="btn" onclick="MP.genList()">🛒 Generate Shopping List</button>
+    <button class="btn btn-outline" onclick="MP.clear()">↩️ Clear Menu</button>
+  </div>
+  <div class="shopping-output" id="shopping-output"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: EVENT REGISTRATION -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-registration">
+<div class="panel-inner">
+  <h2>📝 Event Registration</h2>
+  <p class="panel-subtitle">Scout sign-up form with parent contact and emergency information</p>
+  <div class="card" style="margin-bottom:14px">
+    <div class="label" style="margin-bottom:12px">Event Details</div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div class="form-group">
+        <div class="label">Event Name</div>
+        <input class="input" id="reg-event" placeholder="e.g. Summer Camp 2026">
+      </div>
+      <div class="form-group">
+        <div class="label">Event Date</div>
+        <input class="input" type="date" id="reg-date">
+      </div>
+    </div>
+  </div>
+  <div id="reg-form-wrap">
+    <div class="card">
+      <div class="label" style="margin-bottom:14px">Scout Information</div>
+      <div class="reg-form">
+        <div class="form-row">
+          <div class="form-group">
+            <div class="label">Scout First Name *</div>
+            <input class="input" id="rf-first" placeholder="First name">
+          </div>
+          <div class="form-group">
+            <div class="label">Scout Last Name *</div>
+            <input class="input" id="rf-last" placeholder="Last name">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="label">Age</div>
+            <input class="input" id="rf-age" type="number" placeholder="Age" min="10" max="21">
+          </div>
+          <div class="form-group">
+            <div class="label">Scout Rank</div>
+            <select class="select" id="rf-rank">
+              <option>Scout</option><option>Tenderfoot</option><option>Second Class</option>
+              <option>First Class</option><option>Star</option><option>Life</option><option>Eagle</option>
+            </select>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="label" style="margin-bottom:10px">Parent / Guardian</div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="label">Parent Name *</div>
+            <input class="input" id="rf-parent" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <div class="label">Phone *</div>
+            <input class="input" id="rf-phone" placeholder="(407) 555-0100" type="tel">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="label">Email</div>
+          <input class="input" id="rf-email" placeholder="parent@email.com" type="email">
+        </div>
+        <div class="divider"></div>
+        <div class="form-group">
+          <div class="label">Emergency Contact (if different from above)</div>
+          <input class="input" id="rf-ec" placeholder="Name and phone number">
+        </div>
+        <div class="form-group">
+          <div class="label">Medical / Dietary Notes</div>
+          <input class="input" id="rf-notes" placeholder="Allergies, medications, dietary restrictions...">
+        </div>
+        <div style="margin-top:4px">
+          <button class="btn" style="width:100%" onclick="REG.submit()">✅ Submit Registration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="reg-success" id="reg-success">
+    <div class="big">🎉</div>
+    <h3 id="reg-success-name">Registration Submitted!</h3>
+    <p style="color:var(--mu);font-size:14px;margin-top:6px" id="reg-success-detail"></p>
+    <button class="btn" style="margin-top:16px" onclick="REG.another()">+ Register Another Scout</button>
+  </div>
+  <div id="reg-entries-section" style="display:none;margin-top:20px">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Registered Scouts</div>
+        <button class="btn btn-outline btn-xs" onclick="window.print()">🖨️ Print</button>
+      </div>
+      <div class="reg-entries" id="reg-entries"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- end .main -->
+</div><!-- end .app-body -->
+<script>
+// ═══════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════
+let currentPanel=null;
+function openPanel(id,title){
+  if(currentPanel) document.getElementById('panel-'+currentPanel).classList.remove('active');
+  document.getElementById('dashboard').style.display='none';
+  const p=document.getElementById('panel-'+id);
+  p.classList.add('active');
+  currentPanel=id;
+  document.getElementById('hdr-back').classList.add('show');
+  document.getElementById('panel-hdr-title').textContent=title;
+  document.getElementById('panel-hdr-title').classList.add('show');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  // init features on first open
+  if(id==='star-quiz'&&!SQ.init) SQ.init=true;
+  if(id==='cipher') CI.buildRef();
+  if(id==='merit') MB.render();
+  if(id==='packing'&&!PL.loaded){PL.loaded=true;PL.setTrip('weekend',document.querySelector('.trip-type.active'))}
+  if(id==='roster'&&!RO.init){RO.init=true;RO.render()}
+  if(id==='scout-law'&&!SL.init){SL.init=true;SL.render()}
+  if(id==='roadmap'&&!RM.init){RM.init=true;RM.render()}
+  if(id==='field-guide'&&!FG.init){FG.init=true;FG.render()}
+  if(id==='knots'&&!KL.init){KL.init=true;KL.render()}
+  if(id==='menu'&&!MP.init){MP.init=true;MP.setDays(2,document.querySelector('.trip-type.active'))}
+  closeSidebar();
+}
+function showDashboard(){
+  if(currentPanel){document.getElementById('panel-'+currentPanel).classList.remove('active');currentPanel=null;}
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('hdr-back').classList.remove('show');
+  document.getElementById('panel-hdr-title').classList.remove('show');
+}
+function goToScoutDashboard(){
+  window.location.href = '/Troop242/scout-dashboard';
+}
+function filterCat(cat,btn){
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.feat-card').forEach(c=>{
+    c.classList.toggle('hidden',cat!=='all'&&c.dataset.cat!==cat);
+  });
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════
+// STAR QUIZ
+// ═══════════════════════════════════════
+const SQ={
+  q:0,score:0,ans:false,
+  data:[
+    {name:'Ursa Major (Big Dipper)',hint:'7 stars forming a dipper or ladle shape',
+     fact:'The two outer stars of the Big Dipper\'s bowl point directly to Polaris — the North Star. Navigators call them the "Pointer Stars."',
+     opts:['Ursa Major (Big Dipper)','Cassiopeia','Orion','Leo'],
+     svg:`<svg width="180" height="140" viewBox="0 0 180 140"><line x1="30" y1="90" x2="60" y2="80" stroke="#4ADE80" stroke-width="1.5"/><line x1="60" y1="80" x2="95" y2="75" stroke="#4ADE80" stroke-width="1.5"/><line x1="95" y1="75" x2="120" y2="85" stroke="#4ADE80" stroke-width="1.5"/><line x1="120" y1="85" x2="150" y2="95" stroke="#4ADE80" stroke-width="1.5"/><line x1="150" y1="95" x2="145" y2="55" stroke="#4ADE80" stroke-width="1.5"/><line x1="145" y1="55" x2="120" y2="85" stroke="#4ADE80" stroke-width="1.5"/>
+     ${[[30,90],[60,80],[95,75],[120,85],[150,95],[145,55],[120,85]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#FACC15" stroke="#FDE047" stroke-width="1"/>`).join('')}</svg>`},
+    {name:'Orion',hint:'3 stars in a perfect row form the belt',
+     fact:'Orion\'s Belt — Alnitak, Alnilam, and Mintaka — always rises due east and sets due west, making it a reliable direction indicator worldwide.',
+     opts:['Scorpius','Orion','Perseus','Lyra'],
+     svg:`<svg width="180" height="160" viewBox="0 0 180 160"><line x1="50" y1="40" x2="90" y2="30" stroke="#4ADE80" stroke-width="1.5"/><line x1="90" y1="30" x2="130" y2="40" stroke="#4ADE80" stroke-width="1.5"/><line x1="50" y1="40" x2="60" y2="80" stroke="#4ADE80" stroke-width="1.5"/><line x1="130" y1="40" x2="120" y2="80" stroke="#4ADE80" stroke-width="1.5"/><line x1="60" y1="80" x2="75" y2="90" stroke="#4ADE80" stroke-width="1.5"/><line x1="75" y1="90" x2="105" y2="90" stroke="#4ADE80" stroke-width="1.5"/><line x1="105" y1="90" x2="120" y2="80" stroke="#4ADE80" stroke-width="1.5"/><line x1="75" y1="90" x2="70" y2="130" stroke="#4ADE80" stroke-width="1.5"/><line x1="105" y1="90" x2="110" y2="130" stroke="#4ADE80" stroke-width="1.5"/>
+     ${[[50,40],[90,30],[130,40],[60,80],[120,80],[75,90],[105,90],[70,130],[110,130]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${x===90?6:4}" fill="${x===75||x===105?'#93C5FD':'#FACC15'}" stroke="#FDE047" stroke-width="1"/>`).join('')}</svg>`},
+    {name:'Cassiopeia',hint:'5 stars shaped like a W or M',
+     fact:'Cassiopeia is almost always visible from the Northern Hemisphere and stays opposite the Big Dipper across Polaris — so if one is low, use the other to find North.',
+     opts:['Cassiopeia','Lyra','Cygnus','Corona Borealis'],
+     svg:`<svg width="180" height="100" viewBox="0 0 180 100"><line x1="20" y1="80" x2="55" y2="20" stroke="#4ADE80" stroke-width="1.5"/><line x1="55" y1="20" x2="90" y2="60" stroke="#4ADE80" stroke-width="1.5"/><line x1="90" y1="60" x2="125" y2="20" stroke="#4ADE80" stroke-width="1.5"/><line x1="125" y1="20" x2="160" y2="70" stroke="#4ADE80" stroke-width="1.5"/>
+     ${[[20,80],[55,20],[90,60],[125,20],[160,70]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#FACC15" stroke="#FDE047" stroke-width="1"/>`).join('')}</svg>`},
+    {name:'Polaris (North Star)',hint:'The fixed point all other stars revolve around',
+     fact:'Polaris is within 0.7° of true geographic north. To find it: locate the Big Dipper\'s pointer stars (Dubhe and Merak) and follow them 5x their distance straight ahead.',
+     opts:['Polaris (North Star)','Sirius','Vega','Arcturus'],
+     svg:`<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="8" fill="#FACC15" stroke="#FDE047" stroke-width="1.5"/>
+     ${[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180,x=60+50*Math.cos(r),y=60+50*Math.sin(r);return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="#86EFAC" opacity=".5"/>`}).join('')}
+     ${[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180,x=60+28*Math.cos(r),y=60+28*Math.sin(r);return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="#93C5FD" opacity=".4"/>`}).join('')}
+     <text x="60" y="108" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="10" font-family="Outfit">N</text></svg>`},
+    {name:'Southern Cross (Crux)',hint:'4 main stars forming a cross visible in the Southern Hemisphere',
+     fact:'The Southern Cross can be used to find South in the Southern Hemisphere — extend the long axis of the cross 4.5 times and that point is near the south celestial pole.',
+     opts:['Southern Cross (Crux)','Centaurus','Scorpius','Hydra'],
+     svg:`<svg width="120" height="150" viewBox="0 0 120 150"><line x1="60" y1="10" x2="60" y2="130" stroke="#4ADE80" stroke-width="1.5"/><line x1="20" y1="70" x2="100" y2="70" stroke="#4ADE80" stroke-width="1.5"/>
+     ${[[60,10],[60,130],[20,70],[100,70]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#FACC15" stroke="#FDE047" stroke-width="1"/>`).join('')}</svg>`},
+    {name:'Scorpius',hint:'Curved tail of stars with bright red Antares at its heart',
+     fact:'Antares, the bright red star at the heart of Scorpius, is 700x the diameter of our Sun. Scorpius and Orion are never in the sky at the same time — in mythology they were enemies.',
+     opts:['Sagittarius','Scorpius','Cetus','Draco'],
+     svg:`<svg width="160" height="180" viewBox="0 0 160 180"><line x1="80" y1="10" x2="75" y2="50" stroke="#4ADE80" stroke-width="1.5"/><line x1="75" y1="50" x2="70" y2="75" stroke="#4ADE80" stroke-width="1.5"/><line x1="70" y1="75" x2="75" y2="100" stroke="#4ADE80" stroke-width="1.5"/><line x1="75" y1="100" x2="90" y2="120" stroke="#4ADE80" stroke-width="1.5"/><line x1="90" y1="120" x2="110" y2="140" stroke="#4ADE80" stroke-width="1.5"/><line x1="110" y1="140" x2="130" y2="155" stroke="#4ADE80" stroke-width="1.5"/><line x1="130" y1="155" x2="140" y2="140" stroke="#4ADE80" stroke-width="1.5"/>
+     ${[[80,10],[75,50],[70,75],[75,100],[90,120],[110,140],[130,155],[140,140]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${i===2?7:4}" fill="${i===2?'#FCA5A5':'#FACC15'}" stroke="#FDE047" stroke-width="1"/>`).join('')}</svg>`},
+    {name:'Leo',hint:'Curved sickle of stars forming a lion\'s head with Regulus at the base',
+     fact:'Regulus, the brightest star in Leo, lies almost exactly on the ecliptic — the Sun\'s apparent path. It rises due east and sets due west, useful for E/W orientation.',
+     opts:['Virgo','Gemini','Leo','Cancer'],
+     svg:`<svg width="180" height="140" viewBox="0 0 180 140"><line x1="100" y1="20" x2="80" y2="50" stroke="#4ADE80" stroke-width="1.5"/><line x1="80" y1="50" x2="55" y2="55" stroke="#4ADE80" stroke-width="1.5"/><line x1="55" y1="55" x2="40" y2="80" stroke="#4ADE80" stroke-width="1.5"/><line x1="40" y1="80" x2="60" y2="110" stroke="#4ADE80" stroke-width="1.5"/><line x1="80" y1="50" x2="90" y2="90" stroke="#4ADE80" stroke-width="1.5"/><line x1="90" y1="90" x2="130" y2="100" stroke="#4ADE80" stroke-width="1.5"/><line x1="130" y1="100" x2="155" y2="80" stroke="#4ADE80" stroke-width="1.5"/>
+     ${[[100,20],[80,50],[55,55],[40,80],[60,110],[90,90],[130,100],[155,80]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${i===3?6:4}" fill="#FACC15" stroke="#FDE047" stroke-width="1"/>`).join('')}</svg>`},
+    {name:'Cygnus (Northern Cross)',hint:'Distinctive cross shape with bright Deneb at the top',
+     fact:'Deneb, the top star of Cygnus, is one of the most luminous known stars — estimated 200,000 times brighter than the Sun. The Milky Way runs directly through Cygnus.',
+     opts:['Aquila','Cygnus (Northern Cross)','Perseus','Pegasus'],
+     svg:`<svg width="150" height="160" viewBox="0 0 150 160"><line x1="75" y1="10" x2="75" y2="150" stroke="#4ADE80" stroke-width="1.5"/><line x1="20" y1="70" x2="130" y2="70" stroke="#4ADE80" stroke-width="1.5"/>
+     ${[[75,10],[75,150],[20,70],[130,70],[75,70]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${i===0?6:4}" fill="${i===0?'#C4B5FD':'#FACC15'}" stroke="#FDE047" stroke-width="1"/>`).join('')}</svg>`}
+  ],
+  start(){
+    this.q=0;this.score=0;
+    document.getElementById('sq-intro').style.display='none';
+    document.getElementById('sq-result').style.display='none';
+    document.getElementById('sq-game').style.display='block';
+    this.render();
+  },
+  render(){
+    this.ans=false;
+    const d=this.data[this.q];
+    document.getElementById('sq-counter').textContent=`Question ${this.q+1} of 8`;
+    document.getElementById('sq-score').textContent=`Score: ${this.score}`;
+    document.getElementById('sq-prog').style.width=`${this.q*12.5}%`;
+    document.getElementById('sq-canvas').innerHTML=d.svg;
+    document.getElementById('sq-question').textContent=`Which constellation is this? Hint: ${d.hint}`;
+    document.getElementById('sq-fact').className='fact';
+    document.getElementById('sq-next').style.display='none';
+    const opts=document.getElementById('sq-opts');
+    const shuffled=[...d.opts].sort(()=>Math.random()-.5);
+    opts.innerHTML=shuffled.map(o=>`<button class="opt-btn" onclick="SQ.answer('${o}')">${o}</button>`).join('');
+  },
+  answer(chosen){
+    if(this.ans)return; this.ans=true;
+    const d=this.data[this.q];
+    const ok=chosen===d.name;
+    if(ok)this.score++;
+    document.querySelectorAll('.opt-btn').forEach(b=>{
+      b.classList.add('disabled');
+      if(b.textContent===d.name) b.classList.add('correct');
+      else if(b.textContent===chosen&&!ok) b.classList.add('wrong');
+    });
+    const f=document.getElementById('sq-fact');
+    f.textContent=`💡 ${d.fact}`;f.className='fact show';
+    document.getElementById('sq-next').style.display='flex';
+    document.getElementById('sq-next').textContent=this.q<7?'Next →':'See Results';
+  },
+  next(){
+    this.q++;
+    if(this.q>=8){this.result();return;}
+    this.render();
+  },
+  result(){
+    document.getElementById('sq-game').style.display='none';
+    document.getElementById('sq-result').style.display='block';
+    document.getElementById('sq-final').textContent=`${this.score}/8`;
+    const m=this.score>=7?'🌟 Master Navigator! Eagle-level stellar knowledge!':this.score>=5?'⭐ Great job! You know your constellations.':this.score>=3?'👍 Good start — keep stargazing!':'🌙 Practice more under the night sky!';
+    document.getElementById('sq-result-msg').textContent=m;
+  }
+};
+
+// ═══════════════════════════════════════
+// FIRST AID SIMULATOR
+// ═══════════════════════════════════════
+const FA={
+  s:0,step:0,points:0,maxPoints:0,
+  scenarios:[
+    {icon:'🔥',title:'Campfire Burn',pts:3,
+     steps:[
+      {q:"A fellow Scout touches a hot coal and has a burn on their palm. What is your FIRST action?",
+       opts:[{t:"Cool the burn with cool running water for 10-20 minutes",ok:true},{t:"Apply butter or cooking oil to soothe it",ok:false},{t:"Wrap it tightly in plastic wrap immediately",ok:false},{t:"Pop any blisters to relieve pressure",ok:false}],
+       fact:"Cool, running water for 10-20 minutes is the #1 first step for burns. Never use ice, butter, or toothpaste — these can worsen damage."},
+      {q:"After cooling, you notice a small blister forming. The Scout says the pain is manageable. What next?",
+       opts:[{t:"Cover loosely with a clean non-fluffy bandage and see a doctor if needed",ok:true},{t:"Burst the blister with a clean needle to drain the fluid",ok:false},{t:"Leave it uncovered to let it breathe",ok:false},{t:"Scrub the area clean with soap",ok:false}],
+       fact:"Keep blisters intact — they protect the new skin underneath. Cover loosely. A second-degree burn covering more than 3 inches, or any burn on face/hands/feet, needs medical attention."},
+      {q:"The Scout asks if they should take a pain reliever. Which is most appropriate?",
+       opts:[{t:"Over-the-counter ibuprofen or acetaminophen is appropriate with parent/adult approval",ok:true},{t:"Aspirin is best for burns specifically",ok:false},{t:"No medication — just tough it out",ok:false},{t:"Prescription-strength opioids are required",ok:false}],
+       fact:"OTC pain relief like ibuprofen (anti-inflammatory) is appropriate for mild burns. Always check for allergies and get adult approval for minors. Never give aspirin to children under 16."}
+     ]},
+    {icon:'🐝',title:'Anaphylaxis — Severe Bee Sting',pts:3,
+     steps:[
+      {q:"A Scout is stung and immediately says 'I can't breathe well' and their face is swelling. What is your IMMEDIATE action?",
+       opts:[{t:"Call 911 and look for their EpiPen immediately",ok:true},{t:"Tell them to walk it off — stings always swell a little",ok:false},{t:"Give them antihistamine tablets and wait 30 minutes",ok:false},{t:"Remove the stinger with tweezers before doing anything else",ok:false}],
+       fact:"Anaphylaxis is life-threatening. Call 911 FIRST, then use the EpiPen. An antihistamine alone is NOT enough for anaphylaxis — epinephrine is the only effective treatment."},
+      {q:"You find the Scout's EpiPen. Where do you administer it?",
+       opts:[{t:"Outer mid-thigh (can be through clothing)",ok:true},{t:"In the vein on the inner arm",ok:false},{t:"In the buttock",ok:false},{t:"Under the tongue",ok:false}],
+       fact:"EpiPen goes into the outer thigh, middle third. It can be administered through clothing in an emergency. Hold for 10 seconds, then massage the site for 10 more seconds."},
+      {q:"After the EpiPen is administered and 911 is called, the Scout starts feeling better. What do you do next?",
+       opts:[{t:"Keep them still and monitor — they still need hospital evaluation",ok:true},{t:"They're fine now, cancel the 911 call",ok:false},{t:"Give a second EpiPen immediately",ok:false},{t:"Have them eat something to restore blood sugar",ok:false}],
+       fact:"Anaphylaxis can have a 'biphasic' reaction — symptoms return 1-8 hours later even after improvement. All epinephrine patients must go to hospital. Do NOT cancel emergency services."}
+     ]},
+    {icon:'🦴',title:'Suspected Broken Arm',pts:3,
+     steps:[
+      {q:"A Scout falls from a rock and is holding their forearm, crying. It looks deformed. What's your FIRST priority?",
+       opts:[{t:"Keep them still, calm them, and assess for other injuries",ok:true},{t:"Straighten the arm immediately to reduce swelling",ok:false},{t:"Have them shake the arm to test if it's really broken",ok:false},{t:"Apply heat to reduce pain",ok:false}],
+       fact:"Never try to straighten a deformed fracture — this can cause further injury and severe pain. Your first priority is scene safety, then Scout safety, then assessment. Keep them calm and still."},
+      {q:"You confirm a likely forearm fracture. How do you immobilize it?",
+       opts:[{t:"Splint the arm in the position found using padding and rigid material",ok:true},{t:"Apply a tight tourniquet above the fracture",ok:false},{t:"Ask the Scout to support it with their other hand while they walk",ok:false},{t:"Tape the broken arm to their side tightly",ok:false}],
+       fact:"Splint in the position found — do not move the fracture. Support joints above and below. Use a SAM splint, sticks, or rolled-up sleeping pad. Pad generously and secure without cutting off circulation."},
+      {q:"After splinting, how do you check the splint is done correctly?",
+       opts:[{t:"Check CSM — Circulation, Sensation, Motion below the injury",ok:true},{t:"See if the Scout can rotate their wrist normally",ok:false},{t:"Tap the bone to see if it makes a clicking sound",ok:false},{t:"Apply ice directly to the skin over the fracture",ok:false}],
+       fact:"CSM checks (Circulation, Sensation, Motion) tell you if the splint is too tight. Check pulse below the injury, ask if they feel tingling/numbness, and test if they can wiggle fingers. Recheck every 15 minutes."}
+     ]}
+  ],
+  start(){
+    this.s=0;this.step=0;this.points=0;this.maxPoints=0;
+    document.getElementById('fa-intro').style.display='none';
+    document.getElementById('fa-result').style.display='none';
+    document.getElementById('fa-game').style.display='block';
+    this.render();
+  },
+  render(){
+    const sc=this.scenarios[this.s];
+    const st=sc.steps[this.step];
+    document.getElementById('fa-scenario-badge').textContent=`Scenario ${this.s+1} of 3 · Step ${this.step+1}`;
+    document.getElementById('fa-pts').textContent=`Points: ${this.points}`;
+    document.getElementById('fa-icon').textContent=sc.icon;
+    document.getElementById('fa-title').textContent=sc.title;
+    document.getElementById('fa-desc').textContent=`You are at a Scout campout. ${this.step===0?'':''}`; 
+    document.getElementById('fa-question').textContent=st.q;
+    document.getElementById('fa-fact').className='fact';
+    document.getElementById('fa-next').style.display='none';
+    const opts=document.getElementById('fa-opts');
+    opts.innerHTML=st.opts.map((o,i)=>`<button class="opt-btn" onclick="FA.pick(${i})">${o.t}</button>`).join('');
+    this.maxPoints++;
+  },
+  pick(i){
+    const sc=this.scenarios[this.s];
+    const st=sc.steps[this.step];
+    const ok=st.opts[i].ok;
+    if(ok)this.points++;
+    document.querySelectorAll('.opt-btn').forEach((b,j)=>{
+      b.classList.add('disabled');
+      if(st.opts[j].ok) b.classList.add('correct');
+      else if(j===i&&!ok) b.classList.add('wrong');
+    });
+    const f=document.getElementById('fa-fact');
+    f.textContent=`💡 ${st.fact}`;f.className='fact show';
+    const nb=document.getElementById('fa-next');
+    nb.style.display='flex';
+    const isLast=this.step===sc.steps.length-1&&this.s===this.scenarios.length-1;
+    nb.textContent=isLast?'See Results':'Continue →';
+  },
+  nextStep(){
+    const sc=this.scenarios[this.s];
+    if(this.step<sc.steps.length-1){this.step++;this.render();return;}
+    this.s++;this.step=0;
+    if(this.s>=this.scenarios.length){this.result();return;}
+    this.render();
+  },
+  result(){
+    document.getElementById('fa-game').style.display='none';
+    document.getElementById('fa-result').style.display='block';
+    document.getElementById('fa-final').textContent=`${this.points}/${this.maxPoints}`;
+    const pct=this.points/this.maxPoints;
+    const m=pct>=.9?'🏥 Expert responder! First Aid merit badge-worthy!':pct>=.7?'👍 Solid first aid knowledge!':pct>=.5?'💪 Good effort — review your first aid handbook!':'📖 Study up — these skills save lives!';
+    document.getElementById('fa-result-msg').textContent=m;
+  }
+};
+
+// ═══════════════════════════════════════
+// CIPHER CHALLENGE
+// ═══════════════════════════════════════
+const CI={
+  q:0,score:0,
+  messages:[
+    {word:'SCOUT',display:'┘╔ · ┼ · ┐╔ · └╗ · ┤',hint:'5 letters · First word of our organization name'},
+    {word:'EAGLE',display:'└╗ · ╔┤ · ╔╗ · └╗ · └┘',hint:'5 letters · Highest rank in Scouting'},
+    {word:'CAMP',display:'─┐ · ╔┤ · ──· ┤╗',hint:'4 letters · Where we sleep outdoors'},
+    {word:'HIKE',display:'┤╔ · ┴ · └┐ · └┤',hint:'4 letters · Walking on trails'},
+    {word:'FIRE',display:'┤╔ · ┴╗ · ┼╗ · └┤',hint:'4 letters · Keep this contained in a fire ring'},
+    {word:'KNOT',display:'└┐ · ┐╔ · ─┼ · ┤╗',hint:'4 letters · Rope skill every Scout learns'}
+  ],
+  buildRef(){
+    // Simple text-based pigpen reference
+    const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const symbols=['└┘','┴','┘╔','┐╔','┬','─┐','─┼','─','─╗','╔┘','╔┤','╔╗','┴╗','┼','─╗·','└┤','┼╗','┤╔','┤','┤╗','└╗','┼╗','┼','┼╗·','┤·','┐·'];
+    const grid=document.getElementById('cipher-ref-grid');
+    if(!grid||grid.children.length>0)return;
+    grid.style.display='grid';grid.style.gridTemplateColumns='repeat(9,1fr)';grid.style.gap='4px';
+    for(let i=0;i<26;i++){
+      const cell=document.createElement('div');
+      cell.className='cipher-cell';
+      cell.innerHTML=`<div class="cipher-letter">${letters[i]}</div><div class="cipher-symbol">${symbols[i]}</div>`;
+      grid.appendChild(cell);
+    }
+  },
+  start(){
+    this.q=0;this.score=0;
+    document.getElementById('ci-intro').style.display='none';
+    document.getElementById('ci-result').style.display='none';
+    document.getElementById('ci-game').style.display='block';
+    this.render();
+  },
+  render(){
+    const m=this.messages[this.q];
+    document.getElementById('ci-counter').textContent=`Message ${this.q+1} of 6`;
+    document.getElementById('ci-score').textContent=`Score: ${this.score}`;
+    document.getElementById('ci-prog').style.width=`${this.q*16.7}%`;
+    document.getElementById('ci-display').textContent=m.display;
+    document.getElementById('ci-hint-text').textContent=`💡 ${m.hint}`;
+    document.getElementById('ci-input').value='';
+    document.getElementById('ci-input').disabled=false;
+    document.getElementById('ci-ok').className='feedback-ok';
+    document.getElementById('ci-err').className='feedback-err';
+    document.getElementById('ci-next').style.display='none';
+    setTimeout(()=>document.getElementById('ci-input').focus(),100);
+  },
+  check(){
+    const val=document.getElementById('ci-input').value.trim().toUpperCase();
+    const m=this.messages[this.q];
+    const ok=val===m.word;
+    document.getElementById('ci-input').disabled=true;
+    if(ok){
+      this.score++;
+      document.getElementById('ci-ok').className='feedback-ok show';
+    } else {
+      document.getElementById('ci-err').textContent=`❌ The word was "${m.word}". You entered "${val||'(blank)'}"`;
+      document.getElementById('ci-err').className='feedback-err show';
+    }
+    document.getElementById('ci-next').style.display='flex';
+    document.getElementById('ci-next').textContent=this.q<5?'Next →':'See Results';
+  },
+  next(){
+    this.q++;
+    if(this.q>=6){this.result();return;}
+    this.render();
+  },
+  result(){
+    document.getElementById('ci-game').style.display='none';
+    document.getElementById('ci-result').style.display='block';
+    document.getElementById('ci-final').textContent=`${this.score}/6`;
+    const m=this.score>=5?'🕵️ Master decoder! Signals merit badge level!':this.score>=4?'🔑 Great work — solid cipher skills!':this.score>=3?'💪 Decent effort — keep practicing!':'📋 Study the reference chart and try again!';
+    document.getElementById('ci-result-msg').textContent=m;
+  }
+};
+
+// ═══════════════════════════════════════
+// STORY BUILDER
+// ═══════════════════════════════════════
+const ST={
+  generate(){
+    const hero=document.getElementById('story-hero').value.trim()||'Scout Alex';
+    const setting=document.getElementById('story-setting').value;
+    const challenge=document.getElementById('story-challenge').value;
+    const openings=['Just as the sun dipped below the horizon,','It started as a routine hike when suddenly,','Three miles from base camp,','On the second day of the campout,','With only a compass and a half-filled water bottle,'];
+    const skills=[['a trusty bowline knot','quick map reading','the buddy system','their first aid knowledge','a signal mirror'],['improvised shelter building','fire starting with a ferro rod','water purification tricks','reading animal tracks','orienteering skills']];
+    const twists=['But just when things looked under control, the wind shifted.','Then — without warning — the situation changed completely.','That\'s when things got interesting.','Little did they know, help was closer than it seemed.','The real challenge, it turned out, was just beginning.'];
+    const endings=['By the time the stars came out, the patrol had a story they\'d tell for years.','Back at camp, the Scoutmaster listened with wide eyes and simply said: "Well done."','It wasn\'t the campout anyone had planned — but it was the one they\'d never forget.','The patrol earned no merit badge for what they did that night. But every Scout there knew exactly what Scouting was really about.','As they sat around the fire that evening, nobody said much. The silence said everything.'];
+    const s1=openings[Math.floor(Math.random()*openings.length)];
+    const sk1=skills[0][Math.floor(Math.random()*5)];
+    const sk2=skills[1][Math.floor(Math.random()*5)];
+    const twist=twists[Math.floor(Math.random()*twists.length)];
+    const end=endings[Math.floor(Math.random()*endings.length)];
+    const challengeText={
+      'Survival emergency':'the patrol realized they were cut off from base camp with limited supplies',
+      'Wildlife encounter':'they found themselves face to face with a creature of the wild',
+      'Navigation mystery':'the trail simply vanished into unmarked wilderness',
+      'Rescue mission':'they heard a distant call for help through the trees',
+      'Weather crisis':'the sky turned dark and a storm rolled in with alarming speed'
+    }[challenge];
+    const story=`${s1} ${hero} and their patrol were deep in the ${setting.toLowerCase()} when ${challengeText}.\n\nThe first thing ${hero} did — without hesitation — was reach for ${sk1}. It was a skill drilled into every Scout, one that felt automatic now. The patrol regrouped, checked on each other, and took stock of the situation.\n\n"Okay," said ${hero}, steady and clear. "Here's what we're going to do."\n\nThey deployed ${sk2} with precision, working as a team, each Scout knowing their role. There was no panic — only purpose.\n\n${twist}\n\nBut the patrol held together. They adapted. They improvised. They overcame.\n\n${end}`;
+    const out=document.getElementById('story-output');
+    out.textContent=story;out.className='story-output show';
+    document.getElementById('story-share').style.display='block';
+  }
+};
+
+// ═══════════════════════════════════════
+// ATTENDANCE TRACKER
+// ═══════════════════════════════════════
+const ATT={
+  scouts:[],
+  add(){
+    const n=document.getElementById('att-name-input').value.trim();
+    if(!n)return;
+    this.scouts.push({name:n,present:null});
+    document.getElementById('att-name-input').value='';
+    this.render();
+  },
+  toggle(i){
+    const s=this.scouts[i];
+    if(s.present===null)s.present=true;
+    else if(s.present===true)s.present=false;
+    else s.present=null;
+    this.render();
+  },
+  remove(i){this.scouts.splice(i,1);this.render();},
+  markAll(v){this.scouts.forEach(s=>s.present=v);this.render();},
+  clear(){if(confirm('Clear all scouts?')){this.scouts=[];this.render();}},
+  render(){
+    const list=document.getElementById('scout-list');
+    const present=this.scouts.filter(s=>s.present===true).length;
+    const absent=this.scouts.filter(s=>s.present===false).length;
+    document.getElementById('att-total').textContent=this.scouts.length;
+    document.getElementById('att-present').textContent=present;
+    document.getElementById('att-absent').textContent=absent;
+    list.innerHTML=this.scouts.map((s,i)=>`
+      <div class="scout-row">
+        <span class="scout-name">${s.name}</span>
+        <div class="scout-status">
+          ${s.present===null?`<span class="pill" style="background:var(--bd);color:var(--mu);cursor:pointer" onclick="ATT.toggle(${i})">— Unmarked</span>`
+            :s.present?`<span class="pill green" style="cursor:pointer" onclick="ATT.toggle(${i})">✅ Present</span>`
+            :`<span class="pill red" style="cursor:pointer" onclick="ATT.toggle(${i})">❌ Absent</span>`}
+        </div>
+        <button class="scout-del" onclick="ATT.remove(${i})">🗑</button>
+      </div>`).join('')||'<div style="text-align:center;color:var(--ms);padding:20px;font-size:14px">Add Scout names above</div>';
+  }
+};
+
+// ═══════════════════════════════════════
+// MERIT BADGE TRACKER
+// ═══════════════════════════════════════
+const MB={
+  required:['First Aid','Citizenship in the Community','Citizenship in the Nation','Citizenship in the World',
+    'Communication','Cooking','Personal Fitness','Emergency Preparedness','Environmental Science',
+    'Personal Management','Camping','Family Life','Sustainability'],
+  elective:['Archery','Aviation','Climbing','Cycling','Electronics','Engineering','Fish & Wildlife Mgmt',
+    'Fishing','Forestry','Geology','Hiking','Horsemanship','Lifesaving','Metalwork','Music',
+    'Nature','Orienteering','Pioneering','Plant Science','Public Health','Rifle Shooting',
+    'Rowing','Safety','Sculpture','Shotgun Shooting','Small-Boat Sailing','Sports','Swimming',
+    'Theatre','Traffic Safety','Weather','Woodcarving','Woodworking'],
+  render(){
+    const c=document.getElementById('mb-content');
+    if(c.innerHTML)return;
+    c.innerHTML=`
+    <div class="badge-section">
+      <div class="badge-section-title">🔴 Eagle-Required Badges (13 needed)</div>
+      <div class="badge-grid">${this.required.map((b,i)=>`
+        <div class="badge-item" onclick="MB.toggle('r${i}')">
+          <input type="checkbox" id="r${i}" onchange="MB.update()">
+          <label for="r${i}">${b}</label>
+          <span class="badge-req">REQ</span>
+        </div>`).join('')}</div>
+    </div>
+    <div class="badge-section">
+      <div class="badge-section-title">🟡 Elective Badges (8 needed · pick any)</div>
+      <div class="badge-grid">${this.elective.map((b,i)=>`
+        <div class="badge-item" onclick="MB.toggle('e${i}')">
+          <input type="checkbox" id="e${i}" onchange="MB.update()">
+          <label for="e${i}">${b}</label>
+        </div>`).join('')}</div>
+    </div>`;
+    this.update();
+  },
+  toggle(id){const cb=document.getElementById(id);if(cb){cb.checked=!cb.checked;this.update();}},
+  update(){
+    const req=this.required.filter((_,i)=>document.getElementById('r'+i)?.checked).length;
+    const elec=this.elective.filter((_,i)=>document.getElementById('e'+i)?.checked).length;
+    const total=req+Math.min(elec,8);
+    const pct=Math.min(100,Math.round(total/21*100));
+    document.getElementById('mb-done').textContent=total;
+    document.getElementById('mb-prog').style.width=pct+'%';
+    const msgs=['Just starting your Eagle journey!','Good progress — keep earning badges!','Over halfway there — keep going!','Almost there — the Eagle is in sight!','🦅 Eagle Badge requirement met!'];
+    document.getElementById('mb-status').textContent=msgs[Math.min(4,Math.floor(pct/25))];
+  }
+};
+
+// ═══════════════════════════════════════
+// PACKING LIST
+// ═══════════════════════════════════════
+const PL={
+  loaded:false,
+  trips:{
+    weekend:{
+      Clothing:['Scout uniform (shirt, pants, belt)','Extra t-shirts (2)','Underwear (3)','Socks (3 pairs)','Hiking boots (worn in)','Rain jacket or poncho','Sleepwear / base layer','Hat (sun protection)'],
+      Sleep:['Sleeping bag (35°F+ rated)','Sleeping pad or air mattress','Small pillow','Ground tarp'],
+      Hygiene:['Toothbrush & toothpaste','Biodegradable soap & shampoo','Deodorant','Sunscreen SPF 30+','Insect repellent','Microfiber towel','Hand sanitizer','Lip balm'],
+      Gear:['Backpack (30-40L)','Water bottles (2x 1L)','Flashlight + extra batteries','Multi-tool or pocket knife','Compass','Personal first aid kit','Whistle','Map of area'],
+      Food:['Water filter/purification tablets','Mess kit (plate, cup, utensils)','Bear bag or food container','Day snacks (trail mix, bars)']
+    },
+    backpacking:{
+      Clothing:['Moisture-wicking base layer','Insulating mid-layer','Waterproof outer shell','Hiking pants (zip-off)','Wool socks (3 pairs)','Gaiters','Camp sandals','Warm hat & gloves'],
+      Sleep:['Ultralight sleeping bag (matching season)','Sleeping pad (inflatable R-4+)','Bivy or ultralight tent'],
+      Navigation:['Topographic map','Baseplate compass','GPS device (backup)','Emergency whistle','Signal mirror'],
+      Gear:['Backpack (50-65L)','Trekking poles','Headlamp + spare batteries','Water filter (Sawyer or similar)','Emergency bivy','Lightweight multi-tool','Duct tape (wrapped on pole)','Moleskin for blisters'],
+      Food:['High-calorie trail meals','Stove + fuel canister','Titanium cook pot','Long-handled spoon','Bear canister','Water bottles (1L x2)']
+    },
+    water:{
+      Safety:['Coast Guard-approved PFD (life jacket)','Whistle attached to PFD','Sun-protective rash guard','Water shoes or sandals with straps','Waterproof sunscreen SPF 50+'],
+      Gear:['Dry bag for valuables','Waterproof phone case','Change of clothes (in dry bag)','Microfiber towel (x2)','Insect repellent'],
+      Clothing:['Swimsuit','Quick-dry shorts','Hat with strap','UV-protective sunglasses'],
+      Safety_Kit:['First aid kit (waterproof bag)','Emergency whistle','Waterproof matches','Emergency blanket']
+    },
+    winter:{
+      Layering:['Thermal base layer top & bottom','Fleece mid-layer','Waterproof insulated outer layer','Wool or synthetic socks (x3)','Gaiters','Waterproof boots (insulated)','Balaclava','Insulated gloves + liner gloves','Warm hat covering ears'],
+      Sleep:['Cold-rated sleeping bag (0°F or below)','Insulated sleeping pad (R-5+)','Emergency bivy'],
+      Gear:['Hand warmers (x10)','Thermos for hot drinks','Traction devices (microspikes)','Snow shovel (if needed)','Extra fire-starting supplies','High-calorie food (cold burns more calories)','Headlamp (batteries lose charge in cold)'],
+      Safety:['Emergency blanket','Buddy system — always check on each other','Know signs of hypothermia & frostbite']
+    },
+    service:{
+      Clothing:['Work clothes you can get dirty','Closed-toe shoes (no sandals)','Rain gear','Work gloves','Old hat or baseball cap'],
+      Tools:['Work gloves (heavy duty)','Safety glasses','Knee pads if needed','Water bottle (1L+)'],
+      Safety:['First aid kit','Sunscreen','Insect repellent','Hand sanitizer (lots!)'],
+      Documents:['Permission slip','Volunteer hours tracking sheet','Project plan printout','Emergency contact list']
+    }
+  },
+  curTrip:'weekend',
+  setTrip(t,btn){
+    this.curTrip=t;
+    document.querySelectorAll('.trip-type').forEach(b=>b.classList.remove('active'));
+    if(btn)btn.classList.add('active');
+    this.render();
+  },
+  render(){
+    const data=this.trips[this.curTrip];
+    const c=document.getElementById('pack-list-content');
+    c.innerHTML=Object.entries(data).map(([cat,items])=>`
+      <div class="pack-section">
+        <div class="pack-section-title">${cat.replace(/_/g,' ')}</div>
+        <div class="pack-items">${items.map((item,i)=>`
+          <div class="pack-item" id="pi-${cat}-${i}">
+            <input type="checkbox" id="cb-${cat}-${i}" onchange="PL.updateItem('${cat}',${i})">
+            <label for="cb-${cat}-${i}">${item}</label>
+          </div>`).join('')}</div>
+      </div>`).join('');
+    this.updateStats();
+  },
+  updateItem(cat,i){
+    const cb=document.getElementById(`cb-${cat}-${i}`);
+    const row=document.getElementById(`pi-${cat}-${i}`);
+    row.classList.toggle('checked',cb.checked);
+    this.updateStats();
+  },
+  updateStats(){
+    const all=document.querySelectorAll('#pack-list-content input[type=checkbox]');
+    const checked=[...all].filter(c=>c.checked).length;
+    document.getElementById('pl-packed').textContent=checked;
+    document.getElementById('pl-remain').textContent=all.length-checked;
+    document.getElementById('pl-total').textContent=all.length;
+  },
+  checkAll(){document.querySelectorAll('#pack-list-content input').forEach(c=>{c.checked=true;const m=c.id.match(/cb-(.+)-(\d+)/);if(m)this.updateItem(m[1],parseInt(m[2]))});},
+  uncheckAll(){document.querySelectorAll('#pack-list-content input').forEach(c=>{c.checked=false;const m=c.id.match(/cb-(.+)-(\d+)/);if(m)this.updateItem(m[1],parseInt(m[2]))});}
+};
+
+// ═══════════════════════════════════════
+// DUTY ROSTER
+// ═══════════════════════════════════════
+const RO={
+  init:false,
+  members:[],
+  roles:['Senior Patrol Leader','Assistant SPL','Quartermaster','Grubmaster','Camp Chef','KP (Kitchen Patrol)','Fire Tender','Flag Ceremony','First Aider','Leave No Trace Lead'],
+  assignments:{},
+  addMember(){
+    const n=document.getElementById('roster-input').value.trim();
+    if(!n)return;
+    this.members.push(n);
+    document.getElementById('roster-input').value='';
+    this.render();
+  },
+  render(){
+    document.getElementById('roster-members-list').innerHTML=this.members.map((m,i)=>`
+      <span class="roster-member ${Object.values(this.assignments).includes(m)?'assigned':''}" onclick="RO.selectMember('${m}')" id="rm-${i}">${m}</span>`).join('');
+    const grid=document.getElementById('roster-grid');
+    grid.innerHTML=this.roles.map(role=>`
+      <div class="roster-role">
+        <div class="roster-role-name">${role}</div>
+        <div class="roster-assign ${this.assignments[role]?'filled':''}" onclick="RO.assignRole('${role}')">
+          ${this.assignments[role]||'Click to assign'}
+        </div>
+      </div>`).join('');
+  },
+  _selected:null,
+  selectMember(m){
+    if(Object.values(this.assignments).includes(m))return;
+    this._selected=m;
+    document.querySelectorAll('.roster-member').forEach(el=>el.style.outline='none');
+    const idx=this.members.indexOf(m);
+    if(idx>=0){const el=document.getElementById('rm-'+idx);if(el)el.style.outline='2px solid var(--g)';}
+  },
+  assignRole(role){
+    if(this._selected){
+      this.assignments[role]=this._selected;
+      this._selected=null;
+      this.render();
+    } else if(this.assignments[role]){
+      if(confirm(`Remove ${this.assignments[role]} from ${role}?`)){delete this.assignments[role];this.render();}
+    }
+  },
+  autoAssign(){
+    const avail=[...this.members];
+    if(!avail.length){alert('Add patrol members first!');return;}
+    this.assignments={};
+    this.roles.forEach((r,i)=>{
+      if(avail.length>0){
+        const idx=i%avail.length;
+        this.assignments[r]=avail[idx];
+        avail.splice(idx,1);
+      }
+    });
+    this.render();
+  },
+  clearAssign(){this.assignments={};this.render();}
+};
+
+// ═══════════════════════════════════════
+// SCOUT LAW EXPLORER
+// ═══════════════════════════════════════
+const SL={
+  init:false,
+  data:[
+    {word:'Trustworthy',icon:'🤝',color:'#1B4332',
+     desc:'A Scout tells the truth and keeps promises. People can always rely on a Scout to do what they say.',
+     example:'"I found a wallet on the trail — there was $40 inside. I turned it in to the camp ranger immediately."'},
+    {word:'Loyal',icon:'🛡️',color:'#1D4ED8',
+     desc:'A Scout is loyal to family, friends, leaders, school, and country. A Scout stands by them even when it is hard.',
+     example:'"My patrol was struggling with the cooking competition. I stayed to help instead of watching other events."'},
+    {word:'Helpful',icon:'🙌',color:'#047857',
+     desc:'A Scout volunteers to help without expecting reward. Helping others is its own reward.',
+     example:'"An elderly neighbor needed help carrying groceries every week. My patrol made it our regular Good Turn."'},
+    {word:'Friendly',icon:'😊',color:'#B45309',
+     desc:'A Scout is a friend to all — even to strangers. A Scout does not exclude others or make fun of differences.',
+     example:'"A new Scout joined our troop and didn\'t know anyone. I made sure to sit with them at every meeting until they felt at home."'},
+    {word:'Courteous',icon:'🎩',color:'#7C3AED',
+     desc:'A Scout is polite to everyone regardless of age or position. Good manners reflect good character.',
+     example:'"At the food pantry service project, I greeted every person who came in with a smile and held the door."'},
+    {word:'Kind',icon:'💚',color:'#0F766E',
+     desc:'A Scout understands there is strength in kindness — treating all living creatures with care.',
+     example:'"We found an injured bird on the trail. Instead of leaving it, we carefully secured it and reported it to a wildlife ranger."'},
+    {word:'Obedient',icon:'📋',color:'#B45309',
+     desc:'A Scout follows the rules of family, school, and troop and obeys the laws of their community.',
+     example:'"The Leave No Trace rule said pack out what you pack in. Even when the bag was heavy, I carried it all out."'},
+    {word:'Cheerful',icon:'☀️',color:'#D97706',
+     desc:'A Scout looks for the bright side of life. Even in hardship, a Scout spreads optimism.',
+     example:'"It rained all weekend at camp. Instead of complaining, our patrol built rain shelters and turned it into a waterproof challenge."'},
+    {word:'Thrifty',icon:'💰',color:'#065F46',
+     desc:'A Scout saves for the future, wastes nothing, and uses resources wisely.',
+     example:'"I saved $5 a week from chores for six months to pay my own camp fees — without being asked."'},
+    {word:'Brave',icon:'🦁',color:'#DC2626',
+     desc:'A Scout does the right thing even when it is difficult or dangerous. Courage is not the absence of fear — it\'s acting despite it.',
+     example:'"A friend was being pressured to skip school. I stood up and said it wasn\'t a good idea — even though I knew they might be upset with me."'},
+    {word:'Clean',icon:'🧼',color:'#2563EB',
+     desc:'A Scout keeps their body, mind, speech, and environment clean.',
+     example:'"At the campsite, we did a final sweep to pick up microtrash — even things we didn\'t drop — because that\'s what Leave No Trace means."'},
+    {word:'Reverent',icon:'🕊️',color:'#6D28D9',
+     desc:'A Scout is reverent toward God and respectful of others\' religious beliefs. A Scout fulfills their duties to God.',
+     example:'"Even when others made fun of another Scout\'s prayer practice, I made sure they had space and privacy to observe their faith."'}
+  ],
+  render(){
+    const grid=document.getElementById('law-grid');
+    grid.innerHTML=this.data.map((l,i)=>`
+      <div class="law-card" onclick="SL.show(${i})">
+        <div class="law-num">Point ${i+1}</div>
+        <div class="law-icon">${l.icon}</div>
+        <div class="law-word" style="color:${l.color}">${l.word}</div>
+      </div>`).join('');
+  },
+  show(i){
+    document.querySelectorAll('.law-card').forEach((c,j)=>c.classList.toggle('active',j===i));
+    const l=this.data[i];
+    const d=document.getElementById('law-detail');
+    d.innerHTML=`<h3>${l.icon} ${l.word}</h3>
+      <p>${l.desc}</p>
+      <div class="law-example">Scout Example: "${l.example}"</div>`;
+    d.className='law-detail show';
+    d.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+};
+
+// ═══════════════════════════════════════
+// RANK ROADMAP
+// ═══════════════════════════════════════
+const RM={
+  init:false,
+  ranks:[
+    {emoji:'⚜️',name:'Scout',req:'Earn after joining',
+     detail:'Learn the Scout Oath, Law, motto ("Be Prepared"), slogan ("Do a Good Turn Daily"), and sign. The Scout rank is the foundation of everything that follows.',color:'#6B7280'},
+    {emoji:'🟡',name:'Tenderfoot',req:'First rank after Scout',
+     detail:'Requirements: camping, cooking a meal, first aid basics, physical fitness, Scout spirit, and participating in a service project. Introduces outdoor skills.',color:'#D97706'},
+    {emoji:'🔵',name:'Second Class',req:'After Tenderfoot',
+     detail:'More advanced camping, navigation (compass & map), cooking outdoors, first aid (unconscious, fractures), swimming safety, and 5-mile hike. Builds real field skills.',color:'#2563EB'},
+    {emoji:'🔴',name:'First Class',req:'After Second Class',
+     detail:'Advanced first aid, 10-mile hike, orienteering, nature identification, 2.5 hours of service, leadership in patrol. First Class is considered the "true Scout" rank.',color:'#DC2626'},
+    {emoji:'⭐',name:'Star Scout',req:'After First Class',
+     detail:'6 merit badges (4 must be Eagle-required), leadership position in troop for 4 months, 6 hours of service, Scout spirit. First Eagle-path rank.',color:'#FBBF24'},
+    {emoji:'💚',name:'Life Scout',req:'After Star Scout',
+     detail:'11 merit badges (7 Eagle-required), leadership for 6 months, 6 hours of service. Life Scout is where most Scouts spend the most time before Eagle.',color:'#16A34A'},
+    {emoji:'🦅',name:'Eagle Scout',req:'Highest rank in BSA',
+     detail:'21 merit badges (13 Eagle-required), Eagle service project planned and led by Scout, leadership for 6 months, Scout spirit. Only 6% of Scouts earn Eagle. A lifelong distinction.',color:'#B45309'}
+  ],
+  render(){
+    const c=document.getElementById('roadmap-content');
+    c.innerHTML=this.ranks.map((r,i)=>`
+      <div class="roadmap-rank" onclick="RM.show(${i})">
+        <div class="roadmap-spine">
+          <div class="spine-dot" id="rd-${i}" style="">${r.emoji}</div>
+          ${i<6?'<div class="spine-line"></div>':''}
+        </div>
+        <div class="roadmap-content">
+          <div class="rank-name" style="color:${r.color}">${r.name}</div>
+          <div class="rank-badge-req" style="font-size:12px;color:var(--mu)">${r.req}</div>
+          <div class="rank-detail" id="rd-detail-${i}">${r.detail}</div>
+        </div>
+      </div>`).join('');
+  },
+  show(i){
+    this.ranks.forEach((_,j)=>{
+      document.getElementById('rd-detail-'+j).className=`rank-detail${j===i?' show':''}`;
+      document.querySelectorAll('.roadmap-rank')[j].classList.toggle('active',j===i);
+    });
+  }
+};
+
+// ═══════════════════════════════════════
+// FIELD GUIDE
+// ═══════════════════════════════════════
+const FG={
+  init:false,
+  data:[
+    {emoji:'🦌',name:'White-tailed Deer',type:'mammal',id:'Florida\'s most common large mammal. Look for cloven hoof tracks (heart-shaped) and white flag tail when fleeing. Often seen at dawn/dusk near forest edges.',tips:'Track tip: Deer tracks point forward — the point of the heart faces the direction of travel.'},
+    {emoji:'🐊',name:'American Alligator',type:'reptile',id:'Found in any freshwater in Florida. Ranges from 6-14 ft. Look for log-like shapes near water edges, especially on sunny days. Eyes glow red in flashlight at night.',tips:'Safety: Never feed alligators. Back away slowly if encountered. Stay 10+ feet from water edges near brush.'},
+    {emoji:'🦅',name:'Bald Eagle',type:'bird',id:'Year-round Florida resident. White head and tail only appear at age 4-5. Wingspans up to 8 feet. Look near large lakes and coastlines.',tips:'Scout tip: Eagles mate for life and return to the same nest (eyrie) each year. Florida has the largest population outside Alaska.'},
+    {emoji:'🐢',name:'Gopher Tortoise',type:'reptile',id:'Florida keystone species. Creates burrows up to 10 feet deep shared by 350+ animal species. Domed shell, stumpy legs, sandy-brown coloring.',tips:'The gopher tortoise is a protected species. Do NOT handle or relocate — it\'s a federal crime.'},
+    {emoji:'🦩',name:'Roseate Spoonbill',type:'bird',id:'Unmistakable pink color from diet of crustaceans. Spatula-shaped bill sweeps side-to-side in shallow water. Often confused with flamingo but is much more common in Florida.',tips:'Good habitat indicator: Where you see spoonbills, the wetland ecosystem is healthy.'},
+    {emoji:'🐍',name:'Eastern Diamondback Rattlesnake',type:'reptile',id:'Largest venomous snake in North America. Found in dry pine flatwoods and scrub. Diamond pattern, triangular head, loud rattle. Can reach 8 feet.',tips:'Safety: Most bites occur when people try to handle them. Give wide berth (6+ feet). Keep hands/feet out of brush piles.'},
+    {emoji:'🦝',name:'Raccoon',type:'mammal',id:'Extremely common in Florida — often near campgrounds. Highly dexterous paws can open zippers and latches. Ringed tail, masked face.',tips:'Camp tip: Raccoons will find your food. Bear bag ALL food, sealed containers, and even toothpaste. They are bold and persistent.'},
+    {emoji:'🌴',name:'Sabal Palm',type:'plant',id:'Florida\'s state tree. Fan-shaped fronds, bootjack marks on trunk where old fronds attached. Berries eaten by wildlife. Found statewide.',tips:'The Sabal Palm is extremely hurricane-resistant. Its fronds can be woven into emergency shelter material.'},
+    {emoji:'🌿',name:'Spanish Moss',type:'plant',id:'Not a moss — it\'s an epiphytic bromeliad related to pineapples. Hangs in gray-green curtains from oaks and cypress. Does NOT harm the host tree.',tips:'Spanish moss was historically used to stuff car seats and mattresses. Provides habitat for bats, birds, and chiggers — shake before use!'},
+    {emoji:'🦋',name:'Monarch Butterfly',type:'insect',id:'Orange and black wings with white spots on border. Florida is a major migration corridor. Look for them nectaring on wildflowers in fall.',tips:'A monarch sighting on a Scout campout is a good omen — they travel up to 3,000 miles in migration. Plant milkweed to support them.'},
+    {emoji:'🐦',name:'Sandhill Crane',type:'bird',id:'Tall gray birds with red forehead patch. Often walk in pairs or family groups in open areas, roadsides, and campgrounds. Loud bugling call.',tips:'Sandhill cranes mate for life and return to the same nesting territory annually. If approached by one, don\'t feed it — they become aggressive when habituated.'},
+    {emoji:'🌺',name:'Firebush',type:'plant',id:'Native Florida shrub with tubular orange-red flowers. Blooms spring through fall. Attracts hummingbirds and butterflies. Good for trailside identification.',tips:'Firebush is an excellent native plant for Scout conservation projects. It provides food for pollinators and birds in local ecosystems.'},
+    {emoji:'🐝',name:'Florida Scrub Jay',type:'bird',id:'Brilliant blue and gray, no crest (unlike Blue Jay). Only found in Florida scrub habitat. Extremely curious and bold — may land on you.',tips:'The Florida Scrub Jay is a state threatened species. Florida scrub habitat is one of the most endangered ecosystems in the US.'},
+    {emoji:'🦎',name:'Green Anole',type:'reptile',id:'Florida\'s only native anole lizard. Can change from bright green to brown. Males display bright pink dewlap. Found everywhere — trees, walls, shrubs.',tips:'A green anole is an excellent insect controller. If you see one at camp, consider it a helpful neighbor.'},
+    {emoji:'🌊',name:'Saw Palmetto',type:'plant',id:'Low-growing fan palm with sharp serrated stems. Dense clusters in pine flatwoods and scrub. Berries important wildlife food source.',tips:'Saw palmetto stems are razor-sharp. When hiking through palmetto scrub, wear long pants. The plant is excellent cover for small wildlife.'},
+    {emoji:'🪲',name:'Lubber Grasshopper',type:'insect',id:'Florida\'s largest grasshopper — up to 3 inches, vivid yellow/black/red coloring. Flightless despite large wings. Toxicmake — birds avoid them.',tips:'The lubber\'s bright colors are aposematic warning coloration — a natural "don\'t eat me" signal. Don\'t handle them with bare hands.'}
+  ],
+  curFilter:'all',
+  filter(t,btn){
+    this.curFilter=t;
+    document.querySelectorAll('.guide-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.guide-card').forEach(c=>{
+      c.classList.toggle('hidden',t!=='all'&&c.dataset.type!==t);
+    });
+    document.getElementById('guide-detail').className='guide-detail-card';
+  },
+  render(){
+    const grid=document.getElementById('guide-grid');
+    grid.innerHTML=this.data.map((d,i)=>`
+      <div class="guide-card" data-type="${d.type}" onclick="FG.show(${i})">
+        <div class="guide-emoji">${d.emoji}</div>
+        <div class="guide-name">${d.name}</div>
+        <div class="guide-type">${d.type.charAt(0).toUpperCase()+d.type.slice(1)}</div>
+      </div>`).join('');
+  },
+  show(i){
+    const d=this.data[i];
+    const det=document.getElementById('guide-detail');
+    det.innerHTML=`<div class="guide-detail-emoji">${d.emoji}</div>
+      <div>
+        <h3>${d.name}</h3>
+        <span class="pill ${d.type==='plant'?'green':d.type==='bird'?'blue':d.type==='reptile'?'red':'gold'}">${d.type}</span>
+        <p style="margin-top:10px">${d.id}</p>
+        <p style="margin-top:8px;font-weight:600;color:var(--g)">🏕️ ${d.tips}</p>
+      </div>`;
+    det.className='guide-detail-card show';
+    det.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+};
+
+// ═══════════════════════════════════════
+// KNOT LIBRARY
+// ═══════════════════════════════════════
+const KL={
+  init:false,
+  knots:[
+    {emoji:'🪢',name:'Square Knot',use:'Joining two ropes of equal thickness',
+     desc:'The most basic joining knot. Creates a flat, symmetric knot good for bandages and packages.',
+     steps:['Hold one rope end in each hand.','Cross the right end over and under the left end (first half-knot).','Cross the same end (now on the left) over and under the right (second half-knot).','Pull both ends firmly. The knot should lie flat and symmetric.','Check: if asymmetric (one side loops), you have a Granny Knot — untie and retry.'],
+     mem:'Right over left, then left over right.'},
+    {emoji:'🏹',name:'Bowline',use:'Creating a fixed loop that won\'t slip',
+     desc:'Called the "king of knots." Creates a loop that won\'t tighten under load — used in rescues and sailing.',
+     steps:['Make a small loop in the standing part of the rope (the rabbit\'s hole).','Bring the working end up through the loop from below (rabbit comes out of the hole).','Take the working end around behind the standing part (rabbit goes around the tree).','Bring it back down through the small loop (rabbit goes back into the hole).','Hold the loop and working end, pull the standing part to tighten.'],
+     mem:'The rabbit comes out of the hole, goes around the tree, and back in the hole.'},
+    {emoji:'🏕️',name:'Clove Hitch',use:'Attaching rope to a pole or post',
+     desc:'Quick, reliable hitch for cylindrical objects. Starting knot for most lashings.',
+     steps:['Pass the rope over the pole and cross over itself.','Pass the rope over the pole again, slightly to the side.','Tuck the working end under the second wrap.','Pull both ends to tighten. The rope should form an X on the pole.','Use as a starting knot before a lashing.'],
+     mem:'Two half-hitches around a post with the second crossed over the first.'},
+    {emoji:'🎣',name:'Sheet Bend',use:'Joining ropes of different thicknesses',
+     desc:'Specifically designed for mismatched rope diameters. The thicker rope forms the bight.',
+     steps:['Form a bight (U-shape) in the thicker rope.','Thread the thinner rope through the bight from below.','Pass it around behind both strands of the bight.','Tuck it back under itself (not under the bight).','Pull all parts to tighten.'],
+     mem:'The thin rope goes around the outside, the thick forms the J.'},
+    {emoji:'8️⃣',name:'Figure Eight',use:'Stopper knot — prevents rope from slipping through',
+     desc:'The standard stopper knot. Bulky, reliable, and easier to untie than an overhand knot after loading.',
+     steps:['Make a loop by crossing the working end over the standing part.','Wrap the working end under and around the standing part (making a figure 8 shape).','Thread the working end through the original loop from the front.','Pull the working end and standing part to tighten.'],
+     mem:'Make a loop, wrap underneath, thread through the top.'},
+    {emoji:'⛺',name:'Taut-line Hitch',use:'Adjustable tension on tent guy-lines',
+     desc:'The only truly adjustable Scout hitch. Slides to adjust tension, locks when loaded.',
+     steps:['Wrap the rope around the anchor (tent stake) twice, going toward the load.','Wrap around the standing part one more time, on the outside of the previous wraps.','Tuck the working end under itself and pull tight.','Slide the knot to adjust tension — it locks when pulled by the load.'],
+     mem:'Two coils inside, one outside.'},
+    {emoji:'🪵',name:'Timber Hitch',use:'Securing and dragging logs',
+     desc:'Self-tightening under tension — perfect for hauling timber in pioneering projects.',
+     steps:['Wrap the rope fully around the log.','Twist the working end around itself several times (3-5 wraps).','The twist wraps around the standing part of the rope.','Pull — the hitch tightens and grips as load increases.','Add a half-hitch higher up the log for directional control.'],
+     mem:'Wrap around log, then coil the end around itself.'},
+    {emoji:'🔗',name:'Two Half Hitches',use:'Attaching rope to a ring, rail, or post',
+     desc:'Simple, quick, and reliable. Two loops in the same direction around the standing part.',
+     steps:['Pass the rope around the object.','Cross the working end over the standing part and through the loop (first half hitch).','Repeat — cross over and through again (second half hitch).','Both hitches should face the same direction.','Pull tight — reliable for most situations.'],
+     mem:'One half hitch, then another. Both face the same way.'},
+    {emoji:'⚓',name:'Round Turn & Two Half Hitches',use:'Maximum-security attachment to posts and rings',
+     desc:'Adds a full wrap to Two Half Hitches — spreads load, reduces wear, and holds better.',
+     steps:['Take a full turn around the object — the rope goes around twice (round turn).','Bring the working end alongside the standing part.','Apply Two Half Hitches as normal.','The full wrap distributes load and prevents jerking.','Traditional mooring knot for boats.'],
+     mem:'Two full wraps, then two half hitches.'},
+    {emoji:'🏗️',name:'Square Lashing',use:'Binding two spars at right angles',
+     desc:'Foundation of all Scout pioneering. Secures poles for camp gadgets, bridges, and towers.',
+     steps:['Tie a clove hitch on the vertical spar, just below the horizontal spar.','Wrap the rope over the horizontal spar, behind the vertical, in a square pattern (4 wraps).','Take two or three frapping turns — wrap the rope between the spars, tightening the lashing.','Finish with a clove hitch on the horizontal spar.','Test by trying to twist the spars — they shouldn\'t move.'],
+     mem:'Clove hitch → 4 square wraps → 2-3 frapping turns → clove hitch.'}
+  ],
+  render(){
+    const grid=document.getElementById('knot-grid');
+    grid.innerHTML=this.knots.map((k,i)=>`
+      <div class="knot-card" onclick="KL.show(${i})">
+        <div class="knot-emoji">${k.emoji}</div>
+        <div class="knot-name">${k.name}</div>
+        <div class="knot-use">${k.use}</div>
+      </div>`).join('');
+  },
+  show(i){
+    const k=this.knots[i];
+    document.querySelectorAll('.knot-card').forEach((c,j)=>c.classList.toggle('active',j===i));
+    const d=document.getElementById('knot-detail');
+    d.innerHTML=`<h3>${k.emoji} ${k.name}</h3>
+      <div style="font-size:13px;color:var(--mu);margin:4px 0 10px">${k.use}</div>
+      <p style="font-size:14px;line-height:1.65;color:var(--t)">${k.desc}</p>
+      <div class="knot-steps">${k.steps.map((s,j)=>`
+        <div class="knot-step"><div class="step-n">${j+1}</div><span>${s}</span></div>`).join('')}
+      </div>
+      <div style="background:var(--goldp);border-radius:8px;padding:10px 14px;margin-top:14px;font-size:13px;color:var(--gold);font-weight:600">
+        🧠 Memory tip: ${k.mem}
+      </div>`;
+    d.className='knot-detail show';
+    d.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+};
+
+// ═══════════════════════════════════════
+// COUNTDOWN TIMER
+// ═══════════════════════════════════════
+const CD={
+  interval:null,target:null,name:'Next Event',
+  saved:[],
+  set(){
+    const n=document.getElementById('cd-name').value.trim()||'Next Event';
+    const d=document.getElementById('cd-date').value;
+    if(!d){alert('Please pick an event date!');return;}
+    this.target=new Date(d+'T00:00:00');
+    this.name=n;
+    this.saved=this.saved.filter(s=>s.name!==n);
+    this.saved.unshift({name:n,date:d});
+    if(this.saved.length>5)this.saved.pop();
+    document.getElementById('cd-event-name').textContent=n;
+    clearInterval(this.interval);
+    this.tick();
+    this.interval=setInterval(()=>this.tick(),1000);
+  },
+  tick(){
+    if(!this.target)return;
+    const diff=this.target-new Date();
+    if(diff<0){
+      document.getElementById('cd-days').textContent='🎉';
+      document.getElementById('cd-hours').textContent='00';
+      document.getElementById('cd-mins').textContent='00';
+      document.getElementById('cd-secs').textContent='00';
+      return;
+    }
+    const d=Math.floor(diff/86400000);
+    const h=Math.floor((diff%86400000)/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    document.getElementById('cd-days').textContent=String(d).padStart(3,'0');
+    document.getElementById('cd-hours').textContent=String(h).padStart(2,'0');
+    document.getElementById('cd-mins').textContent=String(m).padStart(2,'0');
+    document.getElementById('cd-secs').textContent=String(s).padStart(2,'0');
+  },
+  savedEvents(){
+    const el=document.getElementById('cd-saved');
+    if(!this.saved.length){el.innerHTML='<div style="color:var(--ms);font-size:13px">No saved events yet.</div>';el.style.display='block';return;}
+    el.innerHTML=`<div class="card"><div class="label" style="margin-bottom:10px">Saved Events</div>${this.saved.map(e=>`
+      <div class="scout-row" style="cursor:pointer" onclick="CD.loadSaved('${e.name}','${e.date}')">
+        <span style="flex:1;font-size:14px;font-weight:600">📅 ${e.name}</span>
+        <span style="font-size:12px;color:var(--mu)">${e.date}</span>
+      </div>`).join('')}</div>`;
+    el.style.display=el.style.display==='none'?'block':'none';
+  },
+  loadSaved(name,date){
+    document.getElementById('cd-name').value=name;
+    document.getElementById('cd-date').value=date;
+    this.set();
+  }
+};
+
+// ═══════════════════════════════════════
+// PATROL SCOREBOARD
+// ═══════════════════════════════════════
+const SB={
+  patrols:[],
+  addPatrol(){
+    const n=document.getElementById('patrol-name-input').value.trim();
+    if(!n)return;
+    if(this.patrols.find(p=>p.name===n)){alert('Patrol already exists!');return;}
+    this.patrols.push({name:n,points:0});
+    document.getElementById('patrol-name-input').value='';
+    this.render();
+  },
+  adjust(name,delta){
+    const p=this.patrols.find(p=>p.name===name);
+    if(p){p.points=Math.max(0,p.points+delta);this.render();}
+  },
+  remove(name){
+    if(confirm(`Remove ${name} from scoreboard?`)){
+      this.patrols=this.patrols.filter(p=>p.name!==name);
+      this.render();
+    }
+  },
+  reset(){if(confirm('Reset all scores to 0?')){this.patrols.forEach(p=>p.points=0);this.render();}},
+  render(){
+    const t=document.getElementById('score-table');
+    if(!this.patrols.length){
+      t.innerHTML='<div style="text-align:center;color:var(--ms);padding:24px;font-size:14px">Add patrols above to start the scoreboard</div>';
+      return;
+    }
+    const sorted=[...this.patrols].sort((a,b)=>b.points-a.points);
+    const medals=['🥇','🥈','🥉'];
+    t.innerHTML=sorted.map((p,i)=>`
+      <div class="score-row">
+        <div class="score-rank">${medals[i]||i+1}</div>
+        <div class="score-patrol">${p.name}</div>
+        <div class="score-pts">${p.points} pts</div>
+        <div class="score-controls">
+          <button class="score-btn plus" onclick="SB.adjust('${p.name}',10)">+10</button>
+          <button class="score-btn plus" onclick="SB.adjust('${p.name}',5)">+5</button>
+          <button class="score-btn minus" onclick="SB.adjust('${p.name}',-5)">-5</button>
+          <button class="score-btn del" onclick="SB.remove('${p.name}')">🗑</button>
+        </div>
+      </div>`).join('');
+  }
+};
+
+// ═══════════════════════════════════════
+// MENU PLANNER
+// ═══════════════════════════════════════
+const MP={
+  init:false,
+  days:2,curDay:1,
+  meals:{},
+  setDays(n,btn){
+    this.days=n;
+    document.querySelectorAll('.trip-type').forEach(b=>b.classList.remove('active'));
+    if(btn)btn.classList.add('active');
+    this.curDay=1;
+    this.renderTabs();
+    this.renderSlots();
+  },
+  renderTabs(){
+    const tabs=document.getElementById('menu-day-tabs');
+    tabs.innerHTML=Array.from({length:this.days},(_,i)=>`
+      <button class="day-tab ${i===0?'active':''}" onclick="MP.switchDay(${i+1},this)">Day ${i+1}</button>`).join('');
+  },
+  switchDay(d,btn){
+    this.curDay=d;
+    document.querySelectorAll('.day-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    this.renderSlots();
+  },
+  renderSlots(){
+    const slots=['Breakfast','Lunch','Dinner','Snacks'];
+    const s=document.getElementById('menu-slots');
+    s.innerHTML=slots.map(meal=>`
+      <div class="meal-slot">
+        <div class="meal-slot-name">${meal}</div>
+        <input class="meal-slot-input" placeholder="What's on the menu? (e.g. Scrambled eggs, pancakes)"
+          id="m-d${this.curDay}-${meal}"
+          value="${this.meals[`d${this.curDay}-${meal}`]||''}"
+          onchange="MP.save('d${this.curDay}-${meal}',this.value)">
+      </div>`).join('');
+  },
+  save(key,val){this.meals[key]=val;},
+  genList(){
+    const lines=[];
+    for(let d=1;d<=this.days;d++){
+      lines.push(`── Day ${d} ──`);
+      ['Breakfast','Lunch','Dinner','Snacks'].forEach(meal=>{
+        const v=this.meals[`d${d}-${meal}`]||document.getElementById(`m-d${d}-${meal}`)?.value||'';
+        if(v)lines.push(`  ${meal}: ${v}`);
+      });
+    }
+    const out=document.getElementById('shopping-output');
+    out.textContent='🛒 CAMPING MENU SUMMARY\n\n'+lines.join('\n')+'\n\n─────────────────────\nRemember: Plan ~1.5 lbs of food per person per day for active camping.\nAlways check for allergies before finalizing the menu!';
+    out.className='shopping-output show';
+  },
+  clear(){
+    this.meals={};
+    document.querySelectorAll('.meal-slot-input').forEach(i=>i.value='');
+    document.getElementById('shopping-output').className='shopping-output';
+  }
+};
+
+// ═══════════════════════════════════════
+// REGISTRATION
+// ═══════════════════════════════════════
+const REG={
+  entries:[],
+  submit(){
+    const first=document.getElementById('rf-first').value.trim();
+    const last=document.getElementById('rf-last').value.trim();
+    const parent=document.getElementById('rf-parent').value.trim();
+    const phone=document.getElementById('rf-phone').value.trim();
+    if(!first||!last||!parent||!phone){alert('Please fill in all required (*) fields.');return;}
+    const entry={
+      name:`${first} ${last}`,
+      rank:document.getElementById('rf-rank').value,
+      age:document.getElementById('rf-age').value,
+      parent,phone,
+      email:document.getElementById('rf-email').value,
+      ec:document.getElementById('rf-ec').value,
+      notes:document.getElementById('rf-notes').value,
+      event:document.getElementById('reg-event').value||'Troop 242 Event',
+      date:document.getElementById('reg-date').value
+    };
+    this.entries.push(entry);
+    document.getElementById('reg-success-name').textContent=`${first} ${last} is registered!`;
+    document.getElementById('reg-success-detail').textContent=`${entry.event}${entry.date?' · '+entry.date:''} · Parent: ${parent} · ${phone}`;
+    document.getElementById('reg-form-wrap').style.display='none';
+    document.getElementById('reg-success').className='reg-success show';
+    this.renderEntries();
+  },
+  another(){
+    ['rf-first','rf-last','rf-age','rf-parent','rf-phone','rf-email','rf-ec','rf-notes'].forEach(id=>{document.getElementById(id).value='';});
+    document.getElementById('reg-success').className='reg-success';
+    document.getElementById('reg-form-wrap').style.display='block';
+  },
+  renderEntries(){
+    const sec=document.getElementById('reg-entries-section');
+    const list=document.getElementById('reg-entries');
+    if(!this.entries.length){sec.style.display='none';return;}
+    sec.style.display='block';
+    list.innerHTML=this.entries.map((e,i)=>`
+      <div class="reg-entry">
+        <div>
+          <strong>${e.name}</strong> · ${e.rank}${e.age?' · Age '+e.age:''}
+          <div style="font-size:11px;color:var(--mu);margin-top:2px">${e.parent} · ${e.phone}</div>
+          ${e.notes?`<div style="font-size:11px;color:var(--red);margin-top:2px">⚠️ ${e.notes}</div>`:''}
+        </div>
+        <button onclick="REG.remove(${i})" style="background:none;border:none;cursor:pointer;color:var(--ms);font-size:13px">🗑</button>
+      </div>`).join('');
+  },
+  remove(i){this.entries.splice(i,1);this.renderEntries();}
+};
+</script>
+
+<footer style="background:var(--t);color:#fff;padding:24px 24px;text-align:center;margin-top:0px">
+  <div style="max-width:920px;margin:0 auto">
+      <div style="margin-bottom:8px">
+        <h3 style="margin-bottom:4px;font-size:0.9rem;font-weight:700;color:#fff">
+          <a href="../" style="color:rgb(255, 255, 255);margin: bottom 18px; font-size:1.1rem; font: weight 125px;text-decoration:none">⚜️ Troop 242</a></h3>
+        <p style="color:rgba(255,255,255,.7);font-size:0.9rem;line-height:1.6">Building today's youth into tomorrow's leaders. </p>
+      </div> 
+    <!-- <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:32px;margin-bottom:8px;text-align:left">
+      <div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:0.9rem">
+            <li><a href="#" onclick="goToScoutDashboard();return false" style="color:rgba(255,255,255,.7);text-decoration:none;cursor:pointer">Scout Dashboard</a></li>
+          </ul>
+      </div> 
+    </div> -->
+    <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:04px;color:rgba(255,255,255,.6);font-size:0.85rem">
+      <p>© 2026 Troop 242 Sanford. Scouting America | Adventure · Brotherhood · Service</p>
+      <p style="margin-top:12px">Maintained by troop webmaster : Rakesh K</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
