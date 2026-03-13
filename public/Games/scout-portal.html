@@ -1171,10 +1171,10 @@ function openPanel(id,title){
   if(id==='merit') MB.render();
   if(id==='packing'&&!PL.loaded){PL.loaded=true;PL.setTrip('weekend',document.querySelector('.trip-type.active'))}
   if(id==='roster'&&!RO.init){RO.init=true;RO.render()}
-  if(id==='scout-law'&&!SL.init){SL.init=true;SL.render()}
-  if(id==='roadmap'&&!RM.init){RM.init=true;RM.render()}
-  if(id==='field-guide'&&!FG.init){FG.init=true;FG.render()}
-  if(id==='knots'&&!KL.init){KL.init=true;KL.render()}
+  if(id==='scout-law'){if(!SL.init){SL.init=true}SL.render()}
+  if(id==='roadmap'){if(!RM.init){RM.init=true}RM.render()}
+  if(id==='field-guide'){if(!FG.init){FG.init=true}FG.render()}
+  if(id==='knots'){if(!KL.init){KL.init=true}KL.render()}
   if(id==='menu'&&!MP.init){MP.init=true;MP.setDays(2,document.querySelector('.trip-type.active'))}
   closeSidebar();
 }
