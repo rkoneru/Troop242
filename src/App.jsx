@@ -26,6 +26,7 @@ import RankTrackerWizard from './pages/RankTrackerWizard';
 import MeritTrackerWizard from './pages/MeritTrackerWizard';
 import SkillsTrackerWizard from './pages/SkillsTrackerWizard';
 import ActivitiesPage from './pages/ActivitiesPage';
+import GamesLanding from './pages/GamesLanding';
 import './App.css';
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
           <Route path="/new-scout" element={<><Header /><NewScout /><Footer /></>} />
           <Route path="/glossary" element={<><Header /><Glossary /><Footer /></>} />
           <Route path="/scout-dashboard" element={<><Header /><ScoutDashboard /><Footer /></>} />
+          <Route path="/games" element={<><Header /><GamesLanding /><Footer /></>} />
           <Route path="/troop-finances" element={<TroopFinances />} />
 
           {/* Wizard pages with custom headers - no global header/footer */}

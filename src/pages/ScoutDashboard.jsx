@@ -526,28 +526,28 @@ export default function ScoutDashboard() {
               </motion.button>
             </motion.div>
 
-            {/* ADVANCEMENT GUIDE TILE */}
-           {/*  <motion.div
+            {/* SCOUT PORTAL TILE */}
+             <motion.div
               variants={itemVariants}
               className="glass-card"
               style={{ padding: 32, cursor: 'pointer' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/ranks')}
+              onClick={() => window.location.href = '/Troop242/Games/scout-portal.html'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ fontSize: '2.5rem' }}>📖</div>
                 <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Advancement Guide</h3>
+                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Scout Portal</h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Learn about ranks & paths
+                    Interactive scout tools & games
                   </p>
                 </div>
               </div>
 
               <div style={{ marginBottom: 20 }}>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
-                  Explore the scout rank structure, requirements, and timeline to Eagle Scout.
+                  Access attendance tracking, knot guides, packing lists, and interactive games.
                 </p>
               </div>
 
@@ -556,9 +556,9 @@ export default function ScoutDashboard() {
                 whileHover={{ gap: 16 }}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
               >
-                Explore Guide <ChevronRight size={18} />
+                Access Portal <ChevronRight size={18} />
               </motion.button>
-            </motion.div>*/}
+            </motion.div>
           </motion.div>
         </div>
 

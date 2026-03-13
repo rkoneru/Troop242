@@ -14,6 +14,18 @@ const FooterLink = ({ to, children }) => (
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
+  let canViewScoutPortal = false;
+  try {
+    const rawUser = sessionStorage.getItem('loggedInUser');
+    if (rawUser) {
+      const parsedUser = JSON.parse(rawUser);
+      const allowedProfiles = ['scout', 'leader', 'admin'];
+      canViewScoutPortal = allowedProfiles.includes(parsedUser?.profile);
+    }
+  } catch {
+    canViewScoutPortal = false;
+  }
+
   return (
     <footer className="footer" style={{ position: 'relative', overflow: 'hidden' }}>
      
@@ -42,8 +54,10 @@ export default function Footer() {
               <FooterLink to="/about">About Us</FooterLink>
               <FooterLink to="/stories">Stories</FooterLink>
               <FooterLink to="/contact">Contact Us</FooterLink>
-              <a href="/Troop242/troop242-day-night.html" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'opacity 0.2s' }}>🌅 Day & Night Sky</a>
-            </div>
+              {/* {canViewScoutPortal && (
+                <a href="/Troop242/Games/scout-portal.html" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'opacity 0.2s' }}>🎮Scout Portal</a>
+              )} */}
+          </div>
           </div>
 
           {/* Guide */}
@@ -67,6 +81,9 @@ export default function Footer() {
               <a href="https://scoutbook.scouting.org/" target="_blank" rel="noopener noreferrer">Scoutbook</a>
               <FooterLink to="/calendar">Troop Calendar</FooterLink>
               <FooterLink to="/member-login">Member Login</FooterLink>
+              {canViewScoutPortal && (
+                <a href="/Troop242/Games/scout-portal.html" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'opacity 0.2s' }}>Scout Portal</a>
+              )}
             </div>
           </div>
 

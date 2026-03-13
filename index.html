@@ -9,6 +9,15 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Handle GitHub Pages 404 redirect
+      const redirectRoute = sessionStorage.getItem('redirect-route');
+      if (redirectRoute) {
+        sessionStorage.removeItem('redirect-route');
+        // Clear the 404 from browser history
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

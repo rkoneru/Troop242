@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kim's Game — Scout Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --g:#1B4332;--gm:#2D6A4F;--gl:#52B788;--gp:#D8F3DC;
+  --gold:#C8960C;--goldp:#FEF9C3;
+  --bg:#F7F8F5;--w:#fff;--bd:#E2E8F0;--t:#111827;--mu:#6B7280;
+  --r:12px;--sh:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--g);padding:16px 20px;display:flex;align-items:center;gap:14px}
+.back{text-decoration:none;color:rgba(255,255,255,.65);font-size:14px;font-weight:500;
+  display:flex;align-items:center;gap:4px;transition:.15s}
+.back:hover{color:#fff}
+.hdr-info{display:flex;flex-direction:column}
+.hdr-title{color:#fff;font-size:17px;font-weight:700}
+.hdr-sub{color:rgba(255,255,255,.55);font-size:12px;font-weight:400}
+
+/* SHARED */
+.screen{display:none;animation:fadeIn .35s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 57px);padding:32px 20px;text-align:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--g);color:#fff;border:none;border-radius:10px;
+  padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;
+  transition:.2s;font-family:'Outfit',sans-serif;letter-spacing:-.2px}
+.btn:hover{background:var(--gm);transform:translateY(-1px);box-shadow:0 4px 16px rgba(27,67,50,.25)}
+.btn:active{transform:none}
+.btn-outline{background:transparent;color:var(--g);border:2px solid var(--bd)}
+.btn-outline:hover{background:var(--gp);border-color:var(--gl);transform:none;box-shadow:none}
+
+/* INTRO */
+.intro-card{background:var(--w);border:1px solid var(--bd);border-radius:16px;
+  padding:40px 36px;max-width:480px;width:100%;box-shadow:var(--sh)}
+.intro-icon{font-size:48px;margin-bottom:16px}
+.intro-card h2{font-size:26px;font-weight:800;margin-bottom:8px;letter-spacing:-.5px}
+.intro-card p{color:var(--mu);font-size:15px;line-height:1.65;margin-bottom:24px}
+.intro-steps{text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.step{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--t)}
+.step-num{width:24px;height:24px;min-width:24px;background:var(--gp);color:var(--gm);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;margin-top:1px}
+
+/* MEMORIZE */
+#memorize-screen{padding:20px}
+.memorize-top{display:flex;align-items:center;justify-content:space-between;
+  max-width:700px;margin:0 auto 20px;flex-wrap:wrap;gap:12px}
+.memorize-label{font-size:14px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.timer-wrap{display:flex;align-items:center;gap:10px}
+.timer-ring{position:relative;width:56px;height:56px}
+.timer-ring svg{transform:rotate(-90deg)}
+.timer-ring circle{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.timer-bg{stroke:var(--bd)}
+.timer-fg{stroke:var(--gl);stroke-dasharray:138.2;stroke-dashoffset:0}
+.timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;color:var(--g)}
+.timer-ring.urgent .timer-fg{stroke:#EF4444}
+.timer-ring.urgent .timer-num{color:#EF4444}
+
+.items-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  max-width:700px;margin:0 auto}
+.item-card{background:var(--w);border:1.5px solid var(--bd);border-radius:12px;
+  padding:18px 10px;text-align:center;box-shadow:var(--sh);
+  animation:popIn .3s ease both}
+.item-card:nth-child(2){animation-delay:.05s}
+.item-card:nth-child(3){animation-delay:.1s}
+.item-card:nth-child(4){animation-delay:.15s}
+.item-card:nth-child(5){animation-delay:.2s}
+.item-card:nth-child(6){animation-delay:.25s}
+.item-card:nth-child(7){animation-delay:.3s}
+.item-card:nth-child(8){animation-delay:.35s}
+.item-card:nth-child(9){animation-delay:.4s}
+.item-card:nth-child(10){animation-delay:.45s}
+.item-card:nth-child(11){animation-delay:.5s}
+.item-card:nth-child(12){animation-delay:.55s}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.item-emoji{font-size:32px;margin-bottom:8px}
+.item-name{font-size:12px;font-weight:600;color:var(--t)}
+
+/* RECALL */
+#recall-screen{padding:20px}
+.recall-top{display:flex;align-items:center;justify-content:space-between;
+  max-width:800px;margin:0 auto 8px;flex-wrap:wrap;gap:8px}
+.recall-top h2{font-size:18px;font-weight:700}
+.recall-top p{font-size:13px;color:var(--mu)}
+.recall-hint{background:var(--goldp);border:1px solid #FDE68A;border-radius:8px;
+  padding:9px 14px;max-width:800px;margin:0 auto 16px;font-size:13px;color:#92400E;font-weight:500}
+.recall-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;
+  max-width:800px;margin:0 auto 20px}
+.recall-item{background:var(--w);border:2px solid var(--bd);border-radius:10px;
+  padding:14px 8px;text-align:center;cursor:pointer;transition:.18s;user-select:none}
+.recall-item:hover{border-color:var(--gl);background:var(--gp);transform:translateY(-2px)}
+.recall-item.selected{border-color:var(--gm);background:var(--gp);
+  box-shadow:0 0 0 3px rgba(82,183,136,.2)}
+.recall-item .item-emoji{font-size:26px;margin-bottom:6px}
+.recall-item .item-name{font-size:11px}
+.recall-actions{display:flex;justify-content:center;gap:12px;max-width:800px;margin:0 auto}
+.selected-count{background:var(--gp);color:var(--gm);border-radius:8px;
+  padding:10px 20px;font-size:14px;font-weight:600}
+
+/* RESULTS */
+.results-card{background:var(--w);border:1px solid var(--bd);border-radius:16px;
+  padding:36px;max-width:520px;width:100%;box-shadow:var(--sh)}
+.results-score{font-size:64px;font-weight:800;color:var(--g);line-height:1;margin:12px 0 4px}
+.results-label{font-size:15px;color:var(--mu);margin-bottom:28px}
+.results-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:28px}
+.rstat{background:var(--bg);border-radius:10px;padding:14px;text-align:center}
+.rstat-num{font-size:22px;font-weight:800}
+.rstat-num.good{color:#16A34A}
+.rstat-num.bad{color:#DC2626}
+.rstat-num.neutral{color:var(--mu)}
+.rstat-lbl{font-size:11px;color:var(--mu);font-weight:500;margin-top:2px}
+.missed-section{text-align:left;margin-bottom:28px}
+.missed-title{font-size:13px;font-weight:700;color:var(--mu);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:10px}
+.missed-items{display:flex;flex-wrap:wrap;gap:8px}
+.missed-pill{display:flex;align-items:center;gap:5px;background:var(--bg);
+  border:1px solid var(--bd);border-radius:100px;padding:4px 12px 4px 8px;
+  font-size:13px;font-weight:500}
+.results-btns{display:flex;gap:10px;flex-wrap:wrap}
+
+@media(max-width:600px){
+  .items-grid{grid-template-columns:repeat(3,1fr)}
+  .recall-grid{grid-template-columns:repeat(4,1fr)}
+  .results-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:420px){
+  .recall-grid{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <a href="scout-games-hub.html" class="back">← Games</a>
+  <div class="hdr-info">
+    <span class="hdr-title">🧠 Kim's Game</span>
+    <span class="hdr-sub">Memory &amp; Observation</span>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div id="intro-screen" class="screen active">
+  <div class="center">
+    <div class="intro-card">
+      <div class="intro-icon">🧠</div>
+      <h2>Kim's Game</h2>
+      <p>Named after the hero of Kipling's novel, this classic Scout game has been training observation skills since 1908.</p>
+      <div class="intro-steps">
+        <div class="step"><div class="step-num">1</div><span>Study a tray of <strong>12 Scout items</strong> for 30 seconds</span></div>
+        <div class="step"><div class="step-num">2</div><span>The tray is covered — <strong>recall</strong> as many as you can</span></div>
+        <div class="step"><div class="step-num">3</div><span>Click every item you remember and submit</span></div>
+      </div>
+      <button class="btn" onclick="startGame()">▶ Start Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEMORIZE -->
+<div id="memorize-screen" class="screen">
+  <div class="memorize-top">
+    <div>
+      <div class="memorize-label">📋 Memorize the tray</div>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-ring" id="timer-ring">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <circle class="timer-bg" cx="28" cy="28" r="22"/>
+          <circle class="timer-fg" id="timer-circle" cx="28" cy="28" r="22"/>
+        </svg>
+        <div class="timer-num" id="timer-num">30</div>
+      </div>
+    </div>
+  </div>
+  <div class="items-grid" id="tray-grid"></div>
+</div>
+
+<!-- RECALL -->
+<div id="recall-screen" class="screen">
+  <div class="recall-top">
+    <div>
+      <h2>🤔 What was on the tray?</h2>
+      <p>Click every item you remember seeing</p>
+    </div>
+    <div class="selected-count" id="sel-count">0 selected</div>
+  </div>
+  <div class="recall-hint">⚡ Tip: Select items you're sure about. Wrong answers count against you!</div>
+  <div class="recall-grid" id="recall-grid"></div>
+  <div class="recall-actions">
+    <button class="btn" onclick="submitRecall()">Submit My Answers</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen" class="screen">
+  <div class="center">
+    <div class="results-card">
+      <div style="font-size:13px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Your Score</div>
+      <div class="results-score" id="final-score">0/12</div>
+      <div class="results-label" id="score-msg"></div>
+      <div class="results-stats">
+        <div class="rstat"><div class="rstat-num good" id="r-correct">0</div><div class="rstat-lbl">✅ Correct</div></div>
+        <div class="rstat"><div class="rstat-num bad" id="r-wrong">0</div><div class="rstat-lbl">❌ Wrong</div></div>
+        <div class="rstat"><div class="rstat-num neutral" id="r-missed">0</div><div class="rstat-lbl">⬜ Missed</div></div>
+      </div>
+      <div class="missed-section" id="missed-section" style="display:none">
+        <div class="missed-title">Items you missed</div>
+        <div class="missed-items" id="missed-list"></div>
+      </div>
+      <div class="results-btns">
+        <button class="btn" onclick="startGame()">🔄 Play Again</button>
+        <button class="btn btn-outline" onclick="location.href='scout-games-hub.html'">← All Games</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_ITEMS = [
+  {emoji:'🧭',name:'Compass'},{emoji:'🪢',name:'Rope'},{emoji:'⛺',name:'Tent'},
+  {emoji:'🔥',name:'Campfire'},{emoji:'🗺️',name:'Map'},{emoji:'🔦',name:'Flashlight'},
+  {emoji:'🩹',name:'First Aid Kit'},{emoji:'🔭',name:'Binoculars'},{emoji:'🪓',name:'Hatchet'},
+  {emoji:'🎖️',name:'Merit Badge'},{emoji:'🛶',name:'Canoe'},{emoji:'🌲',name:'Pine Tree'},
+  {emoji:'⭐',name:'North Star'},{emoji:'🪝',name:'Hook'},{emoji:'🎯',name:'Target'},
+  {emoji:'🔑',name:'Key'},{emoji:'🧲',name:'Magnet'},{emoji:'🪵',name:'Log'},
+  {emoji:'🏔️',name:'Mountain'},{emoji:'🌊',name:'River'},{emoji:'🐟',name:'Fish'},
+  {emoji:'🌿',name:'Plant'},{emoji:'🦅',name:'Eagle'},{emoji:'🌙',name:'Moon'}
+];
+
+let trayItems=[], recallItems=[], selected=new Set(), timerInterval=null, timeLeft=30;
+
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startGame(){
+  const shuffled=shuffle(ALL_ITEMS);
+  trayItems=shuffled.slice(0,12);
+  const distractors=shuffled.slice(12,18);
+  recallItems=shuffle([...trayItems,...distractors]);
+  selected.clear();
+  renderTray();
+  showScreen('memorize-screen');
+  startTimer();
+}
+
+function renderTray(){
+  const grid=document.getElementById('tray-grid');
+  grid.innerHTML=trayItems.map(it=>`
+    <div class="item-card">
+      <div class="item-emoji">${it.emoji}</div>
+      <div class="item-name">${it.name}</div>
+    </div>`).join('');
+}
+
+function startTimer(){
+  timeLeft=30;
+  const circ=document.getElementById('timer-circle');
+  const ring=document.getElementById('timer-ring');
+  const FULL=138.2;
+  circ.style.strokeDashoffset=0;
+  document.getElementById('timer-num').textContent=30;
+  ring.classList.remove('urgent');
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    document.getElementById('timer-num').textContent=timeLeft;
+    circ.style.strokeDashoffset=FULL*(1-timeLeft/30);
+    if(timeLeft<=10) ring.classList.add('urgent');
+    if(timeLeft<=0){clearInterval(timerInterval);startRecall();}
+  },1000);
+}
+
+function startRecall(){
+  renderRecall();
+  showScreen('recall-screen');
+}
+
+function renderRecall(){
+  const grid=document.getElementById('recall-grid');
+  grid.innerHTML=recallItems.map((it,i)=>`
+    <div class="recall-item" id="ri-${i}" onclick="toggleItem(${i})">
+      <div class="item-emoji">${it.emoji}</div>
+      <div class="item-name">${it.name}</div>
+    </div>`).join('');
+  updateSelCount();
+}
+
+function toggleItem(i){
+  if(selected.has(i)){selected.delete(i);document.getElementById('ri-'+i).classList.remove('selected')}
+  else{selected.add(i);document.getElementById('ri-'+i).classList.add('selected')}
+  updateSelCount();
+}
+
+function updateSelCount(){
+  document.getElementById('sel-count').textContent=`${selected.size} selected`;
+}
+
+function submitRecall(){
+  const trayNames=new Set(trayItems.map(it=>it.name));
+  let correct=0,wrong=0;
+  selected.forEach(i=>{
+    if(trayNames.has(recallItems[i].name)) correct++;
+    else wrong++;
+  });
+  const missed=trayItems.filter(it=>!Array.from(selected).some(i=>recallItems[i].name===it.name));
+  showResults(correct,wrong,missed);
+}
+
+function showResults(correct,wrong,missed){
+  const total=12;
+  document.getElementById('final-score').textContent=`${correct}/${total}`;
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-missed').textContent=missed.length;
+
+  const msgs=[
+    [12,'🏆 Perfect memory! Outstanding, Scout!'],
+    [10,'🌟 Excellent! Baden-Powell would be proud!'],
+    [8,'👍 Great job — solid observation skills!'],
+    [6,'💪 Good effort! Keep practicing.'],
+    [0,'🎯 Keep trying — observation takes practice!']
+  ];
+  document.getElementById('score-msg').textContent=msgs.find(([t])=>correct>=t)[1];
+
+  if(missed.length>0){
+    document.getElementById('missed-section').style.display='block';
+    document.getElementById('missed-list').innerHTML=
+      missed.map(it=>`<div class="missed-pill">${it.emoji} ${it.name}</div>`).join('');
+  } else {
+    document.getElementById('missed-section').style.display='none';
+  }
+  showScreen('results-screen');
+}
+</script>
+</body>
+</html>

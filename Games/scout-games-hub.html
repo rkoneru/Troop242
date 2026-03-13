@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scout Games — Troop 242</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --g:#1B4332;--gm:#2D6A4F;--gl:#52B788;--gp:#D8F3DC;
+  --gold:#C8960C;--goldp:#FEF9C3;--bluep:#EFF6FF;--blue:#1E40AF;
+  --bg:#F7F8F5;--w:#fff;--bd:#E2E8F0;--t:#111827;--mu:#6B7280;
+  --r:14px;--sh:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+header{background:var(--g);color:#fff;padding:64px 24px 80px;text-align:center;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 30%,rgba(82,183,136,.2) 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 70%,rgba(212,160,23,.15) 0%,transparent 50%);
+  pointer-events:none}
+.badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.22);color:var(--gp);padding:6px 18px;
+  border-radius:100px;font-size:13px;font-weight:600;margin-bottom:20px;letter-spacing:.3px}
+h1{font-size:clamp(32px,6vw,58px);font-weight:800;letter-spacing:-1.5px;margin-bottom:12px;line-height:1.1}
+.sub{color:rgba(255,255,255,.6);font-size:16px;font-weight:400}
+.stats-bar{display:flex;gap:28px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;align-items:center;gap:2px}
+.stat-num{font-size:22px;font-weight:800;color:var(--gp)}
+.stat-lbl{font-size:12px;color:rgba(255,255,255,.5);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+
+.grid{max-width:920px;margin:-42px auto 60px;padding:0 20px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:18px}
+
+.card{background:var(--w);border:1px solid var(--bd);border-radius:var(--r);
+  padding:28px 28px 22px;text-decoration:none;color:var(--t);box-shadow:var(--sh);
+  transition:.22s ease;display:flex;flex-direction:column;gap:16px}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,0,0,.11);border-color:var(--gl)}
+.card-top{display:flex;gap:16px;align-items:flex-start}
+.icon{width:60px;height:60px;min-width:60px;background:var(--gp);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  transition:.2s;box-shadow:0 2px 8px rgba(27,67,50,.12)}
+.card:hover .icon{background:var(--gl);transform:scale(1.05)}
+.card-head h2{font-size:19px;font-weight:700;margin-bottom:5px;letter-spacing:-.3px}
+.card-head p{font-size:14px;color:var(--mu);line-height:1.6}
+.card-foot{display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--bd)}
+.tag{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:100px;background:var(--gp);color:var(--gm)}
+.tag.gold{background:var(--goldp);color:#92400E}
+.tag.blue{background:var(--bluep);color:var(--blue)}
+.play{margin-left:auto;font-size:13px;font-weight:700;color:var(--gm);
+  display:flex;align-items:center;gap:5px;transition:.15s}
+.card:hover .play{color:var(--g);gap:8px}
+
+.back-btn{position:absolute;top:20px;left:20px;display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;
+  padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+  transition:.15s;text-decoration:none}
+.back-btn:hover{background:rgba(255,255,255,.25);gap:8px}
+
+.section-lbl{max-width:920px;margin:0 auto 8px;padding:0 20px;
+  font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:1px}
+
+footer{text-align:center;padding:28px 20px;color:var(--mu);font-size:13px;border-top:1px solid var(--bd);margin-top:20px}
+footer a{color:var(--gm);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <a href="../Games/scout-portal.html" class="back-btn">← Back</a>
+  <div class="badge">⚜️ Troop 242 · Central Florida</div>
+  <h1>Scout Games</h1>
+  <p class="sub">Test your knowledge · Sharpen your skills · Have fun</p>
+  <div class="stats-bar">
+    <div class="stat"><span class="stat-num">6</span><span class="stat-lbl">Games</span></div>
+    <div class="stat"><span class="stat-num">45+</span><span class="stat-lbl">Questions</span></div>
+    <div class="stat"><span class="stat-num">∞</span><span class="stat-lbl">Replay</span></div>
+  </div>
+</header>
+
+<p class="section-lbl">Choose a game</p>
+<div class="grid">
+  <a href="kims-game.html" class="card">
+    <div class="card-top">
+      <div class="icon">🧠</div>
+      <div class="card-head">
+        <h2>Kim's Game</h2>
+        <p>Study a tray of Scout items for 30 seconds, then recall as many as possible. Classic observation training from Baden-Powell himself.</p>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span class="tag">Memory</span><span class="tag gold">⏱ 30 sec</span>
+      <span class="play">Play →</span>
+    </div>
+  </a>
+
+  <a href="knot-quiz.html" class="card">
+    <div class="card-top">
+      <div class="icon">🪢</div>
+      <div class="card-head">
+        <h2>Knot Quiz</h2>
+        <p>Match the knot to its real-world use case. From the Bowline to the Taut-line Hitch — ten questions to test your knot knowledge.</p>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span class="tag">Skills</span><span class="tag blue">10 questions</span>
+      <span class="play">Play →</span>
+    </div>
+  </a>
+
+  <a href="rank-trivia.html" class="card">
+    <div class="card-top">
+      <div class="icon">🎖️</div>
+      <div class="card-head">
+        <h2>Scout Rank Trivia</h2>
+        <p>BSA history, Scout Law, rank requirements, and outdoor skills — 15 questions to find out how much you really know about Scouting.</p>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span class="tag">Trivia</span><span class="tag blue">15 questions</span>
+      <span class="play">Play →</span>
+    </div>
+  </a>
+
+  <a href="morse-code.html" class="card">
+    <div class="card-top">
+      <div class="icon">📡</div>
+      <div class="card-head">
+        <h2>Morse Code Challenge</h2>
+        <p>Decode words transmitted in dots and dashes. Start with short words, level up to full Scout terms. A classic signaling skill for every Scout.</p>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span class="tag">Signals</span><span class="tag gold">10 rounds</span>
+      <span class="play">Play →</span>
+    </div>
+  </a>
+
+  <a href="troop242-day-night.html" class="card">
+    <div class="card-top">
+      <div class="icon">🌅</div>
+      <div class="card-head">
+        <h2>A Day in the Life of Camping</h2>
+        <p>Watch a full day-night cycle of Scout camping life. From breakfast campfires to night skies, explore the rhythm of a perfect camping adventure.</p>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span class="tag">Animation</span><span class="tag gold">Relaxing</span>
+      <span class="play">Watch →</span>
+    </div>
+  </a>
+
+  <a href="chess.html" class="card">
+    <div class="card-top">
+      <div class="icon">♟️</div>
+      <div class="card-head">
+        <h2>Chess</h2>
+        <p>Play a strategic game of chess against an opponent. Master the classic board game that develops tactical thinking and planning skills.</p>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span class="tag">Strategy</span><span class="tag blue">1v1</span>
+      <span class="play">Play →</span>
+    </div>
+  </a>
+</div>
+<footer style="background:var(--t);color:#fff;padding:48px 24px;text-align:center;margin-top:40px">
+  <div style="max-width:920px;margin:0 auto">
+   
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:32px;margin-bottom:8px;text-align:left">
+
+      <div style="margin-bottom:8px">
+        <h3 style="margin-bottom:12px;font-size:0.9rem;font-weight:700;color:#fff">
+          <a href="../" style="color:rgb(255, 255, 255);margin: bottom 18px; font-size:1.1rem; font: weight 125px;text-decoration:none">⚜️ Troop 242</a></h3>
+        <p style="color:rgba(255,255,255,.7);font-size:0.9rem;line-height:1.6">Building today's youth into tomorrow's leaders. </p>
+      </div>
+
+      <div>
+        <!-- <h4 style="margin-bottom:12px;font-size:0.9rem;font-weight:700;color:#fff">Quick Links</h4> -->
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:0.9rem">
+          <li><a href="../Games/scout-portal.html" style="color:rgba(255,255,255,.7);text-decoration:none">Scout Portal</a></li>
+        </ul>
+      </div>
+
+      
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:04px;color:rgba(255,255,255,.6);font-size:0.85rem">
+      <p>© 2026 Troop 242 Sanford. Scouting America | Adventure · Brotherhood · Service</p>
+      <p style="margin-top:12px">Maintained by troop webmaster : Rakesh K</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

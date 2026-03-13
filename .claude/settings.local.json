@@ -6,7 +6,8 @@
       "WebSearch",
       "Bash(npm run lint)",
       "Bash(npm run dev)",
-      "Bash(npm install -D tailwindcss @tailwindcss/vite)"
+      "Bash(npm install -D tailwindcss @tailwindcss/vite)",
+      "Bash(LC_ALL=C.UTF-8 grep -oP \"{ name: ''\\\\K[^'']*\" /c/Users/Rakesh/OneDrive/Documents/BSA/Troop242/src/pages/Badges.jsx)"
     ]
   }
 }

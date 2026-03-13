@@ -135,6 +135,73 @@
   .ctrl:hover  { background:rgba(255,255,255,0.22); }
   .ctrl.active { background:rgba(255,255,255,0.32); border-color:rgba(255,255,255,0.65); }
 
+  /* ── MUSIC TOGGLE ── */
+  #music-toggle {
+    position:absolute; top:1.4rem; right:1.4rem;
+    z-index:20;
+    background:rgba(255,255,255,0.13);
+    border:1px solid rgba(255,255,255,0.28);
+    color:#fff; font-family:'Raleway',sans-serif;
+    font-size:0.72rem; letter-spacing:0.12em;
+    padding:0.38rem 0.8rem; border-radius:4px;
+    cursor:pointer; backdrop-filter:blur(6px);
+    transition:background 0.2s;
+  }
+  #music-toggle:hover { background:rgba(255,255,255,0.22); }
+  #music-toggle.active { background:rgba(255,255,255,0.32); border-color:rgba(255,255,255,0.65); }
+
+  /* ── AUDIO PANEL ── */
+  #audio-panel {
+    position:absolute; top:1.4rem; right:7rem;
+    z-index:20;
+    background:rgba(0,0,0,0.6);
+    border:1px solid rgba(255,255,255,0.28);
+    padding:1rem; border-radius:8px;
+    backdrop-filter:blur(10px);
+    display:none; flex-direction:column;
+    gap:0.8rem;
+    min-width:180px;
+  }
+  #audio-panel.show { display:flex; }
+  .audio-label {
+    color:#fff; font-family:'Raleway',sans-serif;
+    font-size:0.65rem; letter-spacing:0.1em;
+    text-transform:uppercase; margin-bottom:0.3rem;
+  }
+  .volume-slider {
+    width:100%; height:4px; border-radius:2px;
+    background:rgba(255,255,255,0.2);
+    -webkit-appearance:none;
+    appearance:none;
+    cursor:pointer;
+  }
+  .volume-slider::-webkit-slider-thumb {
+    -webkit-appearance:none;
+    appearance:none;
+    width:14px; height:14px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.8);
+    cursor:pointer;
+    border:2px solid rgba(255,255,255,0.3);
+  }
+  .volume-slider::-moz-range-thumb {
+    width:14px; height:14px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.8);
+    cursor:pointer;
+    border:2px solid rgba(255,255,255,0.3);
+  }
+  .sound-btn {
+    background:rgba(255,255,255,0.13);
+    border:1px solid rgba(255,255,255,0.28);
+    color:#fff; font-family:'Raleway',sans-serif;
+    font-size:0.7rem; letter-spacing:0.08em;
+    padding:0.4rem 0.6rem; border-radius:4px;
+    cursor:pointer; transition:background 0.2s;
+    width:100%;
+  }
+  .sound-btn:hover { background:rgba(255,255,255,0.22); }
+
   /* ── HOME BUTTON ── */
   #home-button-container {
     position:absolute; bottom:1.4rem; left:1.4rem;
@@ -238,6 +305,24 @@
     border-top:2px solid currentColor; border-radius:50% 50% 0 0;
     left:12px; top:0;
   }
+
+  /* ── HIKERS LAYER ── */
+  #hikers-layer {
+    position:absolute; bottom:0; left:0; right:0;
+    height:32%; pointer-events:none; z-index:9;
+  }
+  #hikers-svg { width:100%; height:100%; display:block; }
+
+  @keyframes hikerBob {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-2px); }
+  }
+  .hiker { animation: hikerBob 0.55s ease-in-out infinite; }
+  /* stagger bob per scout */
+  .hiker:nth-child(2) { animation-delay: 0.11s; }
+  .hiker:nth-child(3) { animation-delay: 0.22s; }
+  .hiker:nth-child(4) { animation-delay: 0.33s; }
+  .hiker:nth-child(5) { animation-delay: 0.44s; }
 </style>
 </head>
 <body>
@@ -290,11 +375,11 @@
 <div id="tents">
   <svg viewBox="0 0 1440 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;">
     <!-- Left tent -->
-    <path fill="#334d2d" d="M120,220 L80,180 L40,220 Z M100,220 L100,200 L80,200 M140,220 L140,200 L160,200"/>
+    <path fill="#334d2d" d="M120,260 L80,220 L40,260 Z M100,260 L100,240 L80,240 M140,260 L140,240 L160,240"/>
     <!-- Center tent -->
-    <path fill="#334d2d" d="M720,230 L680,180 L640,230 Z M700,230 L700,205 L680,205 M740,230 L740,205 L760,205"/>
+    <path fill="#334d2d" d="M720,265 L680,215 L640,265 Z M700,265 L700,235 L680,235 M740,265 L740,235 L760,235"/>
     <!-- Right tent -->
-    <path fill="#334d2d" d="M1320,225 L1280,175 L1240,225 Z M1300,225 L1300,200 L1280,200 M1340,225 L1340,200 L1360,200"/>
+    <path fill="#334d2d" d="M1320,262 L1280,212 L1240,262 Z M1300,262 L1300,235 L1280,235 M1340,262 L1340,235 L1360,235"/> 
   </svg>
 </div>
 
@@ -337,6 +422,30 @@
   </div>
 </div>
 
+<!-- Hiking scouts layer -->
+<div id="hikers-layer">
+  <svg id="hikers-svg" viewBox="0 0 1440 280" preserveAspectRatio="none"
+       xmlns="http://www.w3.org/2000/svg"
+       style="width:100%;height:100%;position:absolute;top:0;left:0;">
+    <!-- 5 simple scout silhouettes in tan/khaki uniform color -->
+    <g class="hiker" transform="translate(300,245)">
+      <polygon points="0,-30 -15,0 15,0" fill="#c4a574"/>
+    </g>
+    <g class="hiker" transform="translate(380,249) scale(0.9)">
+      <polygon points="0,-30 -15,0 15,0" fill="#c4a574"/>
+    </g>
+    <g class="hiker" transform="translate(450,243) scale(1.05)">
+      <polygon points="0,-30 -15,0 15,0" fill="#c4a574"/>
+    </g>
+    <g class="hiker" transform="translate(520,247) scale(0.92)">
+      <polygon points="0,-30 -15,0 15,0" fill="#c4a574"/>
+    </g>
+    <g class="hiker" transform="translate(590,251) scale(0.85)">
+      <polygon points="0,-30 -15,0 15,0" fill="#c4a574"/>
+    </g>
+  </svg>
+</div>
+
 <!-- Scout activity badge -->
 <div id="scout-activity">Morning Assembly</div>
 
@@ -356,10 +465,21 @@
 </div>
 
 <div id="home-button-container">
-  <a href="/Troop242/" class="home-btn">🏠 Home</a>
+  <a href="/Troop242/Games/scout-games-hub.html" class="home-btn">🏠 Home</a>
 </div>
 
 <div id="clock-display">--:--:--</div>
+
+<div id="audio-panel">
+  <div class="audio-label">🔊 Ambient</div>
+  <input type="range" id="ambient-volume" class="volume-slider" min="0" max="100" value="50">
+
+  <div class="audio-label">🌳 Nature Sounds</div>
+  <button class="sound-btn" onclick="playBirds()">🐦 Birds</button>
+  <button class="sound-btn" onclick="playCrickets()">🦗 Crickets</button>
+</div>
+
+<button id="music-toggle" type="button">🔊 Music</button>
 
 <script>
 // ══════════════════════════════════════════
@@ -391,9 +511,261 @@ const ffLayer         = document.getElementById('fireflies-layer');
 const tentsEl         = document.getElementById('tents');
 const campfireEl      = document.getElementById('campfire-container');
 const birdsLayerEl    = document.getElementById('birds-layer');
+const hikersLayerEl   = document.getElementById('hikers-layer');
 const scoutActivityEl = document.getElementById('scout-activity');
 const brandingEl      = document.getElementById('branding');
 const timeBadge       = document.getElementById('time-badge');
+const musicToggle     = document.getElementById('music-toggle');
+
+// ══════════════════════════════════════════
+// AUDIO SYSTEM
+// ══════════════════════════════════════════
+let audioCtx = null;
+let oscillators = {};
+let musicEnabled = false;
+let currentPhase = null;
+let ambientVolume = 0.5;
+let ambientGainNode = null;
+let lfoNodes = {}; // Low Frequency Oscillators for modulation
+let convolver = null; // Reverb effect
+
+const MUSIC_PHASES = {
+  night: {
+    color: '🌙',
+    name: 'Deep Night',
+    layers: [
+      { freq: 32, type: 'sine', gain: 0.06, lfo: 0.05, note: 'subsonic meditation base' },
+      { freq: 64, type: 'sine', gain: 0.05, lfo: 0.08, note: 'deep healing' },
+      { freq: 96, type: 'sine', gain: 0.04, lfo: 0.06, note: 'tranquil foundation' },
+      { freq: 128, type: 'triangle', gain: 0.03, lfo: 0.04, note: 'peaceful resonance' }
+    ]
+  },
+  dawn: {
+    color: '🌅',
+    name: 'Awakening Dawn',
+    layers: [
+      { freq: 40, type: 'sine', gain: 0.06, lfo: 0.07, note: 'gentle emergence' },
+      { freq: 80, type: 'sine', gain: 0.05, lfo: 0.06, note: 'soft awakening' },
+      { freq: 120, type: 'sine', gain: 0.04, lfo: 0.05, note: 'light growing' },
+      { freq: 160, type: 'triangle', gain: 0.03, lfo: 0.04, note: 'hope rising' }
+    ]
+  },
+  morning: {
+    color: '☀️',
+    name: 'Uplifting Morning',
+    layers: [
+      { freq: 55, type: 'sine', gain: 0.06, lfo: 0.06, note: 'energized base' },
+      { freq: 110, type: 'sine', gain: 0.05, lfo: 0.05, note: 'clear energy' },
+      { freq: 165, type: 'sine', gain: 0.04, lfo: 0.04, note: 'vibrant harmony' },
+      { freq: 220, type: 'triangle', gain: 0.03, lfo: 0.03, note: 'bright joy' }
+    ]
+  },
+  day: {
+    color: '☀️',
+    name: 'Full Day Light',
+    layers: [
+      { freq: 60, type: 'sine', gain: 0.06, lfo: 0.05, note: 'radiant base' },
+      { freq: 120, type: 'sine', gain: 0.05, lfo: 0.04, note: 'full resonance' },
+      { freq: 180, type: 'sine', gain: 0.04, lfo: 0.03, note: 'bright clarity' },
+      { freq: 240, type: 'triangle', gain: 0.03, lfo: 0.02, note: 'warm vitality' }
+    ]
+  },
+  evening: {
+    color: '🌆',
+    name: 'Golden Evening',
+    layers: [
+      { freq: 50, type: 'sine', gain: 0.06, lfo: 0.06, note: 'warm descent' },
+      { freq: 100, type: 'sine', gain: 0.05, lfo: 0.05, note: 'mellowing glow' },
+      { freq: 150, type: 'sine', gain: 0.04, lfo: 0.04, note: 'peaceful twilight' },
+      { freq: 200, type: 'triangle', gain: 0.03, lfo: 0.03, note: 'serene balance' }
+    ]
+  },
+  night_late: {
+    color: '🌙',
+    name: 'Silent Night',
+    layers: [
+      { freq: 32, type: 'sine', gain: 0.06, lfo: 0.05, note: 'profound silence' },
+      { freq: 64, type: 'sine', gain: 0.05, lfo: 0.08, note: 'deep rest' },
+      { freq: 96, type: 'sine', gain: 0.04, lfo: 0.06, note: 'restful calm' },
+      { freq: 128, type: 'triangle', gain: 0.03, lfo: 0.04, note: 'dreamlike peace' }
+    ]
+  }
+};
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function getMusicPhase(t) {
+  if (t < 0.18) return 'night';
+  if (t < 0.28) return 'dawn';
+  if (t < 0.50) return 'morning';
+  if (t < 0.70) return 'day';
+  if (t < 0.80) return 'evening';
+  return 'night_late';
+}
+
+function updateMusic(t) {
+  if (!musicEnabled || !audioCtx) return;
+
+  const phase = getMusicPhase(t);
+
+  if (phase !== currentPhase) {
+    currentPhase = phase;
+    const config = MUSIC_PHASES[phase];
+
+    // Stop old oscillators
+    Object.values(oscillators).forEach(osc => {
+      try { osc.stop(); } catch(e) {}
+    });
+    Object.values(lfoNodes).forEach(lfo => {
+      try { lfo.stop(); } catch(e) {}
+    });
+    oscillators = {};
+    lfoNodes = {};
+
+    // Create master ambient gain node with reverb
+    if (!ambientGainNode) {
+      ambientGainNode = audioCtx.createGain();
+
+      // Create simple reverb using delay network
+      const dryGain = audioCtx.createGain();
+      const wetGain = audioCtx.createGain();
+      const delay1 = audioCtx.createDelay(1);
+      const delay2 = audioCtx.createDelay(1);
+      const delay3 = audioCtx.createDelay(1);
+      const feedback = audioCtx.createGain();
+
+      dryGain.gain.value = 0.7;
+      wetGain.gain.value = 0.3;
+      delay1.delayTime.value = 0.037;
+      delay2.delayTime.value = 0.041;
+      delay3.delayTime.value = 0.043;
+      feedback.gain.value = 0.3;
+
+      ambientGainNode.connect(dryGain);
+      dryGain.connect(audioCtx.destination);
+
+      ambientGainNode.connect(delay1);
+      delay1.connect(delay2);
+      delay2.connect(delay3);
+      delay3.connect(feedback);
+      feedback.connect(delay1);
+      delay3.connect(wetGain);
+      wetGain.connect(audioCtx.destination);
+    }
+
+    // Create layered ambient sound with LFO modulation
+    config.layers.forEach((layer, idx) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.frequency.value = layer.freq;
+      osc.type = layer.type;
+      gain.gain.value = layer.gain;
+      filter.type = 'lowpass';
+      filter.frequency.value = 2000 - idx * 200;
+      filter.Q.value = 0.3;
+
+      // LFO (Low Frequency Oscillator) for smooth modulation
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      lfo.frequency.value = layer.lfo || 0.5; // Very slow modulation (0.5-0.1 Hz)
+      lfoGain.gain.value = 2 + Math.random(); // Subtle variation
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency); // Modulate the oscillator frequency
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ambientGainNode);
+
+      ambientGainNode.gain.value = ambientVolume;
+
+      osc.start();
+      lfo.start();
+
+      oscillators[`layer-${idx}`] = osc;
+      lfoNodes[`lfo-${idx}`] = lfo;
+    });
+
+    // Update button with current phase
+    musicToggle.textContent = `${config.color} Music`;
+  }
+}
+
+function playBirds() {
+  if (!audioCtx) initAudio();
+
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const freq = 2000 + Math.random() * 2000;
+
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }, i * 200);
+  }
+}
+
+function playCrickets() {
+  if (!audioCtx) initAudio();
+
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const freq = 3000 + Math.random() * 1500;
+
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15);
+    }, i * 100);
+  }
+}
+
+function toggleMusic() {
+  musicEnabled = !musicEnabled;
+  if (musicEnabled) {
+    initAudio();
+    musicToggle.classList.add('active');
+    document.getElementById('audio-panel').classList.add('show');
+  } else {
+    Object.values(oscillators).forEach(osc => {
+      try { osc.stop(); } catch(e) {}
+    });
+    oscillators = {};
+    currentPhase = null;
+    musicToggle.classList.remove('active');
+    document.getElementById('audio-panel').classList.remove('show');
+  }
+}
+
+musicToggle.addEventListener('click', toggleMusic);
+
+// Volume control
+document.getElementById('ambient-volume').addEventListener('input', (e) => {
+  ambientVolume = e.target.value / 100;
+  if (ambientGainNode) {
+    ambientGainNode.gain.value = ambientVolume;
+  }
+});
 
 // ══════════════════════════════════════════
 // STARS
@@ -572,6 +944,9 @@ function tick(now) {
   const t = ((now - cycleStart) % CYCLE_MS) / CYCLE_MS;
   const W = window.innerWidth, H = window.innerHeight;
   const horizY = H * 0.70;
+
+  // ── Update Music ──
+  updateMusic(t);
 
   // ── Sky ──
   const [tc,mc,bc] = getSkyColors(t);
@@ -774,9 +1149,9 @@ function tick(now) {
   // ──────────────────────────────────────
   let campfireOp;
   if      (t < 0.30) campfireOp = 1;       // full night brightness
-  else if (t < 0.40) campfireOp = lerp(1, 0.35, smoothstep(0.30, 0.40, t)); // fade down morning
-  else if (t < 0.72) campfireOp = 0.35;    // dim all day
-  else if (t < 0.80) campfireOp = lerp(0.35, 1, smoothstep(0.72, 0.80, t)); // fade up evening
+  else if (t < 0.40) campfireOp = lerp(1, 0.05, smoothstep(0.30, 0.40, t)); // fade down morning
+  else if (t < 0.72) campfireOp = 0.05;    // dim all day
+  else if (t < 0.80) campfireOp = lerp(0.05, 1, smoothstep(0.72, 0.80, t)); // fade up evening
   else               campfireOp = 1;        // full night brightness
 
   campfireEl.style.opacity = campfireOp.toFixed(3);
@@ -802,6 +1177,20 @@ function tick(now) {
   const birdColor = (t > 0.35 && t < 0.65) ? 'rgba(200,200,200,0.7)' : 'rgba(255,200,100,0.7)';
   const birdDivs = birdsLayerEl.querySelectorAll('.bird');
   birdDivs.forEach(bird => { bird.style.color = birdColor; });
+
+  // ──────────────────────────────────────
+  // HIKERS (daytime: t 0.36 → 0.65)
+  // ──────────────────────────────────────
+  let hikerOp;
+  if      (t < 0.36) hikerOp = 0;
+  else if (t < 0.44) hikerOp = smoothstep(0.36, 0.44, t);
+  else if (t < 0.62) hikerOp = 1;
+  else if (t < 0.68) hikerOp = lerp(1, 0, smoothstep(0.62, 0.68, t));
+  else               hikerOp = 0;
+  hikersLayerEl.style.opacity = '1';  // TEST: always visible
+
+  // Hikers match forest brightness
+  hikersLayerEl.style.filter = `brightness(${fb.toFixed(3)})`;
 
   // ──────────────────────────────────────
   // SCOUT ACTIVITY TEXT

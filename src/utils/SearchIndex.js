@@ -28,6 +28,13 @@ const PAGES = [
     category: 'Page',
     icon: '📧',
   },
+  {
+    title: 'Scout Games',
+    excerpt: 'Interactive Scout games — Kim\'s Game, Morse Code, Chess, Knot Quiz, Rank Trivia, and more.',
+    url: '/games',
+    category: 'Page',
+    icon: '🎮',
+  },
 ];
 
 const RANKS = [

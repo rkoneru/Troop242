@@ -286,7 +286,7 @@ export default function Home() {
                 className="btn btn-outline"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/ranks')}
+                onClick={() => navigate('/about')}
               >
                 Learn More
               </motion.button>
