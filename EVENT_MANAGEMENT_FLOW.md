@@ -212,12 +212,34 @@ See "Recommended Fixes" section below
 
 ## 🛠️ Recommended Fixes - Implementation Status
 
-### Fix 1: Sync Public Calendar with localStorage Events
+### Fix 1: Sync Public Calendar with localStorage Events ✅ DONE
 **Priority**: HIGH
-**Status**: ⏳ NOT YET IMPLEMENTED
+**Status**: ✅ IMPLEMENTED
 **Impact**: Events become visible to all scouts
 
-**Next Step**: Modify Calendar.jsx to display events from localStorage
+**What Was Added**:
+```javascript
+// In Calendar.jsx
+const [events, setEvents] = useState([]);
+
+useEffect(() => {
+  try {
+    const storedEvents = localStorage.getItem('troop_events');
+    if (storedEvents) {
+      setEvents(JSON.parse(storedEvents));
+    }
+  } catch (error) {
+    console.error('Failed to load events from localStorage:', error);
+  }
+}, []);
+```
+
+**Display Section**:
+- New "📌 Upcoming Troop Events" section on Calendar page
+- Appears AFTER Google Calendar embed
+- Shows event cards with: Title, Creator, Date, Time, Location, RSVP count, Description
+- Events sorted chronologically
+- Only displays if events exist (`{events.length > 0 &&}`)
 
 ### Fix 2: Add Delete Button to LeaderDashboard Events ✅ DONE
 **Priority**: MEDIUM
@@ -337,10 +359,10 @@ const event = {
 
 ## 🚀 Next Steps
 
-### Immediate (Week 1) - PARTIALLY COMPLETE
+### Immediate (Week 1) - ✅ COMPLETE
 - [x] Fix 2: Add delete button to LeaderDashboard events ✅
 - [x] Fix 3: Add creator attribution to events ✅
-- [ ] Fix 1: Display `troop_events` on Calendar page ⏳
+- [x] Fix 1: Display `troop_events` on Calendar page ✅
 
 ### Short Term (Week 2-3)
 - [x] Fix 4: RSVP infrastructure (signups, spots arrays) ✅
@@ -404,14 +426,19 @@ const event = {
 1. ✅ Stored in `troop_events` localStorage key
 2. ✅ Displayed in both dashboards
 3. ✅ Persist across sessions
-4. ❌ Don't appear on public Calendar page
-5. ❌ No scout signup/RSVP feature
-6. ❌ Can't be deleted by leaders
+4. ✅ Appear on public Calendar page (NEW)
+5. ⏳ Scout signup/RSVP infrastructure ready (needs UI)
+6. ✅ Can be deleted by leaders
 
-**Recommended Priority Fixes**:
-1. Show events on public Calendar page
-2. Add leader event deletion
-3. Add scout RSVP feature
-4. Sync with Google Calendar
+**Completed Priority Fixes**:
+1. ✅ Show events on public Calendar page
+2. ✅ Add leader event deletion
+3. ✅ Add event creator attribution
+4. ✅ Scout RSVP infrastructure (signups, spots arrays)
+
+**Remaining Work**:
+1. Scout RSVP UI on Calendar page (scouts click to RSVP)
+2. Sync with Google Calendar
+3. Event edit/update functionality
 
 **Questions?** Check the data flow diagram above or test locally using the test instructions provided.

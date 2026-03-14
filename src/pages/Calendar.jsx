@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/calendar.css';
 
 const PACKING_LISTS = {
@@ -11,6 +11,19 @@ const PACKING_LISTS = {
 
 export default function Calendar() {
   const [activeTab, setActiveTab] = useState('meetings');
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    try {
+      const storedEvents = localStorage.getItem('troop_events');
+      if (storedEvents) {
+        setEvents(JSON.parse(storedEvents));
+      }
+    } catch (error) {
+      console.error('Failed to load events from localStorage:', error);
+    }
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -82,6 +95,84 @@ export default function Calendar() {
           </motion.div>
         </div>
       </section>
+
+      {/* Created Events Section */}
+      {events.length > 0 && (
+        <section className="section section--dark">
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              style={{ marginBottom: 40 }}
+            >
+              <h2 style={{ textAlign: 'center' }}>📌 Upcoming Troop Events</h2>
+              <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 12 }}>
+                Events created by troop leaders and admins
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="grid grid--cols-3"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-100px' }}
+            >
+              {events
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map(event => (
+                  <motion.div
+                    key={event.id}
+                    variants={itemVariants}
+                    className="glass-card"
+                    style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}
+                  >
+                    <div>
+                      <h3 style={{ marginBottom: 8, fontSize: '1.1rem' }}>{event.title}</h3>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                        👤 By {event.createdBy || 'Leader'}
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'grid', gap: 8, fontSize: '0.95rem', color: 'var(--text-muted)' }}>
+                      {event.date && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span>📅</span>
+                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      {event.time && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span>🕐</span>
+                          <span>{event.time}</span>
+                        </div>
+                      )}
+                      {event.location && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span>📍</span>
+                          <span>{event.location}</span>
+                        </div>
+                      )}
+                      {event.signups && event.spots && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span>✓</span>
+                          <span>{event.signups.length} scout(s) interested</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {event.description && (
+                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--divider)' }}>
+                        {event.description}
+                      </p>
+                    )}
+                  </motion.div>
+                ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Info Section */}
       <section className="section section--dark">
