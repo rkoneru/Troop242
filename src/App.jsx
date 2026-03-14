@@ -27,6 +27,7 @@ import MeritTrackerWizard from './pages/MeritTrackerWizard';
 import SkillsTrackerWizard from './pages/SkillsTrackerWizard';
 import ActivitiesPage from './pages/ActivitiesPage';
 import GamesLanding from './pages/GamesLanding';
+import ScoutToolsPortal from './pages/ScoutToolsPortal';
 import './App.css';
 
 function App() {
@@ -70,6 +71,7 @@ function App() {
           <Route path="/merit-tracker" element={<MeritTrackerWizard />} />
           <Route path="/skills-tracker" element={<SkillsTrackerWizard />} />
           <Route path="/activities" element={<ActivitiesPage />} />
+          <Route path="/scout-portal" element={<ScoutToolsPortal />} />
         </Routes>
         <SearchWidget />
       </div>
