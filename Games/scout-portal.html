@@ -984,24 +984,77 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 <div class="panel" id="panel-field-guide">
 <div class="panel-inner">
   <h2>🌿 Florida Field Guide</h2>
-  <p class="panel-subtitle">Identify Central Florida wildlife, plants, and tracks</p>
-  <div style="display:grid;gap:16px">
-    <div class="card">
-      <h3>🦌 White-tailed Deer</h3>
-      <p>Florida's most common large mammal. Look for cloven hoof tracks (heart-shaped) and white flag tail when fleeing. Often seen at dawn/dusk near forest edges.</p>
-    </div>
-    <div class="card">
-      <h3>🐊 American Alligator</h3>
-      <p>Found in any freshwater in Florida. Ranges from 6-14 ft. Look for log-like shapes near water edges. Eyes glow red in flashlight at night.</p>
-    </div>
-    <div class="card">
-      <h3>🦅 Bald Eagle</h3>
-      <p>Year-round Florida resident. White head and tail only appear at age 4-5. Wingspans up to 8 feet. Look near large lakes and coastlines.</p>
-    </div>
-    <div class="card">
-      <h3>🌴 Sabal Palm</h3>
-      <p>Florida's state tree. Fan-shaped fronds, bootjack marks on trunk. Berries eaten by wildlife. Found statewide. Hurricane-resistant.</p>
-    </div>
+  <p class="panel-subtitle">Identify 50+ Central Florida wildlife, plants, and tracks</p>
+  <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+    <!-- MAMMALS -->
+    <div class="card"><h3>🦌 White-tailed Deer</h3><p>Most common large mammal. Cloven hoof tracks (heart-shaped). White flag tail when fleeing. Dawn/dusk near forest edges.</p></div>
+    <div class="card"><h3>🦝 Raccoon</h3><p>Extremely common near campgrounds. Dexterous paws. Ringed tail, masked face. Will raid food storage. Bear bag all food.</p></div>
+    <div class="card"><h3>🐻 Florida Black Bear</h3><p>Rare but present. 200-300 lbs. Shaggy black fur, rounded ears. Found in swamps and forests. Never approach.</p></div>
+    <div class="card"><h3>🦊 Grey Fox</h3><p>Small canine, 3-4 lbs. Only fox that climbs trees. Salt-and-pepper colored. Nocturnal, rarely seen.</p></div>
+    <div class="card"><h3>🦨 Striped Skunk</h3><p>Black with white stripe. 2-4 lbs. Known for spray defense. Nocturnal. Avoid if approached.</p></div>
+    <div class="card"><h3>🐿️ Fox Squirrel</h3><p>Large squirrel, orange-red fur. Bushy tail. Common in oak forests. Diurnal, very active at dawn.</p></div>
+    <div class="card"><h3>🦫 Beaver</h3><p>Large rodent, 30-60 lbs. Flat tail, orange teeth. Build dams in freshwater. Nocturnal.</p></div>
+    <div class="card"><h3>🦌 Fallow Deer</h3><p>Non-native, similar to white-tailed. Spotted coat. Found in some central Florida areas.</p></div>
+    <div class="card"><h3>🐭 Marsh Rabbit</h3><p>Small, reddish-brown. Lives in wetlands. Swims well. Rarely ventures far from water.</p></div>
+    <div class="card"><h3>🦝 Coyote</h3><p>Medium canine, 30-40 lbs. Tan/grey fur. Expanding range in Florida. Nocturnal, hear howling at night.</p></div>
+
+    <!-- REPTILES -->
+    <div class="card"><h3>🐊 American Alligator</h3><p>6-14 ft long. Log-like shape near water. Eyes glow red in flashlight. Found in all freshwater.</p></div>
+    <div class="card"><h3>🐢 Gopher Tortoise</h3><p>Protected species. Domed shell, stumpy legs. Creates 10 ft deep burrows. Home to 350+ animal species.</p></div>
+    <div class="card"><h3>🐍 Eastern Diamondback Rattlesnake</h3><p>Largest venomous snake. Diamond pattern, triangular head. Loud rattle. Can reach 8 feet. Give wide berth.</p></div>
+    <div class="card"><h3>🦎 Green Anole</h3><p>Florida's native anole. Can change green to brown. Males show pink dewlap. Excellent insect controllers.</p></div>
+    <div class="card"><h3>🐢 Florida Softshell Turtle</h3><p>Flat, leathery shell. Long neck, small head. Fast swimmers. Found in rivers and lakes.</p></div>
+    <div class="card"><h3>🐍 Water Moccasin (Cottonmouth)</h3><p>Venomous, aquatic snake. Dark, heavy body. Found near water. White mouth when threatened.</p></div>
+    <div class="card"><h3>🦗 Florida Scrub Lizard</h3><p>Small, spiny. Only in Florida scrub habitat. Blue coloring on males. Extremely agile.</p></div>
+    <div class="card"><h3>🐢 Box Turtle</h3><p>Domed shell, hinged plastron. Brown coloring. Can close shell completely. Shy and slow-moving.</p></div>
+    <div class="card"><h3>🐍 Corn Snake</h3><p>Non-venomous, beautiful orange/red. Found in various habitats. Docile and beneficial.</p></div>
+    <div class="card"><h3>🦎 Leopard Gecko</h3><p>Spotted pattern, yellowish. Nocturnal. Non-native but established in some areas.</p></div>
+
+    <!-- BIRDS -->
+    <div class="card"><h3>🦅 Bald Eagle</h3><p>Year-round resident. White head/tail only at age 4-5. 8 ft wingspan. Near lakes and coastlines.</p></div>
+    <div class="card"><h3>🦩 Roseate Spoonbill</h3><p>Unmistakable pink color. Spatula-shaped bill. Shallow water sweeper. Healthy wetland indicator.</p></div>
+    <div class="card"><h3>🐦 Sandhill Crane</h3><p>Tall grey birds, red forehead patch. Walk in pairs or families. Loud bugling call. Mate for life.</p></div>
+    <div class="card"><h3>🦅 Red-shouldered Hawk</h3><p>Medium raptor. Rufous shoulders, barred wings. Common in woodlands. Loud kee-ahh call.</p></div>
+    <div class="card"><h3>🐝 Florida Scrub Jay</h3><p>Bright blue and grey. Only in Florida scrub. Threatened species. Extremely curious, may land on you.</p></div>
+    <div class="card"><h3>🦉 Barred Owl</h3><p>Large, stocky owl. Rounded head, no ear tufts. Deep hooting call. Nocturnal hunter.</p></div>
+    <div class="card"><h3>🦜 Pileated Woodpecker</h3><p>Large black woodpecker, red crest. Loud drumming. Excavates large rectangular holes.</p></div>
+    <div class="card"><h3>🦅 Osprey</h3><p>Fish-hunting raptor. White underside, dark back. Hovers over water then dives. Builds large stick nests.</p></div>
+    <div class="card"><h3>🦢 White Ibis</h3><p>White plumage, long curved bill. Wades in shallow water. Colonial nesters. Seen in flocks.</p></div>
+    <div class="card"><h3>🦆 Wood Duck</h3><p>Colorful male, iridescent green. Perches in trees. Cavity nester. Dabbling dabbler, not a diver.</p></div>
+
+    <!-- INSECTS & ARACHNIDS -->
+    <div class="card"><h3>🦋 Monarch Butterfly</h3><p>Orange/black, white spot border. Major migration corridor. Travel 3,000 miles. Fall migration peak.</p></div>
+    <div class="card"><h3>🦋 Swallowtail Butterfly</h3><p>Large, yellow with black stripes. Distinctive tail extensions on wings. Fast, erratic flight.</p></div>
+    <div class="card"><h3>🪲 Lubber Grasshopper</h3><p>Florida's largest grasshopper, 3 inches. Yellow/black/red coloring. Flightless. Warning coloration.</p></div>
+    <div class="card"><h3>🐝 Honeybee</h3><p>Essential pollinator. Golden/brown. Build hexagonal honeycomb. Colony of 20,000-80,000 bees.</p></div>
+    <div class="card"><h3>🦂 Florida Scorpion</h3><p>Small, yellow. Venomous but rarely fatal. Nocturnal. Glow under UV light.</p></div>
+    <div class="card"><h3>🕷️ Orb Weaver Spider</h3><p>Large, colorful. Build geometric webs. Beneficial insect controllers. Non-aggressive.</p></div>
+    <div class="card"><h3>🦗 Cricket</h3><p>Brown/black, chirping at night. Excellent hearing. Omnivorous. Important food source for wildlife.</p></div>
+    <div class="card"><h3>🪰 Damselfly</h3><p>Slender, colored wings. Predatory. Important wetland indicator. Hover over water.</p></div>
+    <div class="card"><h3>🦟 Mosquito</h3><p>Small blood-suckers. Only females bite. Disease carriers. Breeding in still water.</p></div>
+    <div class="card"><h3>🦑 Dragonfly</h3><p>Large wings, iridescent. Aerial hunters. Eat thousands of mosquitoes daily. Prehistoric lineage.</p></div>
+
+    <!-- PLANTS -->
+    <div class="card"><h3>🌴 Sabal Palm</h3><p>Florida's state tree. Fan-shaped fronds, bootjack marks. Berries eaten by wildlife. Hurricane-resistant.</p></div>
+    <div class="card"><h3>🌿 Spanish Moss</h3><p>Not a moss—epiphytic bromeliad. Hangs in grey-green curtains. Provides animal habitat. Non-parasitic.</p></div>
+    <div class="card"><h3>🌴 Saw Palmetto</h3><p>Low-growing fan palm. Razor-sharp serrated stems. Dense clusters in scrub. Wildlife food source.</p></div>
+    <div class="card"><h3>🌺 Firebush</h3><p>Native shrub, orange-red flowers. Spring-fall blooming. Attracts hummingbirds/butterflies. Great for projects.</p></div>
+    <div class="card"><h3>🌳 Longleaf Pine</h3><p>Tall pine, long needles. Important ecosystem. Requires periodic burning. Declining due to loss.</p></div>
+    <div class="card"><h3>🌲 Slash Pine</h3><p>Thick, rough bark. 60+ feet tall. Found throughout Florida. Fast growing.</p></div>
+    <div class="card"><h3>🌳 Live Oak</h3><p>Massive, spreading branches. Evergreen. Habitat for Spanish moss. Ancient specimens statewide.</p></div>
+    <div class="card"><h3>🌳 Cypress Tree</h3><p>Coniferous, found in wetlands. Knees emerge from water. Ancient trees. Beautiful fall colors.</p></div>
+    <div class="card"><h3>🌿 Palmetto Scrub</h3><p>Dense shrubland vegetation. Saw palmettos dominate. Low-growing, fire-adapted. Limited habitat.</p></div>
+    <div class="card"><h3>🌸 Coreopsis</h3><p>Yellow wildflower. Native to Florida. Spring blooming. Easy to grow, attracts butterflies.</p></div>
+    <div class="card"><h3>🌿 Mangrove</h3><p>Salt-water tree. Prop roots extend into water. Nursery for fish. Coastal protection.</p></div>
+    <div class="card"><h3>🌾 Cordgrass</h3><p>Marsh grass, golden color. Stabilizes shoreline. Fish nursery habitat. Salt-tolerant.</p></div>
+    <div class="card"><h3>🌺 Milkweed</h3><p>Purple flowers. Essential for Monarch caterpillars. Native wildflower. Easy to plant.</p></div>
+    <div class="card"><h3>🌿 Water Lily</h3><p>Floating aquatic plant. Pink/white flowers. Provides shelter for aquatic life. Slow-growing.</p></div>
+    <div class="card"><h3>🌾 Sea Oats</h3><p>Beach grass. Golden plumes. Holds sand dunes. Protected—never pick.</p></div>
+
+    <!-- AMPHIBIANS -->
+    <div class="card"><h3>🐸 American Bullfrog</h3><p>Large frog, 3-6 inches. Deep jug-o-rum call. Cannibalistic tadpoles. Found in freshwater.</p></div>
+    <div class="card"><h3>🐸 Treefrog</h3><p>Small, 1 inch. Green or brown. Tree dweller. Loud chirping chorus at night during breeding.</p></div>
+    <div class="card"><h3>🦎 Florida Newt</h3><p>Red eft stage bright orange. Aquatic as adults. Toxic skin. Live in wetlands and forests.</p></div>
   </div>
 </div>
 </div>
