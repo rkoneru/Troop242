@@ -225,6 +225,9 @@ export default function LeaderDashboard() {
       return;
     }
 
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    const creatorName = loggedInUser ? JSON.parse(loggedInUser).name || 'Leader' : 'Leader';
+
     const event = {
       id: generateId(),
       title: newEventForm.title,
@@ -232,6 +235,9 @@ export default function LeaderDashboard() {
       time: newEventForm.time,
       location: newEventForm.location,
       description: newEventForm.description,
+      signups: [],
+      spots: 100,
+      createdBy: creatorName,
       createdAt: new Date().toISOString()
     };
 
@@ -241,6 +247,25 @@ export default function LeaderDashboard() {
     setNewEventForm({ title: '', date: '', time: '', location: '', description: '' });
     showSuccess('Event created successfully!');
   }, [newEventForm, events, clearErrors, showError, showSuccess]);
+
+  const handleDeleteEvent = useCallback((eventId) => {
+    const updated = events.filter(e => e.id !== eventId);
+    setEvents(updated);
+    saveData('troop_events', updated);
+    showSuccess('Event deleted.');
+  }, [events, showSuccess]);
+
+  const handleAddEventSignup = useCallback((eventId) => {
+    const updatedEvents = events.map(evt => {
+      if (evt.id !== eventId) return evt;
+      return {
+        ...evt,
+        signups: Array.isArray(evt.signups) ? evt.signups : []
+      };
+    });
+    setEvents(updatedEvents);
+    saveData('troop_events', updatedEvents);
+  }, [events, showSuccess]);
 
   // INVITATION HANDLERS
   const handleCreateInvitation = useCallback(() => {
@@ -919,7 +944,10 @@ export default function LeaderDashboard() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
               {/* Create Event Form */}
               <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: 12, padding: 20, marginBottom: 32 }}>
-                <h3 style={{ margin: '0 0 16px 0', color: '#fff' }}>➕ Create Event</h3>
+                <h3 style={{ margin: '0 0 8px 0', color: '#fff' }}>➕ Create Event</h3>
+                <p style={{ margin: '0 0 16px 0', color: '#9ca3af', fontSize: '0.9rem' }}>
+                  📢 Events are shared with all scouts and allow RSVPs. Scouts can indicate interest when viewing events.
+                </p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
                   <input
                     type="text"
@@ -1035,14 +1063,43 @@ export default function LeaderDashboard() {
                         marginBottom: 12
                       }}
                     >
-                      <h4 style={{ margin: '0 0 8px 0', color: '#fff' }}>{event.title}</h4>
-                      <div style={{ display: 'flex', gap: 16, fontSize: '0.9rem', color: '#9ca3af', flexWrap: 'wrap' }}>
-                        <span>📅 {event.date}</span>
-                        {event.time && <span>🕐 {event.time}</span>}
-                        {event.location && <span>📍 {event.location}</span>}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
+                        <div style={{ flex: 1 }}>
+                          <h4 style={{ margin: '0 0 8px 0', color: '#fff' }}>{event.title}</h4>
+                          {event.createdBy && (
+                            <p style={{ margin: '0 0 8px 0', color: '#9ca3af', fontSize: '0.85rem' }}>
+                              👤 Created by: <span style={{ color: '#6496c8' }}>{event.createdBy}</span>
+                            </p>
+                          )}
+                          <div style={{ display: 'flex', gap: 16, fontSize: '0.9rem', color: '#9ca3af', flexWrap: 'wrap', marginBottom: 8 }}>
+                            <span>📅 {event.date}</span>
+                            {event.time && <span>🕐 {event.time}</span>}
+                            {event.location && <span>📍 {event.location}</span>}
+                          </div>
+                          {event.signups && event.signups.length > 0 && (
+                            <div style={{ fontSize: '0.9rem', color: '#52b788', marginBottom: 8 }}>
+                              ✓ {event.signups.length} scout{event.signups.length !== 1 ? 's' : ''} interested
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleDeleteEvent(event.id)}
+                          style={{
+                            padding: '6px 10px',
+                            background: 'rgba(239, 68, 68, 0.2)',
+                            color: '#ef4444',
+                            border: 'none',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            marginLeft: 12,
+                            flexShrink: 0
+                          }}
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                       {event.description && (
-                        <p style={{ margin: '8px 0 0 0', color: '#9ca3af', fontSize: '0.9rem' }}>{event.description}</p>
+                        <p style={{ margin: '0', color: '#9ca3af', fontSize: '0.9rem' }}>📝 {event.description}</p>
                       )}
                     </motion.div>
                   ))
