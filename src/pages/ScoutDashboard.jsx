@@ -85,13 +85,6 @@ export default function ScoutDashboard() {
     }
   })();
 
-  const signedUpActivities = (() => {
-    try {
-      return JSON.parse(localStorage.getItem('scoutSignups') || '[]');
-    } catch {
-      return [];
-    }
-  })();
 
   // Activity helpers
   const isSignedUp = (activity) =>

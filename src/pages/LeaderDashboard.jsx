@@ -1,66 +1,56 @@
-
-import { CheckCircle, Clock, Users, TrendingUp, Calendar, MapPin, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { CheckCircle, Clock, Users, TrendingUp, Calendar, MapPin, Plus, Trash2, ChevronDown, ChevronUp, Search, Download, Upload } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { saveData, loadData, generateId, DEFAULT_EVENTS } from '../utils/adminData';
+import {
+  loadScouts,
+  saveScouts,
+  getScoutStats,
+  searchScouts,
+  generateScoutId,
+  updateScout,
+  deleteScout,
+  getScoutsByStatus,
+  exportScoutData,
+  importScoutData
+} from '../utils/leaderData';
+import {
+  validateActivityForm,
+  validateEventForm,
+  validateInvitationForm,
+  validateEmail,
+  validateScoutName,
+  checkDuplicateScout,
+  checkDuplicateActivity,
+  isActivityFull,
+  formatValidationErrors
+} from '../utils/leaderValidation';
 
-const SCOUTS_DATA = [
-  {
-    id: 1,
-    name: 'John Smith',
-    rank: 'Star Scout',
-    activities: ['Camping Trip', 'Hiking Expedition'],
-    status: 'approved',
-    joinDate: '2025-01-15'
-  },
-  {
-    id: 2,
-    name: 'Mike Johnson',
-    rank: 'Life Scout',
-    activities: ['Car Wash', 'Community Service'],
-    status: 'pending',
-    joinDate: '2025-03-01'
-  },
-  {
-    id: 3,
-    name: 'Sarah Davis',
-    rank: 'First Class',
-    activities: ['Chop & Sell', 'Skill Workshop'],
-    status: 'approved',
-    joinDate: '2025-02-10'
-  },
-  {
-    id: 4,
-    name: 'Tom Wilson',
-    rank: 'Tenderfoot',
-    activities: ['Camping Trip'],
-    status: 'pending',
-    joinDate: '2025-03-05'
-  },
-  {
-    id: 5,
-    name: 'Lisa Brown',
-    rank: 'Scout',
-    activities: ['Hiking Expedition', 'Skill Workshop'],
-    status: 'approved',
-    joinDate: '2025-01-20'
-  }
-];
-
+const RANKS = ['Scout', 'Tenderfoot', '2nd Class', '1st Class', 'Star', 'Life', 'Eagle'];
 
 export default function LeaderDashboard() {
   const navigate = useNavigate();
+
+  // State management
   const [selectedTab, setSelectedTab] = useState('scouts');
-  const [scoutsData, setScoutsData] = useState(SCOUTS_DATA);
+  const [scoutsData, setScoutsData] = useState(() => loadScouts('leaderScouts', []));
   const [events, setEvents] = useState(() => loadData('troop_events', DEFAULT_EVENTS));
   const [troopActivities, setTroopActivities] = useState(() => loadData('troopActivities', []));
-  const [invitations, setInvitations] = useState([]);
-  const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
-  const [newInvitationForm, setNewInvitationForm] = useState({ name: '', email: '', type: 'scout', tempPassword: '' });
-  const [newActivityForm, setNewActivityForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '' });
+  const [invitations, setInvitations] = useState(() => loadData('leaderInvitations', []));
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
   const [expandedRosters, setExpandedRosters] = useState({});
+  const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
 
+  // Form states
+  const [newScoutForm, setNewScoutForm] = useState({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
+  const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
+  const [newInvitationForm, setNewInvitationForm] = useState({ name: '', email: '', type: 'scout' });
+  const [newActivityForm, setNewActivityForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '20' });
+
+  // Auth guard
   useEffect(() => {
     const loggedInUser = sessionStorage.getItem('loggedInUser');
     if (!loggedInUser) {
@@ -77,52 +67,129 @@ export default function LeaderDashboard() {
     }
   }, [navigate]);
 
-  const handleApprove = (scoutId) => {
-    setScoutsData(scoutsData.map(scout =>
-      scout.id === scoutId ? { ...scout, status: 'approved' } : scout
-    ));
-  };
+  // Auto-save scouts to localStorage
+  useEffect(() => {
+    if (scoutsData.length >= 0) {
+      saveScouts(scoutsData);
+    }
+  }, [scoutsData]);
 
-  const handleReject = (scoutId) => {
-    setScoutsData(scoutsData.filter(scout => scout.id !== scoutId));
-  };
+  // Clear messages after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
-  const generateTempPassword = () => {
+  // Computed values (memoized)
+  const scoutStats = useMemo(() => getScoutStats(scoutsData), [scoutsData]);
+
+  const filteredScouts = useMemo(() => {
+    let filtered = scoutsData;
+
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(s => s.status === filterStatus);
+    }
+
+    if (searchQuery) {
+      filtered = searchScouts(searchQuery, filtered);
+    }
+
+    return filtered;
+  }, [scoutsData, filterStatus, searchQuery]);
+
+  const totalActivitySignups = useMemo(
+    () => troopActivities.reduce((sum, a) => sum + (a.signups?.length || 0), 0),
+    [troopActivities]
+  );
+
+  // Handler functions
+  const generateTempPassword = useCallback(() => {
     return Math.random().toString(36).slice(2, 10).toUpperCase();
-  };
+  }, []);
 
-  const handleCreateEvent = () => {
-    if (newEventForm.title && newEventForm.date && newEventForm.time) {
-      const newEvent = {
-        id: generateId(),
-        ...newEventForm,
-        createdAt: new Date().toISOString()
-      };
-      const updated = [...events, newEvent];
-      setEvents(updated);
-      saveData('troop_events', updated);
-      setNewEventForm({ title: '', date: '', time: '', location: '', description: '' });
+  const showError = useCallback((field, message) => {
+    setErrors(prev => ({ ...prev, [field]: message }));
+  }, []);
+
+  const clearErrors = useCallback(() => {
+    setErrors({});
+  }, []);
+
+  const showSuccess = useCallback((message) => {
+    setSuccessMessage(message);
+  }, []);
+
+  // SCOUT HANDLERS
+  const handleAddScout = useCallback(() => {
+    clearErrors();
+
+    const nameVal = validateScoutName(newScoutForm.name);
+    if (!nameVal.valid) {
+      showError('name', nameVal.error);
+      return;
     }
-  };
 
-  const handleCreateInvitation = () => {
-    if (newInvitationForm.name && newInvitationForm.email) {
-      const tempPassword = generateTempPassword();
-      const newInvitation = {
-        id: invitations.length + 1,
-        ...newInvitationForm,
-        tempPassword,
-        status: 'sent',
-        createdAt: new Date().toISOString()
-      };
-      setInvitations([...invitations, newInvitation]);
-      setNewInvitationForm({ name: '', email: '', type: 'scout', tempPassword: '' });
+    const emailVal = validateEmail(newScoutForm.email);
+    if (!emailVal.valid) {
+      showError('email', emailVal.error);
+      return;
     }
-  };
 
-  const handleCreateActivity = () => {
-    if (!newActivityForm.title || !newActivityForm.date) return;
-    const newActivity = {
+    const dupCheck = checkDuplicateScout(scoutsData, newScoutForm.email);
+    if (dupCheck.isDuplicate) {
+      showError('email', dupCheck.error);
+      return;
+    }
+
+    const scout = {
+      id: generateScoutId(),
+      name: newScoutForm.name,
+      email: newScoutForm.email,
+      rank: newScoutForm.rank,
+      phone: newScoutForm.phone,
+      notes: newScoutForm.notes,
+      status: 'pending',
+      activities: [],
+      joinDate: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString()
+    };
+
+    setScoutsData([...scoutsData, scout]);
+    setNewScoutForm({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
+    showSuccess('Scout added successfully! Pending approval.');
+  }, [newScoutForm, scoutsData, clearErrors, showError, showSuccess]);
+
+  const handleApproveScout = useCallback((scoutId) => {
+    const updated = updateScout(scoutId, { status: 'approved' }, scoutsData);
+    setScoutsData(updated);
+    showSuccess('Scout approved!');
+  }, [scoutsData, showSuccess]);
+
+  const handleRejectScout = useCallback((scoutId) => {
+    const updated = deleteScout(scoutId, scoutsData);
+    setScoutsData(updated);
+    showSuccess('Scout removed.');
+  }, [scoutsData, showSuccess]);
+
+  // ACTIVITY HANDLERS
+  const handleCreateActivity = useCallback(() => {
+    clearErrors();
+
+    const validation = validateActivityForm(newActivityForm);
+    if (!validation.valid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    const dupCheck = checkDuplicateActivity(troopActivities, newActivityForm.title, newActivityForm.date);
+    if (dupCheck.isDuplicate) {
+      showError('title', dupCheck.error);
+      return;
+    }
+
+    const activity = {
       id: generateId(),
       title: newActivityForm.title,
       date: newActivityForm.date,
@@ -131,104 +198,350 @@ export default function LeaderDashboard() {
       description: newActivityForm.description,
       spots: parseInt(newActivityForm.spots) || 20,
       signups: [],
+      createdAt: new Date().toISOString()
     };
-    const updated = [...troopActivities, newActivity];
+
+    const updated = [...troopActivities, activity];
     setTroopActivities(updated);
     saveData('troopActivities', updated);
-    setNewActivityForm({ title: '', date: '', time: '', location: '', description: '', spots: '' });
-  };
+    setNewActivityForm({ title: '', date: '', time: '', location: '', description: '', spots: '20' });
+    showSuccess('Activity created successfully!');
+  }, [newActivityForm, troopActivities, clearErrors, showError, showSuccess]);
 
-  const handleDeleteActivity = (activityId) => {
+  const handleDeleteActivity = useCallback((activityId) => {
     const updated = troopActivities.filter((a) => a.id !== activityId);
     setTroopActivities(updated);
     saveData('troopActivities', updated);
-  };
+    showSuccess('Activity deleted.');
+  }, [troopActivities, showSuccess]);
 
-  const toggleRoster = (activityId) => {
+  // EVENT HANDLERS
+  const handleCreateEvent = useCallback(() => {
+    clearErrors();
+
+    const validation = validateEventForm(newEventForm);
+    if (!validation.valid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    const event = {
+      id: generateId(),
+      title: newEventForm.title,
+      date: newEventForm.date,
+      time: newEventForm.time,
+      location: newEventForm.location,
+      description: newEventForm.description,
+      createdAt: new Date().toISOString()
+    };
+
+    const updated = [...events, event];
+    setEvents(updated);
+    saveData('troop_events', updated);
+    setNewEventForm({ title: '', date: '', time: '', location: '', description: '' });
+    showSuccess('Event created successfully!');
+  }, [newEventForm, events, clearErrors, showError, showSuccess]);
+
+  // INVITATION HANDLERS
+  const handleCreateInvitation = useCallback(() => {
+    clearErrors();
+
+    const validation = validateInvitationForm(newInvitationForm);
+    if (!validation.valid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    const dupCheck = checkDuplicateScout(scoutsData, newInvitationForm.email);
+    if (dupCheck.isDuplicate) {
+      showError('email', 'Scout already exists');
+      return;
+    }
+
+    const invitation = {
+      id: invitations.length + 1,
+      name: newInvitationForm.name,
+      email: newInvitationForm.email,
+      type: newInvitationForm.type,
+      tempPassword: generateTempPassword(),
+      status: 'sent',
+      createdAt: new Date().toISOString()
+    };
+
+    const updated = [...invitations, invitation];
+    setInvitations(updated);
+    saveData('leaderInvitations', updated);
+    setNewInvitationForm({ name: '', email: '', type: 'scout' });
+    showSuccess('Invitation sent successfully!');
+  }, [newInvitationForm, scoutsData, invitations, clearErrors, showError, showSuccess, generateTempPassword]);
+
+  const handleCopyPassword = useCallback((password) => {
+    navigator.clipboard.writeText(password);
+    showSuccess('Password copied to clipboard!');
+  }, [showSuccess]);
+
+  // UTILITY HANDLERS
+  const toggleRoster = useCallback((activityId) => {
     setExpandedRosters((prev) => ({ ...prev, [activityId]: !prev[activityId] }));
-  };
+  }, []);
 
-  const getSignupName = (s) => (typeof s === 'object' && s !== null ? s.scoutName : s);
+  const handleExportScouts = useCallback(() => {
+    const csv = [
+      ['Name', 'Email', 'Rank', 'Status', 'Join Date', 'Phone', 'Notes'],
+      ...scoutsData.map(s => [s.name, s.email, s.rank, s.status, s.joinDate, s.phone, s.notes])
+    ]
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
 
-  const getNextTuesdayWithTime = () => {
-    const today = new Date();
-    let nextTuesday = new Date(today);
-    const day = nextTuesday.getDay();
-    const daysUntilTuesday = (2 - day + 7) % 7 || 7;
-    nextTuesday.setDate(nextTuesday.getDate() + daysUntilTuesday);
-    nextTuesday.setHours(19, 0, 0, 0);
-    return nextTuesday;
-  };
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv));
+    element.setAttribute('download', `scouts-${new Date().toISOString().split('T')[0]}.csv`);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    showSuccess('Scouts exported to CSV!');
+  }, [scoutsData, showSuccess]);
 
-  const tuesdayMeeting = {
-    id: 'tuesday-meeting',
-    title: 'Weekly Troop Meeting',
-    date: getNextTuesdayWithTime().toISOString().split('T')[0],
-    time: '7:00 PM EST',
-    location: '3512 S Orlando Dr, Sanford, FL 32773',
-    description: 'Regular weekly troop meeting',
-    recurring: 'Every Tuesday'
-  };
+  // Render helpers
+  const ScoutCard = ({ scout }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
+        <div>
+          <h4 style={{ margin: '0 0 4px 0', color: '#fff', fontSize: '1rem' }}>{scout.name}</h4>
+          <p style={{ margin: '0 0 8px 0', color: '#9ca3af', fontSize: '0.9rem' }}>
+            {scout.rank} • {scout.email}
+          </p>
+          {scout.phone && (
+            <p style={{ margin: '0 0 4px 0', color: '#9ca3af', fontSize: '0.85rem' }}>📞 {scout.phone}</p>
+          )}
+          {scout.notes && (
+            <p style={{ margin: '0', color: '#9ca3af', fontSize: '0.85rem' }}>📝 {scout.notes}</p>
+          )}
+        </div>
+        <div
+          style={{
+            padding: '4px 12px',
+            background: scout.status === 'approved' ? 'rgba(82, 183, 136, 0.2)' : 'rgba(212, 168, 83, 0.2)',
+            color: scout.status === 'approved' ? '#52b788' : '#d4a853',
+            borderRadius: 6,
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {scout.status.charAt(0).toUpperCase() + scout.status.slice(1)}
+        </div>
+      </div>
 
-  const pendingCount = scoutsData.filter(s => s.status === 'pending').length;
-  const approvedCount = scoutsData.filter(s => s.status === 'approved').length;
-  const totalActivitySignups = troopActivities.reduce((sum, a) => sum + a.signups.length, 0);
-  const allEvents = [tuesdayMeeting, ...events];
+      {scout.status === 'pending' && (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => handleApproveScout(scout.id)}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              background: 'rgba(82, 183, 136, 0.2)',
+              color: '#52b788',
+              border: '1px solid rgba(82, 183, 136, 0.3)',
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              transition: 'all 0.2s'
+            }}
+          >
+            ✓ Approve
+          </button>
+          <button
+            onClick={() => handleRejectScout(scout.id)}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              background: 'rgba(239, 68, 68, 0.2)',
+              color: '#ef4444',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              transition: 'all 0.2s'
+            }}
+          >
+            ✕ Reject
+          </button>
+        </div>
+      )}
+    </motion.div>
+  );
+
+  const ActivityCard = ({ activity }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
+        <div style={{ flex: 1 }}>
+          <h4 style={{ margin: '0 0 4px 0', color: '#fff', fontSize: '1rem' }}>{activity.title}</h4>
+          <div style={{ display: 'flex', gap: 16, fontSize: '0.9rem', color: '#9ca3af', marginBottom: 8, flexWrap: 'wrap' }}>
+            <span>📅 {activity.date}</span>
+            {activity.time && <span>🕐 {activity.time}</span>}
+            {activity.location && <span>📍 {activity.location}</span>}
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            marginBottom: 8,
+            fontSize: '0.9rem'
+          }}>
+            <div style={{
+              flex: 1,
+              height: 8,
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: 4,
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                height: '100%',
+                width: `${Math.min((activity.signups?.length || 0) / activity.spots * 100, 100)}%`,
+                background: isActivityFull(activity) ? '#ef4444' : '#52b788',
+                transition: 'width 0.3s'
+              }} />
+            </div>
+            <span style={{ color: '#9ca3af', minWidth: '60px' }}>
+              {activity.signups?.length || 0}/{activity.spots}
+            </span>
+          </div>
+          {activity.description && (
+            <p style={{ margin: '0', color: '#9ca3af', fontSize: '0.85rem' }}>{activity.description}</p>
+          )}
+        </div>
+        <button
+          onClick={() => handleDeleteActivity(activity.id)}
+          style={{
+            padding: '6px 10px',
+            background: 'rgba(239, 68, 68, 0.2)',
+            color: '#ef4444',
+            border: 'none',
+            borderRadius: 6,
+            cursor: 'pointer',
+            marginLeft: 12
+          }}
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+
+      <button
+        onClick={() => toggleRoster(activity.id)}
+        style={{
+          width: '100%',
+          padding: '8px 12px',
+          background: 'rgba(100, 150, 200, 0.2)',
+          color: '#6496c8',
+          border: '1px solid rgba(100, 150, 200, 0.3)',
+          borderRadius: 6,
+          cursor: 'pointer',
+          fontWeight: 600,
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          transition: 'all 0.2s'
+        }}
+      >
+        {expandedRosters[activity.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        {expandedRosters[activity.id] ? 'Hide Roster' : 'View Roster'}
+      </button>
+
+      {expandedRosters[activity.id] && activity.signups && activity.signups.length > 0 && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600, color: '#9ca3af' }}>Signups:</p>
+          {activity.signups.map((signup, idx) => (
+            <div key={idx} style={{ padding: '6px 0', fontSize: '0.85rem', color: '#9ca3af' }}>
+              {typeof signup === 'object' ? `${signup.scoutName} (${signup.signedUpAt})` : signup}
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
 
   return (
     <>
       {/* Header */}
-      <section className="section section--hero section--dark">
-        <div className="container">
+      <section style={{ background: 'linear-gradient(135deg, rgba(27, 67, 50, 0.2), rgba(27, 67, 50, 0.05))', padding: '40px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            style={{ textAlign: 'center' }}
           >
-            <h1 style={{ marginBottom: 16 }}>📊 Leader Dashboard</h1>
-            <p style={{ fontSize: '1.1rem', color: '#9ca3af', maxWidth: '600px', margin: '0 auto 24px' }}>
+            <h1 style={{ marginBottom: 8, marginTop: 0, fontSize: '2.5rem' }}>📊 Leader Dashboard</h1>
+            <p style={{ fontSize: '1.1rem', color: '#9ca3af', margin: '0', maxWidth: '600px' }}>
               Manage scouts, activities, and approvals for Troop 242
             </p>
-          {/*   <a
-              href="/Troop242/troop-finances"
-              style={{
-                display: 'inline-block',
-                padding: '10px 24px',
-                background: 'rgba(0, 214, 143, 0.2)',
-                color: '#00d68f',
-                border: '1px solid rgba(0, 214, 143, 0.3)',
-                borderRadius: 8,
-                textDecoration: 'none',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'rgba(0, 214, 143, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'rgba(0, 214, 143, 0.2)';
-              }}
-            >
-              💰 Troop Finances
-            </a> */}
           </motion.div>
         </div>
       </section>
 
-      {/* Dashboard Stats */}
-      <section className="section section--dark">
-        <div className="container">
+      {/* Messages */}
+      {successMessage && (
+        <div style={{
+          padding: '12px 20px',
+          background: 'rgba(82, 183, 136, 0.2)',
+          color: '#52b788',
+          borderBottom: '1px solid rgba(82, 183, 136, 0.3)',
+          textAlign: 'center',
+          fontSize: '0.95rem'
+        }}>
+          ✓ {successMessage}
+        </div>
+      )}
+
+      {Object.keys(errors).length > 0 && (
+        <div style={{
+          padding: '12px 20px',
+          background: 'rgba(239, 68, 68, 0.2)',
+          color: '#ef4444',
+          borderBottom: '1px solid rgba(239, 68, 68, 0.3)',
+          textAlign: 'center',
+          fontSize: '0.95rem'
+        }}>
+          {Object.values(errors)[0]}
+        </div>
+      )}
+
+      {/* Stats */}
+      <section style={{ padding: '40px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0 }}
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
               gap: 20,
-              marginBottom: 48
+              marginBottom: 32
             }}
           >
             <div style={{ padding: 24, background: 'rgba(0, 214, 143, 0.1)', borderRadius: 12, border: '1px solid rgba(0, 214, 143, 0.2)' }}>
@@ -236,7 +549,7 @@ export default function LeaderDashboard() {
                 <Users size={24} style={{ color: '#00d68f' }} />
                 <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Total Scouts</span>
               </div>
-              <p style={{ fontSize: '2rem', fontWeight: 700, color: '#00d68f' }}>{scoutsData.length}</p>
+              <p style={{ fontSize: '2rem', fontWeight: 700, color: '#00d68f', margin: 0 }}>{scoutStats.total}</p>
             </div>
 
             <div style={{ padding: 24, background: 'rgba(82, 183, 136, 0.1)', borderRadius: 12, border: '1px solid rgba(82, 183, 136, 0.2)' }}>
@@ -244,7 +557,8 @@ export default function LeaderDashboard() {
                 <CheckCircle size={24} style={{ color: '#52b788' }} />
                 <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Approved</span>
               </div>
-              <p style={{ fontSize: '2rem', fontWeight: 700, color: '#52b788' }}>{approvedCount}</p>
+              <p style={{ fontSize: '2rem', fontWeight: 700, color: '#52b788', margin: 0 }}>{scoutStats.approved}</p>
+              <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: '4px 0 0 0' }}>{scoutStats.approvalRate}% approval rate</p>
             </div>
 
             <div style={{ padding: 24, background: 'rgba(212, 168, 83, 0.1)', borderRadius: 12, border: '1px solid rgba(212, 168, 83, 0.2)' }}>
@@ -252,218 +566,242 @@ export default function LeaderDashboard() {
                 <Clock size={24} style={{ color: '#d4a853' }} />
                 <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Pending</span>
               </div>
-              <p style={{ fontSize: '2rem', fontWeight: 700, color: '#d4a853' }}>{pendingCount}</p>
+              <p style={{ fontSize: '2rem', fontWeight: 700, color: '#d4a853', margin: 0 }}>{scoutStats.pending}</p>
             </div>
 
             <div style={{ padding: 24, background: 'rgba(100, 150, 200, 0.1)', borderRadius: 12, border: '1px solid rgba(100, 150, 200, 0.2)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                 <TrendingUp size={24} style={{ color: '#6496c8' }} />
-                <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Total Signups</span>
+                <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Activity Signups</span>
               </div>
-              <p style={{ fontSize: '2rem', fontWeight: 700, color: '#6496c8' }}>{totalActivitySignups}</p>
+              <p style={{ fontSize: '2rem', fontWeight: 700, color: '#6496c8', margin: 0 }}>{totalActivitySignups}</p>
             </div>
           </motion.div>
 
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: 12, marginBottom: 32, borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 16, flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setSelectedTab('scouts')}
-              style={{
-                padding: '10px 20px',
-                background: selectedTab === 'scouts' ? 'rgba(0, 214, 143, 0.2)' : 'transparent',
-                border: selectedTab === 'scouts' ? '1px solid rgba(0, 214, 143, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
-                color: selectedTab === 'scouts' ? '#00d68f' : '#9ca3af',
-                borderRadius: 8,
-                cursor: 'pointer',
-                fontWeight: 600,
-                transition: 'all 0.2s ease'
-              }}
-            >
-              👥 Scouts ({scoutsData.length})
-            </button>
-            <button
-              onClick={() => setSelectedTab('activities')}
-              style={{
-                padding: '10px 20px',
-                background: selectedTab === 'activities' ? 'rgba(0, 214, 143, 0.2)' : 'transparent',
-                border: selectedTab === 'activities' ? '1px solid rgba(0, 214, 143, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
-                color: selectedTab === 'activities' ? '#00d68f' : '#9ca3af',
-                borderRadius: 8,
-                cursor: 'pointer',
-                fontWeight: 600,
-                transition: 'all 0.2s ease'
-              }}
-            >
-              📅 Activities ({troopActivities.length})
-            </button>
-            <button
-              onClick={() => setSelectedTab('events')}
-              style={{
-                padding: '10px 20px',
-                background: selectedTab === 'events' ? 'rgba(0, 214, 143, 0.2)' : 'transparent',
-                border: selectedTab === 'events' ? '1px solid rgba(0, 214, 143, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
-                color: selectedTab === 'events' ? '#00d68f' : '#9ca3af',
-                borderRadius: 8,
-                cursor: 'pointer',
-                fontWeight: 600,
-                transition: 'all 0.2s ease'
-              }}
-            >
-              📆 Events ({allEvents.length})
-            </button>
-            <button
-              onClick={() => setSelectedTab('invitations')}
-              style={{
-                padding: '10px 20px',
-                background: selectedTab === 'invitations' ? 'rgba(0, 214, 143, 0.2)' : 'transparent',
-                border: selectedTab === 'invitations' ? '1px solid rgba(0, 214, 143, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
-                color: selectedTab === 'invitations' ? '#00d68f' : '#9ca3af',
-                borderRadius: 8,
-                cursor: 'pointer',
-                fontWeight: 600,
-                transition: 'all 0.2s ease'
-              }}
-            >
-              ✉️ Invitations ({invitations.length})
-            </button>
+          <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 16, flexWrap: 'wrap' }}>
+            {['scouts', 'activities', 'events', 'invitations'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setSelectedTab(tab)}
+                style={{
+                  padding: '10px 20px',
+                  background: selectedTab === tab ? 'rgba(0, 214, 143, 0.2)' : 'transparent',
+                  border: selectedTab === tab ? '1px solid rgba(0, 214, 143, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+                  color: selectedTab === tab ? '#00d68f' : '#9ca3af',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {tab === 'scouts' && `👥 Scouts (${scoutsData.length})`}
+                {tab === 'activities' && `📅 Activities (${troopActivities.length})`}
+                {tab === 'events' && `📆 Events (${events.length})`}
+                {tab === 'invitations' && `📧 Invitations (${invitations.length})`}
+              </button>
+            ))}
           </div>
+        </div>
+      </section>
 
-          {/* Scouts Tab */}
+      {/* Content */}
+      <section style={{ padding: '40px 20px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          {/* SCOUTS TAB */}
           {selectedTab === 'scouts' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: 20
-              }}
-            >
-              {scoutsData.map((scout) => (
-                <div
-                  key={scout.id}
-                  className="glass-card"
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+              {/* Add Scout Form */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: 12, padding: 20, marginBottom: 32 }}>
+                <h3 style={{ margin: '0 0 16px 0', color: '#fff' }}>➕ Add New Scout</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
+                  <input
+                    type="text"
+                    placeholder="Scout Name *"
+                    value={newScoutForm.name}
+                    onChange={(e) => setNewScoutForm({ ...newScoutForm, name: e.target.value })}
+                    style={{
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
+                    }}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email *"
+                    value={newScoutForm.email}
+                    onChange={(e) => setNewScoutForm({ ...newScoutForm, email: e.target.value })}
+                    style={{
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
+                    }}
+                  />
+                  <select
+                    value={newScoutForm.rank}
+                    onChange={(e) => setNewScoutForm({ ...newScoutForm, rank: e.target.value })}
+                    style={{
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
+                    }}
+                  >
+                    {RANKS.map(rank => (
+                      <option key={rank} value={rank}>{rank}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    placeholder="Phone (optional)"
+                    value={newScoutForm.phone}
+                    onChange={(e) => setNewScoutForm({ ...newScoutForm, phone: e.target.value })}
+                    style={{
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
+                    }}
+                  />
+                </div>
+                <textarea
+                  placeholder="Notes (optional)"
+                  value={newScoutForm.notes}
+                  onChange={(e) => setNewScoutForm({ ...newScoutForm, notes: e.target.value })}
                   style={{
-                    padding: 24,
-                    border: scout.status === 'pending' ? '2px solid #d4a853' : '1px solid rgba(255, 255, 255, 0.1)'
+                    width: '100%',
+                    padding: '10px 12px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    minHeight: '80px',
+                    marginBottom: 12,
+                    fontFamily: 'inherit'
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={handleAddScout}
+                    style={{
+                      flex: 1,
+                      padding: '12px 24px',
+                      background: 'rgba(0, 214, 143, 0.2)',
+                      border: '1px solid rgba(0, 214, 143, 0.3)',
+                      color: '#00d68f',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Plus size={18} style={{ display: 'inline', marginRight: 6 }} />
+                    Add Scout
+                  </button>
+                  <button
+                    onClick={handleExportScouts}
+                    style={{
+                      padding: '12px 24px',
+                      background: 'rgba(100, 150, 200, 0.2)',
+                      border: '1px solid rgba(100, 150, 200, 0.3)',
+                      color: '#6496c8',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Download size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Filters and Search */}
+              <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '200px', position: 'relative' }}>
+                  <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+                  <input
+                    type="text"
+                    placeholder="Search scouts..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px 10px 40px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
+                    }}
+                  />
+                </div>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  style={{
+                    padding: '10px 12px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: '0.95rem'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
-                    <div>
-                      <h3 style={{ color: '#fff', marginBottom: 4 }}>{scout.name}</h3>
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{scout.rank}</p>
-                    </div>
-                    <span style={{
-                      padding: '4px 12px',
-                      background: scout.status === 'pending' ? 'rgba(212, 168, 83, 0.2)' : 'rgba(0, 214, 143, 0.2)',
-                      color: scout.status === 'pending' ? '#d4a853' : '#00d68f',
-                      borderRadius: 20,
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'capitalize'
-                    }}>
-                      {scout.status === 'pending' ? '⏳ Pending' : '✓ Approved'}
-                    </span>
-                  </div>
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                </select>
+              </div>
 
-                  <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginBottom: 8 }}>Activities:</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {scout.activities.map((activity, idx) => (
-                        <span key={idx} style={{
-                          padding: '4px 10px',
-                          background: 'rgba(0, 214, 143, 0.1)',
-                          color: '#00d68f',
-                          borderRadius: 6,
-                          fontSize: '0.75rem'
-                        }}>
-                          {activity}
-                        </span>
-                      ))}
-                    </div>
+              {/* Scout List */}
+              <div>
+                <h3 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '1.1rem' }}>
+                  Scouts ({filteredScouts.length})
+                </h3>
+                {filteredScouts.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
+                    No scouts found. Add one above!
                   </div>
-
-                  {scout.status === 'pending' && (
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button
-                        onClick={() => handleApprove(scout.id)}
-                        style={{
-                          flex: 1,
-                          padding: '10px 16px',
-                          background: 'rgba(0, 214, 143, 0.2)',
-                          color: '#00d68f',
-                          border: '1px solid rgba(0, 214, 143, 0.3)',
-                          borderRadius: 6,
-                          cursor: 'pointer',
-                          fontWeight: 600,
-                          fontSize: '0.9rem',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = 'rgba(0, 214, 143, 0.3)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = 'rgba(0, 214, 143, 0.2)';
-                        }}
-                      >
-                        ✓ Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(scout.id)}
-                        style={{
-                          flex: 1,
-                          padding: '10px 16px',
-                          background: 'rgba(255, 100, 100, 0.2)',
-                          color: '#ff6464',
-                          border: '1px solid rgba(255, 100, 100, 0.3)',
-                          borderRadius: 6,
-                          cursor: 'pointer',
-                          fontWeight: 600,
-                          fontSize: '0.9rem',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = 'rgba(255, 100, 100, 0.3)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = 'rgba(255, 100, 100, 0.2)';
-                        }}
-                      >
-                        ✕ Reject
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
+                ) : (
+                  filteredScouts.map(scout => (
+                    <ScoutCard key={scout.id} scout={scout} />
+                  ))
+                )}
+              </div>
             </motion.div>
           )}
 
-          {/* Activities Tab */}
+          {/* ACTIVITIES TAB */}
           {selectedTab === 'activities' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
               {/* Create Activity Form */}
-              <div className="glass-card" style={{ padding: 32, marginBottom: 32 }}>
-                <h3 style={{ color: '#fff', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Plus size={20} /> Create New Activity
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 16 }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: 12, padding: 20, marginBottom: 32 }}>
+                <h3 style={{ margin: '0 0 16px 0', color: '#fff' }}>➕ Create Activity</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
                   <input
                     type="text"
-                    placeholder="Activity Title"
+                    placeholder="Activity Title *"
                     value={newActivityForm.title}
                     onChange={(e) => setNewActivityForm({ ...newActivityForm, title: e.target.value })}
                     style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#fff',
                       padding: '10px 12px',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
                     }}
                   />
                   <input
@@ -471,12 +809,12 @@ export default function LeaderDashboard() {
                     value={newActivityForm.date}
                     onChange={(e) => setNewActivityForm({ ...newActivityForm, date: e.target.value })}
                     style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#fff',
                       padding: '10px 12px',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
                     }}
                   />
                   <input
@@ -484,12 +822,12 @@ export default function LeaderDashboard() {
                     value={newActivityForm.time}
                     onChange={(e) => setNewActivityForm({ ...newActivityForm, time: e.target.value })}
                     style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#fff',
                       padding: '10px 12px',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
                     }}
                   />
                   <input
@@ -498,235 +836,103 @@ export default function LeaderDashboard() {
                     value={newActivityForm.location}
                     onChange={(e) => setNewActivityForm({ ...newActivityForm, location: e.target.value })}
                     style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#fff',
                       padding: '10px 12px',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
                     }}
                   />
                   <input
                     type="number"
-                    placeholder="Available Spots"
+                    min="1"
+                    placeholder="Spots"
                     value={newActivityForm.spots}
                     onChange={(e) => setNewActivityForm({ ...newActivityForm, spots: e.target.value })}
                     style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#fff',
                       padding: '10px 12px',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
                     }}
                   />
                 </div>
                 <textarea
-                  placeholder="Description (optional)"
+                  placeholder="Description"
                   value={newActivityForm.description}
                   onChange={(e) => setNewActivityForm({ ...newActivityForm, description: e.target.value })}
                   style={{
                     width: '100%',
-                    minHeight: 80,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    color: '#fff',
                     padding: '10px 12px',
-                    borderRadius: 8,
-                    fontFamily: 'inherit',
-                    marginBottom: 16,
-                    resize: 'vertical'
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    minHeight: '80px',
+                    marginBottom: 12,
+                    fontFamily: 'inherit'
                   }}
                 />
                 <button
                   onClick={handleCreateActivity}
                   style={{
-                    padding: '12px 32px',
+                    width: '100%',
+                    padding: '12px 24px',
                     background: 'rgba(0, 214, 143, 0.2)',
+                    border: '1px solid rgba(0, 214, 143, 0.3)',
                     color: '#00d68f',
-                    border: '1px solid #00d68f',
-                    borderRadius: 8,
+                    borderRadius: 6,
                     cursor: 'pointer',
                     fontWeight: 600,
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8
+                    transition: 'all 0.2s'
                   }}
-                  onMouseEnter={(e) => e.target.style.background = 'rgba(0, 214, 143, 0.3)'}
-                  onMouseLeave={(e) => e.target.style.background = 'rgba(0, 214, 143, 0.2)'}
                 >
-                  <Plus size={18} /> Create Activity
+                  <Plus size={18} style={{ display: 'inline', marginRight: 6 }} />
+                  Create Activity
                 </button>
               </div>
 
-              {/* Activities List */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 20 }}>
+              {/* Activity List */}
+              <div>
+                <h3 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '1.1rem' }}>
+                  Activities ({troopActivities.length})
+                </h3>
                 {troopActivities.length === 0 ? (
-                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#9ca3af' }}>
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
                     No activities yet. Create one above!
                   </div>
                 ) : (
-                  troopActivities
-                    .slice()
-                    .sort((a, b) => new Date(a.date) - new Date(b.date))
-                    .map((activity) => (
-                      <motion.div
-                        key={activity.id}
-                        className="glass-card"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        style={{ padding: 24 }}
-                      >
-                        {/* Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                          <h3 style={{ color: '#fff', margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>{activity.title}</h3>
-                          <span style={{
-                            padding: '4px 12px',
-                            background: activity.signups.length >= activity.spots ? 'rgba(255, 100, 100, 0.2)' : 'rgba(0, 214, 143, 0.2)',
-                            color: activity.signups.length >= activity.spots ? '#ff6464' : '#00d68f',
-                            borderRadius: 20,
-                            fontSize: '0.75rem',
-                            fontWeight: 600
-                          }}>
-                            {activity.signups.length}/{activity.spots}
-                          </span>
-                        </div>
-
-                        {/* Meta row */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16, color: '#9ca3af', fontSize: '0.85rem' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <Calendar size={14} />
-                            {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-                            {activity.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {activity.time}</>}
-                          </span>
-                          {activity.location && (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <MapPin size={14} /> {activity.location}
-                            </span>
-                          )}
-                        </div>
-
-                        {activity.description && (
-                          <p style={{ color: '#d1d5db', fontSize: '0.9rem', marginBottom: 16 }}>
-                            {activity.description}
-                          </p>
-                        )}
-
-                        {/* Roster toggle */}
-                        <button
-                          onClick={() => toggleRoster(activity.id)}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: '#00d68f',
-                            cursor: 'pointer',
-                            padding: '8px 0',
-                            fontSize: '0.9rem',
-                            fontWeight: 600,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            marginBottom: 16,
-                            transition: 'color 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => e.target.style.color = '#66BB6A'}
-                          onMouseLeave={(e) => e.target.style.color = '#00d68f'}
-                        >
-                          <Users size={14} /> {activity.signups.length} Scout{activity.signups.length !== 1 ? 's' : ''} Signed Up
-                          {expandedRosters[activity.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </button>
-
-                        {/* Expanded Roster */}
-                        {expandedRosters[activity.id] && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            style={{ marginBottom: 16, paddingBottom: 16, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 12 }}
-                          >
-                            {activity.signups.length === 0 ? (
-                              <p style={{ color: '#9ca3af', fontSize: '0.85rem', margin: 0 }}>No signups yet</p>
-                            ) : (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                {activity.signups.map((s, idx) => (
-                                  <div key={idx} style={{
-                                    padding: '8px 12px',
-                                    background: 'rgba(255, 255, 255, 0.03)',
-                                    borderRadius: 6,
-                                    fontSize: '0.85rem',
-                                    color: '#d1d5db',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 8
-                                  }}>
-                                    <CheckCircle size={14} style={{ color: '#00d68f' }} />
-                                    {getSignupName(s)}
-                                    {typeof s === 'object' && s.signedUpAt && (
-                                      <span style={{ color: '#9ca3af', fontSize: '0.75rem', marginLeft: 'auto' }}>
-                                        {s.signedUpAt}
-                                      </span>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </motion.div>
-                        )}
-
-                        {/* Delete button */}
-                        <button
-                          onClick={() => handleDeleteActivity(activity.id)}
-                          style={{
-                            width: '100%',
-                            padding: '10px 12px',
-                            background: 'rgba(255, 100, 100, 0.1)',
-                            border: '1px solid rgba(255, 100, 100, 0.3)',
-                            color: '#ff6464',
-                            borderRadius: 8,
-                            cursor: 'pointer',
-                            fontWeight: 600,
-                            fontSize: '0.9rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 6,
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = 'rgba(255, 100, 100, 0.2)'}
-                          onMouseLeave={(e) => e.target.style.background = 'rgba(255, 100, 100, 0.1)'}
-                        >
-                          <Trash2 size={14} /> Delete Activity
-                        </button>
-                      </motion.div>
-                    ))
+                  troopActivities.map(activity => (
+                    <ActivityCard key={activity.id} activity={activity} />
+                  ))
                 )}
               </div>
             </motion.div>
           )}
 
-          {/* Events Tab */}
+          {/* EVENTS TAB */}
           {selectedTab === 'events' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
               {/* Create Event Form */}
-              <div className="glass-card" style={{ padding: 32, marginBottom: 32 }}>
-                <h3 style={{ color: '#fff', marginBottom: 24 }}>➕ Create New Event</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: 12, padding: 20, marginBottom: 32 }}>
+                <h3 style={{ margin: '0 0 16px 0', color: '#fff' }}>➕ Create Event</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
                   <input
                     type="text"
-                    placeholder="Event Title"
+                    placeholder="Event Title *"
                     value={newEventForm.title}
                     onChange={(e) => setNewEventForm({ ...newEventForm, title: e.target.value })}
                     style={{
-                      padding: '12px 16px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
                       color: '#fff',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      fontSize: '0.95rem'
                     }}
                   />
                   <input
@@ -734,12 +940,12 @@ export default function LeaderDashboard() {
                     value={newEventForm.date}
                     onChange={(e) => setNewEventForm({ ...newEventForm, date: e.target.value })}
                     style={{
-                      padding: '12px 16px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
                       color: '#fff',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      fontSize: '0.95rem'
                     }}
                   />
                   <input
@@ -747,12 +953,12 @@ export default function LeaderDashboard() {
                     value={newEventForm.time}
                     onChange={(e) => setNewEventForm({ ...newEventForm, time: e.target.value })}
                     style={{
-                      padding: '12px 16px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
                       color: '#fff',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      fontSize: '0.95rem'
                     }}
                   />
                   <input
@@ -761,211 +967,227 @@ export default function LeaderDashboard() {
                     value={newEventForm.location}
                     onChange={(e) => setNewEventForm({ ...newEventForm, location: e.target.value })}
                     style={{
-                      padding: '12px 16px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
                       color: '#fff',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      fontSize: '0.95rem'
                     }}
                   />
                 </div>
                 <textarea
-                  placeholder="Event Description"
+                  placeholder="Description"
                   value={newEventForm.description}
                   onChange={(e) => setNewEventForm({ ...newEventForm, description: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    padding: '10px 12px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: 6,
                     color: '#fff',
-                    borderRadius: 8,
-                    fontFamily: 'inherit',
-                    minHeight: '100px',
-                    marginBottom: 16
+                    fontSize: '0.95rem',
+                    minHeight: '80px',
+                    marginBottom: 12,
+                    fontFamily: 'inherit'
                   }}
                 />
                 <button
                   onClick={handleCreateEvent}
                   style={{
-                    padding: '12px 32px',
+                    width: '100%',
+                    padding: '12px 24px',
                     background: 'rgba(0, 214, 143, 0.2)',
-                    color: '#00d68f',
                     border: '1px solid rgba(0, 214, 143, 0.3)',
-                    borderRadius: 8,
+                    color: '#00d68f',
+                    borderRadius: 6,
                     cursor: 'pointer',
                     fontWeight: 600,
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = 'rgba(0, 214, 143, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'rgba(0, 214, 143, 0.2)';
+                    transition: 'all 0.2s'
                   }}
                 >
-                  ➕ Create Event
+                  <Plus size={18} style={{ display: 'inline', marginRight: 6 }} />
+                  Create Event
                 </button>
               </div>
 
-              {/* Events List */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-                {allEvents.map((event) => (
-                  <div key={event.id} className="glass-card" style={{ padding: 24 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
-                      <div>
-                        <h3 style={{ color: '#fff', marginBottom: 4 }}>{event.title}</h3>
-                        <p style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{event.date}</p>
-                      </div>
-                      {event.id === 'tuesday-meeting' && (
-                        <span style={{
-                          padding: '4px 12px',
-                          background: 'rgba(0, 214, 143, 0.2)',
-                          color: '#00d68f',
-                          borderRadius: 20,
-                          fontSize: '0.75rem',
-                          fontWeight: 600
-                        }}>
-                          📌 Recurring
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                      <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>⏰ {event.time}</p>
-                      <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>📍 {event.location}</p>
-                    </div>
-                    {event.description && (
-                      <p style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: 1.5 }}>{event.description}</p>
-                    )}
+              {/* Event List */}
+              <div>
+                <h3 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '1.1rem' }}>
+                  Events ({events.length})
+                </h3>
+                {events.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
+                    No events scheduled yet.
                   </div>
-                ))}
+                ) : (
+                  events.map(event => (
+                    <motion.div
+                      key={event.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: 12,
+                        padding: 16,
+                        marginBottom: 12
+                      }}
+                    >
+                      <h4 style={{ margin: '0 0 8px 0', color: '#fff' }}>{event.title}</h4>
+                      <div style={{ display: 'flex', gap: 16, fontSize: '0.9rem', color: '#9ca3af', flexWrap: 'wrap' }}>
+                        <span>📅 {event.date}</span>
+                        {event.time && <span>🕐 {event.time}</span>}
+                        {event.location && <span>📍 {event.location}</span>}
+                      </div>
+                      {event.description && (
+                        <p style={{ margin: '8px 0 0 0', color: '#9ca3af', fontSize: '0.9rem' }}>{event.description}</p>
+                      )}
+                    </motion.div>
+                  ))
+                )}
               </div>
             </motion.div>
           )}
 
-          {/* Invitations Tab */}
+          {/* INVITATIONS TAB */}
           {selectedTab === 'invitations' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
               {/* Send Invitation Form */}
-              <div className="glass-card" style={{ padding: 32, marginBottom: 32 }}>
-                <h3 style={{ color: '#fff', marginBottom: 24 }}>✉️ Invite Scouts & Parents</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: 12, padding: 20, marginBottom: 32 }}>
+                <h3 style={{ margin: '0 0 16px 0', color: '#fff' }}>📧 Send Invitation</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
                   <input
                     type="text"
-                    placeholder="Full Name"
+                    placeholder="Name *"
                     value={newInvitationForm.name}
                     onChange={(e) => setNewInvitationForm({ ...newInvitationForm, name: e.target.value })}
                     style={{
-                      padding: '12px 16px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
                       color: '#fff',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      fontSize: '0.95rem'
                     }}
                   />
                   <input
                     type="email"
-                    placeholder="Email Address"
+                    placeholder="Email *"
                     value={newInvitationForm.email}
                     onChange={(e) => setNewInvitationForm({ ...newInvitationForm, email: e.target.value })}
                     style={{
-                      padding: '12px 16px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
                       color: '#fff',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      fontSize: '0.95rem'
                     }}
                   />
                   <select
                     value={newInvitationForm.type}
                     onChange={(e) => setNewInvitationForm({ ...newInvitationForm, type: e.target.value })}
                     style={{
-                      padding: '12px 16px',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
                       color: '#fff',
-                      borderRadius: 8,
-                      fontFamily: 'inherit'
+                      fontSize: '0.95rem'
                     }}
                   >
-                    <option value="scout" style={{ background: '#050a24' }}>Scout</option>
-                    <option value="parent" style={{ background: '#050a24' }}>Parent</option>
-                    <option value="leader" style={{ background: '#050a24' }}>Leader</option>
+                    <option value="scout">Scout</option>
+                    <option value="leader">Leader</option>
+                    <option value="parent">Parent</option>
                   </select>
                 </div>
                 <button
                   onClick={handleCreateInvitation}
                   style={{
-                    padding: '12px 32px',
+                    width: '100%',
+                    padding: '12px 24px',
                     background: 'rgba(0, 214, 143, 0.2)',
-                    color: '#00d68f',
                     border: '1px solid rgba(0, 214, 143, 0.3)',
-                    borderRadius: 8,
+                    color: '#00d68f',
+                    borderRadius: 6,
                     cursor: 'pointer',
                     fontWeight: 600,
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = 'rgba(0, 214, 143, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'rgba(0, 214, 143, 0.2)';
+                    transition: 'all 0.2s'
                   }}
                 >
-                  ✉️ Send Invitation
+                  <Plus size={18} style={{ display: 'inline', marginRight: 6 }} />
+                  Send Invitation
                 </button>
               </div>
 
               {/* Invitations List */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-                {invitations.map((invitation) => (
-                  <div key={invitation.id} className="glass-card" style={{ padding: 24 }}>
-                    <div style={{ marginBottom: 16 }}>
-                      <h3 style={{ color: '#fff', marginBottom: 4 }}>{invitation.name}</h3>
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{invitation.email}</p>
-                      <span style={{
-                        padding: '4px 12px',
-                        background: 'rgba(0, 214, 143, 0.2)',
-                        color: '#00d68f',
-                        borderRadius: 20,
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        display: 'inline-block',
-                        marginTop: 8
-                      }}>
-                        👤 {invitation.type.charAt(0).toUpperCase() + invitation.type.slice(1)}
-                      </span>
-                    </div>
-                    <div style={{ paddingTop: 16, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginBottom: 8 }}>Temporary Password:</p>
-                      <div style={{
-                        padding: '10px 12px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(0, 214, 143, 0.2)',
-                        borderRadius: 6,
-                        fontFamily: 'monospace',
-                        color: '#00d68f',
-                        fontWeight: 600,
-                        fontSize: '0.9rem'
-                      }}>
-                        {invitation.tempPassword}
-                      </div>
-                    </div>
+              <div>
+                <h3 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '1.1rem' }}>
+                  Sent Invitations ({invitations.length})
+                </h3>
+                {invitations.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
+                    No invitations sent yet.
                   </div>
-                ))}
+                ) : (
+                  invitations.map(invite => (
+                    <motion.div
+                      key={invite.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: 12,
+                        padding: 16,
+                        marginBottom: 12
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
+                        <div>
+                          <h4 style={{ margin: '0 0 4px 0', color: '#fff' }}>{invite.name}</h4>
+                          <p style={{ margin: '0 0 8px 0', color: '#9ca3af', fontSize: '0.9rem' }}>
+                            {invite.email} • {invite.type.charAt(0).toUpperCase() + invite.type.slice(1)}
+                          </p>
+                          <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#6496c8', padding: '8px 12px', background: 'rgba(100, 150, 200, 0.1)', borderRadius: 4, display: 'inline-block' }}>
+                            Password: <strong>{invite.tempPassword}</strong>
+                            <button
+                              onClick={() => handleCopyPassword(invite.tempPassword)}
+                              style={{
+                                marginLeft: 8,
+                                padding: '2px 8px',
+                                background: 'rgba(100, 150, 200, 0.2)',
+                                border: '1px solid rgba(100, 150, 200, 0.3)',
+                                color: '#6496c8',
+                                borderRadius: 4,
+                                cursor: 'pointer',
+                                fontSize: '0.8rem'
+                              }}
+                            >
+                              Copy
+                            </button>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            padding: '4px 12px',
+                            background: 'rgba(82, 183, 136, 0.2)',
+                            color: '#52b788',
+                            borderRadius: 6,
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {invite.status}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
               </div>
-              {invitations.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
-                  <p>No invitations sent yet. Create one to get started!</p>
-                </div>
-              )}
             </motion.div>
           )}
         </div>
