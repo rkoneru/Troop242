@@ -984,112 +984,320 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 <div class="panel" id="panel-field-guide">
 <div class="panel-inner">
   <h2>🌿 Florida Field Guide</h2>
-  <p class="panel-subtitle">Identify 50+ Central Florida wildlife, plants, and tracks</p>
-  <div class="dash-grid">
+  <p class="panel-subtitle">Identify 150+ Central Florida wildlife, plants, and tracks</p>
+  <div class="cat-tabs">
+    <button type="button" class="cat-tab active" onclick="filterFieldGuide('all', this)">All</button>
+    <button type="button" class="cat-tab" onclick="filterFieldGuide('mammals', this)">🦌 Mammals</button>
+    <button type="button" class="cat-tab" onclick="filterFieldGuide('reptiles', this)">🐍 Reptiles</button>
+    <button type="button" class="cat-tab" onclick="filterFieldGuide('birds', this)">🦅 Birds</button>
+    <button type="button" class="cat-tab" onclick="filterFieldGuide('insects', this)">🦋 Insects</button>
+    <button type="button" class="cat-tab" onclick="filterFieldGuide('plants', this)">🌳 Plants</button>
+    <button type="button" class="cat-tab" onclick="filterFieldGuide('amphibians', this)">🐸 Amphibians</button>
+  </div>
+  <div class="dash-grid" id="fg-grid">
     <!-- MAMMALS -->
-    <div class="feat-card"><div class="feat-icon">🦌</div><div class="feat-name">White-tailed Deer</div><div class="feat-desc">Most common large mammal. Cloven hoof tracks (heart-shaped). White flag tail when fleeing. Dawn/dusk near forest edges.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦝</div><div class="feat-name">Raccoon</div><div class="feat-desc">Extremely common near campgrounds. Dexterous paws. Ringed tail, masked face. Will raid food storage. Bear bag all food.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐻</div><div class="feat-name">Florida Black Bear</div><div class="feat-desc">Rare but present. 200-300 lbs. Shaggy black fur, rounded ears. Found in swamps and forests. Never approach.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦊</div><div class="feat-name">Grey Fox</div><div class="feat-desc">Small canine, 3-4 lbs. Only fox that climbs trees. Salt-and-pepper colored. Nocturnal, rarely seen.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦨</div><div class="feat-name">Striped Skunk</div><div class="feat-desc">Black with white stripe. 2-4 lbs. Known for spray defense. Nocturnal. Avoid if approached.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐿️</div><div class="feat-name">Fox Squirrel</div><div class="feat-desc">Large squirrel, orange-red fur. Bushy tail. Common in oak forests. Diurnal, very active at dawn.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦫</div><div class="feat-name">Beaver</div><div class="feat-desc">Large rodent, 30-60 lbs. Flat tail, orange teeth. Build dams in freshwater. Nocturnal.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦌</div><div class="feat-name">Fallow Deer</div><div class="feat-desc">Non-native, similar to white-tailed. Spotted coat. Found in some central Florida areas.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐭</div><div class="feat-name">Marsh Rabbit</div><div class="feat-desc">Small, reddish-brown. Lives in wetlands. Swims well. Rarely ventures far from water.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦝</div><div class="feat-name">Coyote</div><div class="feat-desc">Medium canine, 30-40 lbs. Tan/grey fur. Expanding range in Florida. Nocturnal, hear howling at night.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦌</div><div class="feat-name">White-tailed Deer</div><div class="feat-desc">Most common large mammal. Cloven hoof tracks (heart-shaped). White flag tail when fleeing. Dawn/dusk near forest edges.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦝</div><div class="feat-name">Raccoon</div><div class="feat-desc">Extremely common near campgrounds. Dexterous paws. Ringed tail, masked face. Will raid food storage. Bear bag all food.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🐻</div><div class="feat-name">Florida Black Bear</div><div class="feat-desc">Rare but present. 200-300 lbs. Shaggy black fur, rounded ears. Found in swamps and forests. Never approach.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦊</div><div class="feat-name">Grey Fox</div><div class="feat-desc">Small canine, 3-4 lbs. Only fox that climbs trees. Salt-and-pepper colored. Nocturnal, rarely seen.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦨</div><div class="feat-name">Striped Skunk</div><div class="feat-desc">Black with white stripe. 2-4 lbs. Known for spray defense. Nocturnal. Avoid if approached.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🐿️</div><div class="feat-name">Fox Squirrel</div><div class="feat-desc">Large squirrel, orange-red fur. Bushy tail. Common in oak forests. Diurnal, very active at dawn.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦫</div><div class="feat-name">Beaver</div><div class="feat-desc">Large rodent, 30-60 lbs. Flat tail, orange teeth. Build dams in freshwater. Nocturnal.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦌</div><div class="feat-name">Fallow Deer</div><div class="feat-desc">Non-native, similar to white-tailed. Spotted coat. Found in some central Florida areas.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🐭</div><div class="feat-name">Marsh Rabbit</div><div class="feat-desc">Small, reddish-brown. Lives in wetlands. Swims well. Rarely ventures far from water.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦝</div><div class="feat-name">Coyote</div><div class="feat-desc">Medium canine, 30-40 lbs. Tan/grey fur. Expanding range in Florida. Nocturnal, hear howling at night.</div></div>
 
     <!-- REPTILES -->
-    <div class="feat-card"><div class="feat-icon">🐊</div><div class="feat-name">American Alligator</div><div class="feat-desc">6-14 ft long. Log-like shape near water. Eyes glow red in flashlight. Found in all freshwater.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐢</div><div class="feat-name">Gopher Tortoise</div><div class="feat-desc">Protected species. Domed shell, stumpy legs. Creates 10 ft deep burrows. Home to 350+ animal species.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐍</div><div class="feat-name">Eastern Diamondback Rattlesnake</div><div class="feat-desc">Largest venomous snake. Diamond pattern, triangular head. Loud rattle. Can reach 8 feet. Give wide berth.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦎</div><div class="feat-name">Green Anole</div><div class="feat-desc">Florida's native anole. Can change green to brown. Males show pink dewlap. Excellent insect controllers.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐢</div><div class="feat-name">Florida Softshell Turtle</div><div class="feat-desc">Flat, leathery shell. Long neck, small head. Fast swimmers. Found in rivers and lakes.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐍</div><div class="feat-name">Water Moccasin (Cottonmouth)</div><div class="feat-desc">Venomous, aquatic snake. Dark, heavy body. Found near water. White mouth when threatened.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦗</div><div class="feat-name">Florida Scrub Lizard</div><div class="feat-desc">Small, spiny. Only in Florida scrub habitat. Blue coloring on males. Extremely agile.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐢</div><div class="feat-name">Box Turtle</div><div class="feat-desc">Domed shell, hinged plastron. Brown coloring. Can close shell completely. Shy and slow-moving.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐍</div><div class="feat-name">Corn Snake</div><div class="feat-desc">Non-venomous, beautiful orange/red. Found in various habitats. Docile and beneficial.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦎</div><div class="feat-name">Leopard Gecko</div><div class="feat-desc">Spotted pattern, yellowish. Nocturnal. Non-native but established in some areas.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐊</div><div class="feat-name">American Alligator</div><div class="feat-desc">6-14 ft long. Log-like shape near water. Eyes glow red in flashlight. Found in all freshwater.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐢</div><div class="feat-name">Gopher Tortoise</div><div class="feat-desc">Protected species. Domed shell, stumpy legs. Creates 10 ft deep burrows. Home to 350+ animal species.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Eastern Diamondback Rattlesnake</div><div class="feat-desc">Largest venomous snake. Diamond pattern, triangular head. Loud rattle. Can reach 8 feet. Give wide berth.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🦎</div><div class="feat-name">Green Anole</div><div class="feat-desc">Florida's native anole. Can change green to brown. Males show pink dewlap. Excellent insect controllers.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐢</div><div class="feat-name">Florida Softshell Turtle</div><div class="feat-desc">Flat, leathery shell. Long neck, small head. Fast swimmers. Found in rivers and lakes.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Water Moccasin (Cottonmouth)</div><div class="feat-desc">Venomous, aquatic snake. Dark, heavy body. Found near water. White mouth when threatened.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🦗</div><div class="feat-name">Florida Scrub Lizard</div><div class="feat-desc">Small, spiny. Only in Florida scrub habitat. Blue coloring on males. Extremely agile.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐢</div><div class="feat-name">Box Turtle</div><div class="feat-desc">Domed shell, hinged plastron. Brown coloring. Can close shell completely. Shy and slow-moving.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Corn Snake</div><div class="feat-desc">Non-venomous, beautiful orange/red. Found in various habitats. Docile and beneficial.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🦎</div><div class="feat-name">Leopard Gecko</div><div class="feat-desc">Spotted pattern, yellowish. Nocturnal. Non-native but established in some areas.</div></div>
 
     <!-- BIRDS -->
-    <div class="feat-card"><div class="feat-icon">🦅</div><div class="feat-name">Bald Eagle</div><div class="feat-desc">Year-round resident. White head/tail only at age 4-5. 8 ft wingspan. Near lakes and coastlines.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦩</div><div class="feat-name">Roseate Spoonbill</div><div class="feat-desc">Unmistakable pink color. Spatula-shaped bill. Shallow water sweeper. Healthy wetland indicator.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐦</div><div class="feat-name">Sandhill Crane</div><div class="feat-desc">Tall grey birds, red forehead patch. Walk in pairs or families. Loud bugling call. Mate for life.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦅</div><div class="feat-name">Red-shouldered Hawk</div><div class="feat-desc">Medium raptor. Rufous shoulders, barred wings. Common in woodlands. Loud kee-ahh call.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐝</div><div class="feat-name">Florida Scrub Jay</div><div class="feat-desc">Bright blue and grey. Only in Florida scrub. Threatened species. Extremely curious, may land on you.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦉</div><div class="feat-name">Barred Owl</div><div class="feat-desc">Large, stocky owl. Rounded head, no ear tufts. Deep hooting call. Nocturnal hunter.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦜</div><div class="feat-name">Pileated Woodpecker</div><div class="feat-desc">Large black woodpecker, red crest. Loud drumming. Excavates large rectangular holes.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦅</div><div class="feat-name">Osprey</div><div class="feat-desc">Fish-hunting raptor. White underside, dark back. Hovers over water then dives. Builds large stick nests.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦢</div><div class="feat-name">White Ibis</div><div class="feat-desc">White plumage, long curved bill. Wades in shallow water. Colonial nesters. Seen in flocks.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦆</div><div class="feat-name">Wood Duck</div><div class="feat-desc">Colorful male, iridescent green. Perches in trees. Cavity nester. Dabbling dabbler, not a diver.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦅</div><div class="feat-name">Bald Eagle</div><div class="feat-desc">Year-round resident. White head/tail only at age 4-5. 8 ft wingspan. Near lakes and coastlines.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦩</div><div class="feat-name">Roseate Spoonbill</div><div class="feat-desc">Unmistakable pink color. Spatula-shaped bill. Shallow water sweeper. Healthy wetland indicator.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🐦</div><div class="feat-name">Sandhill Crane</div><div class="feat-desc">Tall grey birds, red forehead patch. Walk in pairs or families. Loud bugling call. Mate for life.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦅</div><div class="feat-name">Red-shouldered Hawk</div><div class="feat-desc">Medium raptor. Rufous shoulders, barred wings. Common in woodlands. Loud kee-ahh call.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🐝</div><div class="feat-name">Florida Scrub Jay</div><div class="feat-desc">Bright blue and grey. Only in Florida scrub. Threatened species. Extremely curious, may land on you.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦉</div><div class="feat-name">Barred Owl</div><div class="feat-desc">Large, stocky owl. Rounded head, no ear tufts. Deep hooting call. Nocturnal hunter.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦜</div><div class="feat-name">Pileated Woodpecker</div><div class="feat-desc">Large black woodpecker, red crest. Loud drumming. Excavates large rectangular holes.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦅</div><div class="feat-name">Osprey</div><div class="feat-desc">Fish-hunting raptor. White underside, dark back. Hovers over water then dives. Builds large stick nests.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦢</div><div class="feat-name">White Ibis</div><div class="feat-desc">White plumage, long curved bill. Wades in shallow water. Colonial nesters. Seen in flocks.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦆</div><div class="feat-name">Wood Duck</div><div class="feat-desc">Colorful male, iridescent green. Perches in trees. Cavity nester. Dabbling dabbler, not a diver.</div></div>
 
     <!-- INSECTS & ARACHNIDS -->
-    <div class="feat-card"><div class="feat-icon">🦋</div><div class="feat-name">Monarch Butterfly</div><div class="feat-desc">Orange/black, white spot border. Major migration corridor. Travel 3,000 miles. Fall migration peak.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦋</div><div class="feat-name">Swallowtail Butterfly</div><div class="feat-desc">Large, yellow with black stripes. Distinctive tail extensions on wings. Fast, erratic flight.</div></div>
-    <div class="feat-card"><div class="feat-icon">🪲</div><div class="feat-name">Lubber Grasshopper</div><div class="feat-desc">Florida's largest grasshopper, 3 inches. Yellow/black/red coloring. Flightless. Warning coloration.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐝</div><div class="feat-name">Honeybee</div><div class="feat-desc">Essential pollinator. Golden/brown. Build hexagonal honeycomb. Colony of 20,000-80,000 bees.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦂</div><div class="feat-name">Florida Scorpion</div><div class="feat-desc">Small, yellow. Venomous but rarely fatal. Nocturnal. Glow under UV light.</div></div>
-    <div class="feat-card"><div class="feat-icon">🕷️</div><div class="feat-name">Orb Weaver Spider</div><div class="feat-desc">Large, colorful. Build geometric webs. Beneficial insect controllers. Non-aggressive.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦗</div><div class="feat-name">Cricket</div><div class="feat-desc">Brown/black, chirping at night. Excellent hearing. Omnivorous. Important food source for wildlife.</div></div>
-    <div class="feat-card"><div class="feat-icon">🪰</div><div class="feat-name">Damselfly</div><div class="feat-desc">Slender, colored wings. Predatory. Important wetland indicator. Hover over water.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦟</div><div class="feat-name">Mosquito</div><div class="feat-desc">Small blood-suckers. Only females bite. Disease carriers. Breeding in still water.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦑</div><div class="feat-name">Dragonfly</div><div class="feat-desc">Large wings, iridescent. Aerial hunters. Eat thousands of mosquitoes daily. Prehistoric lineage.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦋</div><div class="feat-name">Monarch Butterfly</div><div class="feat-desc">Orange/black, white spot border. Major migration corridor. Travel 3,000 miles. Fall migration peak.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦋</div><div class="feat-name">Swallowtail Butterfly</div><div class="feat-desc">Large, yellow with black stripes. Distinctive tail extensions on wings. Fast, erratic flight.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🪲</div><div class="feat-name">Lubber Grasshopper</div><div class="feat-desc">Florida's largest grasshopper, 3 inches. Yellow/black/red coloring. Flightless. Warning coloration.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🐝</div><div class="feat-name">Honeybee</div><div class="feat-desc">Essential pollinator. Golden/brown. Build hexagonal honeycomb. Colony of 20,000-80,000 bees.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦂</div><div class="feat-name">Florida Scorpion</div><div class="feat-desc">Small, yellow. Venomous but rarely fatal. Nocturnal. Glow under UV light.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🕷️</div><div class="feat-name">Orb Weaver Spider</div><div class="feat-desc">Large, colorful. Build geometric webs. Beneficial insect controllers. Non-aggressive.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦗</div><div class="feat-name">Cricket</div><div class="feat-desc">Brown/black, chirping at night. Excellent hearing. Omnivorous. Important food source for wildlife.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🪰</div><div class="feat-name">Damselfly</div><div class="feat-desc">Slender, colored wings. Predatory. Important wetland indicator. Hover over water.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦟</div><div class="feat-name">Mosquito</div><div class="feat-desc">Small blood-suckers. Only females bite. Disease carriers. Breeding in still water.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦑</div><div class="feat-name">Dragonfly</div><div class="feat-desc">Large wings, iridescent. Aerial hunters. Eat thousands of mosquitoes daily. Prehistoric lineage.</div></div>
 
     <!-- PLANTS -->
-    <div class="feat-card"><div class="feat-icon">🌴</div><div class="feat-name">Sabal Palm</div><div class="feat-desc">Florida's state tree. Fan-shaped fronds, bootjack marks. Berries eaten by wildlife. Hurricane-resistant.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌿</div><div class="feat-name">Spanish Moss</div><div class="feat-desc">Not a moss—epiphytic bromeliad. Hangs in grey-green curtains. Provides animal habitat. Non-parasitic.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌴</div><div class="feat-name">Saw Palmetto</div><div class="feat-desc">Low-growing fan palm. Razor-sharp serrated stems. Dense clusters in scrub. Wildlife food source.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌺</div><div class="feat-name">Firebush</div><div class="feat-desc">Native shrub, orange-red flowers. Spring-fall blooming. Attracts hummingbirds/butterflies. Great for projects.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌳</div><div class="feat-name">Longleaf Pine</div><div class="feat-desc">Tall pine, long needles. Important ecosystem. Requires periodic burning. Declining due to loss.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌲</div><div class="feat-name">Slash Pine</div><div class="feat-desc">Thick, rough bark. 60+ feet tall. Found throughout Florida. Fast growing.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌳</div><div class="feat-name">Live Oak</div><div class="feat-desc">Massive, spreading branches. Evergreen. Habitat for Spanish moss. Ancient specimens statewide.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌳</div><div class="feat-name">Cypress Tree</div><div class="feat-desc">Coniferous, found in wetlands. Knees emerge from water. Ancient trees. Beautiful fall colors.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌿</div><div class="feat-name">Palmetto Scrub</div><div class="feat-desc">Dense shrubland vegetation. Saw palmettos dominate. Low-growing, fire-adapted. Limited habitat.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌸</div><div class="feat-name">Coreopsis</div><div class="feat-desc">Yellow wildflower. Native to Florida. Spring blooming. Easy to grow, attracts butterflies.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌿</div><div class="feat-name">Mangrove</div><div class="feat-desc">Salt-water tree. Prop roots extend into water. Nursery for fish. Coastal protection.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌾</div><div class="feat-name">Cordgrass</div><div class="feat-desc">Marsh grass, golden color. Stabilizes shoreline. Fish nursery habitat. Salt-tolerant.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌺</div><div class="feat-name">Milkweed</div><div class="feat-desc">Purple flowers. Essential for Monarch caterpillars. Native wildflower. Easy to plant.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌿</div><div class="feat-name">Water Lily</div><div class="feat-desc">Floating aquatic plant. Pink/white flowers. Provides shelter for aquatic life. Slow-growing.</div></div>
-    <div class="feat-card"><div class="feat-icon">🌾</div><div class="feat-name">Sea Oats</div><div class="feat-desc">Beach grass. Golden plumes. Holds sand dunes. Protected—never pick.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌴</div><div class="feat-name">Sabal Palm</div><div class="feat-desc">Florida's state tree. Fan-shaped fronds, bootjack marks. Berries eaten by wildlife. Hurricane-resistant.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌿</div><div class="feat-name">Spanish Moss</div><div class="feat-desc">Not a moss—epiphytic bromeliad. Hangs in grey-green curtains. Provides animal habitat. Non-parasitic.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌴</div><div class="feat-name">Saw Palmetto</div><div class="feat-desc">Low-growing fan palm. Razor-sharp serrated stems. Dense clusters in scrub. Wildlife food source.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌺</div><div class="feat-name">Firebush</div><div class="feat-desc">Native shrub, orange-red flowers. Spring-fall blooming. Attracts hummingbirds/butterflies. Great for projects.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌳</div><div class="feat-name">Longleaf Pine</div><div class="feat-desc">Tall pine, long needles. Important ecosystem. Requires periodic burning. Declining due to loss.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌲</div><div class="feat-name">Slash Pine</div><div class="feat-desc">Thick, rough bark. 60+ feet tall. Found throughout Florida. Fast growing.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌳</div><div class="feat-name">Live Oak</div><div class="feat-desc">Massive, spreading branches. Evergreen. Habitat for Spanish moss. Ancient specimens statewide.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌳</div><div class="feat-name">Cypress Tree</div><div class="feat-desc">Coniferous, found in wetlands. Knees emerge from water. Ancient trees. Beautiful fall colors.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌿</div><div class="feat-name">Palmetto Scrub</div><div class="feat-desc">Dense shrubland vegetation. Saw palmettos dominate. Low-growing, fire-adapted. Limited habitat.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌸</div><div class="feat-name">Coreopsis</div><div class="feat-desc">Yellow wildflower. Native to Florida. Spring blooming. Easy to grow, attracts butterflies.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌿</div><div class="feat-name">Mangrove</div><div class="feat-desc">Salt-water tree. Prop roots extend into water. Nursery for fish. Coastal protection.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌾</div><div class="feat-name">Cordgrass</div><div class="feat-desc">Marsh grass, golden color. Stabilizes shoreline. Fish nursery habitat. Salt-tolerant.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌺</div><div class="feat-name">Milkweed</div><div class="feat-desc">Purple flowers. Essential for Monarch caterpillars. Native wildflower. Easy to plant.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌿</div><div class="feat-name">Water Lily</div><div class="feat-desc">Floating aquatic plant. Pink/white flowers. Provides shelter for aquatic life. Slow-growing.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌾</div><div class="feat-name">Sea Oats</div><div class="feat-desc">Beach grass. Golden plumes. Holds sand dunes. Protected—never pick.</div></div>
 
     <!-- AMPHIBIANS -->
-    <div class="feat-card"><div class="feat-icon">🐸</div><div class="feat-name">American Bullfrog</div><div class="feat-desc">Large frog, 3-6 inches. Deep jug-o-rum call. Cannibalistic tadpoles. Found in freshwater.</div></div>
-    <div class="feat-card"><div class="feat-icon">🐸</div><div class="feat-name">Treefrog</div><div class="feat-desc">Small, 1 inch. Green or brown. Tree dweller. Loud chirping chorus at night during breeding.</div></div>
-    <div class="feat-card"><div class="feat-icon">🦎</div><div class="feat-name">Florida Newt</div><div class="feat-desc">Red eft stage bright orange. Aquatic as adults. Toxic skin. Live in wetlands and forests.</div></div>
+    <div class="feat-card" data-fg="amphibians"><div class="feat-icon">🐸</div><div class="feat-name">American Bullfrog</div><div class="feat-desc">Large frog, 3-6 inches. Deep jug-o-rum call. Cannibalistic tadpoles. Found in freshwater.</div></div>
+    <div class="feat-card" data-fg="amphibians"><div class="feat-icon">🐸</div><div class="feat-name">Treefrog</div><div class="feat-desc">Small, 1 inch. Green or brown. Tree dweller. Loud chirping chorus at night during breeding.</div></div>
+    <div class="feat-card" data-fg="amphibians"><div class="feat-icon">🦎</div><div class="feat-name">Florida Newt</div><div class="feat-desc">Red eft stage bright orange. Aquatic as adults. Toxic skin. Live in wetlands and forests.</div></div>
+    <div class="feat-card" data-fg="amphibians"><div class="feat-icon">🐸</div><div class="feat-name">Squirrel Treefrog</div><div class="feat-desc">Tiny, 0.75 inches. Green to brown. Tree percher. Loud aggressive call despite small size.</div></div>
+    <div class="feat-card" data-fg="amphibians"><div class="feat-icon">🐸</div><div class="feat-name">Pig Frog</div><div class="feat-desc">Small, grunting call. Found in marshes. Burrows in mud. Nocturnal.</div></div>
+    <div class="feat-card" data-fg="amphibians"><div class="feat-icon">🐢</div><div class="feat-name">Cane Toad</div><div class="feat-desc">Large, bumpy warty skin. Poisonous secretions. Invasive. Active at dusk/night.</div></div>
+
+    <!-- MORE MAMMALS -->
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦥</div><div class="feat-name">Three-toed Sloth</div><div class="feat-desc">Slow, tree-dwelling. Long claws. Moss covers fur. Rare sightings in Florida.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦨</div><div class="feat-name">Spotted Skunk</div><div class="feat-desc">Smaller than striped. White spots instead of stripes. Handstand before spraying.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦫</div><div class="feat-name">Nutria</div><div class="feat-desc">Large rodent, orange teeth. Aquatic, like beavers. Invasive species. Destroys wetlands.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦌</div><div class="feat-name">Axis Deer</div><div class="feat-desc">Non-native, spotted coat year-round. Chestnut color. Males have lyre-shaped antlers.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦝</div><div class="feat-name">Kinkajou</div><div class="feat-desc">Tree-dwelling, fruit-loving. Golden-brown fur. Prehensile tail. Nocturnal.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦨</div><div class="feat-name">Opossum</div><div class="feat-desc">White face, grey body. Plays dead when threatened. Immune to snake venom. Common.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦔</div><div class="feat-name">Hedgehog</div><div class="feat-desc">Spiky ball when rolled up. Nocturnal. Eats insects. Non-native invasive.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🐭</div><div class="feat-name">Cotton Mouse</div><div class="feat-desc">Small, dark grey. Wood inhabitor. Excellent climber. Nests in trees.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🐭</div><div class="feat-name">Rice Rat</div><div class="feat-desc">Semi-aquatic, 4-5 inches. Found in marshes. Nocturnal swimmer.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦝</div><div class="feat-name">Bobcat</div><div class="feat-desc">Tufted ears, spotted coat. Shy, elusive. Twice size of house cat. Solitary hunter.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦊</div><div class="feat-name">Red Fox</div><div class="feat-desc">Reddish coat, white-tipped tail. Smaller than grey fox. Expanding into Florida.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦐</div><div class="feat-name">Armadillo</div><div class="feat-desc">Armored shell, burrowing mammal. Curls when threatened. Can hold breath 6 minutes.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🐘</div><div class="feat-name">Manatee</div><div class="feat-desc">Large aquatic mammal, 800-1200 lbs. Vegetarian. Endangered. Peaceful herbivore.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🐬</div><div class="feat-name">Bottlenose Dolphin</div><div class="feat-desc">Marine mammal, intelligent. Coastal and river populations. Social pods. Playful.</div></div>
+    <div class="feat-card" data-fg="mammals"><div class="feat-icon">🦭</div><div class="feat-name">Pinniped Seal</div><div class="feat-desc">Marine mammal, rare visitor. Cold water species. Occasional winter sightings.</div></div>
+
+    <!-- MORE REPTILES -->
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Python (Burmese)</div><div class="feat-desc">Invasive, can reach 16 feet. Muscular body. Threat to native species. Established in Everglades.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Indigo Snake</div><div class="feat-desc">Florida's largest native snake, 6+ feet. Blue-black iridescent. Harmless, declining population.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐢</div><div class="feat-name">Loggerhead Sea Turtle</div><div class="feat-desc">Ocean turtle, nests on beaches. Reddish-brown shell. Threatened species.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐢</div><div class="feat-name">Green Sea Turtle</div><div class="feat-desc">Ocean turtle, greenish shell. Herbivorous seagrass eater. Critically endangered.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐢</div><div class="feat-name">Leatherback Sea Turtle</div><div class="feat-desc">Largest sea turtle, leathery shell. Deep ocean diver. Endangered.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🦎</div><div class="feat-name">Six-lined Racerunner</div><div class="feat-desc">Fast lizard, striped pattern. Open habitat runner. Active daytime.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🦎</div><div class="feat-name">Fence Lizard</div><div class="feat-desc">Brown, tree climber. Territorial males do pushups. Excellent camouflage.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Rat Snake (Black)</div><div class="feat-desc">Non-venomous, climbs excellently. Solid black adults. Beneficial rodent controller.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Kingsnake (King)</div><div class="feat-desc">Immune to venom. Eat other snakes including venomous ones. Patterned body.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐊</div><div class="feat-name">American Crocodile</div><div class="feat-desc">Rare, 15-20 feet. V-shaped snout. Endangered. Only in Florida Keys/south.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🦎</div><div class="feat-name">Curly-tailed Lizard</div><div class="feat-desc">Brownish, curls tail when threatened. Invasive. Bahama native. Assertive.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🦎</div><div class="feat-name">Knight Anole</div><div class="feat-desc">Large bright green. Males have dewlaps. Caribbean native. Tree dweller.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Garter Snake</div><div class="feat-desc">Striped pattern. Harmless. Eat frogs/fish. Adapt well to disturbance.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Ribbon Snake</div><div class="feat-desc">Thin striped snake. Aquatic preference. Non-venomous. Graceful swimmer.</div></div>
+    <div class="feat-card" data-fg="reptiles"><div class="feat-icon">🐍</div><div class="feat-name">Hognose Snake</div><div class="feat-desc">Upturned snout. Plays dead when threatened. Non-venomous. Toad specialist.</div></div>
+
+    <!-- MORE BIRDS -->
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦢</div><div class="feat-name">Mute Swan</div><div class="feat-desc">Large white bird. Black bill. Invasive species. Aggressive to natives.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦆</div><div class="feat-name">Anhinga</div><div class="feat-desc">Water bird, long neck. Cormorant-like. Dries wings spread-eagled on branches.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦆</div><div class="feat-name">Great Blue Heron</div><div class="feat-desc">Large wading bird, 4-5 feet. Grey-blue. Stalks fish patiently. Prefers wetlands.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦆</div><div class="feat-name">Great Egret</div><div class="feat-desc">Large white wader. Long black legs, yellow bill. Breeding plumage stunning.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦆</div><div class="feat-name">Cattle Egret</div><div class="feat-desc">Small white heron. Follows cattle/livestock. Orange/buff breeding colors.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦅</div><div class="feat-name">Short-tailed Hawk</div><div class="feat-desc">Small raptor, soars high. Light and dark morphs. Graceful aerial hunter.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦆</div><div class="feat-name">Moorhen (Common)</div><div class="feat-desc">Dark wetland bird. Red bill, yellow legs. Clucking call. Dabbles in shallows.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦆</div><div class="feat-name">American Coot</div><div class="feat-desc">Black diving duck. White bill and forehead. Lobed toes. Lakes and ponds.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦜</div><div class="feat-name">Monk Parakeet</div><div class="feat-desc">Green parrot, introduced. Builds large communal nests. Vocal, colorful.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🕊️</div><div class="feat-name">Mourning Dove</div><div class="feat-desc">Grey-brown, long-tailed. Distinctive cooing call. Ground feeder. Year-round.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦅</div><div class="feat-name">Swallow-tailed Kite</div><div class="feat-desc">Graceful raptor, deeply forked tail. Aerial insect hunter. Migratory.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🐦</div><div class="feat-name">Brown Pelican</div><div class="feat-desc">Large water bird. Pouch for fish. Dives from high. State bird. Comeback species.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦆</div><div class="feat-name">Limpkin</div><div class="feat-desc">Brown wading bird. Long bill. Eats apple snails. Loud wailing cry.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🦅</div><div class="feat-name">Purple Gallinule</div><div class="feat-desc">Colorful purple/blue. Yellow bill. Walks on lily pads. Wetland denizen.</div></div>
+    <div class="feat-card" data-fg="birds"><div class="feat-icon">🐦</div><div class="feat-name">Yellow-rumped Warbler</div><div class="feat-desc">Winter visitor. Yellow patches. Abundant winter songbird. Active feeders.</div></div>
+
+    <!-- MORE INSECTS -->
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🐝</div><div class="feat-name">Sweat Bee</div><div class="feat-desc">Small metallic bees. Attracted to human sweat. Non-aggressive. Important pollinators.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦂</div><div class="feat-name">Whip Scorpion</div><div class="feat-desc">Long tail-like appendage. Sprays acid. Harmless. Predatory insectivore.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦗</div><div class="feat-name">Camel Cricket</div><div class="feat-desc">Hump-backed, long legs. Nocturnal jumpers. Found in caves/dark places.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦗</div><div class="feat-name">Mole Cricket</div><div class="feat-desc">Burrowing cricket. Large front claws. Underground tunneler. Loud singing.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🪲</div><div class="feat-name">Firefly (Lightning Bug)</div><div class="feat-desc">Bioluminescent beetle. Glowing abdomen. Summer night signals. Beautiful displays.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦋</div><div class="feat-name">Zebra Longwing</div><div class="feat-desc">Florida's state butterfly. Black/white striped. Year-round. Slow flier.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦋</div><div class="feat-name">Viceroy Butterfly</div><div class="feat-desc">Mimics Monarch. Orange/black. Edible but copycat pattern deters predators.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦗</div><div class="feat-name">Katydid</div><div class="feat-desc">Green insect, leaf-like wings. Loud katy-did call. Nocturnal. Summer sound.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🕷️</div><div class="feat-name">Jumping Spider</div><div class="feat-desc">Huge forward-facing eyes. Excellent vision, jumps 40x body length. Curious, harmless.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦟</div><div class="feat-name">Cicada</div><div class="feat-desc">Large insect, loud buzzing. Shed exoskeletons. 13-17 year cycles. Summer sound.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦋</div><div class="feat-name">Painted Lady</div><div class="feat-desc">Orange/black/white wings. Migratory species. Fast fliers. Abundant some years.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦋</div><div class="feat-name">Buckeye Butterfly</div><div class="feat-desc">Eye-spots on wings. Brown with blue. Predator deterrent. Spring/summer.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🪲</div><div class="feat-name">Beetle (Longhorn)</div><div class="feat-desc">Antennae longer than body. Wood borers. Various colors. Some invasive.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🦂</div><div class="feat-name">Wolf Spider</div><div class="feat-desc">Ground hunter, no web. Excellent eyesight. Carries babies on back. Beneficial.</div></div>
+    <div class="feat-card" data-fg="insects"><div class="feat-icon">🐝</div><div class="feat-name">Bumble Bee</div><div class="feat-desc">Large fuzzy bee. Social colonies. Better cold tolerance. Excellent pollinators.</div></div>
+
+    <!-- MORE PLANTS -->
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌻</div><div class="feat-name">Sunflower</div><div class="feat-desc">Large yellow petals. Tracks sun. Seed-filled center. Attracts pollinators.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌸</div><div class="feat-name">Black-eyed Susan</div><div class="feat-desc">Yellow petals, dark center. Native wildflower. Blooms summer/fall. Dry tolerant.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌺</div><div class="feat-name">Passion Flower Vine</div><div class="feat-desc">Intricate purple/white blooms. Host plant for Gulf Fritillary butterfly. Climbing vine.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌳</div><div class="feat-name">Bald Cypress</div><div class="feat-desc">Deciduous conifer. Knees in swamps. Reddish fall color. Massive specimens in Florida.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌳</div><div class="feat-name">Sweet Gum</div><div class="feat-desc">Star-shaped leaves. Spiky seed balls. Beautiful fall colors. Medicinal resin.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌳</div><div class="feat-name">Tupelo Tree</div><div class="feat-desc">Water-loving. Tupelo honey source. Pale wood. Coastal plain native.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌴</div><div class="feat-name">Cabbage Palm</div><div class="feat-desc">Edible heart (swamp cabbage). Fan fronds. Tall trunk. Evergreen.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌳</div><div class="feat-name">Persimmon</div><div class="feat-desc">Small tree, orange fruit. Astringent when unripe. Wildlife food source.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌿</div><div class="feat-name">Saw Grass</div><div class="feat-desc">Sharp-edged marsh grass. Everglades dominant. Razor-sharp blades.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌺</div><div class="feat-name">Blazing Star (Liatris)</div><div class="feat-desc">Purple spikes of flowers. Native wildflower. Butterfly magnet. Summer bloomer.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌿</div><div class="feat-name">Fern (Bracken)</div><div class="feat-desc">Common frond. Grows in dry areas. Unfurls in spring. Edible fiddleheads.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌿</div><div class="feat-name">Fern (Royal)</div><div class="feat-desc">Large elegant fronds. Wetland fern. Plume-like. Graceful structure.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌿</div><div class="feat-name">Venus Flytrap</div><div class="feat-desc">Carnivorous plant. Snap trap leaves. Native to Carolina, rare in FL. Endangered.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌺</div><div class="feat-name">Beggar Ticks</div><div class="feat-desc">Purple flowers. Spiky seed dispersal. Sticky burrs catch on clothes/animals.</div></div>
+    <div class="feat-card" data-fg="plants"><div class="feat-icon">🌾</div><div class="feat-name">Wiregrass</div><div class="feat-desc">Tough narrow grass. Fire-adapted. Scrub specialist. Rare now.</div></div>
   </div>
 </div>
 </div>
 
+<script>
+function filterFieldGuide(category, button) {
+  const cards = document.querySelectorAll('#fg-grid .feat-card');
+  const tabs = document.querySelectorAll('#panel-field-guide .cat-tab');
+
+  tabs.forEach(tab => tab.classList.remove('active'));
+  button.classList.add('active');
+
+  cards.forEach(card => {
+    if (category === 'all' || card.getAttribute('data-fg') === category) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+
 <!-- ═══════════════════════════════════════════ -->
 <!-- PANEL: KNOT LIBRARY -->
 <!-- ═══════════════════════════════════════════ -->
+<style>
+.knot-card-flip { perspective:1000px }
+.knot-card-inner { position:relative; width:100%; height:280px; transition:transform 0.6s; transform-style:preserve-3d; cursor:pointer }
+.knot-card-flip:hover .knot-card-inner { transform:rotateY(180deg) }
+.knot-front, .knot-back { position:absolute; width:100%; height:100%; backface-visibility:hidden; display:flex; flex-direction:column; padding:20px; box-sizing:border-box; border-radius:var(--r2); background:var(--w); border:1.5px solid var(--bd) }
+.knot-back { transform:rotateY(180deg); background:var(--gp); border-color:var(--gl); overflow-y:auto }
+.knot-front { justify-content:space-between }
+.knot-icon { font-size:32px; margin-bottom:8px }
+.knot-name { font-size:15px; font-weight:700; color:var(--t); margin-bottom:8px }
+.knot-use { font-size:12px; color:var(--mu); line-height:1.5 }
+.knot-steps { font-size:12px; color:var(--t); line-height:1.6 }
+.knot-steps strong { color:var(--g); display:block; margin-top:6px; margin-bottom:3px }
+</style>
 <div class="panel" id="panel-knots">
 <div class="panel-inner">
   <h2>🪢 Knot Library</h2>
-  <p class="panel-subtitle">Step-by-step tying instructions for essential Scout knots</p>
-  <div style="display:grid;gap:16px">
-    <div class="card">
-      <h3>🪢 Square Knot</h3>
-      <p><strong>Use:</strong> Joining two ropes of equal thickness. <br><strong>Steps:</strong> Cross right over left, then left over right. Pull firmly. The knot should lie flat and symmetric.</p>
+  <p class="panel-subtitle">Tap any knot card to flip and see step-by-step instructions</p>
+  <div class="dash-grid">
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🪢</div><div class="knot-name">Square Knot</div><div class="knot-use">Join two ropes of equal thickness</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Cross right rope over left 2. Cross left over right 3. Pull firmly 4. Knot should lie flat and symmetric</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🏹 Bowline</h3>
-      <p><strong>Use:</strong> Creating a fixed loop that won't slip. <strong>Memory:</strong> Rabbit comes out of hole, goes around tree, back in hole.</p>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🏹</div><div class="knot-name">Bowline</div><div class="knot-use">Create a fixed loop that won't slip</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Make small loop in rope 2. "Rabbit comes out of hole" (thread through) 3. "Goes around tree" (wrap around standing line) 4. "Back in hole" (thread through loop) 5. Pull tight</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🏕️ Clove Hitch</h3>
-      <p><strong>Use:</strong> Attaching rope to a pole or post. Quick and reliable. Two half-hitches with the second crossed over the first.</p>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🏕️</div><div class="knot-name">Clove Hitch</div><div class="knot-use">Attach rope to pole or post</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Wrap rope around post 2. Cross rope over itself 3. Wrap around post again 4. Thread through the crossing 5. Pull tight</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>8️⃣ Figure Eight</h3>
-      <p><strong>Use:</strong> Stopper knot to prevent rope from slipping. Make a loop, wrap underneath, thread through the top. Bulky and reliable.</p>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">8️⃣</div><div class="knot-name">Figure Eight</div><div class="knot-use">Stopper knot at rope ends</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Make a loop 2. Wrap rope underneath 3. Thread through top of loop 4. Pull tight 5. Creates bulky, reliable stopper</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>⛺ Taut-line Hitch</h3>
-      <p><strong>Use:</strong> Adjustable tension on tent guy-lines. Slides to adjust, locks when loaded. Two coils inside, one outside.</p>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">⛺</div><div class="knot-name">Taut-line Hitch</div><div class="knot-use">Adjustable tension on tent lines</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Wrap rope around standing line twice 2. Wrap around once more (outside) 3. Thread through all three coils 4. Slides to adjust, locks when loaded</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🔗 Two Half Hitches</h3>
-      <p><strong>Use:</strong> Attaching rope to rings, rails, or posts. Simple and reliable. Both hitches face the same direction.</p>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🔗</div><div class="knot-name">Two Half Hitches</div><div class="knot-use">Attach to rings, rails, posts</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Make first half hitch around object 2. Thread working end through loop 3. Make second half hitch 4. Both face same direction 5. Pull tight</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🎯</div><div class="knot-name">Reef Knot</div><div class="knot-use">Secure bundle or join thin lines</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Right over left, left under right 2. Left over right, right under left 3. Pull both ends 4. Forms symmetrical knot</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🪝</div><div class="knot-name">Girth Hitch</div><div class="knot-use">Attach rope to rings or loops</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Pass working end through ring 2. Wrap around standing line 3. Pass through ring again 4. Thread under first wrap 5. Pull tight</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🌀</div><div class="knot-name">Slip Knot</div><div class="knot-use">Adjustable loop that tightens</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Make small loop 2. Pass working end through loop 3. Loop the working end around standing line 4. Thread through original loop 5. Tighten to desired size</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🔀</div><div class="knot-name">Sheet Bend</div><div class="knot-use">Join ropes of different thickness</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Make bend in thicker rope 2. Thread thinner rope through bend 3. Wrap around both parts 4. Thread back through bend 5. Pull tight</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🎪</div><div class="knot-name">Trucker's Hitch</div><div class="knot-use">Create mechanical advantage for tightening</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Make a fixed loop (use bowline) 2. Thread rope through anchor point 3. Wrap through loop 4. Secure end with clove hitch 5. Create 3:1 mechanical advantage</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🌉</div><div class="knot-name">Timber Hitch</div><div class="knot-use">Drag logs or drag heavy objects</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Wrap rope around log 2. Cross working end over standing line 3. Wrap around standing line twice 4. Thread through first wrap 5. Pull to tighten</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🧗</div><div class="knot-name">Double Overhand</div><div class="knot-use">Strong stopper knot at rope end</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Make initial loop 2. Wrap around standing line twice 3. Thread working end through loop 4. Pull tight 5. Larger and more secure than single overhand</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">⚓</div><div class="knot-name">Anchor Hitch</div><div class="knot-use">Tie rope to anchor ring or carabiner</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Thread rope through anchor ring 2. Make one wrap around standing line 3. Make half hitch 4. Second half hitch 5. Secure and tested</div></div>
+      </div>
+    </div>
+
+    <div class="knot-card-flip">
+      <div class="knot-card-inner">
+        <div class="knot-front"><div class="knot-icon">🎨</div><div class="knot-name">Marlinspike Hitch</div><div class="knot-use">Temporary loop using tool or stick</div></div>
+        <div class="knot-back"><div class="knot-steps"><strong>Steps:</strong> 1. Place marlinspike through loop 2. Make half hitch around spike 3. Keep loop over spike 4. Remove spike when done 5. Loop disappears</div></div>
+      </div>
     </div>
   </div>
 </div>
