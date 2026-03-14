@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rope & Climbing Challenge — Troop 242</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --rope: #92400E; --ropelight: #FEF3C7; --g: #1B4332; --gl: #52B788;
+      --red: #EF4444; --redp: #FEE2E2;
+      --bg: #F7F8F5; --w: #fff; --bd: #E2E8F0; --t: #111827; --mu: #6B7280;
+      --r: 14px; --sh: 0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--t);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      background: linear-gradient(135deg, #8B4513 0%, var(--rope) 100%);
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(146, 64, 14, .2) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+    .sub {
+      color: rgba(255, 255, 255, .7);
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .15s;
+    }
+    .back-btn:hover {
+      background: rgba(255, 255, 255, .25);
+      gap: 8px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .game-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8B4513 0%, var(--rope) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .question-card {
+      background: var(--w);
+      border: 2px solid var(--bd);
+      border-radius: var(--r);
+      padding: 32px;
+      box-shadow: var(--sh);
+    }
+
+    .question-num {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--rope);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .question-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--t);
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .image-placeholder {
+      background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
+      height: 150px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      font-size: 4rem;
+      border: 2px dashed #8B4513;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option {
+      padding: 16px 20px;
+      border: 2px solid var(--bd);
+      border-radius: 10px;
+      background: var(--w);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .option:hover {
+      border-color: var(--rope);
+      background: var(--ropelight);
+    }
+
+    .option.selected {
+      border-color: var(--rope);
+      background: var(--ropelight);
+    }
+
+    .option.correct {
+      border-color: var(--gl);
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+    }
+
+    .option.incorrect {
+      border-color: var(--red);
+      background: var(--redp);
+      color: var(--red);
+    }
+
+    .option:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .feedback {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .feedback.correct {
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+      border-left: 4px solid var(--gl);
+    }
+
+    .feedback.incorrect {
+      background: var(--redp);
+      color: var(--red);
+      border-left: 4px solid var(--red);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: all .2s ease;
+      letter-spacing: .3px;
+    }
+
+    .btn-primary {
+      background: var(--rope);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #6B2E0A;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(146, 64, 14, .2);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .results-card {
+      background: var(--ropelight);
+      border: 2px solid var(--rope);
+      border-radius: var(--r);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--sh);
+    }
+
+    .results-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    .score-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--rope);
+      margin-bottom: 12px;
+    }
+
+    .score-label {
+      font-size: 1.1rem;
+      color: var(--rope);
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .result-message {
+      font-size: 1.2rem;
+      color: var(--t);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-box {
+      background: var(--w);
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid var(--bd);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--rope);
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 32px 20px;
+        margin-bottom: 32px;
+      }
+
+      .question-card {
+        padding: 24px;
+      }
+
+      .score-display {
+        font-size: 2.5rem;
+      }
+
+      .results-card {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="scout-games-hub.html" class="back-btn">← Back</a>
+    <h1>🧗 Rope & Climbing Challenge</h1>
+    <p class="sub">Master rope safety, knots, and climbing skills</p>
+  </header>
+
+  <div class="container">
+    <div id="gameContainer" class="game-wrapper">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <div id="questionCard" class="question-card">
+        <div class="question-num" id="questionNum"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="image-placeholder" id="imagePlaceholder"></div>
+        <div class="options" id="optionsContainer"></div>
+        <button id="nextBtn" class="btn btn-primary" onclick="nextQuestion()" style="display: none; margin-top: 20px;">Next Question</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen" style="display: none;">
+      <div class="results-card">
+        <div class="results-icon">🏔️</div>
+        <div class="score-display" id="finalScore"></div>
+        <div class="score-label">out of 8 questions</div>
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Correct</div>
+            <div class="stat-value" id="correctCount"></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value" id="accuracy"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="resetQuiz()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      {
+        question: "Which knot is best for securing a rope to a fixed point like a tree?",
+        emoji: "🌲",
+        options: [
+          "Bowline",
+          "Clove Hitch",
+          "Square Knot",
+          "Slip Knot"
+        ],
+        correct: 1,
+        explanation: "The Clove Hitch is perfect for securing rope to fixed objects. It's quick to tie and easy to adjust."
+      },
+      {
+        question: "What is the primary purpose of a Figure-Eight knot in climbing?",
+        emoji: "🪢",
+        options: [
+          "To join two ropes",
+          "To create a stopper knot that won't slip through belay devices",
+          "To make a quick-release loop",
+          "To tie a person to the rope"
+        ],
+        correct: 1,
+        explanation: "A Figure-Eight is a stopper knot. Its size prevents it from slipping through carabiners and belay devices, making it critical for safety."
+      },
+      {
+        question: "What should you always do before starting any climbing activity?",
+        emoji: "✅",
+        options: [
+          "Stretch your muscles",
+          "Check all equipment, tie-in points, and safety systems",
+          "Warm up your voice",
+          "Eat a large meal"
+        ],
+        correct: 1,
+        explanation: "Safety checks are critical. Inspect ropes for damage, verify knots are correct, check carabiners, and ensure belay anchors are solid."
+      },
+      {
+        question: "What does 'belaying' mean in climbing?",
+        emoji: "🪂",
+        options: [
+          "Climbing without equipment",
+          "Managing the rope to protect a climber from falling",
+          "Resting between climbs",
+          "Jumping off a cliff safely"
+        ],
+        correct: 1,
+        explanation: "Belaying is the technique of managing rope through a belay device to control a climber's descent and catch them if they fall."
+      },
+      {
+        question: "Which type of rope is best for climbing?",
+        emoji: "🧵",
+        options: [
+          "Any rope will work",
+          "Nylon or polyester dynamic climbing rope rated for climbing",
+          "Cotton clothesline rope",
+          "Fishing line"
+        ],
+        correct: 1,
+        explanation: "Dynamic climbing ropes are specially designed to stretch and absorb impact. They're rated for climbing and have proven safety records."
+      },
+      {
+        question: "What is a 'carabiner' and what is it used for?",
+        emoji: "🔗",
+        options: [
+          "A type of climbing boot",
+          "A metal clip used to connect ropes, harnesses, and anchors securely",
+          "A protective helmet for climbing",
+          "A type of climbing hold"
+        ],
+        correct: 1,
+        explanation: "Carabiners are metal clips with locking gates. They're essential for connecting equipment safely in climbing systems."
+      },
+      {
+        question: "When climbing, what is the safest hand-to-hold ratio?",
+        emoji: "👐",
+        options: [
+          "One hand on a hold at all times",
+          "Maintain three points of contact (two hands/one foot or two feet/one hand)",
+          "Both hands only",
+          "Speed is more important than contact"
+        ],
+        correct: 1,
+        explanation: "Three-point contact means at least 3 limbs on holds at all times. This prevents falls and maintains control while climbing."
+      },
+      {
+        question: "What does 'anchoring' mean in climbing?",
+        emoji: "⚓",
+        options: [
+          "Climbing the anchor wall",
+          "Creating a secure fixed point to attach safety equipment",
+          "Holding your breath",
+          "Stopping mid-climb"
+        ],
+        correct: 1,
+        explanation: "An anchor is a secure fixed point (tree, bolt, or established system) where safety ropes are attached to protect climbers."
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadQuestion() {
+      const q = QUESTIONS[currentQuestion];
+      document.getElementById('questionNum').textContent = `Question ${currentQuestion + 1} of ${QUESTIONS.length}`;
+      document.getElementById('questionText').textContent = q.question;
+      document.getElementById('imagePlaceholder').textContent = q.emoji;
+
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      q.options.forEach((option, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.textContent = option;
+        btn.onclick = () => selectOption(idx);
+        container.appendChild(btn);
+      });
+
+      const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+
+      answered = false;
+      document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function selectOption(idx) {
+      if (answered) return;
+
+      answered = true;
+      const q = QUESTIONS[currentQuestion];
+      const options = document.querySelectorAll('.option');
+
+      options.forEach((opt, i) => {
+        opt.disabled = true;
+        if (i === q.correct) {
+          opt.classList.add('correct');
+        } else if (i === idx) {
+          opt.classList.add('incorrect');
+        }
+      });
+
+      if (idx === q.correct) {
+        score++;
+      }
+
+      const feedback = document.createElement('div');
+      feedback.className = idx === q.correct ? 'feedback correct' : 'feedback incorrect';
+      feedback.innerHTML = `<strong>${idx === q.correct ? '✓ Correct!' : '✗ Incorrect'}</strong><br>${q.explanation}`;
+      document.getElementById('optionsContainer').parentElement.appendChild(feedback);
+
+      document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < QUESTIONS.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'block';
+
+      const percentage = Math.round((score / QUESTIONS.length) * 100);
+
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('correctCount').textContent = score;
+      document.getElementById('accuracy').textContent = percentage + '%';
+
+      let message = '';
+      if (percentage >= 80) {
+        message = "🏔️ Excellent! You're a rope and climbing safety expert!";
+      } else if (percentage >= 60) {
+        message = "👍 Good knowledge! Keep practicing these essential skills.";
+      } else if (percentage >= 40) {
+        message = "📚 Study climbing and rope safety techniques more.";
+      } else {
+        message = "🧗 Get proper training before attempting climbing activities.";
+      }
+
+      document.getElementById('resultMessage').textContent = message;
+    }
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('gameContainer').style.display = 'flex';
+      document.getElementById('resultsScreen').style.display = 'none';
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

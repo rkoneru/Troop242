@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wilderness Survival Quiz — Troop 242</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --g: #1B4332; --gm: #2D6A4F; --gl: #52B788; --gp: #D8F3DC;
+      --gold: #C8960C; --goldp: #FEF9C3; --bluep: #EFF6FF; --blue: #1E40AF;
+      --red: #EF4444; --redp: #FEE2E2;
+      --bg: #F7F8F5; --w: #fff; --bd: #E2E8F0; --t: #111827; --mu: #6B7280;
+      --r: 14px; --sh: 0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--t);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      background: linear-gradient(135deg, var(--g) 0%, var(--gm) 100%);
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(82, 183, 136, .2) 0%, transparent 55%),
+                  radial-gradient(ellipse at 80% 70%, rgba(212, 160, 23, .15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+    .sub {
+      color: rgba(255, 255, 255, .7);
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .15s;
+    }
+    .back-btn:hover {
+      background: rgba(255, 255, 255, .25);
+      gap: 8px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Quiz Container */
+    .quiz-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gl) 0%, var(--gm) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .question-card {
+      background: var(--w);
+      border: 2px solid var(--bd);
+      border-radius: var(--r);
+      padding: 32px;
+      box-shadow: var(--sh);
+    }
+
+    .question-num {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gm);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .question-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--t);
+      margin-bottom: 28px;
+      line-height: 1.4;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option {
+      padding: 16px 20px;
+      border: 2px solid var(--bd);
+      border-radius: 10px;
+      background: var(--w);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .option:hover {
+      border-color: var(--gm);
+      background: var(--gp);
+    }
+
+    .option.selected {
+      border-color: var(--gm);
+      background: var(--gp);
+      font-weight: 600;
+    }
+
+    .option.correct {
+      border-color: var(--gl);
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+    }
+
+    .option.incorrect {
+      border-color: var(--red);
+      background: var(--redp);
+      color: var(--red);
+    }
+
+    .option:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .feedback {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .feedback.correct {
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+      border-left: 4px solid var(--gl);
+    }
+
+    .feedback.incorrect {
+      background: var(--redp);
+      color: var(--red);
+      border-left: 4px solid var(--red);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: all .2s ease;
+      letter-spacing: .3px;
+    }
+
+    .btn-primary {
+      background: var(--gm);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--g);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(27, 67, 50, .2);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Results Screen */
+    .results-card {
+      background: var(--gp);
+      border: 2px solid var(--gl);
+      border-radius: var(--r);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--sh);
+    }
+
+    .results-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    .score-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--g);
+      margin-bottom: 12px;
+    }
+
+    .score-label {
+      font-size: 1.1rem;
+      color: var(--gm);
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .result-message {
+      font-size: 1.2rem;
+      color: var(--t);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-box {
+      background: var(--w);
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid var(--bd);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--g);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      header {
+        padding: 32px 20px;
+        margin-bottom: 32px;
+      }
+
+      .question-card {
+        padding: 24px;
+      }
+
+      .score-display {
+        font-size: 2.5rem;
+      }
+
+      .results-card {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="scout-games-hub.html" class="back-btn">← Back</a>
+    <h1>🏕️ Wilderness Survival Quiz</h1>
+    <p class="sub">Test your outdoor survival knowledge and skills</p>
+  </header>
+
+  <div class="container">
+    <div id="quizContainer" class="quiz-wrapper">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <div id="questionCard" class="question-card">
+        <div class="question-num" id="questionNum"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="optionsContainer"></div>
+        <button id="nextBtn" class="btn btn-primary" onclick="nextQuestion()" style="display: none; margin-top: 20px;">Next Question</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen" style="display: none;">
+      <div class="results-card">
+        <div class="results-icon" id="resultsIcon">🎉</div>
+        <div class="score-display" id="finalScore"></div>
+        <div class="score-label">out of 10 questions</div>
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Correct</div>
+            <div class="stat-value" id="correctCount"></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value" id="accuracy"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="resetQuiz()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      {
+        question: "You're lost in the wilderness with no shelter. What's your first priority?",
+        options: [
+          "Finding food and water",
+          "Building shelter to protect from elements",
+          "Finding your way back",
+          "Staying calm and assessing the situation"
+        ],
+        correct: 3,
+        explanation: "Staying calm and assessing your situation is the priority. Without a clear head, other decisions won't be effective."
+      },
+      {
+        question: "What are the 'Rule of Threes' for survival?",
+        options: [
+          "3 minutes without air, 3 hours without shelter, 3 days without water",
+          "3 days without water, 3 weeks without food, 3 months without hope",
+          "3 hours without shelter, 3 days without water, 3 weeks without food",
+          "All of the above"
+        ],
+        correct: 2,
+        explanation: "You can survive about 3 hours without shelter (in harsh conditions), 3 days without water, and 3 weeks without food."
+      },
+      {
+        question: "Which of these is the safest way to purify water in the wilderness?",
+        options: [
+          "Drink it directly from the stream",
+          "Boil it for at least 1 minute (3+ minutes at high altitude)",
+          "Filter it through cloth",
+          "Add salt to it"
+        ],
+        correct: 1,
+        explanation: "Boiling water is the most reliable method to kill harmful bacteria and parasites."
+      },
+      {
+        question: "You see these berries in the forest. What should you do?",
+        options: [
+          "Eat them if they look tasty",
+          "Only eat them if animals are eating them",
+          "Don't eat them unless you can positively identify them as edible",
+          "Eat small amounts to test them"
+        ],
+        correct: 2,
+        explanation: "Never eat wild plants unless you can positively identify them. Many poisonous plants look similar to edible ones."
+      },
+      {
+        question: "What is the best way to build a survival fire in wet conditions?",
+        options: [
+          "Use wet wood - it burns longer",
+          "Gather dry wood from dead fallen branches and use tinder to start the fire",
+          "Try to dry wet wood by the fire first",
+          "Use bark as fuel"
+        ],
+        correct: 1,
+        explanation: "Dead fallen wood inside the tree is usually dry. Gather dry tinder (grass, bark), then kindling, then larger wood."
+      },
+      {
+        question: "Which is the best shelter design in heavy rain?",
+        options: [
+          "A-frame tarp shelter with good drainage",
+          "A depression in the ground for protection",
+          "Under a large tree canopy",
+          "An open lean-to facing the rain"
+        ],
+        correct: 0,
+        explanation: "An A-frame tarp provides protection and allows water to drain away. Never shelter under trees during lightning."
+      },
+      {
+        question: "You're hypothermic and shivering uncontrollably. What's the best action?",
+        options: [
+          "Warm up quickly with vigorous exercise",
+          "Have hot drinks immediately",
+          "Gradually warm the person in layers and shelter",
+          "Apply direct heat to the skin"
+        ],
+        correct: 2,
+        explanation: "Gradual warming is safest. Vigorous exercise or sudden heat can cause 'afterdrop' and worsen the condition."
+      },
+      {
+        question: "What should you do if you encounter a bear?",
+        options: [
+          "Run away as fast as you can",
+          "Climb a tree immediately",
+          "Stand tall, speak calmly, back away slowly",
+          "Play dead"
+        ],
+        correct: 2,
+        explanation: "Stand your ground, don't run. Back away slowly while facing the bear and speaking calmly. Playing dead is only for brown bears."
+      },
+      {
+        question: "How can you signal for help in the wilderness?",
+        options: [
+          "Mirror reflections can be seen for miles",
+          "Three of anything is a universal distress signal",
+          "Bright colors and noise attract rescuers",
+          "All of the above"
+        ],
+        correct: 3,
+        explanation: "All these methods work: mirrors, signal fires, whistle blasts in threes, bright clothing, and smoke signals."
+      },
+      {
+        question: "What should be in a basic survival kit?",
+        options: [
+          "Map, compass, knife, fire starter, first aid",
+          "Lots of food and water",
+          "Only a knife and rope",
+          "Heavy equipment to be safe"
+        ],
+        correct: 0,
+        explanation: "A survival kit should include essentials: navigation tools, fire starter, cutting tool, shelter, water purification, and first aid."
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadQuestion() {
+      const q = QUESTIONS[currentQuestion];
+      document.getElementById('questionNum').textContent = `Question ${currentQuestion + 1} of ${QUESTIONS.length}`;
+      document.getElementById('questionText').textContent = q.question;
+
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      q.options.forEach((option, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.textContent = option;
+        btn.onclick = () => selectOption(idx);
+        container.appendChild(btn);
+      });
+
+      const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+
+      answered = false;
+      document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function selectOption(idx) {
+      if (answered) return;
+
+      answered = true;
+      const q = QUESTIONS[currentQuestion];
+      const options = document.querySelectorAll('.option');
+
+      options.forEach((opt, i) => {
+        opt.disabled = true;
+        if (i === q.correct) {
+          opt.classList.add('correct');
+        } else if (i === idx) {
+          opt.classList.add('incorrect');
+        }
+      });
+
+      if (idx === q.correct) {
+        score++;
+      }
+
+      const feedback = document.createElement('div');
+      feedback.className = idx === q.correct ? 'feedback correct' : 'feedback incorrect';
+      feedback.innerHTML = `<strong>${idx === q.correct ? '✓ Correct!' : '✗ Incorrect'}</strong><br>${q.explanation}`;
+      document.getElementById('optionsContainer').parentElement.appendChild(feedback);
+
+      document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < QUESTIONS.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quizContainer').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'block';
+
+      const percentage = Math.round((score / QUESTIONS.length) * 100);
+
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('correctCount').textContent = score;
+      document.getElementById('accuracy').textContent = percentage + '%';
+
+      let message = '';
+      let icon = '';
+      if (percentage >= 80) {
+        message = "🏆 Excellent! You're a wilderness survival expert!";
+        icon = '🏆';
+      } else if (percentage >= 60) {
+        message = "👍 Good job! You have solid survival knowledge.";
+        icon = '👍';
+      } else if (percentage >= 40) {
+        message = "📚 Keep learning! Study outdoor survival skills.";
+        icon = '📚';
+      } else {
+        message = "🌲 Great effort! Take more time to learn wilderness skills.";
+        icon = '🌲';
+      }
+
+      document.getElementById('resultMessage').textContent = message;
+      document.getElementById('resultsIcon').textContent = icon;
+    }
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('quizContainer').style.display = 'flex';
+      document.getElementById('resultsScreen').style.display = 'none';
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
