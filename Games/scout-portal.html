@@ -439,6 +439,22 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
   </div>
   <div class="nav-divider"></div>
   <div class="nav-section">
+    <div class="nav-section-title">📚 Learning</div>
+    <button class="nav-item" onclick="openPanel('field-guide','🌿 Florida Field Guide')">
+      <span class="nav-icon">🌿</span>Field Guide (FL)
+    </button>
+    <button class="nav-item" onclick="openPanel('knots','🪢 Knot Library')">
+      <span class="nav-icon">🪢</span>Knot Library
+    </button>
+    <button class="nav-item" onclick="openPanel('first-aid-guide','🏥 First Aid Handbook')">
+      <span class="nav-icon">🏥</span>First Aid Handbook
+    </button>
+    <button class="nav-item" onclick="openPanel('survival-skills','🔥 Survival Skills')">
+      <span class="nav-icon">🔥</span>Survival Skills
+    </button>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-section">
     <div class="nav-section-title">🏕️ Events</div>
     <button class="nav-item" onclick="openPanel('countdown','⏱️ Countdown Timer')">
       <span class="nav-icon">⏱️</span>Campout Countdown Timer
@@ -482,12 +498,12 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
     <div class="dash-hero" style="margin-bottom:0">
       <h2>Welcome to Scout Portal</h2>
-      <p> 12 tools & 10 games for Troop 242 — tools, learning, event management and games</p>
+      <p>Tools, learning, games, and event management for Troop 242 Scouts and leaders</p>
     </div>
     <button class="btn btn-outline" onclick="goToScoutDashboard()" style="white-space:nowrap;flex-shrink:0">← Scout Dashboard</button>
   </div>
   <div class="cat-tabs">
-    <button class="cat-tab active" onclick="filterCat('all',this)">All (22)</button>
+    <button class="cat-tab active" onclick="filterCat('all',this)">All (26)</button>
     <button class="cat-tab" onclick="filterCat('tools',this)">🛠️ Tools</button>
     <button class="cat-tab" onclick="filterCat('learning',this)">📚 Learning</button>
     <button class="cat-tab" onclick="filterCat('events',this)">🏕️ Events</button>
@@ -519,6 +535,31 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
       <div class="feat-desc">Assign patrol jobs — KP, fire, flag, and more</div>
       <span class="feat-tag pill gold">Tool</span>
     </div>
+    <div class="feat-card" data-cat="learning" onclick="openPanel('field-guide','🌿 Florida Field Guide')">
+      <span class="feat-icon">🌿</span>
+      <div class="feat-name">Florida Field Guide</div>
+      <div class="feat-desc">Identify Central Florida plants, animals & tracks</div>
+      <span class="feat-tag pill blue">Learning</span>
+    </div>
+    <div class="feat-card" data-cat="learning" onclick="openPanel('knots','🪢 Knot Library')">
+      <span class="feat-icon">🪢</span>
+      <div class="feat-name">Knot Library</div>
+      <div class="feat-desc">Step-by-step instructions for all 10 Scout knots</div>
+      <span class="feat-tag pill blue">Learning</span>
+    </div>
+    <div class="feat-card" data-cat="learning" onclick="openPanel('first-aid-guide','🏥 First Aid Handbook')">
+      <span class="feat-icon">🏥</span>
+      <div class="feat-name">First Aid Handbook</div>
+      <div class="feat-desc">Essential medical skills and emergency response procedures</div>
+      <span class="feat-tag pill blue">Learning</span>
+    </div>
+    <div class="feat-card" data-cat="learning" onclick="openPanel('survival-skills','🔥 Survival Skills')">
+      <span class="feat-icon">🔥</span>
+      <div class="feat-name">Survival Skills</div>
+      <div class="feat-desc">Master camping, fire safety, and wilderness techniques</div>
+      <span class="feat-tag pill blue">Learning</span>
+    </div>
+
     <div class="feat-card" data-cat="events" onclick="openPanel('countdown','⏱️ Countdown Timer')">
       <span class="feat-icon">⏱️</span>
       <div class="feat-name">Campout Countdown</div>
@@ -865,6 +906,141 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 </div>
 </div>
 
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: FIRST AID HANDBOOK -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-first-aid-guide">
+<div class="panel-inner">
+  <h2>🏥 First Aid Handbook</h2>
+  <p class="panel-subtitle">Essential medical skills and emergency response</p>
+  <div style="display:grid;gap:16px">
+    <div class="card">
+      <h3>🩹 Basic Wound Care</h3>
+      <p>Clean wounds with water, apply pressure to stop bleeding, use sterile bandages. For deeper cuts, seek medical attention.</p>
+    </div>
+    <div class="card">
+      <h3>🔥 Burn Treatment</h3>
+      <p>Cool burns with running water for 10-20 minutes. Cover with clean, non-fluffy material. Never use ice directly on skin.</p>
+    </div>
+    <div class="card">
+      <h3>🦴 Fracture & Sprains</h3>
+      <p>Immobilize the injured area using splints or slings. Apply ice wrapped in cloth. Elevate if possible. Rest and seek medical help.</p>
+    </div>
+    <div class="card">
+      <h3>💊 CPR Basics</h3>
+      <p>Call 911 first. Perform chest compressions at 100-120 beats per minute. If trained in rescue breathing, provide 2 breaths after every 30 compressions.</p>
+    </div>
+    <div class="card">
+      <h3>🚑 Shock Response</h3>
+      <p>Keep victim warm and lying down. Elevate legs if no spinal injury suspected. Monitor breathing. Seek immediate emergency help.</p>
+    </div>
+    <div class="card">
+      <h3>🐝 Insect Stings & Bites</h3>
+      <p>Remove stinger carefully. Apply ice and elevate if possible. Use antihistamines for itching. Watch for allergic reactions.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: SURVIVAL SKILLS -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-survival-skills">
+<div class="panel-inner">
+  <h2>🔥 Survival Skills</h2>
+  <p class="panel-subtitle">Master camping, fire safety, and wilderness techniques</p>
+  <div style="display:grid;gap:16px">
+    <div class="card">
+      <h3>🏕️ Shelter Building</h3>
+      <p>Use natural materials or a tarp to create windproof, waterproof shelter. Position away from dead trees and water hazards. Ensure good drainage.</p>
+    </div>
+    <div class="card">
+      <h3>💧 Water Safety</h3>
+      <p>Boil water for 1 minute (3 minutes at high altitude). Use water purification tablets or filters. Collect from moving sources when possible.</p>
+    </div>
+    <div class="card">
+      <h3>🔥 Fire Starting</h3>
+      <p>Gather tinder, kindling, and fuel wood. Use matches, lighters, or friction methods. Keep fire contained in a proper fire ring. Never leave fire unattended.</p>
+    </div>
+    <div class="card">
+      <h3>🗺️ Navigation</h3>
+      <p>Read maps using landmarks and compass. Understand terrain contours. Mark your route. If lost, stay put and signal for help.</p>
+    </div>
+    <div class="card">
+      <h3>🍖 Food Procurement</h3>
+      <p>Know edible plants in your region. Never eat unknown plants. Fishing and trapping require practice and local regulations compliance.</p>
+    </div>
+    <div class="card">
+      <h3>⛺ Camp Hygiene</h3>
+      <p>Locate latrine 100+ feet from water sources. Wash hands and dishes away from water. Store food safely from animals. Pack out all trash.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: FIELD GUIDE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-field-guide">
+<div class="panel-inner">
+  <h2>🌿 Florida Field Guide</h2>
+  <p class="panel-subtitle">Identify Central Florida wildlife, plants, and tracks</p>
+  <div style="display:grid;gap:16px">
+    <div class="card">
+      <h3>🦌 White-tailed Deer</h3>
+      <p>Florida's most common large mammal. Look for cloven hoof tracks (heart-shaped) and white flag tail when fleeing. Often seen at dawn/dusk near forest edges.</p>
+    </div>
+    <div class="card">
+      <h3>🐊 American Alligator</h3>
+      <p>Found in any freshwater in Florida. Ranges from 6-14 ft. Look for log-like shapes near water edges. Eyes glow red in flashlight at night.</p>
+    </div>
+    <div class="card">
+      <h3>🦅 Bald Eagle</h3>
+      <p>Year-round Florida resident. White head and tail only appear at age 4-5. Wingspans up to 8 feet. Look near large lakes and coastlines.</p>
+    </div>
+    <div class="card">
+      <h3>🌴 Sabal Palm</h3>
+      <p>Florida's state tree. Fan-shaped fronds, bootjack marks on trunk. Berries eaten by wildlife. Found statewide. Hurricane-resistant.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: KNOT LIBRARY -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-knots">
+<div class="panel-inner">
+  <h2>🪢 Knot Library</h2>
+  <p class="panel-subtitle">Step-by-step tying instructions for essential Scout knots</p>
+  <div style="display:grid;gap:16px">
+    <div class="card">
+      <h3>🪢 Square Knot</h3>
+      <p><strong>Use:</strong> Joining two ropes of equal thickness. <br><strong>Steps:</strong> Cross right over left, then left over right. Pull firmly. The knot should lie flat and symmetric.</p>
+    </div>
+    <div class="card">
+      <h3>🏹 Bowline</h3>
+      <p><strong>Use:</strong> Creating a fixed loop that won't slip. <strong>Memory:</strong> Rabbit comes out of hole, goes around tree, back in hole.</p>
+    </div>
+    <div class="card">
+      <h3>🏕️ Clove Hitch</h3>
+      <p><strong>Use:</strong> Attaching rope to a pole or post. Quick and reliable. Two half-hitches with the second crossed over the first.</p>
+    </div>
+    <div class="card">
+      <h3>8️⃣ Figure Eight</h3>
+      <p><strong>Use:</strong> Stopper knot to prevent rope from slipping. Make a loop, wrap underneath, thread through the top. Bulky and reliable.</p>
+    </div>
+    <div class="card">
+      <h3>⛺ Taut-line Hitch</h3>
+      <p><strong>Use:</strong> Adjustable tension on tent guy-lines. Slides to adjust, locks when loaded. Two coils inside, one outside.</p>
+    </div>
+    <div class="card">
+      <h3>🔗 Two Half Hitches</h3>
+      <p><strong>Use:</strong> Attaching rope to rings, rails, or posts. Simple and reliable. Both hitches face the same direction.</p>
+    </div>
+  </div>
+</div>
+</div>
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- PANEL: COUNTDOWN TIMER -->
