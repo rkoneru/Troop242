@@ -27,6 +27,7 @@ import MeritTrackerWizard from './pages/MeritTrackerWizard';
 import SkillsTrackerWizard from './pages/SkillsTrackerWizard';
 import ActivitiesPage from './pages/ActivitiesPage';
 import GamesLanding from './pages/GamesLanding';
+import EightBall from './pages/EightBall';
 import './App.css';
 
 function App() {
@@ -63,6 +64,7 @@ function App() {
           <Route path="/glossary" element={<><Header /><Glossary /><Footer /></>} />
           <Route path="/scout-dashboard" element={<><Header /><ScoutDashboard /><Footer /></>} />
           <Route path="/games" element={<><Header /><GamesLanding /><Footer /></>} />
+          <Route path="/games/8-ball" element={<><Header /><EightBall /><Footer /></>} />
           <Route path="/troop-finances" element={<TroopFinances />} />
 
           {/* Wizard pages with custom headers - no global header/footer */}
