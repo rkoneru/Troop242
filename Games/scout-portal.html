@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scout Portal — Troop 242</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -17,7 +17,7 @@
   --nav-w:220px;--hdr:58px
 }
 html,body{height:100%;overflow:hidden}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t);display:flex;flex-direction:column}
 
 /* ═══ HEADER ═══ */
 .hdr{height:var(--hdr);background:var(--g);display:flex;align-items:center;padding:0 20px;gap:14px;
@@ -32,7 +32,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
 .hdr-back{display:none;align-items:center;gap:6px;color:rgba(255,255,255,.7);
   background:rgba(255,255,255,.1);border:none;border-radius:8px;
-  padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;
+  padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',system-ui,sans-serif;
   transition:.15s}
 .hdr-back:hover{background:rgba(255,255,255,.18);color:#fff}
 .hdr-back.show{display:flex}
@@ -52,7 +52,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
   letter-spacing:1px;padding:0 8px;margin-bottom:6px}
 .nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;
   cursor:pointer;transition:.15s;font-size:13.5px;font-weight:500;color:var(--mu);
-  border:none;background:none;width:100%;text-align:left;font-family:'Outfit',sans-serif}
+  border:none;background:none;width:100%;text-align:left;font-family:'Inter',system-ui,sans-serif}
 .nav-item:hover{background:var(--gpp);color:var(--gm)}
 .nav-item.active{background:var(--gp);color:var(--g);font-weight:700}
 .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
@@ -69,7 +69,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
 .cat-tab{border:1.5px solid var(--bd);background:var(--w);border-radius:100px;
   padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;
-  font-family:'Outfit',sans-serif;color:var(--mu)}
+  font-family:'Inter',system-ui,sans-serif;color:var(--mu)}
 .cat-tab:hover{border-color:var(--gl);color:var(--gm);background:var(--gpp)}
 .cat-tab.active{background:var(--g);border-color:var(--g);color:#fff}
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
@@ -95,7 +95,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
   background:var(--g);color:#fff;border:none;border-radius:9px;
   padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;
-  transition:.18s;font-family:'Outfit',sans-serif;letter-spacing:-.2px}
+  transition:.18s;font-family:'Inter',system-ui,sans-serif;letter-spacing:-.2px}
 .btn:hover{background:var(--gm);transform:translateY(-1px);box-shadow:0 4px 12px rgba(27,67,50,.25)}
 .btn:active{transform:none}
 .btn-sm{padding:8px 16px;font-size:13px}
@@ -108,11 +108,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .btn-gold:hover{background:#92400E}
 .card{background:var(--w);border:1.5px solid var(--bd);border-radius:var(--r2);padding:22px;box-shadow:var(--sh)}
 .input{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 14px;
-  font-size:14px;font-family:'Outfit',sans-serif;color:var(--t);outline:none;
+  font-size:14px;font-family:'Inter',system-ui,sans-serif;color:var(--t);outline:none;
   transition:.15s;background:var(--w)}
 .input:focus{border-color:var(--gl);box-shadow:0 0 0 3px rgba(82,183,136,.12)}
 .select{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 14px;
-  font-size:14px;font-family:'Outfit',sans-serif;color:var(--t);outline:none;
+  font-size:14px;font-family:'Inter',system-ui,sans-serif;color:var(--t);outline:none;
   background:var(--w);cursor:pointer}
 .select:focus{border-color:var(--gl)}
 .label{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
@@ -136,7 +136,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .opts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 .opt-btn{background:var(--w);border:2px solid var(--bd);border-radius:9px;
   padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;
-  transition:.18s;font-family:'Outfit',sans-serif;color:var(--t)}
+  transition:.18s;font-family:'Inter',system-ui,sans-serif;color:var(--t)}
 .opt-btn:hover:not(.disabled){border-color:var(--gl);background:var(--gpp)}
 .opt-btn.correct{border-color:#16A34A;background:#DCFCE7;color:#16A34A}
 .opt-btn.wrong{border-color:#DC2626;background:#FEE2E2;color:#DC2626}
@@ -201,7 +201,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .trip-types{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
 .trip-type{border:1.5px solid var(--bd);background:var(--w);border-radius:9px;
   padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;
-  font-family:'Outfit',sans-serif;color:var(--mu)}
+  font-family:'Inter',system-ui,sans-serif;color:var(--mu)}
 .trip-type.active{background:var(--g);border-color:var(--g);color:#fff}
 .pack-section{margin-bottom:18px}
 .pack-section-title{font-size:13px;font-weight:700;color:var(--t);margin-bottom:10px;
@@ -268,7 +268,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .guide-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .guide-tab{border:1.5px solid var(--bd);background:var(--w);border-radius:100px;
   padding:6px 16px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.18s;
-  font-family:'Outfit',sans-serif;color:var(--mu)}
+  font-family:'Inter',system-ui,sans-serif;color:var(--mu)}
 .guide-tab.active{background:var(--g);border-color:var(--g);color:#fff}
 .guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
 .guide-card{background:var(--w);border:1.5px solid var(--bd);border-radius:12px;
@@ -326,7 +326,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .score-pts{font-size:20px;font-weight:900;color:var(--g);min-width:50px;text-align:right}
 .score-controls{display:flex;gap:6px}
 .score-btn{width:30px;height:30px;border:none;border-radius:7px;font-size:16px;font-weight:800;
-  cursor:pointer;font-family:'Outfit',sans-serif;transition:.15s;display:flex;align-items:center;justify-content:center}
+  cursor:pointer;font-family:'Inter',system-ui,sans-serif;transition:.15s;display:flex;align-items:center;justify-content:center}
 .score-btn.plus{background:var(--gp);color:var(--gm)}
 .score-btn.plus:hover{background:var(--gl);color:#fff}
 .score-btn.minus{background:var(--redp);color:var(--red)}
@@ -338,14 +338,14 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 .day-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
 .day-tab{border:1.5px solid var(--bd);background:var(--w);border-radius:8px;
   padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;
-  font-family:'Outfit',sans-serif;color:var(--mu)}
+  font-family:'Inter',system-ui,sans-serif;color:var(--mu)}
 .day-tab.active{background:var(--g);border-color:var(--g);color:#fff}
 .meal-slots{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
 .meal-slot{background:var(--w);border:1.5px solid var(--bd);border-radius:12px;padding:16px}
 .meal-slot-name{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;
   letter-spacing:.5px;margin-bottom:8px}
 .meal-slot-input{width:100%;border:1.5px solid var(--bd);border-radius:8px;padding:9px 12px;
-  font-size:14px;font-family:'Outfit',sans-serif;color:var(--t);outline:none;transition:.15s}
+  font-size:14px;font-family:'Inter',system-ui,sans-serif;color:var(--t);outline:none;transition:.15s}
 .meal-slot-input:focus{border-color:var(--gl)}
 .shopping-output{background:var(--gd);color:var(--gp);border-radius:12px;padding:20px;
   font-size:13.5px;line-height:2;display:none;white-space:pre-wrap}
@@ -985,76 +985,76 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);display
 <div class="panel-inner">
   <h2>🌿 Florida Field Guide</h2>
   <p class="panel-subtitle">Identify 50+ Central Florida wildlife, plants, and tracks</p>
-  <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+  <div class="dash-grid">
     <!-- MAMMALS -->
-    <div class="card"><h3>🦌 White-tailed Deer</h3><p>Most common large mammal. Cloven hoof tracks (heart-shaped). White flag tail when fleeing. Dawn/dusk near forest edges.</p></div>
-    <div class="card"><h3>🦝 Raccoon</h3><p>Extremely common near campgrounds. Dexterous paws. Ringed tail, masked face. Will raid food storage. Bear bag all food.</p></div>
-    <div class="card"><h3>🐻 Florida Black Bear</h3><p>Rare but present. 200-300 lbs. Shaggy black fur, rounded ears. Found in swamps and forests. Never approach.</p></div>
-    <div class="card"><h3>🦊 Grey Fox</h3><p>Small canine, 3-4 lbs. Only fox that climbs trees. Salt-and-pepper colored. Nocturnal, rarely seen.</p></div>
-    <div class="card"><h3>🦨 Striped Skunk</h3><p>Black with white stripe. 2-4 lbs. Known for spray defense. Nocturnal. Avoid if approached.</p></div>
-    <div class="card"><h3>🐿️ Fox Squirrel</h3><p>Large squirrel, orange-red fur. Bushy tail. Common in oak forests. Diurnal, very active at dawn.</p></div>
-    <div class="card"><h3>🦫 Beaver</h3><p>Large rodent, 30-60 lbs. Flat tail, orange teeth. Build dams in freshwater. Nocturnal.</p></div>
-    <div class="card"><h3>🦌 Fallow Deer</h3><p>Non-native, similar to white-tailed. Spotted coat. Found in some central Florida areas.</p></div>
-    <div class="card"><h3>🐭 Marsh Rabbit</h3><p>Small, reddish-brown. Lives in wetlands. Swims well. Rarely ventures far from water.</p></div>
-    <div class="card"><h3>🦝 Coyote</h3><p>Medium canine, 30-40 lbs. Tan/grey fur. Expanding range in Florida. Nocturnal, hear howling at night.</p></div>
+    <div class="feat-card"><div class="feat-icon">🦌</div><div class="feat-name">White-tailed Deer</div><div class="feat-desc">Most common large mammal. Cloven hoof tracks (heart-shaped). White flag tail when fleeing. Dawn/dusk near forest edges.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦝</div><div class="feat-name">Raccoon</div><div class="feat-desc">Extremely common near campgrounds. Dexterous paws. Ringed tail, masked face. Will raid food storage. Bear bag all food.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐻</div><div class="feat-name">Florida Black Bear</div><div class="feat-desc">Rare but present. 200-300 lbs. Shaggy black fur, rounded ears. Found in swamps and forests. Never approach.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦊</div><div class="feat-name">Grey Fox</div><div class="feat-desc">Small canine, 3-4 lbs. Only fox that climbs trees. Salt-and-pepper colored. Nocturnal, rarely seen.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦨</div><div class="feat-name">Striped Skunk</div><div class="feat-desc">Black with white stripe. 2-4 lbs. Known for spray defense. Nocturnal. Avoid if approached.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐿️</div><div class="feat-name">Fox Squirrel</div><div class="feat-desc">Large squirrel, orange-red fur. Bushy tail. Common in oak forests. Diurnal, very active at dawn.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦫</div><div class="feat-name">Beaver</div><div class="feat-desc">Large rodent, 30-60 lbs. Flat tail, orange teeth. Build dams in freshwater. Nocturnal.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦌</div><div class="feat-name">Fallow Deer</div><div class="feat-desc">Non-native, similar to white-tailed. Spotted coat. Found in some central Florida areas.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐭</div><div class="feat-name">Marsh Rabbit</div><div class="feat-desc">Small, reddish-brown. Lives in wetlands. Swims well. Rarely ventures far from water.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦝</div><div class="feat-name">Coyote</div><div class="feat-desc">Medium canine, 30-40 lbs. Tan/grey fur. Expanding range in Florida. Nocturnal, hear howling at night.</div></div>
 
     <!-- REPTILES -->
-    <div class="card"><h3>🐊 American Alligator</h3><p>6-14 ft long. Log-like shape near water. Eyes glow red in flashlight. Found in all freshwater.</p></div>
-    <div class="card"><h3>🐢 Gopher Tortoise</h3><p>Protected species. Domed shell, stumpy legs. Creates 10 ft deep burrows. Home to 350+ animal species.</p></div>
-    <div class="card"><h3>🐍 Eastern Diamondback Rattlesnake</h3><p>Largest venomous snake. Diamond pattern, triangular head. Loud rattle. Can reach 8 feet. Give wide berth.</p></div>
-    <div class="card"><h3>🦎 Green Anole</h3><p>Florida's native anole. Can change green to brown. Males show pink dewlap. Excellent insect controllers.</p></div>
-    <div class="card"><h3>🐢 Florida Softshell Turtle</h3><p>Flat, leathery shell. Long neck, small head. Fast swimmers. Found in rivers and lakes.</p></div>
-    <div class="card"><h3>🐍 Water Moccasin (Cottonmouth)</h3><p>Venomous, aquatic snake. Dark, heavy body. Found near water. White mouth when threatened.</p></div>
-    <div class="card"><h3>🦗 Florida Scrub Lizard</h3><p>Small, spiny. Only in Florida scrub habitat. Blue coloring on males. Extremely agile.</p></div>
-    <div class="card"><h3>🐢 Box Turtle</h3><p>Domed shell, hinged plastron. Brown coloring. Can close shell completely. Shy and slow-moving.</p></div>
-    <div class="card"><h3>🐍 Corn Snake</h3><p>Non-venomous, beautiful orange/red. Found in various habitats. Docile and beneficial.</p></div>
-    <div class="card"><h3>🦎 Leopard Gecko</h3><p>Spotted pattern, yellowish. Nocturnal. Non-native but established in some areas.</p></div>
+    <div class="feat-card"><div class="feat-icon">🐊</div><div class="feat-name">American Alligator</div><div class="feat-desc">6-14 ft long. Log-like shape near water. Eyes glow red in flashlight. Found in all freshwater.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐢</div><div class="feat-name">Gopher Tortoise</div><div class="feat-desc">Protected species. Domed shell, stumpy legs. Creates 10 ft deep burrows. Home to 350+ animal species.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐍</div><div class="feat-name">Eastern Diamondback Rattlesnake</div><div class="feat-desc">Largest venomous snake. Diamond pattern, triangular head. Loud rattle. Can reach 8 feet. Give wide berth.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦎</div><div class="feat-name">Green Anole</div><div class="feat-desc">Florida's native anole. Can change green to brown. Males show pink dewlap. Excellent insect controllers.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐢</div><div class="feat-name">Florida Softshell Turtle</div><div class="feat-desc">Flat, leathery shell. Long neck, small head. Fast swimmers. Found in rivers and lakes.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐍</div><div class="feat-name">Water Moccasin (Cottonmouth)</div><div class="feat-desc">Venomous, aquatic snake. Dark, heavy body. Found near water. White mouth when threatened.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦗</div><div class="feat-name">Florida Scrub Lizard</div><div class="feat-desc">Small, spiny. Only in Florida scrub habitat. Blue coloring on males. Extremely agile.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐢</div><div class="feat-name">Box Turtle</div><div class="feat-desc">Domed shell, hinged plastron. Brown coloring. Can close shell completely. Shy and slow-moving.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐍</div><div class="feat-name">Corn Snake</div><div class="feat-desc">Non-venomous, beautiful orange/red. Found in various habitats. Docile and beneficial.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦎</div><div class="feat-name">Leopard Gecko</div><div class="feat-desc">Spotted pattern, yellowish. Nocturnal. Non-native but established in some areas.</div></div>
 
     <!-- BIRDS -->
-    <div class="card"><h3>🦅 Bald Eagle</h3><p>Year-round resident. White head/tail only at age 4-5. 8 ft wingspan. Near lakes and coastlines.</p></div>
-    <div class="card"><h3>🦩 Roseate Spoonbill</h3><p>Unmistakable pink color. Spatula-shaped bill. Shallow water sweeper. Healthy wetland indicator.</p></div>
-    <div class="card"><h3>🐦 Sandhill Crane</h3><p>Tall grey birds, red forehead patch. Walk in pairs or families. Loud bugling call. Mate for life.</p></div>
-    <div class="card"><h3>🦅 Red-shouldered Hawk</h3><p>Medium raptor. Rufous shoulders, barred wings. Common in woodlands. Loud kee-ahh call.</p></div>
-    <div class="card"><h3>🐝 Florida Scrub Jay</h3><p>Bright blue and grey. Only in Florida scrub. Threatened species. Extremely curious, may land on you.</p></div>
-    <div class="card"><h3>🦉 Barred Owl</h3><p>Large, stocky owl. Rounded head, no ear tufts. Deep hooting call. Nocturnal hunter.</p></div>
-    <div class="card"><h3>🦜 Pileated Woodpecker</h3><p>Large black woodpecker, red crest. Loud drumming. Excavates large rectangular holes.</p></div>
-    <div class="card"><h3>🦅 Osprey</h3><p>Fish-hunting raptor. White underside, dark back. Hovers over water then dives. Builds large stick nests.</p></div>
-    <div class="card"><h3>🦢 White Ibis</h3><p>White plumage, long curved bill. Wades in shallow water. Colonial nesters. Seen in flocks.</p></div>
-    <div class="card"><h3>🦆 Wood Duck</h3><p>Colorful male, iridescent green. Perches in trees. Cavity nester. Dabbling dabbler, not a diver.</p></div>
+    <div class="feat-card"><div class="feat-icon">🦅</div><div class="feat-name">Bald Eagle</div><div class="feat-desc">Year-round resident. White head/tail only at age 4-5. 8 ft wingspan. Near lakes and coastlines.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦩</div><div class="feat-name">Roseate Spoonbill</div><div class="feat-desc">Unmistakable pink color. Spatula-shaped bill. Shallow water sweeper. Healthy wetland indicator.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐦</div><div class="feat-name">Sandhill Crane</div><div class="feat-desc">Tall grey birds, red forehead patch. Walk in pairs or families. Loud bugling call. Mate for life.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦅</div><div class="feat-name">Red-shouldered Hawk</div><div class="feat-desc">Medium raptor. Rufous shoulders, barred wings. Common in woodlands. Loud kee-ahh call.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐝</div><div class="feat-name">Florida Scrub Jay</div><div class="feat-desc">Bright blue and grey. Only in Florida scrub. Threatened species. Extremely curious, may land on you.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦉</div><div class="feat-name">Barred Owl</div><div class="feat-desc">Large, stocky owl. Rounded head, no ear tufts. Deep hooting call. Nocturnal hunter.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦜</div><div class="feat-name">Pileated Woodpecker</div><div class="feat-desc">Large black woodpecker, red crest. Loud drumming. Excavates large rectangular holes.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦅</div><div class="feat-name">Osprey</div><div class="feat-desc">Fish-hunting raptor. White underside, dark back. Hovers over water then dives. Builds large stick nests.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦢</div><div class="feat-name">White Ibis</div><div class="feat-desc">White plumage, long curved bill. Wades in shallow water. Colonial nesters. Seen in flocks.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦆</div><div class="feat-name">Wood Duck</div><div class="feat-desc">Colorful male, iridescent green. Perches in trees. Cavity nester. Dabbling dabbler, not a diver.</div></div>
 
     <!-- INSECTS & ARACHNIDS -->
-    <div class="card"><h3>🦋 Monarch Butterfly</h3><p>Orange/black, white spot border. Major migration corridor. Travel 3,000 miles. Fall migration peak.</p></div>
-    <div class="card"><h3>🦋 Swallowtail Butterfly</h3><p>Large, yellow with black stripes. Distinctive tail extensions on wings. Fast, erratic flight.</p></div>
-    <div class="card"><h3>🪲 Lubber Grasshopper</h3><p>Florida's largest grasshopper, 3 inches. Yellow/black/red coloring. Flightless. Warning coloration.</p></div>
-    <div class="card"><h3>🐝 Honeybee</h3><p>Essential pollinator. Golden/brown. Build hexagonal honeycomb. Colony of 20,000-80,000 bees.</p></div>
-    <div class="card"><h3>🦂 Florida Scorpion</h3><p>Small, yellow. Venomous but rarely fatal. Nocturnal. Glow under UV light.</p></div>
-    <div class="card"><h3>🕷️ Orb Weaver Spider</h3><p>Large, colorful. Build geometric webs. Beneficial insect controllers. Non-aggressive.</p></div>
-    <div class="card"><h3>🦗 Cricket</h3><p>Brown/black, chirping at night. Excellent hearing. Omnivorous. Important food source for wildlife.</p></div>
-    <div class="card"><h3>🪰 Damselfly</h3><p>Slender, colored wings. Predatory. Important wetland indicator. Hover over water.</p></div>
-    <div class="card"><h3>🦟 Mosquito</h3><p>Small blood-suckers. Only females bite. Disease carriers. Breeding in still water.</p></div>
-    <div class="card"><h3>🦑 Dragonfly</h3><p>Large wings, iridescent. Aerial hunters. Eat thousands of mosquitoes daily. Prehistoric lineage.</p></div>
+    <div class="feat-card"><div class="feat-icon">🦋</div><div class="feat-name">Monarch Butterfly</div><div class="feat-desc">Orange/black, white spot border. Major migration corridor. Travel 3,000 miles. Fall migration peak.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦋</div><div class="feat-name">Swallowtail Butterfly</div><div class="feat-desc">Large, yellow with black stripes. Distinctive tail extensions on wings. Fast, erratic flight.</div></div>
+    <div class="feat-card"><div class="feat-icon">🪲</div><div class="feat-name">Lubber Grasshopper</div><div class="feat-desc">Florida's largest grasshopper, 3 inches. Yellow/black/red coloring. Flightless. Warning coloration.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐝</div><div class="feat-name">Honeybee</div><div class="feat-desc">Essential pollinator. Golden/brown. Build hexagonal honeycomb. Colony of 20,000-80,000 bees.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦂</div><div class="feat-name">Florida Scorpion</div><div class="feat-desc">Small, yellow. Venomous but rarely fatal. Nocturnal. Glow under UV light.</div></div>
+    <div class="feat-card"><div class="feat-icon">🕷️</div><div class="feat-name">Orb Weaver Spider</div><div class="feat-desc">Large, colorful. Build geometric webs. Beneficial insect controllers. Non-aggressive.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦗</div><div class="feat-name">Cricket</div><div class="feat-desc">Brown/black, chirping at night. Excellent hearing. Omnivorous. Important food source for wildlife.</div></div>
+    <div class="feat-card"><div class="feat-icon">🪰</div><div class="feat-name">Damselfly</div><div class="feat-desc">Slender, colored wings. Predatory. Important wetland indicator. Hover over water.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦟</div><div class="feat-name">Mosquito</div><div class="feat-desc">Small blood-suckers. Only females bite. Disease carriers. Breeding in still water.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦑</div><div class="feat-name">Dragonfly</div><div class="feat-desc">Large wings, iridescent. Aerial hunters. Eat thousands of mosquitoes daily. Prehistoric lineage.</div></div>
 
     <!-- PLANTS -->
-    <div class="card"><h3>🌴 Sabal Palm</h3><p>Florida's state tree. Fan-shaped fronds, bootjack marks. Berries eaten by wildlife. Hurricane-resistant.</p></div>
-    <div class="card"><h3>🌿 Spanish Moss</h3><p>Not a moss—epiphytic bromeliad. Hangs in grey-green curtains. Provides animal habitat. Non-parasitic.</p></div>
-    <div class="card"><h3>🌴 Saw Palmetto</h3><p>Low-growing fan palm. Razor-sharp serrated stems. Dense clusters in scrub. Wildlife food source.</p></div>
-    <div class="card"><h3>🌺 Firebush</h3><p>Native shrub, orange-red flowers. Spring-fall blooming. Attracts hummingbirds/butterflies. Great for projects.</p></div>
-    <div class="card"><h3>🌳 Longleaf Pine</h3><p>Tall pine, long needles. Important ecosystem. Requires periodic burning. Declining due to loss.</p></div>
-    <div class="card"><h3>🌲 Slash Pine</h3><p>Thick, rough bark. 60+ feet tall. Found throughout Florida. Fast growing.</p></div>
-    <div class="card"><h3>🌳 Live Oak</h3><p>Massive, spreading branches. Evergreen. Habitat for Spanish moss. Ancient specimens statewide.</p></div>
-    <div class="card"><h3>🌳 Cypress Tree</h3><p>Coniferous, found in wetlands. Knees emerge from water. Ancient trees. Beautiful fall colors.</p></div>
-    <div class="card"><h3>🌿 Palmetto Scrub</h3><p>Dense shrubland vegetation. Saw palmettos dominate. Low-growing, fire-adapted. Limited habitat.</p></div>
-    <div class="card"><h3>🌸 Coreopsis</h3><p>Yellow wildflower. Native to Florida. Spring blooming. Easy to grow, attracts butterflies.</p></div>
-    <div class="card"><h3>🌿 Mangrove</h3><p>Salt-water tree. Prop roots extend into water. Nursery for fish. Coastal protection.</p></div>
-    <div class="card"><h3>🌾 Cordgrass</h3><p>Marsh grass, golden color. Stabilizes shoreline. Fish nursery habitat. Salt-tolerant.</p></div>
-    <div class="card"><h3>🌺 Milkweed</h3><p>Purple flowers. Essential for Monarch caterpillars. Native wildflower. Easy to plant.</p></div>
-    <div class="card"><h3>🌿 Water Lily</h3><p>Floating aquatic plant. Pink/white flowers. Provides shelter for aquatic life. Slow-growing.</p></div>
-    <div class="card"><h3>🌾 Sea Oats</h3><p>Beach grass. Golden plumes. Holds sand dunes. Protected—never pick.</p></div>
+    <div class="feat-card"><div class="feat-icon">🌴</div><div class="feat-name">Sabal Palm</div><div class="feat-desc">Florida's state tree. Fan-shaped fronds, bootjack marks. Berries eaten by wildlife. Hurricane-resistant.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌿</div><div class="feat-name">Spanish Moss</div><div class="feat-desc">Not a moss—epiphytic bromeliad. Hangs in grey-green curtains. Provides animal habitat. Non-parasitic.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌴</div><div class="feat-name">Saw Palmetto</div><div class="feat-desc">Low-growing fan palm. Razor-sharp serrated stems. Dense clusters in scrub. Wildlife food source.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌺</div><div class="feat-name">Firebush</div><div class="feat-desc">Native shrub, orange-red flowers. Spring-fall blooming. Attracts hummingbirds/butterflies. Great for projects.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌳</div><div class="feat-name">Longleaf Pine</div><div class="feat-desc">Tall pine, long needles. Important ecosystem. Requires periodic burning. Declining due to loss.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌲</div><div class="feat-name">Slash Pine</div><div class="feat-desc">Thick, rough bark. 60+ feet tall. Found throughout Florida. Fast growing.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌳</div><div class="feat-name">Live Oak</div><div class="feat-desc">Massive, spreading branches. Evergreen. Habitat for Spanish moss. Ancient specimens statewide.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌳</div><div class="feat-name">Cypress Tree</div><div class="feat-desc">Coniferous, found in wetlands. Knees emerge from water. Ancient trees. Beautiful fall colors.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌿</div><div class="feat-name">Palmetto Scrub</div><div class="feat-desc">Dense shrubland vegetation. Saw palmettos dominate. Low-growing, fire-adapted. Limited habitat.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌸</div><div class="feat-name">Coreopsis</div><div class="feat-desc">Yellow wildflower. Native to Florida. Spring blooming. Easy to grow, attracts butterflies.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌿</div><div class="feat-name">Mangrove</div><div class="feat-desc">Salt-water tree. Prop roots extend into water. Nursery for fish. Coastal protection.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌾</div><div class="feat-name">Cordgrass</div><div class="feat-desc">Marsh grass, golden color. Stabilizes shoreline. Fish nursery habitat. Salt-tolerant.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌺</div><div class="feat-name">Milkweed</div><div class="feat-desc">Purple flowers. Essential for Monarch caterpillars. Native wildflower. Easy to plant.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌿</div><div class="feat-name">Water Lily</div><div class="feat-desc">Floating aquatic plant. Pink/white flowers. Provides shelter for aquatic life. Slow-growing.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌾</div><div class="feat-name">Sea Oats</div><div class="feat-desc">Beach grass. Golden plumes. Holds sand dunes. Protected—never pick.</div></div>
 
     <!-- AMPHIBIANS -->
-    <div class="card"><h3>🐸 American Bullfrog</h3><p>Large frog, 3-6 inches. Deep jug-o-rum call. Cannibalistic tadpoles. Found in freshwater.</p></div>
-    <div class="card"><h3>🐸 Treefrog</h3><p>Small, 1 inch. Green or brown. Tree dweller. Loud chirping chorus at night during breeding.</p></div>
-    <div class="card"><h3>🦎 Florida Newt</h3><p>Red eft stage bright orange. Aquatic as adults. Toxic skin. Live in wetlands and forests.</p></div>
+    <div class="feat-card"><div class="feat-icon">🐸</div><div class="feat-name">American Bullfrog</div><div class="feat-desc">Large frog, 3-6 inches. Deep jug-o-rum call. Cannibalistic tadpoles. Found in freshwater.</div></div>
+    <div class="feat-card"><div class="feat-icon">🐸</div><div class="feat-name">Treefrog</div><div class="feat-desc">Small, 1 inch. Green or brown. Tree dweller. Loud chirping chorus at night during breeding.</div></div>
+    <div class="feat-card"><div class="feat-icon">🦎</div><div class="feat-name">Florida Newt</div><div class="feat-desc">Red eft stage bright orange. Aquatic as adults. Toxic skin. Live in wetlands and forests.</div></div>
   </div>
 </div>
 </div>
@@ -1361,7 +1361,7 @@ const SQ={
      svg:`<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="8" fill="#FACC15" stroke="#FDE047" stroke-width="1.5"/>
      ${[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180,x=60+50*Math.cos(r),y=60+50*Math.sin(r);return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="#86EFAC" opacity=".5"/>`}).join('')}
      ${[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180,x=60+28*Math.cos(r),y=60+28*Math.sin(r);return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="#93C5FD" opacity=".4"/>`}).join('')}
-     <text x="60" y="108" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="10" font-family="Outfit">N</text></svg>`},
+     <text x="60" y="108" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="10" font-family="Inter">N</text></svg>`},
     {name:'Southern Cross (Crux)',hint:'4 main stars forming a cross visible in the Southern Hemisphere',
      fact:'The Southern Cross can be used to find South in the Southern Hemisphere — extend the long axis of the cross 4.5 times and that point is near the south celestial pole.',
      opts:['Southern Cross (Crux)','Centaurus','Scorpius','Hydra'],
