@@ -909,34 +909,92 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 <!-- ═══════════════════════════════════════════ -->
 <!-- PANEL: FIRST AID HANDBOOK -->
 <!-- ═══════════════════════════════════════════ -->
+<style>
+.fah-card-flip { perspective:1000px }
+.fah-card-inner { position:relative; width:100%; height:280px; transition:transform 0.6s; transform-style:preserve-3d; cursor:pointer }
+.fah-card-flip:hover .fah-card-inner { transform:rotateY(180deg) }
+.fah-front, .fah-back { position:absolute; width:100%; height:100%; backface-visibility:hidden; display:flex; flex-direction:column; padding:20px; box-sizing:border-box; border-radius:var(--r2); background:var(--w); border:1.5px solid var(--bd) }
+.fah-back { transform:rotateY(180deg); background:var(--redp); border-color:var(--red); overflow-y:auto }
+.fah-front { justify-content:space-between }
+.fah-icon { font-size:32px; margin-bottom:8px }
+.fah-name { font-size:15px; font-weight:700; color:var(--t); margin-bottom:8px }
+.fah-desc { font-size:12px; color:var(--mu); line-height:1.5 }
+.fah-steps { font-size:12px; color:var(--t); line-height:1.6 }
+.fah-steps strong { color:var(--red); display:block; margin-top:6px; margin-bottom:3px }
+</style>
 <div class="panel" id="panel-first-aid-guide">
 <div class="panel-inner">
   <h2>🏥 First Aid Handbook</h2>
-  <p class="panel-subtitle">Essential medical skills and emergency response</p>
-  <div style="display:grid;gap:16px">
-    <div class="card">
-      <h3>🩹 Basic Wound Care</h3>
-      <p>Clean wounds with water, apply pressure to stop bleeding, use sterile bandages. For deeper cuts, seek medical attention.</p>
+  <p class="panel-subtitle">Tap any card to see detailed procedures and when to seek help</p>
+  <div class="dash-grid">
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">🩹</div><div class="fah-name">Basic Wound Care</div><div class="fah-desc">Clean wounds and apply proper bandages</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Wash hands 2. Clean wound with clean water 3. Apply direct pressure to stop bleeding 4. Use sterile gauze or bandage 5. For deep cuts, seek medical attention 6. Watch for infection signs</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🔥 Burn Treatment</h3>
-      <p>Cool burns with running water for 10-20 minutes. Cover with clean, non-fluffy material. Never use ice directly on skin.</p>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">🔥</div><div class="fah-name">Burn Treatment</div><div class="fah-desc">Cool and cover burns properly</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Cool burn with running water 10-20 minutes 2. Remove jewelry/tight items 3. Cover with clean, non-stick material 4. Do NOT use ice directly 5. Pain relief if safe 6. Seek help for severe burns</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🦴 Fracture & Sprains</h3>
-      <p>Immobilize the injured area using splints or slings. Apply ice wrapped in cloth. Elevate if possible. Rest and seek medical help.</p>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">🦴</div><div class="fah-name">Fracture & Sprains</div><div class="fah-desc">Immobilize and treat injuries</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Stop activity immediately 2. Immobilize with splint or sling 3. Apply ice wrapped in cloth 4. Elevate if possible 5. Rest area 6. Seek medical evaluation</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>💊 CPR Basics</h3>
-      <p>Call 911 first. Perform chest compressions at 100-120 beats per minute. If trained in rescue breathing, provide 2 breaths after every 30 compressions.</p>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">💊</div><div class="fah-name">CPR Basics</div><div class="fah-desc">Emergency cardiopulmonary resuscitation</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Call 911 immediately 2. Position victim on back 3. Clear airway 4. Chest compressions 100-120 beats/min 5. If trained, 2 breaths after 30 compressions 6. Continue until help arrives</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🚑 Shock Response</h3>
-      <p>Keep victim warm and lying down. Elevate legs if no spinal injury suspected. Monitor breathing. Seek immediate emergency help.</p>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">🚑</div><div class="fah-name">Shock Response</div><div class="fah-desc">Treat for shock and trauma</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Call 911 2. Keep victim warm with blanket 3. Lay down flat 4. Elevate legs 12 inches (if no spine injury) 5. Do NOT move unnecessarily 6. Monitor breathing and responsiveness</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🐝 Insect Stings & Bites</h3>
-      <p>Remove stinger carefully. Apply ice and elevate if possible. Use antihistamines for itching. Watch for allergic reactions.</p>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">🐝</div><div class="fah-name">Insect Stings & Bites</div><div class="fah-desc">Handle bee, wasp, and spider incidents</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Remove stinger carefully with flat object 2. Wash area with soap 3. Apply ice 4. Elevate if on limb 5. Use antihistamine for itching 6. Watch for allergic reaction signs</div></div>
+      </div>
+    </div>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">🤕</div><div class="fah-name">Head & Neck Injury</div><div class="fah-desc">Handle head trauma carefully</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Call 911 for any significant head trauma 2. Do NOT move neck/head 3. Stabilize head with hands 4. Monitor consciousness 5. Watch for nausea/vomiting 6. Do NOT remove helmet</div></div>
+      </div>
+    </div>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">🌡️</div><div class="fah-name">Hypothermia & Heat Exhaustion</div><div class="fah-desc">Temperature-related emergencies</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Hypothermia:</strong> 1. Move to shelter 2. Remove wet clothing 3. Warm gradually 4. Warm beverages if conscious <strong>Heat:</strong> 1. Move to cool place 2. Apply cool water 3. Elevate legs 4. Drink water</div></div>
+      </div>
+    </div>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">⚠️</div><div class="fah-name">Choking</div><div class="fah-desc">Clear airway obstruction</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Ask "Are you choking?" 2. Stand behind victim 3. Place fist above navel 4. Grasp fist with other hand 5. Thrusts inward and upward 6. Repeat until object dislodged</div></div>
+      </div>
+    </div>
+
+    <div class="fah-card-flip">
+      <div class="fah-card-inner">
+        <div class="fah-front"><div class="fah-icon">🩸</div><div class="fah-name">Severe Bleeding</div><div class="fah-desc">Control heavy bleeding</div></div>
+        <div class="fah-back"><div class="fah-steps"><strong>Steps:</strong> 1. Wear gloves if available 2. Apply direct pressure with clean cloth 3. Do NOT remove cloth 4. Add more cloth if needed 5. Apply pressure bandage 6. Elevate limb 7. Call 911</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -945,34 +1003,99 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 <!-- ═══════════════════════════════════════════ -->
 <!-- PANEL: SURVIVAL SKILLS -->
 <!-- ═══════════════════════════════════════════ -->
+<style>
+.ss-card-flip { perspective:1000px }
+.ss-card-inner { position:relative; width:100%; height:280px; transition:transform 0.6s; transform-style:preserve-3d; cursor:pointer }
+.ss-card-flip:hover .ss-card-inner { transform:rotateY(180deg) }
+.ss-front, .ss-back { position:absolute; width:100%; height:100%; backface-visibility:hidden; display:flex; flex-direction:column; padding:20px; box-sizing:border-box; border-radius:var(--r2); background:var(--w); border:1.5px solid var(--bd) }
+.ss-back { transform:rotateY(180deg); background:var(--goldp); border-color:var(--gold); overflow-y:auto }
+.ss-front { justify-content:space-between }
+.ss-icon { font-size:32px; margin-bottom:8px }
+.ss-name { font-size:15px; font-weight:700; color:var(--t); margin-bottom:8px }
+.ss-desc { font-size:12px; color:var(--mu); line-height:1.5 }
+.ss-steps { font-size:12px; color:var(--t); line-height:1.6 }
+.ss-steps strong { color:var(--gold); display:block; margin-top:6px; margin-bottom:3px }
+</style>
 <div class="panel" id="panel-survival-skills">
 <div class="panel-inner">
   <h2>🔥 Survival Skills</h2>
-  <p class="panel-subtitle">Master camping, fire safety, and wilderness techniques</p>
-  <div style="display:grid;gap:16px">
-    <div class="card">
-      <h3>🏕️ Shelter Building</h3>
-      <p>Use natural materials or a tarp to create windproof, waterproof shelter. Position away from dead trees and water hazards. Ensure good drainage.</p>
+  <p class="panel-subtitle">Tap any card to see detailed techniques and best practices</p>
+  <div class="dash-grid">
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">🏕️</div><div class="ss-name">Shelter Building</div><div class="ss-desc">Create windproof, waterproof shelter</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Choose dry, level ground 2. Avoid dead trees 3. Use natural materials or tarp 4. Create windbreak 5. Ensure good drainage 6. Insulate from ground</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>💧 Water Safety</h3>
-      <p>Boil water for 1 minute (3 minutes at high altitude). Use water purification tablets or filters. Collect from moving sources when possible.</p>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">💧</div><div class="ss-name">Water Safety</div><div class="ss-desc">Purify and collect drinking water</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Collect from moving sources 2. Boil 1 minute (3 at altitude) 3. Use purification tablets 4. Or use portable filters 5. Store in clean containers 6. Avoid stagnant water</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🔥 Fire Starting</h3>
-      <p>Gather tinder, kindling, and fuel wood. Use matches, lighters, or friction methods. Keep fire contained in a proper fire ring. Never leave fire unattended.</p>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">🔥</div><div class="ss-name">Fire Starting</div><div class="ss-desc">Build and maintain safe fires</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Gather tinder, kindling, fuel 2. Build fire ring with stones 3. Use matches or lighter 4. Start with tinder, add kindling 5. Never leave unattended 6. Fully extinguish before leaving</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🗺️ Navigation</h3>
-      <p>Read maps using landmarks and compass. Understand terrain contours. Mark your route. If lost, stay put and signal for help.</p>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">🗺️</div><div class="ss-name">Navigation</div><div class="ss-desc">Read maps and use compass</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Orient map with compass 2. Use landmarks for reference 3. Mark planned route 4. Check progress regularly 5. If lost, stay put 6. Signal for help with whistle</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>🍖 Food Procurement</h3>
-      <p>Know edible plants in your region. Never eat unknown plants. Fishing and trapping require practice and local regulations compliance.</p>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">🍖</div><div class="ss-name">Food Procurement</div><div class="ss-desc">Find and prepare safe food</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Know edible local plants 2. NEVER eat unknown plants 3. Fish with proper technique 4. Follow local regulations 5. Cook thoroughly 6. Store safely from animals</div></div>
+      </div>
     </div>
-    <div class="card">
-      <h3>⛺ Camp Hygiene</h3>
-      <p>Locate latrine 100+ feet from water sources. Wash hands and dishes away from water. Store food safely from animals. Pack out all trash.</p>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">⛺</div><div class="ss-name">Camp Hygiene</div><div class="ss-desc">Maintain sanitary conditions</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Latrine 100+ feet from water 2. Wash hands before eating 3. Dishes away from water source 4. Hang food in bear bag 5. Burn paper, pack out trash 6. Keep camp clean</div></div>
+      </div>
+    </div>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">🧗</div><div class="ss-name">Rope & Knots</div><div class="ss-desc">Essential knots for survival</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Key knots:</strong> 1. Bowline - fixed loop 2. Clove hitch - attach to trees 3. Taut-line - adjust tension 4. Square knot - join ropes 5. Practice tying blind 6. Know 4-5 essential knots</div></div>
+      </div>
+    </div>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">🧭</div><div class="ss-name">Wilderness First Aid</div><div class="ss-desc">Remote emergency treatment</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Access condition stability 2. Move to safe location 3. Control bleeding 4. Treat for shock 5. Immobilize injuries 6. Plan evacuation or wait for help</div></div>
+      </div>
+    </div>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">🌙</div><div class="ss-name">Night Survival</div><div class="ss-desc">Stay safe after dark</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Create adequate shelter early 2. Gather firewood before dark 3. Stay warm with blanket/layers 4. Keep light source ready 5. Do NOT travel after dark 6. Use stars/moon for navigation</div></div>
+      </div>
+    </div>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">📱</div><div class="ss-name">Signaling & Communication</div><div class="ss-desc">Signal for rescue</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Steps:</strong> 1. Use whistle (three blasts = SOS) 2. Bright colors visible from air 3. Mirror flashing if available 4. Create large ground signals 5. Stay put when lost 6. Preserve phone batteries</div></div>
+      </div>
+    </div>
+
+    <div class="ss-card-flip">
+      <div class="ss-card-inner">
+        <div class="ss-front"><div class="ss-icon">🎒</div><div class="ss-name">10 Essentials</div><div class="ss-desc">Carry these on every hike</div></div>
+        <div class="ss-back"><div class="ss-steps"><strong>Items:</strong> 1. Map & compass 2. Flashlight 3. First aid kit 4. Matches/lighter 5. Knife 6. Emergency shelter 7. Water bottle 8. Food 9. Extra clothes 10. Whistle</div></div>
+      </div>
     </div>
   </div>
 </div>
