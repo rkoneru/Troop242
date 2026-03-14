@@ -111,10 +111,6 @@
       transform: scale(1.02);
     }
 
-    .eight-ball.shaking {
-      animation: shake 2s ease-in-out forwards;
-    }
-
     .eight-ball.positive {
       box-shadow:
         0 20px 60px rgba(82, 183, 136, .3),
@@ -137,17 +133,34 @@
     }
 
     @keyframes shake {
-      0% { transform: rotate(0deg); }
-      10% { transform: rotate(-5deg); }
-      20% { transform: rotate(5deg); }
-      30% { transform: rotate(-5deg); }
-      40% { transform: rotate(5deg); }
-      50% { transform: rotate(-3deg); }
-      60% { transform: rotate(3deg); }
-      70% { transform: rotate(-2deg); }
-      80% { transform: rotate(2deg); }
-      90% { transform: rotate(-1deg); }
-      100% { transform: rotate(0deg); }
+      0% { transform: rotate(0deg) scale(1); filter: brightness(1); }
+      5% { transform: rotate(-8deg) scale(0.98); }
+      10% { transform: rotate(8deg) scale(0.98); filter: brightness(1.1); }
+      15% { transform: rotate(-8deg) scale(0.98); }
+      20% { transform: rotate(8deg) scale(0.98); filter: brightness(1.1); }
+      25% { transform: rotate(-6deg) scale(0.99); }
+      30% { transform: rotate(6deg) scale(0.99); filter: brightness(1.05); }
+      35% { transform: rotate(-6deg) scale(0.99); }
+      40% { transform: rotate(6deg) scale(0.99); filter: brightness(1.05); }
+      45% { transform: rotate(-4deg) scale(0.995); }
+      50% { transform: rotate(4deg) scale(0.995); filter: brightness(1.02); }
+      55% { transform: rotate(-3deg) scale(0.998); }
+      60% { transform: rotate(3deg) scale(0.998); }
+      65% { transform: rotate(-2deg) scale(0.999); }
+      70% { transform: rotate(2deg) scale(0.999); }
+      75% { transform: rotate(-1deg) scale(0.999); }
+      80% { transform: rotate(1deg) scale(0.999); }
+      90% { transform: rotate(0deg) scale(1); filter: brightness(1); }
+      100% { transform: rotate(0deg) scale(1); filter: brightness(1); }
+    }
+
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0)); }
+      50% { filter: drop-shadow(0 0 20px rgba(82, 183, 136, 0.6)); }
+    }
+
+    .eight-ball.shaking {
+      animation: shake 2s ease-in-out forwards, glow 2s ease-in-out forwards;
     }
 
     /* Ball window */
