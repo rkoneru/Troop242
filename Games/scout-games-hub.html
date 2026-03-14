@@ -29,8 +29,8 @@ h1{font-size:clamp(32px,6vw,58px);font-weight:800;letter-spacing:-1.5px;margin-b
 .stat-num{font-size:22px;font-weight:800;color:var(--gp)}
 .stat-lbl{font-size:12px;color:rgba(255,255,255,.5);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
 
-.grid{max-width:920px;margin:-42px auto 60px;padding:0 20px;
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:18px}
+.grid{max-width:1400px;margin:-42px auto 60px;padding:0 20px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 
 .card{background:var(--w);border:1px solid var(--bd);border-radius:var(--r);
   padding:28px 28px 22px;text-decoration:none;color:var(--t);box-shadow:var(--sh);
@@ -62,6 +62,16 @@ h1{font-size:clamp(32px,6vw,58px);font-weight:800;letter-spacing:-1.5px;margin-b
 
 footer{text-align:center;padding:28px 20px;color:var(--mu);font-size:13px;border-top:1px solid var(--bd);margin-top:20px}
 footer a{color:var(--gm);text-decoration:none;font-weight:600}
+
+@media(max-width:1200px){
+  .grid{grid-template-columns:repeat(3,1fr);max-width:1000px}
+}
+@media(max-width:768px){
+  .grid{grid-template-columns:repeat(2,1fr);max-width:600px}
+}
+@media(max-width:480px){
+  .grid{grid-template-columns:1fr;max-width:100%}
+}
 </style>
 </head>
 <body>
