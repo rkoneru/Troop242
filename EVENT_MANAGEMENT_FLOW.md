@@ -168,103 +168,130 @@ Removed from localStorage
 **Solution**:
 See "Recommended Fixes" section below
 
-### Issue 2: No Event Deletion in LeaderDashboard
-**Problem**:
-- Leaders can create events but NOT delete them
-- Only Admins can delete
+### Issue 2: No Event Deletion in LeaderDashboard ✅ FIXED
+**Problem** (FIXED):
+- Leaders could create events but NOT delete them
+- Only Admins could delete
 
-**Why**:
-- Delete button not implemented in LeaderDashboard
-- Only AdminDashboard has delete functionality
+**Solution Implemented**:
+- ✅ Added delete button to each event in LeaderDashboard
+- ✅ Leaders can now delete their own events
+- ✅ Success message on deletion
+- ✅ Event immediately removed from storage
 
-**Solution**: Add delete handler to LeaderDashboard
+### Issue 3: No Creator Attribution ✅ FIXED
+**Problem** (FIXED):
+- Events didn't track who created them (Leader vs Admin)
+- Couldn't distinguish between sources
 
-### Issue 3: No Creator Attribution
-**Problem**:
-- Events don't track who created them (Leader vs Admin)
-- Can't distinguish between sources
+**Solution Implemented**:
+- ✅ Added `createdBy` field to event object
+- ✅ Extracts creator name from logged-in user
+- ✅ Displays creator on event card
+- ✅ Shows "Created by: [Leader Name]" in event details
 
-**Solution**: Add `createdBy` field to event object
-
-### Issue 4: No Scout Signup/RSVP
-**Problem**:
+### Issue 4: No Scout Signup/RSVP ✅ PARTIALLY FIXED
+**Problem** (INFRASTRUCTURE ADDED):
 - Events are view-only for scouts
 - No way to RSVP or track attendance
 - Different from Activities (which have signups)
 
-**Why**:
-- Events and Activities are separate systems
-- Activities have signup roster, events don't
+**Solution Partially Implemented**:
+- ✅ Added `signups` array to event objects (empty, ready for scouts)
+- ✅ Added `spots` field (event capacity, default 100)
+- ✅ Display signup counter on event card ("X scouts interested")
+- ⏳ Scout RSVP UI not yet implemented (scouts can't click to RSVP)
+- ⏳ Need to add RSVP button on Scout-facing Calendar/Events page
+
+**Next Steps**:
+- Add RSVP button on Calendar page for scouts
+- Add scout signup tracking similar to Activities
+- Show roster of interested scouts
 
 ---
 
-## 🛠️ Recommended Fixes
+## 🛠️ Recommended Fixes - Implementation Status
 
 ### Fix 1: Sync Public Calendar with localStorage Events
 **Priority**: HIGH
+**Status**: ⏳ NOT YET IMPLEMENTED
 **Impact**: Events become visible to all scouts
 
-**Implementation**:
-```javascript
-// In Calendar.jsx
-const [events, setEvents] = useState(() => loadData('troop_events', []))
+**Next Step**: Modify Calendar.jsx to display events from localStorage
 
-// Display both Google Calendar + local events
-{events.map(event => (
-  <div key={event.id}>
-    {event.title} - {event.date} at {event.location}
-  </div>
-))}
-```
-
-### Fix 2: Add Delete Button to LeaderDashboard Events
+### Fix 2: Add Delete Button to LeaderDashboard Events ✅ DONE
 **Priority**: MEDIUM
-**Impact**: Leaders can manage their own events
+**Status**: ✅ IMPLEMENTED
+**Impact**: Leaders can now manage their own events
 
-**Implementation**:
+**What Was Added**:
 ```javascript
 // In LeaderDashboard.jsx - Events Tab
-const handleDeleteEvent = (eventId) => {
+const handleDeleteEvent = useCallback((eventId) => {
   const updated = events.filter(e => e.id !== eventId)
   setEvents(updated)
   saveData('troop_events', updated)
   showSuccess('Event deleted.')
-}
+}, [events, showSuccess])
 
-// Add delete button next to each event
-<button onClick={() => handleDeleteEvent(event.id)}>Delete</button>
+// Delete button next to each event
+<button onClick={() => handleDeleteEvent(event.id)}>
+  <Trash2 size={16} />
+</button>
 ```
 
-### Fix 3: Add Event Creator Attribution
+**Features**:
+- Red delete button on event card
+- Immediate deletion
+- Success message feedback
+- Data persists to localStorage
+
+### Fix 3: Add Event Creator Attribution ✅ DONE
 **Priority**: MEDIUM
-**Impact**: Track who created each event
+**Status**: ✅ IMPLEMENTED
+**Impact**: Can track who created each event
 
-**Implementation**:
+**What Was Added**:
 ```javascript
-const event = {
-  id: generateId(),
-  title: newEventForm.title,
-  date: newEventForm.date,
-  location: newEventForm.location,
-  description: newEventForm.description,
-  createdAt: new Date().toISOString(),
-  createdBy: sessionStorage.getItem('loggedInUser')?.name || 'Unknown'
-}
-```
+// On event creation
+const loggedInUser = sessionStorage.getItem('loggedInUser')
+const creatorName = loggedInUser ? JSON.parse(loggedInUser).name || 'Leader' : 'Leader'
 
-### Fix 4: Add Scout Event RSVP Feature
-**Priority**: LOW
-**Impact**: Scouts can confirm attendance
-
-**Implementation**:
-```javascript
-// Add signups array to events (like activities)
 const event = {
   ...event,
-  spots: 50,  // capacity
-  signups: [] // [{scoutId, scoutName, signedUpAt}]
+  createdBy: creatorName,
+  createdAt: new Date().toISOString()
 }
 ```
+
+**Display on Event Card**:
+```
+👤 Created by: [Leader Name]
+```
+
+### Fix 4: Add Scout Event RSVP Feature ✅ PARTIALLY DONE
+**Priority**: MEDIUM
+**Status**: ⏳ INFRASTRUCTURE ADDED, UI PENDING
+**Impact**: Scouts can eventually confirm attendance
+
+**What Was Added**:
+```javascript
+// Event object now includes RSVP fields
+const event = {
+  ...event,
+  signups: [],     // Array of scouts who RSVP'd
+  spots: 100,      // Event capacity
+}
+
+// Display on event card
+✓ {event.signups.length} scout(s) interested
+```
+
+**What's Still Needed**:
+- Add RSVP button on Calendar page for scouts
+- Scout signup tracking logic
+- Show roster of interested scouts
+- Capacity bar like Activities have
 
 ---
 
@@ -274,11 +301,15 @@ const event = {
 |---------|------------------|-----------------|---------------|-----------|
 | Create | ✅ Yes | ✅ Yes | ❌ No | ✅ Yes |
 | View | ✅ Yes | ✅ Yes | ⚠️ Google Calendar only | ✅ Yes |
-| Delete | ❌ No | ✅ Yes | ❌ No | ✅ Yes |
-| Scout Signup | ❌ No | ❌ No | ❌ No | ✅ Yes |
-| Capacity Tracking | ❌ No | ❌ No | ❌ No | ✅ Yes |
+| Delete | ✅ **Yes** (NEW) | ✅ Yes | ❌ No | ✅ Yes |
+| Scout Signup | ⏳ Ready (NEW) | ❌ No | ❌ No | ✅ Yes |
+| Capacity Tracking | ⏳ Ready (NEW) | ❌ No | ❌ No | ✅ Yes |
+| Creator Tracking | ✅ **Yes** (NEW) | ❌ No | N/A | N/A |
 | Roster View | ❌ No | ❌ No | ❌ No | ✅ Yes |
 | Public Visibility | ❌ Only on Google Calendar | ❌ Admin only | ⚠️ External calendar | ✅ Yes |
+
+**NEW = Recently Added**
+**Ready = Infrastructure in place, UI implementation pending**
 
 ---
 
@@ -306,12 +337,14 @@ const event = {
 
 ## 🚀 Next Steps
 
-### Immediate (Week 1)
-- [ ] Fix 1: Display `troop_events` on Calendar page
-- [ ] Fix 2: Add delete button to LeaderDashboard events
+### Immediate (Week 1) - PARTIALLY COMPLETE
+- [x] Fix 2: Add delete button to LeaderDashboard events ✅
+- [x] Fix 3: Add creator attribution to events ✅
+- [ ] Fix 1: Display `troop_events` on Calendar page ⏳
 
 ### Short Term (Week 2-3)
-- [ ] Fix 3: Add creator attribution to events
+- [x] Fix 4: RSVP infrastructure (signups, spots arrays) ✅
+- [ ] Complete Fix 4: Scout RSVP UI on Calendar
 - [ ] Add event edit functionality (both dashboards)
 - [ ] Add event export/backup feature
 
