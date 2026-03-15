@@ -118,14 +118,14 @@ export default function MemberLogin() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               {!selectedProfile ? (
                 <motion.div
                   key="cards"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -30, scale: 0.97 }}
-                  transition={{ duration: 0.35 }}
+                  initial={{ opacity: 0, x: -40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  transition={{ duration: 0.35, ease: 'easeInOut' }}
                 >
                   <h2 style={{ textAlign: 'center', marginBottom: 48 }}>Select Your Profile</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, marginBottom: 48 }}>
@@ -162,10 +162,10 @@ export default function MemberLogin() {
               ) : (
                 <motion.div
                   key="login"
-                  initial={{ opacity: 0, y: 40, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 40 }}
+                  transition={{ duration: 0.35, ease: 'easeInOut' }}
                   style={{
                     maxWidth: '450px',
                     margin: '0 auto',
