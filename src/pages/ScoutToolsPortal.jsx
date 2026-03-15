@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import '../styles/ScoutToolsPortal.css';
 
 // ═══════════════════════════════════════
@@ -217,36 +217,147 @@ const SURVIVAL_CARDS = [
 ];
 
 const FIELD_GUIDE = [
-  // Mammals (25)
-  { cat: 'mammals', emoji: '🦌', name: 'White-tailed Deer', type: 'Mammal', desc: 'Reddish-brown coat, white tail. Common throughout Florida.' },
-  { cat: 'mammals', emoji: '🦊', name: 'Red Fox', type: 'Mammal', desc: 'Rusty red with black legs and white-tipped tail.' },
-  { cat: 'mammals', emoji: '🦝', name: 'Raccoon', type: 'Mammal', desc: 'Gray with black face mask. Nocturnal, excellent climber.' },
-  { cat: 'mammals', emoji: '🦗', name: 'Gray Squirrel', type: 'Mammal', desc: 'Gray back, white belly. Lives in trees.' },
-  { cat: 'mammals', emoji: '🦡', name: 'American Badger', type: 'Mammal', desc: 'Stocky, black and white striped face. Digs burrows.' },
-  { cat: 'mammals', emoji: '🐇', name: 'Eastern Cottontail', type: 'Mammal', desc: 'Gray-brown with white cotton tail.' },
-  { cat: 'mammals', emoji: '🦔', name: 'Virginia Opossum', type: 'Mammal', desc: 'Grayish-white, plays dead when threatened.' },
-  { cat: 'mammals', emoji: '🦘', name: 'Groundhog', type: 'Mammal', desc: 'Brown, stocky rodent. Hibernates in winter.' },
-  { cat: 'mammals', emoji: '🦣', name: 'American Black Bear', type: 'Mammal', desc: 'Black fur, brown muzzle. Florida\'s largest land animal.' },
-  { cat: 'mammals', emoji: '🐅', name: 'Florida Panther', type: 'Mammal', desc: 'Tan or reddish. Endangered, rarely seen.' },
-  { cat: 'mammals', emoji: '🦁', name: 'Bobcat', type: 'Mammal', desc: 'Spotted coat, tufted ears. Twice the size of housecat.' },
-  { cat: 'mammals', emoji: '🦬', name: 'Feral Hog', type: 'Mammal', desc: 'Dark brown or black, bristly hair. Invasive species.' },
-  { cat: 'mammals', emoji: '🐀', name: 'Marsh Rabbit', type: 'Mammal', desc: 'Smaller than cottontail, dark brown.' },
-  { cat: 'mammals', emoji: '🦘', name: 'Armadillo', type: 'Mammal', desc: 'Armored plates, burrows under ground.' },
-  { cat: 'mammals', emoji: '🦒', name: 'Manatee', type: 'Mammal', desc: 'Gray, aquatic mammal. Endangered, found in warm waters.' },
-  { cat: 'mammals', emoji: '🐬', name: 'Bottlenose Dolphin', type: 'Mammal', desc: 'Gray, social marine mammal.' },
-  { cat: 'mammals', emoji: '🦦', name: 'River Otter', type: 'Mammal', desc: 'Brown, long slender body. Excellent swimmer.' },
-  { cat: 'mammals', emoji: '🦅', name: 'Fox Squirrel', type: 'Mammal', desc: 'Larger than gray squirrel, rusty coloring.' },
-  { cat: 'mammals', emoji: '🦥', name: 'Three-toed Woodrat', type: 'Mammal', desc: 'Large rodent, builds stick houses.' },
-  { cat: 'mammals', emoji: '🐭', name: 'Hispid Cotton Rat', type: 'Mammal', desc: 'Small gray rodent, common in fields.' },
-  { cat: 'mammals', emoji: '🦝', name: 'Spotted Skunk', type: 'Mammal', desc: 'Black with white spots, spray defense.' },
-  { cat: 'mammals', emoji: '🐾', name: 'Mink', type: 'Mammal', desc: 'Dark brown, long slender body, aquatic.' },
-  { cat: 'mammals', emoji: '🦡', name: 'Eastern Weasel', type: 'Mammal', desc: 'Long slim body, brown coloring.' },
-  { cat: 'mammals', emoji: '🦝', name: 'Ring-tailed Cat (Ringtail)', type: 'Mammal', desc: 'Long bushy tail with black rings.' },
-  { cat: 'mammals', emoji: '🦘', name: 'Porcupine', type: 'Mammal', desc: 'Covered in sharp quills. Nocturnal.' }
+  // MAMMALS (25)
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Odocoileus_virginianus_white-tailed_deer.jpg', name: 'White-tailed Deer', desc: 'Most common large mammal. Cloven hoof tracks (heart-shaped). White flag tail when fleeing. Dawn/dusk near forest edges.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/d/d2/Procyon_lotor_var._hirtus_-_Texas_crop.jpg', name: 'Raccoon', desc: 'Extremely common near campgrounds. Dexterous paws. Ringed tail, masked face. Will raid food storage. Bear bag all food.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/American_Black_Bear.jpg', name: 'Florida Black Bear', desc: 'Rare but present. 200-300 lbs. Shaggy black fur, rounded ears. Found in swamps and forests. Never approach.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Urocyon_cinereoargenteus_%28no_text%29.jpg', name: 'Grey Fox', desc: 'Small canine, 3-4 lbs. Only fox that climbs trees. Salt-and-pepper colored. Nocturnal, rarely seen.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Striped_Skunk.jpg', name: 'Striped Skunk', desc: 'Black with white stripe. 2-4 lbs. Known for spray defense. Nocturnal. Avoid if approached.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Sciurus_niger_-_012.jpg', name: 'Fox Squirrel', desc: 'Large squirrel, orange-red fur. Bushy tail. Common in oak forests. Diurnal, very active at dawn.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Castor_canadensis_in_water.jpg', name: 'Beaver', desc: 'Large rodent, 30-60 lbs. Flat tail, orange teeth. Build dams in freshwater. Nocturnal.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Fallow_Deer.jpg', name: 'Fallow Deer', desc: 'Non-native, similar to white-tailed. Spotted coat. Found in some central Florida areas.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Sylvilagus_palustris.jpg', name: 'Marsh Rabbit', desc: 'Small, reddish-brown. Lives in wetlands. Swims well. Rarely ventures far from water.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Coyote_Yosemite.jpg', name: 'Coyote', desc: 'Medium canine, 30-40 lbs. Tan/grey fur. Expanding range in Florida. Nocturnal, hear howling at night.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1f/Bradypus.jpg', name: 'Three-toed Sloth', desc: 'Slow, tree-dwelling. Long claws. Moss covers fur. Rare sightings in Florida.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/4/49/Spilogale_putorius_-_Texas_crop.jpg', name: 'Spotted Skunk', desc: 'Smaller than striped. White spots instead of stripes. Handstand before spraying.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/d/d3/Nutria_in_Vancouver.jpg', name: 'Nutria', desc: 'Large rodent, orange teeth. Aquatic, like beavers. Invasive species. Destroys wetlands.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/1/14/Axis_deer.jpg', name: 'Axis Deer', desc: 'Non-native, spotted coat year-round. Chestnut color. Males have lyre-shaped antlers.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Potos_flavus_Smithsonian.jpg', name: 'Kinkajou', desc: 'Tree-dwelling, fruit-loving. Golden-brown fur. Prehensile tail. Nocturnal.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/2/27/Didelphis_virginiana_opossum.jpg', name: 'Opossum', desc: 'White face, grey body. Plays dead when threatened. Immune to snake venom. Common.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0d/Erinaceus_europaeus_LC0151.jpg', name: 'Hedgehog', desc: 'Spiky ball when rolled up. Nocturnal. Eats insects. Non-native invasive.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/8/85/Peromyscus_gossypinus.jpg', name: 'Cotton Mouse', desc: 'Small, dark grey. Wood inhabitor. Excellent climber. Nests in trees.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/5/5d/Oryzomys_palustris.jpg', name: 'Rice Rat', desc: 'Semi-aquatic, 4-5 inches. Found in marshes. Nocturnal swimmer.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0f/Lynx_rufus_04132007_-_011.jpg', name: 'Bobcat', desc: 'Tufted ears, spotted coat. Shy, elusive. Twice size of house cat. Solitary hunter.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/0/02/Vulpes_vulpes_scentmark.jpg', name: 'Red Fox', desc: 'Reddish coat, white-tipped tail. Smaller than grey fox. Expanding into Florida.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Armadillo_in_Saguaro_National_Park_%28high_res%29.jpg', name: 'Armadillo', desc: 'Armored shell, burrowing mammal. Curls when threatened. Can hold breath 6 minutes.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Manatee_and_baby_swimming.jpg', name: 'Manatee', desc: 'Large aquatic mammal, 800-1200 lbs. Vegetarian. Endangered. Peaceful herbivore.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Tursiops_truncatus_MOD.jpg', name: 'Bottlenose Dolphin', desc: 'Marine mammal, intelligent. Coastal and river populations. Social pods. Playful.' },
+  { cat: 'mammals', image: 'https://upload.wikimedia.org/wikipedia/commons/4/43/Phoca_largha.jpg', name: 'Pinniped Seal', desc: 'Marine mammal, rare visitor. Cold water species. Occasional winter sightings.' },
+  // REPTILES (25)
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e5/American_crocodilian.jpg', name: 'American Alligator', desc: '6-14 ft long. Log-like shape near water. Eyes glow red in flashlight. Found in all freshwater.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Gopherus_polyphemus.jpg', name: 'Gopher Tortoise', desc: 'Protected species. Domed shell, stumpy legs. Creates 10 ft deep burrows. Home to 350+ animal species.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/f/f3/Crotalus_adamanteus.jpg', name: 'Eastern Diamondback Rattlesnake', desc: 'Largest venomous snake. Diamond pattern, triangular head. Loud rattle. Can reach 8 feet. Give wide berth.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Anolis_carolinensis_2.jpg', name: 'Green Anole', desc: 'Florida\'s native anole. Can change green to brown. Males show pink dewlap. Excellent insect controllers.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Agkistrodon_piscivorus.jpg', name: 'Water Moccasin (Cottonmouth)', desc: 'Venomous, aquatic snake. Dark, heavy body. Found near water. White mouth when threatened.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Apalone_ferox.jpg', name: 'Florida Softshell Turtle', desc: 'Flat, leathery shell. Long neck, small head. Fast swimmers. Found in rivers and lakes.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/7/7f/Sceloporus_woodi.jpg', name: 'Florida Scrub Lizard', desc: 'Small, spiny. Only in Florida scrub habitat. Blue coloring on males. Extremely agile.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/3/34/Terrapene_carolina_3.jpg', name: 'Box Turtle', desc: 'Domed shell, hinged plastron. Brown coloring. Can close shell completely. Shy and slow-moving.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/7/79/Pantherophis_guttatus_4.jpg', name: 'Corn Snake', desc: 'Non-venomous, beautiful orange/red. Found in various habitats. Docile and beneficial.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1f/Eublepharis_macularius.jpg', name: 'Leopard Gecko', desc: 'Spotted pattern, yellowish. Nocturnal. Non-native but established in some areas.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Python_molurus_2.jpg', name: 'Python (Burmese)', desc: 'Invasive, can reach 16 feet. Muscular body. Threat to native species. Established in Everglades.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Drymarchon_couperi.jpg', name: 'Indigo Snake', desc: 'Florida\'s largest snake, blue-black. Non-venomous but can bite. Vibrant blue scales. Rare and protected.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Caretta-Caretta.jpg', name: 'Loggerhead Sea Turtle', desc: 'Ocean turtle, nests on beaches. Reddish-brown shell. Threatened species.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/4/46/Sea_Turtle_biota.jpg', name: 'Green Sea Turtle', desc: 'Ocean turtle, greenish shell. Herbivorous seagrass eater. Critically endangered.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Leatherback_sea_turtle_diving.jpg', name: 'Leatherback Sea Turtle', desc: 'Largest sea turtle, leathery shell. Deep ocean diver. Endangered.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Aspidoscelis_sexlineata.jpg', name: 'Six-lined Racerunner', desc: 'Fast lizard, striped pattern. Open habitat runner. Active daytime.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Sceloporus_undulatus_USGS.jpg', name: 'Fence Lizard', desc: 'Brown, tree climber. Territorial males do pushups. Excellent camouflage.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Black_rat_snake.jpg', name: 'Rat Snake (Black)', desc: 'Non-venomous, climbs excellently. Solid black adults. Beneficial rodent controller.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Crocodylus_acutus.jpg', name: 'American Crocodile', desc: 'Rare, 15-20 feet. V-shaped snout. Endangered. Only in Florida Keys/south.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8f/Leiocephalus_carinatus.jpg', name: 'Curly-tailed Lizard', desc: 'Brownish, curls tail when threatened. Invasive. Bahama native. Assertive.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/1/15/Anolis_equestris.jpg', name: 'Knight Anole', desc: 'Large bright green. Males have dewlaps. Caribbean native. Tree dweller.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/4/46/Thamnophis_sirtalis_sirtalis.jpg', name: 'Garter Snake', desc: 'Striped pattern. Harmless. Eat frogs/fish. Adapt well to disturbance.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/6/66/Thamnophis_sauritus.jpg', name: 'Ribbon Snake', desc: 'Thin striped snake. Aquatic preference. Non-venomous. Graceful swimmer.' },
+  { cat: 'reptiles', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Heterodon_platirhinos.jpg', name: 'Hognose Snake', desc: 'Upturned snout. Plays dead when threatened. Non-venomous. Toad specialist.' },
+  // BIRDS (25)
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/9/97/Haliaeetus_leucocephalus_-_04.jpg', name: 'Bald Eagle', desc: 'Year-round resident. White head/tail only at age 4-5. 8 ft wingspan. Near lakes and coastlines.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Roseate_Spoonbill.jpg', name: 'Roseate Spoonbill', desc: 'Unmistakable pink color. Spatula-shaped bill. Shallow water sweeper. Healthy wetland indicator.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/2/22/Sandhill_Crane_%28Antigone_canadensis%29.jpg', name: 'Sandhill Crane', desc: 'Tall grey birds, red forehead patch. Walk in pairs or families. Loud bugling call. Mate for life.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/8/86/Red-shouldered_Hawk_%28adult%29.jpg', name: 'Red-shouldered Hawk', desc: 'Medium raptor. Rufous shoulders, barred wings. Common in woodlands. Loud kee-ahh call.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Aphelocoma_coerulescens_Florida_2.jpg', name: 'Florida Scrub Jay', desc: 'Bright blue and grey. Only in Florida scrub. Threatened species. Extremely curious, may land on you.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Barred_Owl_-_natures_pics.jpg', name: 'Barred Owl', desc: 'Large, stocky owl. Rounded head, no ear tufts. Deep hooting call. Nocturnal hunter.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Dryocopus_pileatus_-_Pileated_Woodpecker.jpg', name: 'Pileated Woodpecker', desc: 'Large black woodpecker, red crest. Loud drumming. Excavates large rectangular holes.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/d/d2/Osprey_nest_USFWS.jpg', name: 'Osprey', desc: 'Fish-hunting raptor. White underside, dark back. Hovers over water then dives. Builds large stick nests.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/White_Ibis_%28Eudocimus_albus%29.jpg', name: 'White Ibis', desc: 'White plumage, long curved bill. Wades in shallow water. Colonial nesters. Seen in flocks.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Wood_Duck_%28male%29.jpg', name: 'Wood Duck', desc: 'Colorful male, iridescent green. Perches in trees. Cavity nester. Dabbling dabbler, not a diver.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8e/Cygnus_olor_%28Mute_Swan%29.jpg', name: 'Mute Swan', desc: 'Large white bird. Black bill. Invasive species. Aggressive to natives.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Anhinga_-_Anhinga_anhinga.jpg', name: 'Anhinga', desc: 'Water bird, long neck. Cormorant-like. Dries wings spread-eagled on branches.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Great_Blue_Heron.jpg', name: 'Great Blue Heron', desc: 'Large wading bird, 4-5 feet. Grey-blue. Stalks fish patiently. Prefers wetlands.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/7/75/Ardea_alba_004.jpg', name: 'Great Egret', desc: 'Large white wader. Long black legs, yellow bill. Breeding plumage stunning.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/f/f3/Bubulcus_ibis_-_Cattle_Egret_%28Male%29.jpg', name: 'Cattle Egret', desc: 'Small white heron. Follows cattle/livestock. Orange/buff breeding colors.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Short-tailed_Hawk.jpg', name: 'Short-tailed Hawk', desc: 'Small raptor, soars high. Light and dark morphs. Graceful aerial hunter.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Fulica_atra_-_Eurasian_Coot_-_2.jpg', name: 'American Coot', desc: 'Black diving duck. White bill and forehead. Lobed toes. Lakes and ponds.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c0/Myiopsitta_monachus_-_Monk_Parakeet_XC142624.jpg', name: 'Monk Parakeet', desc: 'Green parrot, introduced. Builds large communal nests. Vocal, colorful.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e5/Mourning_Dove.jpg', name: 'Mourning Dove', desc: 'Grey-brown, long-tailed. Distinctive cooing call. Ground feeder. Year-round.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/f/f8/Elanoides_forficatus_-_Swallow-tailed_Kite.jpg', name: 'Swallow-tailed Kite', desc: 'Graceful raptor, deeply forked tail. Aerial insect hunter. Migratory.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1f/Brown_Pelican_%28Pelecanus_conspicillatus%29.jpg', name: 'Brown Pelican', desc: 'Large water bird. Pouch for fish. Dives from high. State bird. Comeback species.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Aramus_guarauna_%28Limpkin%29.jpg', name: 'Limpkin', desc: 'Brown wading bird. Long bill. Eats apple snails. Loud wailing cry.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/6/67/Porphyrio_martinica_-_Purple_Swamphen_%28Female%29.jpg', name: 'Purple Gallinule', desc: 'Colorful purple/blue. Yellow bill. Walks on lily pads. Wetland denizen.' },
+  { cat: 'birds', image: 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Audubon%27s_Warbler_%28male%29.jpg', name: 'Yellow-rumped Warbler', desc: 'Winter visitor. Yellow patches. Abundant winter songbird. Active feeders.' },
+  // INSECTS (25)
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Monarch_In_ECP.jpg', name: 'Monarch Butterfly', desc: 'Orange/black, white spot border. Major migration corridor. Travel 3,000 miles. Fall migration peak.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Papilio_polyxenes_-_Black_Swallowtail.jpg', name: 'Swallowtail Butterfly', desc: 'Large, yellow with black stripes. Distinctive tail extensions on wings. Fast, erratic flight.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/1/10/Romalea_microptera_%28grasshopper%29.jpg', name: 'Lubber Grasshopper', desc: 'Florida\'s largest grasshopper, yellow/black. Cannot fly, slow. Spray noxious liquid when threatened.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Eopsaltria_australis_-_Mogo_Campground.jpg', name: 'Honeybee', desc: 'Essential pollinator. Golden/brown. Build hexagonal honeycomb. Colony of 20,000-80,000 bees.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Centruroides_gracilis.jpg', name: 'Florida Scorpion', desc: 'Small, yellow. Venomous but rarely fatal. Nocturnal. Glow under UV light.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/7/74/Argiope_bruennichi_%28Zebra_Spider%29_web.jpg', name: 'Orb Weaver Spider', desc: 'Large, colorful. Build geometric webs. Beneficial insect controllers. Non-aggressive.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Gryllus_pennsylvanicus.jpg', name: 'Cricket', desc: 'Brown/black, chirping at night. Excellent hearing. Omnivorous. Important food source for wildlife.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Azure_Damselfly_%28Male%29.jpg', name: 'Damselfly', desc: 'Slender, colored wings. Predatory. Important wetland indicator. Hover over water.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/4/4c/Mosquito_CDC.jpg', name: 'Mosquito', desc: 'Small blood-suckers. Only females bite. Disease carriers. Breeding in still water.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Anax_junius.jpg', name: 'Dragonfly', desc: 'Large wings, iridescent. Aerial hunters. Eat thousands of mosquitoes daily. Prehistoric lineage.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Halictus_rubicundus.jpg', name: 'Sweat Bee', desc: 'Small metallic bees. Attracted to human sweat. Non-aggressive. Important pollinators.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/5/58/Phrynus_longipes.jpg', name: 'Whip Scorpion', desc: 'Long tail-like appendage. Sprays acid. Harmless. Predatory insectivore.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/7/7f/Diestrammena_aspersum.jpg', name: 'Camel Cricket', desc: 'Hump-backed, long legs. Nocturnal jumpers. Found in caves/dark places.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Mole_cricket.JPG', name: 'Mole Cricket', desc: 'Burrowing cricket. Large front claws. Underground tunneler. Loud singing.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Zebra_Longwing_Butterfly_%28Heliconius_sara%29.jpg', name: 'Zebra Longwing', desc: 'Florida\'s state butterfly. Yellow/black stripes. Long-lived, 6 months. Social and inquisitive.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Limenitis_archippus_-_Viceroy_%28Female%29.jpg', name: 'Viceroy Butterfly', desc: 'Mimics Monarch. Orange/black. Edible but copycat pattern deters predators.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/Tettigonia_viridissima_female.jpg', name: 'Katydid', desc: 'Green insect, leaf-like wings. Loud katy-did call. Nocturnal. Summer sound.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/8/81/Jumping_spider_%28Evarcha_arcuata%29.jpg', name: 'Jumping Spider', desc: 'Huge forward-facing eyes. Excellent vision, jumps 40x body length. Curious, harmless.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Cicada_%2820090614%29.jpg', name: 'Cicada', desc: 'Large insect, loud buzzing. Shed exoskeletons. 13-17 year cycles. Summer sound.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/Vanessa_cardui_%28Thistle_butterfly%29.jpg', name: 'Painted Lady', desc: 'Orange/black/white wings. Migratory species. Fast fliers. Abundant some years.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Junonia_coenia_%28Common_Buckeye%29_on_Mistflower.jpg', name: 'Buckeye Butterfly', desc: 'Eye-spots on wings. Brown with blue. Predator deterrent. Spring/summer.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/5/5b/Monochamus_galloprovincialis.jpg', name: 'Beetle (Longhorn)', desc: 'Antennae longer than body. Wood borers. Various colors. Some invasive.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Wolf_spider_side_view_edit.jpg', name: 'Wolf Spider', desc: 'Ground hunter, no web. Excellent eyesight. Carries babies on back. Beneficial.' },
+  { cat: 'insects', image: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Bee-apis.jpg', name: 'Bumble Bee', desc: 'Large fuzzy bee. Social colonies. Better cold tolerance. Excellent pollinators.' },
+  // PLANTS (30)
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Sabal_palmetto_3.jpg', name: 'Sabal Palm', desc: 'Florida\'s state tree. Fan-shaped fronds. Tall tree, 40-50 feet. Salt-tolerant, storm-hardy.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0f/Tillandsia_usneoides2.jpg', name: 'Spanish Moss', desc: 'Not a moss—epiphytic bromeliad. Hangs in grey-green curtains. Provides animal habitat. Non-parasitic.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Serenoa_repens.jpg', name: 'Saw Palmetto', desc: 'Low-growing fan palm. Razor-sharp serrated stems. Dense clusters in scrub. Wildlife food source.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Hamelia_patens_f.jpg', name: 'Firebush', desc: 'Native shrub, orange-red flowers. Spring-fall blooming. Attracts hummingbirds/butterflies. Great for projects.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/5/50/Pinus_palustris_cones_and_needles.jpg', name: 'Longleaf Pine', desc: 'Tall pine, long needles. Important ecosystem. Requires periodic burning. Declining due to loss.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Pinus_elliottii_3.jpg', name: 'Slash Pine', desc: 'Thick, rough bark. 60+ feet tall. Found throughout Florida. Fast growing.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8e/Quercus_virginiana.jpg', name: 'Live Oak', desc: 'Massive, spreading branches. Evergreen. Habitat for Spanish moss. Ancient specimens statewide.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Taxodium_distichum_-_Bald_Cypress.jpg', name: 'Cypress Tree', desc: 'Coniferous, found in wetlands. Knees emerge from water. Ancient trees. Beautiful fall colors.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Saw_palmetto_%28Serenoa_repens%29_in_bloom.jpg', name: 'Palmetto Scrub', desc: 'Dense shrubland vegetation. Saw palmettos dominate. Low-growing, fire-adapted. Limited habitat.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/5/50/Coreopsis_tinctoria_002.jpg', name: 'Coreopsis', desc: 'Yellow wildflower. Native to Florida. Spring blooming. Easy to grow, attracts butterflies.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/1/13/Mangrove_roots.jpg', name: 'Mangrove', desc: 'Salt-water tree. Prop roots extend into water. Nursery for fish. Coastal protection.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spartina_alterniflora_%28Salt_marsh_cordgrass%29.jpg', name: 'Cordgrass', desc: 'Marsh grass, golden color. Stabilizes shoreline. Fish nursery habitat. Salt-tolerant.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Milkweed_%28Asclepias%29.jpg', name: 'Milkweed', desc: 'Purple flowers. Essential for Monarch caterpillars. Native wildflower. Easy to plant.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Nymphaea_%28water_lily%29_03.jpg', name: 'Water Lily', desc: 'Floating aquatic plant. Pink/white flowers. Provides shelter for aquatic life. Slow-growing.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/1/13/Uniola_paniculata.jpg', name: 'Sea Oats', desc: 'Beach grass. Golden plumes. Holds sand dunes. Protected—never pick.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Sunflower_from_Silesia2.jpg', name: 'Sunflower', desc: 'Large yellow petals. Tracks sun. Seed-filled center. Attracts pollinators.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Rudbeckia_fulgida_var._fulgida_2.jpg', name: 'Black-eyed Susan', desc: 'Yellow petals, dark center. Native wildflower. Blooms summer/fall. Dry tolerant.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/5/5d/Passiflora_edulis_-_passion_fruit_flower.jpg', name: 'Passion Flower Vine', desc: 'Intricate purple/white blooms. Host plant for Gulf Fritillary butterfly. Climbing vine.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Taxodium_distichum_-_Bald_Cypress.jpg', name: 'Bald Cypress', desc: 'Deciduous conifer. Knees in swamps. Reddish fall color. Massive specimens in Florida.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Liquidambar_styraciflua_seedhead.jpg', name: 'Sweet Gum', desc: 'Star-shaped leaves. Spiky seed balls. Beautiful fall colors. Medicinal resin.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Nyssa_aquatica.jpg', name: 'Tupelo Tree', desc: 'Water-loving. Tupelo honey source. Pale wood. Coastal plain native.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e2/Sabal_palmetto_bud.jpg', name: 'Cabbage Palm', desc: 'Edible heart (swamp cabbage). Fan fronds. Tall trunk. Evergreen.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/American_Persimmon_%28Diospyros_virginiana%29.jpg', name: 'Persimmon', desc: 'Small tree, orange fruit. Astringent when unripe. Wildlife food source.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Cladium_jamaicense.jpg', name: 'Saw Grass', desc: 'Sharp-edged marsh grass. Everglades dominant. Razor-sharp blades.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Liatris_spicata.jpg', name: 'Blazing Star (Liatris)', desc: 'Purple spikes of flowers. Native wildflower. Butterfly magnet. Summer bloomer.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Bracken_Fern_-_Pteridium_aquilinum.jpg', name: 'Fern (Bracken)', desc: 'Common frond. Grows in dry areas. Unfurls in spring. Edible fiddleheads.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/8/84/Osmunda_regalis_1.jpg', name: 'Fern (Royal)', desc: 'Large elegant fronds. Wetland fern. Plume-like. Graceful structure.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Venus_flytrap_cropped.jpg', name: 'Venus Flytrap', desc: 'Carnivorous plant. Snap trap leaves. Native to Carolina, rare in FL. Endangered.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Desmodium_tortuosum.jpg', name: 'Beggar Ticks', desc: 'Purple flowers. Spiky seed dispersal. Sticky burrs catch on clothes/animals.' },
+  { cat: 'plants', image: 'https://upload.wikimedia.org/wikipedia/commons/f/f4/Aristida_stricta_wiregrass.jpg', name: 'Wiregrass', desc: 'Tough narrow grass. Fire-adapted. Scrub specialist. Rare now.' },
+  // AMPHIBIANS (6)
+  { cat: 'amphibians', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/American_Bullfrog_%28Rana_catesbeiana%29.jpg', name: 'American Bullfrog', desc: 'Large frog, 3-6 inches. Deep jug-o-rum call. Cannibalistic tadpoles. Found in freshwater.' },
+  { cat: 'amphibians', image: 'https://upload.wikimedia.org/wikipedia/commons/3/33/Gray_tree_frog.jpg', name: 'Treefrog', desc: 'Small, 1 inch. Green or brown. Tree dweller. Loud chirping chorus at night during breeding.' },
+  { cat: 'amphibians', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Notophthalmus_viridescens_%28Eastern_Newt%29.jpg', name: 'Florida Newt', desc: 'Red eft stage bright orange. Aquatic as adults. Toxic skin. Live in wetlands and forests.' },
+  { cat: 'amphibians', image: 'https://upload.wikimedia.org/wikipedia/commons/c/c2/Hyla_squirella.jpg', name: 'Squirrel Treefrog', desc: 'Tiny, 0.75 inches. Green to brown. Tree percher. Loud aggressive call despite small size.' },
+  { cat: 'amphibians', image: 'https://upload.wikimedia.org/wikipedia/commons/5/54/Pseudacris_nigrita.jpg', name: 'Pig Frog', desc: 'Small, grunting call. Found in marshes. Burrows in mud. Nocturnal.' },
+  { cat: 'amphibians', image: 'https://upload.wikimedia.org/wikipedia/commons/6/61/Bufo_marinus_-_Cane_Toad_%28Choc%C3%B3%2C_Colombia%29.jpg', name: 'Cane Toad', desc: 'Large, bumpy warty skin. Poisonous secretions. Invasive. Active at dusk/night.' },
 ];
 
-// Add more field guide entries for other categories...
-// For brevity, simplified version here
 
 // ═══════════════════════════════════════
 // MAIN COMPONENT
@@ -254,6 +365,7 @@ const FIELD_GUIDE = [
 
 export default function ScoutToolsPortal() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialPanel = searchParams.get('panel') || null;
   const [activePanel, setActivePanel] = useState(initialPanel);
   const [dashFilter, setDashFilter] = useState('all');
@@ -264,22 +376,19 @@ export default function ScoutToolsPortal() {
   const [meritChecked, setMeritChecked] = useState({});
   const [packingTrip, setPackingTrip] = useState('weekend');
   const [packingChecked, setPackingChecked] = useState({});
-  const [rosterMembers, setRosterMembers] = useState([]);
+  const [rosterMembers] = useState([]);
   const [rosterAssignments, setRosterAssignments] = useState({});
   const [rosterSelected, setRosterSelected] = useState(null);
   const [fieldGuideFilter, setFieldGuideFilter] = useState('all');
   const [countdownTarget, setCountdownTarget] = useState(null);
   const [countdownDisplay, setCountdownDisplay] = useState({d:'000',h:'00',m:'00',s:'00'});
   const [countdownName, setCountdownName] = useState('Next Event');
-  const [patrols, setPatrols] = useState([]);
+  const [patrols] = useState([]);
   const [menuDays, setMenuDays] = useState(2);
   const [menuCurDay, setMenuCurDay] = useState(1);
   const [menuMeals, setMenuMeals] = useState({});
-  const [regForm, setRegForm] = useState({});
-  const [regEntries, setRegEntries] = useState([]);
   const [regSuccess, setRegSuccess] = useState(false);
   const [quizState, setQuizState] = useState({phase:'intro',q:0,score:0,answered:false});
-  const [faState, setFaState] = useState({phase:'intro',scenario:0,step:0,points:0,answered:false});
   const [cipherState, setCipherState] = useState({phase:'intro',msg:0,score:0,input:'',feedback:null});
   const [storyState, setStoryState] = useState({hero:'',setting:'Deep forest',challenge:'Survival emergency',output:null});
 
@@ -459,7 +568,7 @@ export default function ScoutToolsPortal() {
       <div className="card" style={{marginBottom:'16px'}}>
         <div className="label" style={{marginBottom:'10px'}}>Add Scout</div>
         <div className="row">
-          <input className="input" placeholder="Scout name" style={{flex:1}} onChange={(e)=>{}} />
+          <input className="input" placeholder="Scout name" style={{flex:1}} onChange={()=>{}} />
           <button className="btn btn-sm" onClick={()=>{}}>+ Add</button>
         </div>
       </div>
@@ -867,11 +976,18 @@ export default function ScoutToolsPortal() {
       <header className="scout-portal-header">
         <div className="header-content">
           <button className="menu-btn" onClick={()=>setSidebarOpen(!sidebarOpen)}>☰</button>
+          <a href="#" className="home-link" onClick={(e)=>{e.preventDefault();navigate('/');}}>
           <div className="header-brand">
             <span className="brand-icon">⚜️</span>
             <div>
+              <h1 className="brand-name">Troop 242</h1>
+               <p className="brand-tagline">Sanford • Central Florida</p>
+            </div>
+          </div></a>
+          <div className="header-brand">
+           
+            <div>
               <h1 className="brand-name">Scout Portal</h1>
-              <p className="brand-tagline">Tools • Learning • Events • Games</p>
             </div>
           </div>
           <div className="header-actions">
@@ -966,7 +1082,7 @@ export default function ScoutToolsPortal() {
                     <span className="feat-icon">{card.icon}</span>
                     <div className="feat-name">{card.name}</div>
                     <div className="feat-desc">{card.desc}</div>
-                    <span className="feat-tag pill gold">{card.tag}</span>
+                    <span className="feat-tag pill white">{card.tag}</span>
                   </div>
                 ))}
               </div>
