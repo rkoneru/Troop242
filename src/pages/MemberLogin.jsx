@@ -86,7 +86,7 @@ export default function MemberLogin() {
   return (
     <>
       {/* Header */}
-      <section className="hero-page section">
+      <section className="hero-page section" style={{ minHeight: '27vh', paddingTop: '2rem', paddingBottom: '2rem' }}>
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
