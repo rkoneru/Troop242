@@ -73,9 +73,7 @@ footer a{color:var(--gm);text-decoration:none;font-weight:600}
 @media(max-width:1200px){
   .grid{grid-template-columns:repeat(3,1fr);padding:0 16px}
 }
-@media(max-width:868px){
-  .grid{grid-template-columns:repeat(2,1fr);padding:0 16px}
-}
+
 @media(max-width:1024px){
   header{padding:48px 20px 56px}
   .badge .text{display:none}
@@ -84,10 +82,14 @@ footer a{color:var(--gm);text-decoration:none;font-weight:600}
   h1{font-size:clamp(28px,5vw,42px);margin-bottom:8px}
   .h1-text{display:none}
   .h1-icon{display:inline}
-  .sub{font-size:13px;display:none}
+  .sub{display:none}
   .stats-bar{gap:16px;margin-top:12px}
   .stat-lbl{font-size:10px}
   .stat-num{font-size:18px}
+}
+
+@media(max-width:868px){
+  .grid{grid-template-columns:repeat(2,1fr);padding:0 16px}
 }
 
 @media(max-width:768px){
