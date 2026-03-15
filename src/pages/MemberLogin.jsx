@@ -1,6 +1,6 @@
 
 import { Users, Shield, UserCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/member-login.css';
@@ -43,6 +43,18 @@ export default function MemberLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const tapRef = useRef({ count: 0, timer: null });
+
+  const handleSecretTap = () => {
+    tapRef.current.count += 1;
+    clearTimeout(tapRef.current.timer);
+    tapRef.current.timer = setTimeout(() => { tapRef.current.count = 0; }, 1500);
+    if (tapRef.current.count >= 5) {
+      tapRef.current.count = 0;
+      setAdminUnlocked(true);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -86,7 +98,7 @@ export default function MemberLogin() {
   return (
     <>
       {/* Header */}
-      <section className="hero-page section" style={{ minHeight: '27vh', paddingTop: '2rem', paddingBottom: '2rem' }}>
+      <section className="hero-page section" style={{ minHeight: '30vh', paddingTop: '2rem', paddingBottom: '2rem' }}>
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -94,7 +106,7 @@ export default function MemberLogin() {
             transition={{ duration: 0.6 }}
             style={{ textAlign: 'center' }}
           >
-            <h1 style={{ marginBottom: 16 }}>👥 Member Login</h1>
+            <h1 style={{ marginBottom: 16 }}><span onClick={handleSecretTap} style={{ cursor: 'default', userSelect: 'none' }}>👥</span> Member Login</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
               Select your profile type and log in to access Troop 242's member portal
             </p>
@@ -117,7 +129,7 @@ export default function MemberLogin() {
                 >
                   <h2 style={{ textAlign: 'center', marginBottom: 48 }}>Select Your Profile</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, marginBottom: 48 }}>
-                    {Object.entries(PROFILES).map(([key, profile]) => {
+                    {Object.entries(PROFILES).filter(([key]) => key !== 'admin' || adminUnlocked).map(([key, profile]) => {
                       const Icon = profile.icon;
                       return (
                         <motion.div
