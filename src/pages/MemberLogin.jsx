@@ -77,13 +77,6 @@ export default function MemberLogin() {
     }, 1000);
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -112,12 +105,7 @@ export default function MemberLogin() {
       {/* Profile Selection */}
       <section className="section section--dark">
         <div className="container">
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-          >
+          <div>
             <AnimatePresence mode="wait" initial={false}>
               {!selectedProfile ? (
                 <motion.div
@@ -324,7 +312,7 @@ export default function MemberLogin() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </div>
       </section>
 
