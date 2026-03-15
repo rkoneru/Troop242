@@ -375,5 +375,10 @@ footer a{color:var(--gm);text-decoration:none;font-weight:600}
   </div>
 </footer> 
 
+<script>
+if (window.location.search) {
+  history.replaceState(null, '', window.location.pathname);
+}
+</script>
 </body>
 </html>

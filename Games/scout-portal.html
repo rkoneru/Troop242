@@ -26,10 +26,18 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .troop-badge{display:flex;align-items:center;gap:9px}
 .fleur{font-size:22px;line-height:1}
 .troop-name{color:#fff;font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1}
-.troop-sub{color:rgba(255,255,255,.45);font-size:10.5px;font-weight:500;letter-spacing:.2px}
+.troop-sub{color:rgba(255,255,255,.45);font-size:10.5px;font-weight:500;letter-spacing:.2px;margin-top:3px;}
+.troop-badge .text{display:inline}
+.troop-badge .icon-only{display:none}
 .hdr-sep{width:1px;height:22px;background:rgba(255,255,255,.15);margin:0 4px}
-.portal-title{color:rgb(255, 255, 255);font-size:24px;font-weight:600;text-align:center; margin:auto;}
+.portal-title{color:rgb(255, 255, 255);font-size:24px;font-weight:600;text-align:center;margin:auto}
+.portal-title .text{display:inline}
+.portal-title .icon-only{display:none;font-size:20px}
+.hdr-sd{display:inline-flex}
+.hdr-sd .text{display:inline}
+.hdr-sd .icon-only{display:none}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdr-sd{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;background-color:var(--g);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',system-ui,sans-serif;transition:.15s}
 .hdr-back{display:none;align-items:center;gap:6px;color:rgba(255,255,255,.7);
   background:rgba(255,255,255,.1);border:none;border-radius:8px;
   padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',system-ui,sans-serif;
@@ -48,6 +56,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .sidebar{width:var(--nav-w);background:var(--w);border-right:1px solid var(--bd);
   display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
 .nav-section{padding:14px 10px 6px}
+.nav-section:last-child{padding-bottom:20px}
 .nav-section-title{font-size:10px;font-weight:700;color:var(--ms);text-transform:uppercase;
   letter-spacing:1px;padding:0 8px;margin-bottom:6px}
 .nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;
@@ -366,6 +375,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   padding:10px 14px;font-size:13px;display:flex;justify-content:space-between}
 
 /* ═══ RESPONSIVE ═══ */
+@media(max-width:1024px){
+  .troop-badge .text{display:none}
+  .troop-badge .icon-only{display:inline}
+  .portal-title .text{display:none}
+  .portal-title .icon-only{display:inline}
+  .hdr-sd .text{display:none}
+  .hdr-sd .icon-only{display:inline}
+}
+
 @media(max-width:768px){
   :root{--nav-w:0px;--hdr:52px}
   .hdr{padding:0 12px;gap:8px}
@@ -403,18 +421,17 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <a href="../" style="color:rgb(255, 255, 255);text-decoration:none" class="troop-badge">
     <span class="fleur">⚜️</span>
-    <div>
+    <div class="text">
       <div class="troop-name">Troop 242</div>
-      <div class="troop-sub">Sanford</div>
+      <div class="troop-sub">Sanford · Central Florida</div>
     </div>
+    <span class="icon-only" style="font-size:20px"></span>
   </a>
 
-  <div class="hdr-sep"></div>
-  <span class="portal-title">Scout Portal</span>
-  <div class="hdr-right">
-    <!-- <span class="panel-title" id="panel-hdr-title"></span> -->
-    <button class="hdr-back" id="hdr-back" onclick="showDashboard()">← Back </button>
-  </div>
+
+  <span class="portal-title"><span class="text">Scout Portal</span><span class="icon-only">Scout</span></span>
+  <button class="hdr-sd" onclick="goToScoutDashboard()"><span class="text">← Scout Dashboard</span><span class="icon-only">←</span></button>
+
 </div>
 
 
@@ -484,7 +501,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <button class="nav-item" onclick="openPanel('story','🔥 Story Builder')">
       <span class="nav-icon">🔥</span>Campfire Story Builder
     </button>
-    <button class="nav-item" onclick="window.location.href='../Games/scout-games-hub.html'">
+    <button class="nav-item" onclick="goToGames()">
       <span class="nav-icon">🎲</span> More Scout Games
     </button>
   </div>
@@ -500,7 +517,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <h2>Welcome to Scout Portal</h2>
       <p>Tools, learning, games, and event management for Troop 242 Scouts and leaders</p>
     </div>
-    <button class="btn btn-outline" onclick="goToScoutDashboard()" style="white-space:nowrap;flex-shrink:0">← Scout Dashboard</button>
+    <!-- <button class="btn btn-outline" onclick="goToScoutDashboard()" style="white-space:nowrap;flex-shrink:0">← Scout Dashboard</button> -->
   </div>
   <div class="cat-tabs">
     <button class="cat-tab active" onclick="filterCat('all',this)">All (26)</button>
@@ -608,10 +625,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <div class="feat-desc">Generate unique Scout adventure stories around the fire</div>
       <span class="feat-tag pill green">Game</span>
     </div>
-    <div class="feat-card" data-cat="games" onclick="window.location.href='../Games/scout-games-hub.html'">
+    <div class="feat-card" data-cat="games" onclick="goToGames()">
       <span class="feat-icon">🎲</span>
       <div class="feat-name">More Games</div>
-      <div class="feat-desc">Explore additional Scout games and challenges</div>
+      <div class="feat-desc">Explore all 17 Scout games and challenges</div>
       <span class="feat-tag pill green">Game</span>
     </div>
   </div>
@@ -1617,6 +1634,11 @@ function filterFieldGuide(category, button) {
 </div><!-- end .main -->
 </div><!-- end .app-body -->
 <script>
+// Strip query string from URL without reload
+if (window.location.search) {
+  history.replaceState(null, '', window.location.pathname);
+}
+
 // ═══════════════════════════════════════
 // ROUTER
 // ═══════════════════════════════════════
@@ -1648,6 +1670,10 @@ function showDashboard(){
 }
 function goToScoutDashboard(){
   window.location.href = '/Troop242/scout-dashboard';
+}
+function goToGames(){
+  // window.location.href = '../games';
+  window.location.href = '../games/scout-games-hub.html';
 }
 function filterCat(cat,btn){
   document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
@@ -2417,7 +2443,7 @@ const REG={
   <div style="max-width:920px;margin:0 auto">
       <div style="margin-bottom:8px">
         <h3 style="margin-bottom:4px;font-size:0.9rem;font-weight:700;color:#fff">
-          <a href="../" style="color:rgb(255, 255, 255);margin: bottom 18px; font-size:1.1rem; font: weight 125px;text-decoration:none">⚜️ Troop 242</a></h3>
+          <a href="../" style="color:rgb(255, 255, 255);margin-bottom:18px;font-size:1.1rem;font-weight:700;text-decoration:none">⚜️ Troop 242</a></h3>
         <p style="color:rgba(255,255,255,.7);font-size:0.9rem;line-height:1.6">Building today's youth into tomorrow's leaders. </p>
       </div> 
     <!-- <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:32px;margin-bottom:8px;text-align:left">
@@ -2427,7 +2453,7 @@ const REG={
           </ul>
       </div> 
     </div> -->
-    <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:04px;color:rgba(255,255,255,.6);font-size:0.85rem">
+    <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:4px;color:rgba(255,255,255,.6);font-size:0.85rem">
       <p>© 2026 Troop 242 Sanford. Scouting America | Adventure · Brotherhood · Service</p>
       <p style="margin-top:12px">Maintained by troop webmaster : Rakesh K</p>
     </div>
