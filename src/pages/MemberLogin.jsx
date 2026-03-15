@@ -2,7 +2,7 @@
 import { Users, Shield, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/member-login.css';
 
 // Dummy credentials for testing
@@ -118,81 +118,64 @@ export default function MemberLogin() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
           >
-            <h2 style={{ textAlign: 'center', marginBottom: 48 }}>Select Your Profile</h2>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, marginBottom: 48 }}>
-              {Object.entries(PROFILES).map(([key, profile]) => {
-                const Icon = profile.icon;
-                return (
-                  <motion.div
-                    key={key}
-                    variants={itemVariants}
-                    onClick={() => setSelectedProfile(key)}
-                    className="glass-card"
-                    style={{
-                      padding: 32,
-                      cursor: 'pointer',
-                      border: selectedProfile === key ? `2px solid ${profile.color}` : '1px solid rgba(255, 255, 255, 0.1)',
-                      transition: 'all 0.3s ease',
-                      textAlign: 'center'
-                    }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Icon size={48} style={{ color: profile.color, marginBottom: 16, margin: '0 auto 16px' }} />
-                    <h3 style={{ marginBottom: 12, color: 'var(--text-primary)' }}>{profile.name}</h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 20, lineHeight: 1.6 }}>
-                      {profile.description}
-                    </p>
-
-                    <div style={{ textAlign: 'left', marginBottom: 16 }}>
-                      {profile.features.map((feature, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                          <span style={{ color: profile.color }}>✓</span>
-                          {feature}
-                        </div>
-                      ))}
-                    </div>
-
-                    {selectedProfile === key && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                        style={{
-                          display: 'inline-block',
-                          padding: '8px 16px',
-                          backgroundColor: `${profile.color}20`,
-                          borderRadius: '8px',
-                          color: profile.color,
-                          fontSize: '0.85rem',
-                          fontWeight: 600
-                        }}
-                      >
-                        Selected
-                      </motion.div>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Login Form */}
-            {selectedProfile && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                style={{
-                  maxWidth: '450px',
-                  margin: '0 auto',
-                  padding: 32,
-                  background: 'var(--glass-bg)',
-                  border: '1px solid var(--glass-border)',
-                  borderRadius: 16,
-                  backdropFilter: 'blur(12px)'
-                }}
-              >
+            <AnimatePresence mode="wait">
+              {!selectedProfile ? (
+                <motion.div
+                  key="cards"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30, scale: 0.97 }}
+                  transition={{ duration: 0.35 }}
+                >
+                  <h2 style={{ textAlign: 'center', marginBottom: 48 }}>Select Your Profile</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, marginBottom: 48 }}>
+                    {Object.entries(PROFILES).map(([key, profile]) => {
+                      const Icon = profile.icon;
+                      return (
+                        <motion.div
+                          key={key}
+                          variants={itemVariants}
+                          onClick={() => setSelectedProfile(key)}
+                          className="glass-card"
+                          style={{ padding: 32, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.3s ease', textAlign: 'center' }}
+                          whileHover={{ scale: 1.05, borderColor: profile.color }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Icon size={48} style={{ color: profile.color, margin: '0 auto 16px' }} />
+                          <h3 style={{ marginBottom: 12, color: 'var(--text-primary)' }}>{profile.name}</h3>
+                          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 20, lineHeight: 1.6 }}>
+                            {profile.description}
+                          </p>
+                          <div style={{ textAlign: 'left' }}>
+                            {profile.features.map((feature, idx) => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                <span style={{ color: profile.color }}>✓</span>
+                                {feature}
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="login"
+                  initial={{ opacity: 0, y: 40, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  style={{
+                    maxWidth: '450px',
+                    margin: '0 auto',
+                    padding: 32,
+                    background: 'var(--glass-bg)',
+                    border: `1px solid ${PROFILES[selectedProfile].color}40`,
+                    borderRadius: 16,
+                    backdropFilter: 'blur(12px)'
+                  }}
+                >
                 <h3 style={{ marginBottom: 24, textAlign: 'center', color: 'var(--text-primary)' }}>
                   Login as {PROFILES[selectedProfile].name}
                 </h3>
@@ -328,12 +311,19 @@ export default function MemberLogin() {
                     {loading ? '⏳ Logging in...' : 'Login'}
                   </button>
 
-                  <div style={{ textAlign: 'center', marginTop: 16, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                    <p>Don't have an account? <span style={{ color: 'var(--accent)', cursor: 'pointer' }}>Contact your troop leader</span></p>
+                  <div style={{ textAlign: 'center', marginTop: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedProfile(null); setError(''); setEmail(''); setPassword(''); }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      ← Choose a different profile
+                    </button>
                   </div>
                 </form>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       </section>
