@@ -10,9 +10,12 @@
 :root{
   --g:#1B4332;--gm:#2D6A4F;--gl:#52B788;--gp:#D8F3DC;
   --gold:#C8960C;--goldp:#FEF9C3;--bluep:#EFF6FF;--blue:#1E40AF;
-  --bg:#F7F8F5;--w:#fff;--bd:#E2E8F0;--t:#111827;--mu:#6B7280;
-  --r:14px;--sh:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+  --bg:#F7F8F5;--w:#fff;--bd:#E5EAE3;--t:#111827;--mu:#6B7280;
+  --sh:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --r:14px;--r2:16px;--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
 }
+
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
 header{background:var(--g);color:#fff;padding:64px 24px 80px;text-align:center;position:relative;overflow:hidden}
 header::before{content:'';position:absolute;inset:0;
@@ -29,12 +32,35 @@ h1{font-size:clamp(32px,6vw,58px);font-weight:800;letter-spacing:-1.5px;margin-b
 .stat-num{font-size:22px;font-weight:800;color:var(--gp)}
 .stat-lbl{font-size:12px;color:rgba(255,255,255,.5);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
 
-.grid{max-width:1400px;margin:-42px auto 60px;padding:0 20px;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;max-width:1400px;margin:0 auto;padding:0 20px}
 
-.card{background:var(--w);border:1px solid var(--bd);border-radius:var(--r);
+.card{background:var(--w);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:24px;cursor:pointer;transition:.25s ease;text-decoration:none;color:var(--t);
+  box-shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  display:flex;flex-direction:column;gap:16px}
+.card:hover{border-color:var(--gl);transform:translateY(-4px);
+  box-shadow:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04)}
+.card.hidden{display:none}
+.card-top{display:flex;gap:14px;align-items:flex-start}
+.icon{font-size:40px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-head{display:flex;flex-direction:column;gap:4px;flex-grow:1}
+.card-head h2{font-size:16px;font-weight:700;margin:0;color:var(--t);line-height:1.3}
+.card-head p{font-size:13px;color:var(--mu);line-height:1.55;margin:0}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid var(--bd)}
+.tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:100px;background:var(--gp);color:var(--gm);white-space:nowrap}
+.tag.gold{background:var(--goldp);color:#92400E}
+.tag.blue{background:var(--bluep);color:var(--blue)}
+.play{font-size:13px;font-weight:700;color:var(--gm);display:flex;align-items:center;gap:5px;transition:.15s;margin-left:auto}
+.card:hover .play{color:var(--g);gap:8px}
+
+
+
+
+/*.grid{max-width:1400px;margin:-42px auto 60px;padding:0 20px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+ .card{background:var(--w);border:1px solid var(--bd);border-radius:var(--r);
   padding:28px 28px 22px;text-decoration:none;color:var(--t);box-shadow:var(--sh);
-  transition:.22s ease;display:flex;flex-direction:column;gap:16px}
+  transition:.22s ease;display:flex;flex-direction:column;gap:16px} 
 .card:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,0,0,.11);border-color:var(--gl)}
 .card-top{display:flex;gap:16px;align-items:flex-start}
 .icon{width:60px;height:60px;min-width:60px;background:var(--gp);border-radius:12px;
@@ -43,13 +69,7 @@ h1{font-size:clamp(32px,6vw,58px);font-weight:800;letter-spacing:-1.5px;margin-b
 .card:hover .icon{background:var(--gl);transform:scale(1.05)}
 .card-head h2{font-size:19px;font-weight:700;margin-bottom:5px;letter-spacing:-.3px}
 .card-head p{font-size:14px;color:var(--mu);line-height:1.6}
-.card-foot{display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--bd)}
-.tag{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:100px;background:var(--gp);color:var(--gm)}
-.tag.gold{background:var(--goldp);color:#92400E}
-.tag.blue{background:var(--bluep);color:var(--blue)}
-.play{margin-left:auto;font-size:13px;font-weight:700;color:var(--gm);
-  display:flex;align-items:center;gap:5px;transition:.15s}
-.card:hover .play{color:var(--g);gap:8px}
+.card-foot{display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1px solid var(--bd)} */
 
 .back-btn{position:absolute;top:20px;left:20px;display:flex;align-items:center;gap:6px;
   background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;
@@ -64,13 +84,18 @@ footer{text-align:center;padding:28px 20px;color:var(--mu);font-size:13px;border
 footer a{color:var(--gm);text-decoration:none;font-weight:600}
 
 @media(max-width:1200px){
-  .grid{grid-template-columns:repeat(3,1fr);max-width:1000px}
+  .grid{grid-template-columns:repeat(3,1fr);padding:0 16px}
 }
-@media(max-width:768px){
-  .grid{grid-template-columns:repeat(2,1fr);max-width:600px}
+@media(max-width:868px){
+  .grid{grid-template-columns:repeat(2,1fr);padding:0 16px}
 }
-@media(max-width:480px){
-  .grid{grid-template-columns:1fr;max-width:100%}
+@media(max-width:540px){
+  .grid{grid-template-columns:1fr;padding:0 16px}
+  header{padding:48px 20px 60px}
+  .card{padding:20px}
+  .icon{font-size:36px}
+  .card-head.h2{font-size:14px}
+  .card-head.p{font-size:12px}
 }
 </style>
 </head>
@@ -314,7 +339,7 @@ footer a{color:var(--gm);text-decoration:none;font-weight:600}
   </a>
 </div>
 
-<!-- <footer style="background:var(--t);color:#fff;padding:48px 24px;text-align:center;margin-top:40px">
+ <footer style="background:var(--t);color:#fff;padding:48px 24px;text-align:center;margin-top:40px">
   <div style="max-width:920px;margin:0 auto">
    
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:32px;margin-bottom:8px;text-align:left">
@@ -331,16 +356,13 @@ footer a{color:var(--gm);text-decoration:none;font-weight:600}
           <li><a href="../Games/scout-portal.html" style="color:rgba(255,255,255,.7);text-decoration:none">Scout Portal</a></li>
         </ul>
       </div>
-
-      
     </div>
-
     <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:04px;color:rgba(255,255,255,.6);font-size:0.85rem">
       <p>© 2026 Troop 242 Sanford. Scouting America | Adventure · Brotherhood · Service</p>
       <p style="margin-top:12px">Maintained by troop webmaster : Rakesh K</p>
     </div>
   </div>
-</footer> -->
+</footer> 
 
 </body>
 </html>
