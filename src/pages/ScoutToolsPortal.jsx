@@ -85,7 +85,12 @@ const DASHBOARD_CARDS = [
   { id: 'star-quiz', cat: 'games', icon: '⭐', name: 'Star Navigation Quiz', desc: 'Identify constellations and navigate by stars', tag: 'Game' },
   { id: 'first-aid', cat: 'games', icon: '🩹', name: 'First Aid Simulator', desc: 'Make decisions in emergency scenarios', tag: 'Game' },
   { id: 'cipher', cat: 'games', icon: '🔐', name: 'Cipher Challenge', desc: 'Decode secret messages with pigpen cipher', tag: 'Game' },
-  { id: 'story', cat: 'games', icon: '🔥', name: 'Campfire Story Builder', desc: 'Generate unique Scout adventure stories', tag: 'Game' }
+  { id: 'story', cat: 'games', icon: '🔥', name: 'Campfire Story Builder', desc: 'Generate unique Scout adventure stories', tag: 'Game' },
+  { id: 'knot-challenge', cat: 'games', icon: '🪢', name: 'Knot Tying Challenge', desc: 'Practice essential Scout knots with step-by-step guidance', tag: 'Game' },
+  { id: 'badge-quest', cat: 'games', icon: '🏅', name: 'Merit Badge Quest', desc: 'Interactive challenges to earn virtual badges', tag: 'Game' },
+  { id: 'survival-game', cat: 'games', icon: '🏕️', name: 'Survival Escape', desc: 'Solve wilderness survival puzzles and escape scenarios', tag: 'Game' },
+  { id: 'nature-matcher', cat: 'games', icon: '🦋', name: 'Nature Matcher', desc: 'Match animals and plants to their descriptions', tag: 'Game' },
+  { id: 'games-hub', cat: 'games', icon: '🎮', name: 'Back to Games Hub', desc: 'Return to the full games landing page', tag: 'Game', isLink: true }
 ];
 
 const MB_REQUIRED = [
@@ -459,6 +464,14 @@ export default function ScoutToolsPortal() {
         return renderCipher();
       case 'story':
         return renderStory();
+      case 'knot-challenge':
+        return renderKnotChallenge();
+      case 'badge-quest':
+        return renderBadgeQuest();
+      case 'survival-game':
+        return renderSurvivalGame();
+      case 'nature-matcher':
+        return renderNatureMatcher();
       default:
         return null;
     }
@@ -986,6 +999,53 @@ export default function ScoutToolsPortal() {
     </div>
   );
 
+  const renderKnotChallenge = () => (
+    <div className="panel-inner">
+      <h2>🪢 Knot Tying Challenge</h2>
+      <p className="panel-subtitle">Master essential Scout knots with interactive practice</p>
+      <div className="card" style={{textAlign:'center',padding:'24px'}}>
+        <div style={{fontSize:'48px',marginBottom:'16px'}}>🪢</div>
+        <p style={{marginBottom:'16px',color:'var(--text-secondary)'}}>Coming soon! Practice tying knots with step-by-step animated guidance.</p>
+        <p style={{fontSize:'12px',color:'var(--text-muted)'}}>Learn and master: Bowline, Clove Hitch, Sheet Bend, and more</p>
+      </div>
+    </div>
+  );
+
+  const renderBadgeQuest = () => (
+    <div className="panel-inner">
+      <h2>🏅 Merit Badge Quest</h2>
+      <p className="panel-subtitle">Interactive challenges to earn virtual badges</p>
+      <div className="card" style={{textAlign:'center',padding:'24px'}}>
+        <div style={{fontSize:'48px',marginBottom:'16px'}}>🏅</div>
+        <p style={{marginBottom:'16px',color:'var(--text-secondary)'}}>Coming soon! Complete challenges and unlock virtual merit badges.</p>
+        <p style={{fontSize:'12px',color:'var(--text-muted)'}}>Track your progress toward Eagle Scout requirements</p>
+      </div>
+    </div>
+  );
+
+  const renderSurvivalGame = () => (
+    <div className="panel-inner">
+      <h2>🏕️ Survival Escape</h2>
+      <p className="panel-subtitle">Solve wilderness survival puzzles and escape scenarios</p>
+      <div className="card" style={{textAlign:'center',padding:'24px'}}>
+        <div style={{fontSize:'48px',marginBottom:'16px'}}>🏕️</div>
+        <p style={{marginBottom:'16px',color:'var(--text-secondary)'}}>Coming soon! Test your survival skills with interactive escape challenges.</p>
+        <p style={{fontSize:'12px',color:'var(--text-muted)'}}>Apply wilderness knowledge to overcome obstacles</p>
+      </div>
+    </div>
+  );
+
+  const renderNatureMatcher = () => (
+    <div className="panel-inner">
+      <h2>🦋 Nature Matcher</h2>
+      <p className="panel-subtitle">Match animals and plants to their descriptions</p>
+      <div className="card" style={{textAlign:'center',padding:'24px'}}>
+        <div style={{fontSize:'48px',marginBottom:'16px'}}>🦋</div>
+        <p style={{marginBottom:'16px',color:'var(--text-secondary)'}}>Coming soon! Test your knowledge of Florida wildlife and plants.</p>
+        <p style={{fontSize:'12px',color:'var(--text-muted)'}}>Match species to their unique characteristics and habitats</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="scout-portal">
@@ -1065,10 +1125,17 @@ export default function ScoutToolsPortal() {
           <div className="nav-divider"></div>
           <div className="nav-section">
             <div className="nav-section-title">🎮 Games</div>
-            {['star-quiz','first-aid','cipher','story'].map(id=>{
+            {['star-quiz','first-aid','cipher','story','knot-challenge','badge-quest','survival-game','nature-matcher','games-hub'].map(id=>{
               const card = DASHBOARD_CARDS.find(c=>c.id===id);
               return (
-                <button key={id} className={`nav-item ${activePanel===id?'active':''}`} onClick={()=>{setActivePanel(id);setSidebarOpen(false);}}>
+                <button key={id} className={`nav-item ${activePanel===id?'active':''}`} onClick={()=>{
+                  if(card.isLink) {
+                    navigate('/games');
+                  } else {
+                    setActivePanel(id);
+                    setSidebarOpen(false);
+                  }
+                }}>
                   <span className="nav-icon">{card.icon}</span>
                   {card.name}
                 </button>
@@ -1089,13 +1156,19 @@ export default function ScoutToolsPortal() {
               <div className="cat-tabs">
                 {['all','tools','learning','events','games'].map(cat=>(
                   <button key={cat} className={`cat-tab ${dashFilter===cat?'active':''}`} onClick={()=>setDashFilter(cat)}>
-                    {cat==='all'?'All (16)':cat==='tools'?'🛠️ Tools':cat==='learning'?'📚 Learning':cat==='events'?'🏕️ Events':'🎮 Games'}
+                    {cat==='all'?`All (${DASHBOARD_CARDS.length})`:cat==='tools'?'🛠️ Tools':cat==='learning'?'📚 Learning':cat==='events'?'🏕️ Events':'🎮 Games'}
                   </button>
                 ))}
               </div>
               <div className="dash-grid">
                 {visibleCards.map(card=>(
-                  <div key={card.id} className="feat-card" onClick={()=>setActivePanel(card.id)}>
+                  <div key={card.id} className="feat-card" onClick={()=>{
+                    if(card.isLink) {
+                      navigate('/games');
+                    } else {
+                      setActivePanel(card.id);
+                    }
+                  }}>
                     <span className="feat-icon">{card.icon}</span>
                     <div className="feat-name">{card.name}</div>
                     <div className="feat-desc">{card.desc}</div>
