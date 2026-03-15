@@ -380,6 +380,7 @@ export default function ScoutToolsPortal() {
   const [rosterAssignments, setRosterAssignments] = useState({});
   const [rosterSelected, setRosterSelected] = useState(null);
   const [fieldGuideFilter, setFieldGuideFilter] = useState('all');
+  const [selectedGuideCard, setSelectedGuideCard] = useState(null);
   const [countdownTarget, setCountdownTarget] = useState(null);
   const [countdownDisplay, setCountdownDisplay] = useState({d:'000',h:'00',m:'00',s:'00'});
   const [countdownName, setCountdownName] = useState('Next Event');
@@ -609,13 +610,29 @@ export default function ScoutToolsPortal() {
       </div>
       <div className="guide-grid">
         {FIELD_GUIDE.filter(c=>fieldGuideFilter==='all'||c.cat===fieldGuideFilter).map((card,i)=>(
-          <div key={i} className="guide-card">
+          <div key={i} className="guide-card" onClick={()=>setSelectedGuideCard(card)} style={{cursor:'pointer'}}>
             <div className="guide-emoji">{card.emoji}</div>
             <div className="guide-name">{card.name}</div>
             <div className="guide-type">{card.type}</div>
           </div>
         ))}
       </div>
+
+      {selectedGuideCard && (
+        <div className="modal-overlay" onClick={()=>setSelectedGuideCard(null)}>
+          <div className="modal-content" onClick={e=>e.stopPropagation()}>
+            <button className="modal-close" onClick={()=>setSelectedGuideCard(null)}>✕</button>
+            <div className="modal-image-section">
+              <img src={selectedGuideCard.image} alt={selectedGuideCard.name} className="modal-image" />
+            </div>
+            <div className="modal-text-section">
+              <h3>{selectedGuideCard.name}</h3>
+              <p className="modal-type">{selectedGuideCard.type}</p>
+              <p className="modal-desc">{selectedGuideCard.desc}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 

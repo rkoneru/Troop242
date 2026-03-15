@@ -123,6 +123,21 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-family: var(--font-body);
+  text-align: left;
+}
+
+.scout-portal .header-brand:hover {
+  opacity: 0.8;
+}
+
+.scout-portal .header-brand:active {
+  transform: scale(0.98);
 }
 
 .scout-portal .brand-icon {
@@ -132,7 +147,7 @@
 
 .scout-portal .brand-name {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 600;
   margin: 0;
   color: var(--text-primary);
   font-family: var(--font-display);
@@ -606,6 +621,9 @@
   padding: 4px 12px;
   font-size: 12px;
   font-weight: 600;
+}
+.scout-portal .pill.White {
+  color: #ffffff;
 }
 
 .scout-portal .pill.green {
@@ -1134,6 +1152,114 @@
   font-size: 10px;
   color: var(--text-muted);
   margin-top: 2px;
+}
+
+/* ═══ FIELD GUIDE MODAL ═══ */
+.scout-portal .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.scout-portal .modal-content {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.scout-portal .modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  color: var(--text-primary);
+  transition: var(--transition-base);
+}
+
+.scout-portal .modal-close:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent-border);
+}
+
+.scout-portal .modal-image-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 20px;
+  min-height: 300px;
+  max-height: 400px;
+}
+
+.scout-portal .modal-image {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.scout-portal .modal-text-section {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.scout-portal .modal-text-section h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.scout-portal .modal-type {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
+  font-style: italic;
+}
+
+.scout-portal .modal-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 /* ═══ KNOTS ═══ */
