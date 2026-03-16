@@ -129,6 +129,58 @@
   gap: 16px;
 }
 
+.header-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+}
+
+.header-user-menu:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-dim);
+}
+
+.header-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.header-user-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.header-user-profile,
+.header-user-logout {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.header-user-profile:hover,
+.header-user-logout:hover {
+  color: var(--accent);
+}
+
 .btn-search {
   background: transparent;
   border: 1px solid var(--divider);
@@ -284,6 +336,10 @@
 
   .header-actions {
     gap: 8px;
+  }
+
+  .header-user-menu {
+    display: none;
   }
 
   .btn-search {

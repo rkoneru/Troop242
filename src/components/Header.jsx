@@ -1,8 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, Search, ChevronDown } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, Search, ChevronDown, LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/header.css';
 
 const scrollToTop = () => {
@@ -10,10 +13,23 @@ const scrollToTop = () => {
 };
 
 export default function Header() {
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+
   const handleNavClick = (callback) => (e) => {
     scrollToTop();
     callback && callback(e);
   };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/member-login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [guideDropdownOpen, setGuideDropdownOpen] = useState(false);
@@ -128,8 +144,21 @@ export default function Header() {
           <Link to="/contact" onClick={handleNavClick()}>Contact</Link>
         </nav>
 
-        {/* Search + Mobile Toggle */}
+        {/* User + Search + Mobile Toggle */}
         <div className="header-actions">
+          {user && profile && (
+            <div className="header-user-menu">
+              <div className="header-user-avatar">{profile.name?.[0]?.toUpperCase() || '?'}</div>
+              <span className="header-user-name">{profile.name}</span>
+              <Link to="/profile" className="header-user-profile" aria-label="View profile">
+                <User size={16} />
+              </Link>
+              <button className="header-user-logout" onClick={handleLogout} aria-label="Logout">
+                <LogOut size={16} />
+              </button>
+            </div>
+          )}
+
           <button className="btn-search" onClick={handleSearchClick} aria-label="Search (Ctrl+K)">
             <Search size={18} />
           </button>
@@ -221,6 +250,34 @@ export default function Header() {
             >
               <Search size={16} /> Search
             </button>
+
+            {user && profile && (
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem', marginTop: '1rem' }}>
+                <Link to="/profile" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <User size={16} /> My Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    padding: '0.5rem 0',
+                    marginTop: '0.5rem'
+                  }}
+                >
+                  <LogOut size={16} /> Logout
+                </button>
+              </div>
+            )}
           </motion.nav>
         )}
       </AnimatePresence>
