@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { auth, db } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData } from '../utils/adminData';
 
 const RANKS = [
@@ -38,29 +42,54 @@ const itemVariants = {
 
 export default function ScoutDashboard() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [activities, setActivities] = useState(() => loadData('troopActivities', []));
+  const { user, profile, loading } = useAuth();
+  const [activities, setActivities] = useState([]);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(true);
 
-  // Auth guard
+  // Load activities from Firestore
   useEffect(() => {
-    const stored = sessionStorage.getItem('loggedInUser');
-    if (!stored) {
-      navigate('/member-login');
-      return;
-    }
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.profile !== 'scout') {
-        navigate('/member-login');
-        return;
-      }
-      setUser(parsed);
-    } catch {
-      navigate('/member-login');
-    }
-  }, [navigate]);
+    if (loading) return;
 
-  // Read progress data
+    const loadActivities = async () => {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'activities'), orderBy('date', 'asc'))
+        );
+        const loaded = snap.docs.map(d => ({
+          id: d.id,
+          ...d.data(),
+          signedUp: d.data().signedUp || []
+        }));
+        setActivities(loaded);
+      } catch (error) {
+        console.error('Error loading activities:', error);
+      } finally {
+        setIsLoadingActivities(false);
+      }
+    };
+
+    loadActivities();
+  }, [loading]);
+
+  // Show pending approval message if scout hasn't been approved
+  if (!loading && profile?.status === 'pending') {
+    return (
+      <section className="scout-dashboard" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: '500px', padding: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>⏳ Awaiting Approval</h2>
+          <p style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '2rem' }}>
+            Your scout profile is pending approval by a troop leader.
+          </p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+            Once approved, you'll have full access to the scout dashboard and can start tracking your advancement.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  // Read progress data from Firestore (will be migrated later)
+  // For now, still read from localStorage as fallback
   const rankChecks = (() => {
     try {
       return JSON.parse(localStorage.getItem('rankChecks') || '{}');
@@ -85,39 +114,18 @@ export default function ScoutDashboard() {
     }
   })();
 
-
   // Activity helpers
   const isSignedUp = (activity) =>
-    activity.signups.some((s) =>
-      typeof s === 'object' ? s.scoutId === user?.email : s === (user?.name || user?.email)
-    );
+    activity.signedUp?.some(s => s.uid === user?.uid) || false;
 
-  const isFull = (activity) => activity.signups.length >= activity.spots;
+  const isFull = (activity) => false; // No spot limit for Firestore activities
 
   const handleSignup = (activityId) => {
-    if (!user) return;
-    const updated = activities.map((act) => {
-      if (act.id !== activityId) return act;
-      const alreadyIn = act.signups.some(
-        (s) => (typeof s === 'object' ? s.scoutId : s) === user.email
-      );
-      if (alreadyIn) return act;
-      const newEntry = {
-        scoutId: user.email,
-        scoutName: user.name || user.email,
-        signedUpAt: new Date().toISOString().split('T')[0],
-      };
-      return { ...act, signups: [...act.signups, newEntry] };
-    });
-    setActivities(updated);
-    saveData('troopActivities', updated);
+    // Signup functionality moved to /scout-signup page with Firestore
+    navigate('/scout-signup');
   };
 
-  const mySignupCount = activities.filter((act) =>
-    act.signups.some((s) =>
-      typeof s === 'object' ? s.scoutId === user?.email : s === (user?.name || user?.email)
-    )
-  ).length;
+  const mySignupCount = activities.filter(act => isSignedUp(act)).length;
 
   // Compute progress percentages
   const getRankProgress = () => {
@@ -177,10 +185,24 @@ export default function ScoutDashboard() {
   }
   const currentRank = RANKS[currentRankIdx];
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('loggedInUser');
-    navigate('/member-login');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/member-login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
+
+  if (loading || isLoadingActivities) {
+    return (
+      <section style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p>Loading dashboard...</p>
+        </div>
+      </section>
+    );
+  }
 
   if (!user) return null;
 
@@ -200,7 +222,7 @@ export default function ScoutDashboard() {
               <p style={{ color: 'var(--text-muted)', marginBottom: 8, marginTop: 0 }}>Welcome back</p>
               <h1 style={{ marginBottom: 8, marginTop: 0 }}>Scout Dashboard</h1>
               <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', marginBottom: 0 }}>
-                {user.name || 'Scout'} • Working towards {currentRank.emoji} {currentRank.name}
+                {profile?.name || 'Scout'} • Working towards {currentRank.emoji} {currentRank.name}
               </p>
             </motion.div>
             <motion.button
