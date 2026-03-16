@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, LogOut, Check, Copy, ExternalLink, ArrowLeft } from 'lucide-react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 
 const RANKS = [
   {
@@ -43,60 +46,79 @@ const RANKS = [
 
 export default function RankTrackerWizard() {
   const navigate = useNavigate();
-
-  // Auth guard
-  const user = (() => {
-    const stored = sessionStorage.getItem('loggedInUser');
-    if (!stored) {
-      navigate('/member-login');
-      return null;
-    }
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.profile !== 'scout') {
-        navigate('/member-login');
-        return null;
-      }
-      return parsed;
-    } catch {
-      navigate('/member-login');
-      return null;
-    }
-  })();
+  const { user, profile, loading } = useAuth();
 
   // State management
   const [selectedRank, setSelectedRank] = useState(0);
   const [currentReqIdx, setCurrentReqIdx] = useState(0);
-  const [rankChecks, setRankChecks] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('rankChecks') || '{}');
-    } catch {
-      return {};
-    }
-  });
-  const [notes, setNotes] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('requirementNotes') || '{}');
-    } catch {
-      return {};
-    }
-  });
+  const [rankChecks, setRankChecks] = useState({});
+  const [notes, setNotes] = useState({});
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load progress from Firestore on mount
+  useEffect(() => {
+    if (loading) return;
+
+    if (!user || profile?.role !== 'scout') {
+      navigate('/member-login');
+      return;
+    }
+
+    const loadProgress = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'progress', user.uid));
+        const data = snap.data() || {};
+        setRankChecks(data.rankChecks || {});
+        setNotes(data.requirementNotes || {});
+      } catch (error) {
+        console.error('Error loading progress:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProgress();
+  }, [user, profile, loading, navigate]);
 
   // Handlers
-  const toggleRequirement = (rankIdx, reqIdx) => {
+  const toggleRequirement = async (rankIdx, reqIdx) => {
     const key = `${rankIdx}-${reqIdx}`;
     const updated = { ...rankChecks, [key]: !rankChecks[key] };
     setRankChecks(updated);
-    localStorage.setItem('rankChecks', JSON.stringify(updated));
+
+    // Save to Firestore
+    if (user) {
+      try {
+        await setDoc(
+          doc(db, 'progress', user.uid),
+          { rankChecks: updated },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error('Error saving progress:', error);
+      }
+    }
   };
 
-  const saveNotes = (rankIdx, reqIdx, noteText) => {
+  const saveNotes = async (rankIdx, reqIdx, noteText) => {
     const key = `${rankIdx}-${reqIdx}`;
     const updated = { ...notes, [key]: noteText };
     setNotes(updated);
-    localStorage.setItem('requirementNotes', JSON.stringify(updated));
+
+    // Save to Firestore
+    if (user) {
+      try {
+        await setDoc(
+          doc(db, 'progress', user.uid),
+          { requirementNotes: updated },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error('Error saving notes:', error);
+      }
+    }
   };
 
   const nextRequirement = () => {
@@ -158,6 +180,16 @@ Next Steps:
       setTimeout(() => setCopiedToClipboard(false), 2000);
     });
   };
+
+  if (loading || isLoading) {
+    return (
+      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p>Loading rank tracker...</p>
+        </div>
+      </section>
+    );
+  }
 
   if (!user) return null;
 

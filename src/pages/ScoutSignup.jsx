@@ -3,108 +3,111 @@ import { CheckCircle, MapPin, Calendar, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-const ACTIVITIES = [
-  {
-    id: 1,
-    name: 'Camping Trip',
-    description: 'Weekend camping adventure in the mountains',
-    date: '2026-04-15',
-    location: 'Blue Ridge Mountains',
-    maxSpots: 20,
-    spotsLeft: 5,
-    icon: '⛺'
-  },
-  {
-    id: 2,
-    name: 'Car Wash',
-    description: 'Troop fundraiser - help wash cars',
-    date: '2026-03-22',
-    location: 'Sanford Community Center',
-    maxSpots: 15,
-    spotsLeft: 8,
-    icon: '🚗'
-  },
-  {
-    id: 3,
-    name: 'Shop & Sell',
-    description: 'Sell firewood to raise funds for troop',
-    date: '2026-03-29',
-    location: 'Various Locations',
-    maxSpots: 25,
-    spotsLeft: 12,
-    icon: '🪵'
-  },
-  {
-    id: 4,
-    name: 'Community Service',
-    description: 'Help clean up local parks and trails',
-    date: '2026-04-05',
-    location: 'Seminole State Park',
-    maxSpots: 30,
-    spotsLeft: 18,
-    icon: '🌳'
-  },
-  {
-    id: 5,
-    name: 'Hiking Expedition',
-    description: 'Day hike with skills training',
-    date: '2026-03-30',
-    location: 'Ocala National Forest',
-    maxSpots: 20,
-    spotsLeft: 10,
-    icon: '🥾'
-  },
-  {
-    id: 6,
-    name: 'Skill Workshop',
-    description: 'Learn knot tying and survival skills',
-    date: '2026-04-10',
-    location: 'Troop Meeting Place',
-    maxSpots: 25,
-    spotsLeft: 15,
-    icon: '🎓'
-  }
-];
+import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ScoutSignup() {
   const navigate = useNavigate();
-  const [signedUp, setSignedUp] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('scoutSignups') || '[]');
-    } catch {
-      return [];
-    }
-  });
+  const { user, profile, loading } = useAuth();
+  const [activities, setActivities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  // Load activities from Firestore on mount
   useEffect(() => {
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
+    if (loading) return;
+
+    const loadActivities = async () => {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'activities'), orderBy('date', 'asc'))
+        );
+        const loaded = snap.docs.map(d => ({
+          id: d.id,
+          ...d.data(),
+          signedUp: d.data().signedUp || []
+        }));
+        setActivities(loaded);
+      } catch (err) {
+        console.error('Error loading activities:', err);
+        setError('Failed to load activities');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadActivities();
+  }, [loading]);
+
+  const isSignedUp = (activityId) => {
+    return activities
+      .find(a => a.id === activityId)
+      ?.signedUp?.some(s => s.uid === user?.uid) || false;
+  };
+
+  const handleSignup = async (activityId) => {
+    if (!user || !profile) {
       navigate('/member-login');
       return;
     }
-    try {
-      const user = JSON.parse(loggedInUser);
-      if (user.profile !== 'scout') {
-        navigate('/member-login');
-      }
-    } catch {
-      navigate('/member-login');
-    }
-  }, [navigate]);
 
-  const handleSignup = (activityId) => {
-    if (!signedUp.includes(activityId)) {
-      const updated = [...signedUp, activityId];
-      setSignedUp(updated);
-      localStorage.setItem('scoutSignups', JSON.stringify(updated));
+    try {
+      const activity = activities.find(a => a.id === activityId);
+      if (!activity || isSignedUp(activityId)) return;
+
+      await updateDoc(doc(db, 'activities', activityId), {
+        signedUp: arrayUnion({
+          uid: user.uid,
+          name: profile.name,
+          at: new Date().toISOString()
+        })
+      });
+
+      // Refresh activities
+      const snap = await getDocs(
+        query(collection(db, 'activities'), orderBy('date', 'asc'))
+      );
+      const loaded = snap.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+        signedUp: d.data().signedUp || []
+      }));
+      setActivities(loaded);
+    } catch (err) {
+      console.error('Error signing up:', err);
+      setError('Failed to sign up for activity');
     }
   };
 
-  const handleCancel = (activityId) => {
-    const updated = signedUp.filter(id => id !== activityId);
-    setSignedUp(updated);
-    localStorage.setItem('scoutSignups', JSON.stringify(updated));
+  const handleCancel = async (activityId) => {
+    if (!user) return;
+
+    try {
+      const activity = activities.find(a => a.id === activityId);
+      if (!activity) return;
+
+      const signupToRemove = activity.signedUp.find(s => s.uid === user.uid);
+      if (!signupToRemove) return;
+
+      await updateDoc(doc(db, 'activities', activityId), {
+        signedUp: arrayRemove(signupToRemove)
+      });
+
+      // Refresh activities
+      const snap = await getDocs(
+        query(collection(db, 'activities'), orderBy('date', 'asc'))
+      );
+      const loaded = snap.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+        signedUp: d.data().signedUp || []
+      }));
+      setActivities(loaded);
+    } catch (err) {
+      console.error('Error canceling signup:', err);
+      setError('Failed to cancel signup');
+    }
   };
 
   const containerVariants = {
@@ -119,6 +122,18 @@ export default function ScoutSignup() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
   };
+
+  if (isLoading) {
+    return (
+      <section style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p>Loading activities...</p>
+        </div>
+      </section>
+    );
+  }
+
+  const userSignups = activities.filter(a => isSignedUp(a.id));
 
   return (
     <>
@@ -142,6 +157,23 @@ export default function ScoutSignup() {
       {/* Main Content */}
       <section className="section section--dark">
         <div className="container">
+          {error && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{
+                padding: 16,
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: 8,
+                color: '#ef4444',
+                marginBottom: 24
+              }}
+            >
+              ✕ {error}
+            </motion.div>
+          )}
+
           {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -157,17 +189,17 @@ export default function ScoutSignup() {
             <div style={{ padding: 20, background: 'var(--accent-dim)', borderRadius: 12, border: '1px solid var(--accent-border)' }}>
               <div style={{ fontSize: '2rem', marginBottom: 8 }}>🎯</div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 4 }}>Events Available</p>
-              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{ACTIVITIES.length}</p>
+              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{activities.length}</p>
             </div>
             <div style={{ padding: 20, background: 'var(--accent-dim)', borderRadius: 12, border: '1px solid var(--accent-border)' }}>
               <div style={{ fontSize: '2rem', marginBottom: 8 }}>✓</div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 4 }}>Events Signed Up</p>
-              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{signedUp.length}</p>
+              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{userSignups.length}</p>
             </div>
             <div style={{ padding: 20, background: 'var(--accent-dim)', borderRadius: 12, border: '1px solid var(--accent-border)' }}>
               <div style={{ fontSize: '2rem', marginBottom: 8 }}>📅</div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 4 }}>Upcoming Events</p>
-              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{ACTIVITIES.filter(a => !signedUp.includes(a.id)).length}</p>
+              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{activities.filter(a => !isSignedUp(a.id)).length}</p>
             </div>
           </motion.div>
 
@@ -183,8 +215,8 @@ export default function ScoutSignup() {
               gap: 24
             }}
           >
-            {ACTIVITIES.map((activity) => {
-              const isSignedUp = signedUp.includes(activity.id);
+            {activities.map((activity) => {
+              const activitySignedUp = isSignedUp(activity.id);
               return (
                 <motion.div
                   key={activity.id}
@@ -194,13 +226,13 @@ export default function ScoutSignup() {
                     padding: 24,
                     display: 'flex',
                     flexDirection: 'column',
-                    border: isSignedUp ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
+                    border: activitySignedUp ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
                     position: 'relative',
                     overflow: 'hidden'
                   }}
                   whileHover={{ scale: 1.02 }}
                 >
-                  {isSignedUp && (
+                  {activitySignedUp && (
                     <div style={{
                       position: 'absolute',
                       top: 12,
@@ -238,7 +270,7 @@ export default function ScoutSignup() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                       <Users size={16} style={{ color: 'var(--accent)' }} />
-                      {activity.spotsLeft} of {activity.maxSpots} spots available
+                      {activity.signedUp?.length || 0} scouts signed up
                     </div>
                   </div>
 
@@ -251,10 +283,10 @@ export default function ScoutSignup() {
                     fontSize: '0.85rem',
                     color: 'var(--accent)'
                   }}>
-                    {activity.spotsLeft > 5 ? '✓ Spots Available' : '⚠ Limited Spots'}
+                    ✓ Accepting Signups
                   </div>
 
-                  {isSignedUp ? (
+                  {activitySignedUp ? (
                     <button
                       onClick={() => handleCancel(activity.id)}
                       style={{
