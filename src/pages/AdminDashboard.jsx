@@ -1,29 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trash2, Plus, Edit2 } from 'lucide-react';
+import { Trash2, Plus, Edit2, Shield, ShieldOff } from 'lucide-react';
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { loadData, saveData, generateId, DEFAULT_STATS, DEFAULT_LEADERS, DEFAULT_EVENTS, DEFAULT_ANNOUNCEMENTS } from '../utils/adminData';
 import { THEMES } from '../utils/themes';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const { user, profile, loading } = useAuth();
 
   // Check authentication on mount
   useEffect(() => {
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
-      navigate('/member-login');
-      return;
-    }
-    try {
-      const user = JSON.parse(loggedInUser);
-      if (user.profile !== 'admin') {
-        navigate('/member-login');
-      }
-    } catch {
+    if (loading) return;
+    if (!user || profile?.role !== 'admin') {
       navigate('/member-login');
     }
-  }, [navigate]);
+  }, [user, profile, loading, navigate]);
 
   // Tab state
   const [activeTab, setActiveTab] = useState('stats');
@@ -34,6 +29,10 @@ export default function AdminDashboard() {
   // Stats state
   const [stats, setStats] = useState(() => loadData('troop_stats', DEFAULT_STATS));
   const [statsForm, setStatsForm] = useState(stats);
+
+  // Users state (Firestore)
+  const [users, setUsers] = useState([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
 
   // Announcements state
   const [announcements, setAnnouncements] = useState(() => loadData('troop_announcements', DEFAULT_ANNOUNCEMENTS));
@@ -47,6 +46,25 @@ export default function AdminDashboard() {
   const [leaders, setLeaders] = useState(() => loadData('troop_leaders', DEFAULT_LEADERS));
   const [leaderForm, setLeaderForm] = useState({ role: '', name: '', experience: '', bio: '' });
   const [editingLeader, setEditingLeader] = useState(null);
+
+  // Load users from Firestore
+  useEffect(() => {
+    if (loading) return;
+
+    const loadUsers = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'users'));
+        const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setUsers(loaded);
+      } catch (error) {
+        console.error('Error loading users:', error);
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+
+    loadUsers();
+  }, [loading]);
 
   // Save handlers
   const handleSaveStats = () => {
@@ -107,6 +125,34 @@ export default function AdminDashboard() {
     saveData('troop_leaders', updated);
   };
 
+  // User role handlers
+  const handlePromoteToLeader = async (userId) => {
+    try {
+      await updateDoc(doc(db, 'users', userId), { role: 'leader' });
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'leader' } : u));
+    } catch (error) {
+      console.error('Error promoting user:', error);
+    }
+  };
+
+  const handleDemoteToScout = async (userId) => {
+    try {
+      await updateDoc(doc(db, 'users', userId), { role: 'scout' });
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'scout' } : u));
+    } catch (error) {
+      console.error('Error demoting user:', error);
+    }
+  };
+
+  const handleDisableUser = async (userId) => {
+    try {
+      await updateDoc(doc(db, 'users', userId), { status: 'rejected' });
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'rejected' } : u));
+    } catch (error) {
+      console.error('Error disabling user:', error);
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
@@ -141,7 +187,7 @@ export default function AdminDashboard() {
         <div className="container">
           {/* Tab Navigation */}
           <div style={{ display: 'flex', gap: 12, marginBottom: 40, flexWrap: 'wrap', justifyContent: 'center' }}>
-            {['stats', 'announcements', 'events', 'leaders', 'theme'].map(tab => (
+            {['stats', 'users', 'announcements', 'events', 'leaders', 'theme'].map(tab => (
               <motion.button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -160,7 +206,7 @@ export default function AdminDashboard() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {tab === 'announcements' ? 'Announcements' : tab === 'leaders' ? 'Leaders' : tab === 'theme' ? '🎨 Theme' : tab}
+                {tab === 'announcements' ? 'Announcements' : tab === 'leaders' ? 'Leaders' : tab === 'theme' ? '🎨 Theme' : tab === 'users' ? '👥 Users' : tab}
               </motion.button>
             ))}
           </div>
@@ -210,6 +256,132 @@ export default function AdminDashboard() {
                 >
                   Save Stats
                 </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB: USERS */}
+          {activeTab === 'users' && (
+            <motion.div
+              key="users"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="glass-card" style={{ padding: 32 }}>
+                <h2 style={{ marginBottom: 24 }}>User Management</h2>
+                {isLoadingUsers ? (
+                  <p>Loading users...</p>
+                ) : users.length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)' }}>No users found</p>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--divider)' }}>
+                          <th style={{ textAlign: 'left', padding: '12px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Name</th>
+                          <th style={{ textAlign: 'left', padding: '12px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Email</th>
+                          <th style={{ textAlign: 'left', padding: '12px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Role</th>
+                          <th style={{ textAlign: 'left', padding: '12px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Status</th>
+                          <th style={{ textAlign: 'left', padding: '12px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users.map(u => (
+                          <tr key={u.id} style={{ borderBottom: '1px solid var(--divider)' }}>
+                            <td style={{ padding: '12px', color: 'var(--text-primary)' }}>{u.name}</td>
+                            <td style={{ padding: '12px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{u.email}</td>
+                            <td style={{ padding: '12px' }}>
+                              <span style={{
+                                padding: '4px 12px',
+                                borderRadius: 4,
+                                fontSize: '0.85rem',
+                                fontWeight: 600,
+                                background: u.role === 'admin' ? 'rgba(239, 68, 68, 0.2)' : u.role === 'leader' ? 'rgba(82, 183, 136, 0.2)' : 'rgba(100, 150, 200, 0.2)',
+                                color: u.role === 'admin' ? '#ef4444' : u.role === 'leader' ? '#52b788' : '#6496c8'
+                              }}>
+                                {u.role || 'scout'}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px' }}>
+                              <span style={{
+                                padding: '4px 12px',
+                                borderRadius: 4,
+                                fontSize: '0.85rem',
+                                fontWeight: 600,
+                                background: u.status === 'approved' ? 'rgba(82, 183, 136, 0.2)' : u.status === 'pending' ? 'rgba(212, 168, 83, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                                color: u.status === 'approved' ? '#52b788' : u.status === 'pending' ? '#d4a853' : '#ef4444'
+                              }}>
+                                {u.status || 'approved'}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px' }}>
+                              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                {u.role !== 'leader' && u.role !== 'admin' && (
+                                  <button
+                                    onClick={() => handlePromoteToLeader(u.id)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      background: 'rgba(82, 183, 136, 0.2)',
+                                      color: '#52b788',
+                                      border: '1px solid rgba(82, 183, 136, 0.3)',
+                                      borderRadius: 4,
+                                      cursor: 'pointer',
+                                      fontSize: '0.8rem',
+                                      fontWeight: 600,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 4
+                                    }}
+                                  >
+                                    <Shield size={14} /> Promote
+                                  </button>
+                                )}
+                                {u.role === 'leader' && (
+                                  <button
+                                    onClick={() => handleDemoteToScout(u.id)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      background: 'rgba(100, 150, 200, 0.2)',
+                                      color: '#6496c8',
+                                      border: '1px solid rgba(100, 150, 200, 0.3)',
+                                      borderRadius: 4,
+                                      cursor: 'pointer',
+                                      fontSize: '0.8rem',
+                                      fontWeight: 600,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 4
+                                    }}
+                                  >
+                                    <ShieldOff size={14} /> Demote
+                                  </button>
+                                )}
+                                {u.status !== 'rejected' && (
+                                  <button
+                                    onClick={() => handleDisableUser(u.id)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      background: 'rgba(239, 68, 68, 0.2)',
+                                      color: '#ef4444',
+                                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                                      borderRadius: 4,
+                                      cursor: 'pointer',
+                                      fontSize: '0.8rem',
+                                      fontWeight: 600
+                                    }}
+                                  >
+                                    Disable
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

@@ -1,8 +1,11 @@
-import { CheckCircle, Clock, Users, TrendingUp, Calendar, MapPin, Plus, Trash2, ChevronDown, ChevronUp, Search, Download, Upload } from 'lucide-react';
+import { CheckCircle, Clock, Users, TrendingUp, Calendar, MapPin, Plus, Trash2, ChevronDown, ChevronUp, Search, Download, Upload, Check, X } from 'lucide-react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { saveData, loadData, generateId, DEFAULT_EVENTS } from '../utils/adminData';
+import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
+import { saveData, loadData, generateId, DEFAULT_EVENTS, getEvents } from '../utils/adminData';
 import {
   loadScouts,
   saveScouts,
@@ -31,10 +34,11 @@ const RANKS = ['Scout', 'Tenderfoot', '2nd Class', '1st Class', 'Star', 'Life', 
 
 export default function LeaderDashboard() {
   const navigate = useNavigate();
+  const { user, profile, loading } = useAuth();
 
   // State management
   const [selectedTab, setSelectedTab] = useState('scouts');
-  const [scoutsData, setScoutsData] = useState(() => loadScouts('leaderScouts', []));
+  const [scoutsData, setScoutsData] = useState([]);
   const [events, setEvents] = useState(() => loadData('troop_events', DEFAULT_EVENTS));
   const [troopActivities, setTroopActivities] = useState(() => loadData('troopActivities', []));
   const [invitations, setInvitations] = useState(() => loadData('leaderInvitations', []));
@@ -43,36 +47,42 @@ export default function LeaderDashboard() {
   const [expandedRosters, setExpandedRosters] = useState({});
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoadingScouts, setIsLoadingScouts] = useState(true);
 
   // Form states
   const [newScoutForm, setNewScoutForm] = useState({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
   const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
   const [newInvitationForm, setNewInvitationForm] = useState({ name: '', email: '', type: 'scout' });
-  const [newActivityForm, setNewActivityForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '20' });
+  const [newActivityForm, setNewActivityForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '20', dues: '0' });
 
-  // Auth guard
+  // Load scouts from Firestore
   useEffect(() => {
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
+    if (loading) return;
+
+    const loadFirestoreScouts = async () => {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'users'), where('role', '==', 'scout'))
+        );
+        const loaded = snap.docs.map(d => ({
+          id: d.id,
+          ...d.data()
+        }));
+        setScoutsData(loaded);
+      } catch (error) {
+        console.error('Error loading scouts:', error);
+      } finally {
+        setIsLoadingScouts(false);
+      }
+    };
+
+    if (!user || !profile || profile.role !== 'leader') {
       navigate('/member-login');
       return;
     }
-    try {
-      const user = JSON.parse(loggedInUser);
-      if (user.profile !== 'leader') {
-        navigate('/member-login');
-      }
-    } catch {
-      navigate('/member-login');
-    }
-  }, [navigate]);
 
-  // Auto-save scouts to localStorage
-  useEffect(() => {
-    if (scoutsData.length >= 0) {
-      saveScouts(scoutsData);
-    }
-  }, [scoutsData]);
+    loadFirestoreScouts();
+  }, [user, profile, loading, navigate]);
 
   // Clear messages after 3 seconds
   useEffect(() => {
@@ -121,6 +131,33 @@ export default function LeaderDashboard() {
     setSuccessMessage(message);
   }, []);
 
+  // Scout approval handlers
+  const handleApproveScout = async (scoutId) => {
+    try {
+      await updateDoc(doc(db, 'users', scoutId), { status: 'approved' });
+      setScoutsData(prev =>
+        prev.map(s => s.id === scoutId ? { ...s, status: 'approved' } : s)
+      );
+      showSuccess('Scout approved!');
+    } catch (error) {
+      console.error('Error approving scout:', error);
+      showError('scout', 'Failed to approve scout');
+    }
+  };
+
+  const handleRejectScout = async (scoutId) => {
+    try {
+      await updateDoc(doc(db, 'users', scoutId), { status: 'rejected' });
+      setScoutsData(prev =>
+        prev.map(s => s.id === scoutId ? { ...s, status: 'rejected' } : s)
+      );
+      showSuccess('Scout rejected');
+    } catch (error) {
+      console.error('Error rejecting scout:', error);
+      showError('scout', 'Failed to reject scout');
+    }
+  };
+
   // SCOUT HANDLERS
   const handleAddScout = useCallback(() => {
     clearErrors();
@@ -161,17 +198,6 @@ export default function LeaderDashboard() {
     showSuccess('Scout added successfully! Pending approval.');
   }, [newScoutForm, scoutsData, clearErrors, showError, showSuccess]);
 
-  const handleApproveScout = useCallback((scoutId) => {
-    const updated = updateScout(scoutId, { status: 'approved' }, scoutsData);
-    setScoutsData(updated);
-    showSuccess('Scout approved!');
-  }, [scoutsData, showSuccess]);
-
-  const handleRejectScout = useCallback((scoutId) => {
-    const updated = deleteScout(scoutId, scoutsData);
-    setScoutsData(updated);
-    showSuccess('Scout removed.');
-  }, [scoutsData, showSuccess]);
 
   // ACTIVITY HANDLERS
   const handleCreateActivity = useCallback(() => {
@@ -197,14 +223,16 @@ export default function LeaderDashboard() {
       location: newActivityForm.location,
       description: newActivityForm.description,
       spots: parseInt(newActivityForm.spots) || 20,
+      dues: parseFloat(newActivityForm.dues) || 0,
       signups: [],
+      duesPaid: [],
       createdAt: new Date().toISOString()
     };
 
     const updated = [...troopActivities, activity];
     setTroopActivities(updated);
     saveData('troopActivities', updated);
-    setNewActivityForm({ title: '', date: '', time: '', location: '', description: '', spots: '20' });
+    setNewActivityForm({ title: '', date: '', time: '', location: '', description: '', spots: '20', dues: '0' });
     showSuccess('Activity created successfully!');
   }, [newActivityForm, troopActivities, clearErrors, showError, showSuccess]);
 
@@ -225,8 +253,7 @@ export default function LeaderDashboard() {
       return;
     }
 
-    const loggedInUser = sessionStorage.getItem('loggedInUser');
-    const creatorName = loggedInUser ? JSON.parse(loggedInUser).name || 'Leader' : 'Leader';
+    const creatorName = profile?.name || 'Leader';
 
     const event = {
       id: generateId(),
@@ -410,6 +437,23 @@ export default function LeaderDashboard() {
     </motion.div>
   );
 
+  // Mark dues as paid
+  const handleMarkDuesPaid = useCallback((activityId, scoutIndex) => {
+    const updatedActivities = troopActivities.map(a => {
+      if (a.id !== activityId) return a;
+      const updated = { ...a };
+      if (!updated.duesPaid) updated.duesPaid = [];
+      const signup = a.signups?.[scoutIndex];
+      if (signup && !updated.duesPaid.some(p => p.scoutName === signup.scoutName)) {
+        updated.duesPaid.push({ scoutName: signup.scoutName, paidAt: new Date().toISOString() });
+      }
+      return updated;
+    });
+    setTroopActivities(updatedActivities);
+    saveData('troopActivities', updatedActivities);
+    showSuccess('Dues marked as paid!');
+  }, [troopActivities, showSuccess]);
+
   const ActivityCard = ({ activity }) => (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -424,7 +468,14 @@ export default function LeaderDashboard() {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
         <div style={{ flex: 1 }}>
-          <h4 style={{ margin: '0 0 4px 0', color: '#fff', fontSize: '1rem' }}>{activity.title}</h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+            <h4 style={{ margin: 0, color: '#fff', fontSize: '1rem' }}>{activity.title}</h4>
+            {activity.dues > 0 && (
+              <span style={{ background: 'rgba(212, 168, 83, 0.2)', padding: '2px 8px', borderRadius: 4, fontSize: '0.8rem', color: '#d4a853' }}>
+                💰 ${activity.dues}
+              </span>
+            )}
+          </div>
           <div style={{ display: 'flex', gap: 16, fontSize: '0.9rem', color: '#9ca3af', marginBottom: 8, flexWrap: 'wrap' }}>
             <span>📅 {activity.date}</span>
             {activity.time && <span>🕐 {activity.time}</span>}
@@ -500,12 +551,40 @@ export default function LeaderDashboard() {
 
       {expandedRosters[activity.id] && activity.signups && activity.signups.length > 0 && (
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600, color: '#9ca3af' }}>Signups:</p>
-          {activity.signups.map((signup, idx) => (
-            <div key={idx} style={{ padding: '6px 0', fontSize: '0.85rem', color: '#9ca3af' }}>
-              {typeof signup === 'object' ? `${signup.scoutName} (${signup.signedUpAt})` : signup}
-            </div>
-          ))}
+          <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600, color: '#9ca3af' }}>Signups ({activity.signups.length}):</p>
+          {activity.signups.map((signup, idx) => {
+            const scoutName = typeof signup === 'object' ? signup.scoutName : signup;
+            const isDuesPaid = activity.duesPaid?.some(p => p.scoutName === scoutName);
+            return (
+              <div key={idx} style={{ padding: '8px', marginBottom: 6, background: 'rgba(255, 255, 255, 0.02)', borderRadius: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>
+                  {scoutName}
+                  {activity.dues > 0 && (
+                    <span style={{ marginLeft: 8, fontSize: '0.75rem', color: isDuesPaid ? '#52b788' : '#d4a853' }}>
+                      {isDuesPaid ? '✓ Paid' : `💰 $${activity.dues} due`}
+                    </span>
+                  )}
+                </span>
+                {activity.dues > 0 && !isDuesPaid && (
+                  <button
+                    onClick={() => handleMarkDuesPaid(activity.id, idx)}
+                    style={{
+                      padding: '4px 8px',
+                      background: 'rgba(82, 183, 136, 0.2)',
+                      color: '#52b788',
+                      border: '1px solid rgba(82, 183, 136, 0.3)',
+                      borderRadius: 4,
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      fontWeight: 600
+                    }}
+                  >
+                    Mark Paid
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </motion.div>
@@ -875,6 +954,22 @@ export default function LeaderDashboard() {
                     placeholder="Spots"
                     value={newActivityForm.spots}
                     onChange={(e) => setNewActivityForm({ ...newActivityForm, spots: e.target.value })}
+                    style={{
+                      padding: '10px 12px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: 6,
+                      color: '#fff',
+                      fontSize: '0.95rem'
+                    }}
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Dues ($)"
+                    value={newActivityForm.dues}
+                    onChange={(e) => setNewActivityForm({ ...newActivityForm, dues: e.target.value })}
                     style={{
                       padding: '10px 12px',
                       background: 'rgba(255, 255, 255, 0.08)',
