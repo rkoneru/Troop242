@@ -3,13 +3,16 @@ import { Users, Shield, UserCheck } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 import '../styles/member-login.css';
 
-// Dummy credentials for testing
-const DUMMY_USERS = {
-  scout: { email: 'scout@troop242.com', password: 'scout123', redirect: '/scout-dashboard' },
-  leader: { email: 'leader@troop242.com', password: 'leader123', redirect: '/leader-dashboard' },
-  admin: { email: 'admin@troop242.com', password: 'admin123', redirect: '/admin-dashboard' }
+// Email suggestions based on profile selection
+const PROFILE_EMAILS = {
+  scout: 'scout@troop242.com',
+  leader: 'leader@troop242.com',
+  admin: 'admin@troop242.com'
 };
 
 const PROFILES = {
@@ -67,26 +70,80 @@ export default function MemberLogin() {
 
     setLoading(true);
 
-    // Simulate login delay
-    setTimeout(() => {
-      const dummyUser = DUMMY_USERS[selectedProfile];
+    try {
+      // Try Firebase Auth first
+      let user = null;
+      let userProfile = null;
+      let authError = null;
 
-      if (email === dummyUser.email && password === dummyUser.password) {
-        // Store login info in sessionStorage for demo purposes
-        sessionStorage.setItem('loggedInUser', JSON.stringify({
-          profile: selectedProfile,
-          email: email,
-          name: PROFILES[selectedProfile].name
-        }));
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        user = userCredential.user;
+        const profileSnap = await getDoc(doc(db, 'users', user.uid));
+        userProfile = profileSnap.data();
+      } catch (e) {
+        authError = e;
+        // Firebase Auth failed, try Firestore password field as fallback
+        try {
+          const usersSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+          if (usersSnap.empty) {
+            throw new Error('User not found');
+          }
 
-        // Redirect to appropriate page
-        setLoading(false);
-        navigate(dummyUser.redirect);
-      } else {
-        setError('Invalid email or password');
-        setLoading(false);
+          const firestoreUser = usersSnap.docs[0];
+          userProfile = firestoreUser.data();
+
+          // Check if stored password matches (plain text comparison)
+          if (userProfile.password !== password) {
+            throw new Error('Invalid password');
+          }
+
+          user = { uid: firestoreUser.id, email: firestoreUser.data().email };
+        } catch {
+          throw authError; // Re-throw original Firebase error if Firestore fallback fails
+        }
       }
-    }, 1000);
+
+      if (!user) {
+        throw new Error('Authentication failed');
+      }
+
+      // Get user profile from Firestore if not already loaded
+      if (!userProfile) {
+        const profileSnap = await getDoc(doc(db, 'users', user.uid));
+        userProfile = profileSnap.data();
+      }
+
+      if (!userProfile) {
+        setError('User profile not found in database');
+        setLoading(false);
+        return;
+      }
+
+      // Redirect based on role
+      const redirectMap = {
+        scout: '/scout-dashboard',
+        leader: '/leader-dashboard',
+        admin: '/admin-dashboard'
+      };
+
+      const redirectPath = redirectMap[userProfile.role] || '/';
+      navigate(redirectPath);
+    } catch (err) {
+      // Firebase error messages
+      let errorMessage = 'Login failed';
+      if (err.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email';
+      } else if (err.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password';
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address';
+      } else if (err.code === 'auth/user-disabled') {
+        errorMessage = 'This account has been disabled';
+      }
+      setError(errorMessage);
+      setLoading(false);
+    }
   };
 
 
@@ -198,7 +255,7 @@ export default function MemberLogin() {
                   </motion.div>
                 )}
 
-                {/* Test Credentials Hint */}
+                {/* Firebase Login Info */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -212,9 +269,9 @@ export default function MemberLogin() {
                     marginBottom: 16
                   }}
                 >
-                  <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: 'var(--accent)' }}>📝 Test Credentials:</p>
-                  <p style={{ margin: '0 0 4px 0' }}>Email: {DUMMY_USERS[selectedProfile].email}</p>
-                  <p style={{ margin: 0 }}>Password: {DUMMY_USERS[selectedProfile].password}</p>
+                  <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: 'var(--accent)' }}>🔐 Firebase Login:</p>
+                  <p style={{ margin: '0 0 4px 0' }}>Email: {PROFILE_EMAILS[selectedProfile]}</p>
+                  <p style={{ margin: 0 }}>Use your Firebase account password</p>
                 </motion.div>
 
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
