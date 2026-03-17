@@ -1,155 +1,354 @@
 /**
  * Leader Dashboard Data Persistence Utilities
- * Handles scout data, activities, events, and invitations
+ * Handles scout data, activities, events, and invitations via Firestore
  */
+
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  Timestamp
+} from 'firebase/firestore';
+import { db } from '../firebase/firebase';
 
 export const DEFAULT_SCOUTS = [];
 
 /**
- * Load scouts from localStorage with fallback and error recovery
- * @param {string} key - localStorage key
- * @param {array} fallback - default value if load fails
- * @returns {array} - scouts array
+ * Load scouts from Firestore
+ * @returns {Promise<Array>} - scouts array
  */
-export function loadScouts(key = 'leaderScouts', fallback = DEFAULT_SCOUTS) {
+export async function loadScouts() {
   try {
-    const stored = localStorage.getItem(key);
-    if (!stored) return fallback;
-
-    const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed)) return fallback;
-
-    return parsed.map(scout => ({
-      id: scout.id || Date.now(),
-      name: scout.name || 'Unknown',
-      email: scout.email || '',
-      rank: scout.rank || 'Scout',
-      activities: Array.isArray(scout.activities) ? scout.activities : [],
-      status: scout.status || 'pending',
-      joinDate: scout.joinDate || new Date().toISOString().split('T')[0],
-      notes: scout.notes || '',
-      phone: scout.phone || '',
-      createdAt: scout.createdAt || new Date().toISOString()
+    const snap = await getDocs(
+      query(
+        collection(db, 'users'),
+        where('role', '==', 'scout'),
+        orderBy('name')
+      )
+    );
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
     }));
   } catch (error) {
-    console.error(`Failed to load scouts from ${key}:`, error);
-    return fallback;
+    console.error('Failed to load scouts:', error);
+    return DEFAULT_SCOUTS;
   }
 }
 
 /**
- * Save scouts to localStorage atomically
- * @param {array} scouts - scouts data to save
- * @param {string} key - localStorage key
- * @returns {boolean} - success status
+ * Save scout to Firestore
+ * @param {object} scout - scout data
+ * @returns {Promise<boolean>} - success status
  */
-export function saveScouts(scouts, key = 'leaderScouts') {
+export async function saveScout(scout) {
   try {
-    if (!Array.isArray(scouts)) {
-      console.error('Invalid scouts data: not an array');
+    if (!scout.id) {
+      console.error('Invalid scout data: missing id');
       return false;
     }
-    localStorage.setItem(key, JSON.stringify(scouts));
+
+    await setDoc(
+      doc(db, 'users', scout.id),
+      {
+        ...scout,
+        updatedAt: Timestamp.now()
+      },
+      { merge: true }
+    );
     return true;
   } catch (error) {
-    console.error(`Failed to save scouts to ${key}:`, error);
+    console.error('Failed to save scout:', error);
     return false;
   }
 }
 
 /**
- * Add a new scout
- * @param {object} scout - scout data
- * @param {array} scouts - current scouts array
- * @returns {array} - updated scouts array
- */
-export function addScout(scout, scouts = []) {
-  const newScout = {
-    id: scout.id || Date.now(),
-    name: scout.name || 'Unknown',
-    email: scout.email || '',
-    rank: scout.rank || 'Scout',
-    activities: scout.activities || [],
-    status: scout.status || 'pending',
-    joinDate: scout.joinDate || new Date().toISOString().split('T')[0],
-    notes: scout.notes || '',
-    phone: scout.phone || '',
-    createdAt: scout.createdAt || new Date().toISOString()
-  };
-  return [...scouts, newScout];
-}
-
-/**
- * Update an existing scout
- * @param {number|string} scoutId - scout ID to update
+ * Update a scout's fields
+ * @param {string} scoutId - scout ID (Firebase UID)
  * @param {object} changes - fields to update
- * @param {array} scouts - current scouts array
- * @returns {array} - updated scouts array
+ * @returns {Promise<boolean>} - success status
  */
-export function updateScout(scoutId, changes, scouts = []) {
-  return scouts.map(scout =>
-    scout.id === scoutId ? { ...scout, ...changes, id: scout.id } : scout
-  );
+export async function updateScout(scoutId, changes) {
+  try {
+    await updateDoc(doc(db, 'users', scoutId), {
+      ...changes,
+      updatedAt: Timestamp.now()
+    });
+    return true;
+  } catch (error) {
+    console.error('Failed to update scout:', error);
+    return false;
+  }
 }
 
 /**
  * Delete a scout
- * @param {number|string} scoutId - scout ID to delete
- * @param {array} scouts - current scouts array
- * @returns {array} - updated scouts array
+ * @param {string} scoutId - scout ID to delete
+ * @returns {Promise<boolean>} - success status
  */
-export function deleteScout(scoutId, scouts = []) {
-  return scouts.filter(scout => scout.id !== scoutId);
+export async function deleteScout(scoutId) {
+  try {
+    await deleteDoc(doc(db, 'users', scoutId));
+    return true;
+  } catch (error) {
+    console.error('Failed to delete scout:', error);
+    return false;
+  }
 }
 
 /**
  * Get a single scout by ID
- * @param {number|string} scoutId - scout ID to find
- * @param {array} scouts - scouts array
- * @returns {object|null} - scout object or null
+ * @param {string} scoutId - scout ID to find
+ * @returns {Promise<object|null>} - scout object or null
  */
-export function getScoutById(scoutId, scouts = []) {
-  return scouts.find(scout => scout.id === scoutId) || null;
+export async function getScoutById(scoutId) {
+  try {
+    const snap = await getDoc(doc(db, 'users', scoutId));
+    return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  } catch (error) {
+    console.error('Failed to get scout:', error);
+    return null;
+  }
 }
 
 /**
  * Get scouts by status (approved, pending, rejected)
  * @param {string} status - status to filter by
- * @param {array} scouts - scouts array
- * @returns {array} - filtered scouts
+ * @returns {Promise<Array>} - filtered scouts
  */
-export function getScoutsByStatus(status, scouts = []) {
-  return scouts.filter(scout => scout.status === status);
+export async function getScoutsByStatus(status) {
+  try {
+    const snap = await getDocs(
+      query(
+        collection(db, 'users'),
+        where('role', '==', 'scout'),
+        where('status', '==', status)
+      )
+    );
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Failed to get scouts by status:', error);
+    return [];
+  }
 }
 
 /**
  * Get scouts by activity
  * @param {string} activity - activity name
- * @param {array} scouts - scouts array
- * @returns {array} - scouts in that activity
+ * @returns {Promise<Array>} - scouts in that activity
  */
-export function getScoutsByActivity(activity, scouts = []) {
-  return scouts.filter(scout =>
-    Array.isArray(scout.activities) && scout.activities.includes(activity)
-  );
+export async function getScoutsByActivity(activity) {
+  try {
+    const snap = await getDocs(
+      query(
+        collection(db, 'users'),
+        where('role', '==', 'scout'),
+        where('activities', 'array-contains', activity)
+      )
+    );
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Failed to get scouts by activity:', error);
+    return [];
+  }
 }
 
 /**
  * Search scouts by name, email, or rank
+ * Note: Full-text search requires Firestore full-text search or Algolia
+ * This is a client-side filter of all scouts
  * @param {string} query - search query
- * @param {array} scouts - scouts array
- * @returns {array} - matching scouts
+ * @returns {Promise<Array>} - matching scouts
  */
-export function searchScouts(query, scouts = []) {
-  const q = query.toLowerCase().trim();
-  if (!q) return scouts;
+export async function searchScouts(searchQuery) {
+  try {
+    const scouts = await loadScouts();
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return scouts;
 
-  return scouts.filter(scout =>
-    scout.name.toLowerCase().includes(q) ||
-    scout.email.toLowerCase().includes(q) ||
-    scout.rank.toLowerCase().includes(q) ||
-    scout.phone.includes(q)
-  );
+    return scouts.filter(scout =>
+      scout.name?.toLowerCase().includes(q) ||
+      scout.email?.toLowerCase().includes(q) ||
+      scout.rank?.toLowerCase().includes(q) ||
+      scout.phone?.includes(q)
+    );
+  } catch (error) {
+    console.error('Failed to search scouts:', error);
+    return [];
+  }
+}
+
+/**
+ * Get statistics about scouts
+ * @returns {Promise<object>} - stats object
+ */
+export async function getScoutStats() {
+  try {
+    const scouts = await loadScouts();
+    const approved = scouts.filter(s => s.status === 'approved').length;
+    const pending = scouts.filter(s => s.status === 'pending').length;
+    const ranks = {};
+
+    scouts.forEach(scout => {
+      ranks[scout.rank] = (ranks[scout.rank] || 0) + 1;
+    });
+
+    return {
+      total: scouts.length,
+      approved,
+      pending,
+      rejected: scouts.length - approved - pending,
+      ranks,
+      approvalRate: scouts.length > 0 ? Math.round((approved / scouts.length) * 100) : 0
+    };
+  } catch (error) {
+    console.error('Failed to get scout stats:', error);
+    return {
+      total: 0,
+      approved: 0,
+      pending: 0,
+      rejected: 0,
+      ranks: {},
+      approvalRate: 0
+    };
+  }
+}
+
+/**
+ * Get all activities
+ * @returns {Promise<Array>} - activities array
+ */
+export async function getActivities() {
+  try {
+    const snap = await getDocs(
+      query(
+        collection(db, 'activities'),
+        orderBy('date', 'desc')
+      )
+    );
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Failed to load activities:', error);
+    return [];
+  }
+}
+
+/**
+ * Save scouts to Firestore (batch operation or single scout array)
+ * @param {array} scouts - scouts data to save
+ * @returns {Promise<boolean>} - success status
+ */
+export async function saveScouts(scouts) {
+  try {
+    if (!Array.isArray(scouts)) {
+      console.error('Invalid scouts data: not an array');
+      return false;
+    }
+
+    // Save each scout individually
+    for (const scout of scouts) {
+      if (scout.id) {
+        await setDoc(
+          doc(db, 'users', scout.id),
+          {
+            ...scout,
+            updatedAt: Timestamp.now()
+          },
+          { merge: true }
+        );
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error('Failed to save scouts:', error);
+    return false;
+  }
+}
+
+/**
+ * Save activity
+ * @param {object} activity - activity data
+ * @returns {Promise<string>} - activity ID
+ */
+export async function saveActivity(activity) {
+  try {
+    if (activity.id) {
+      await updateDoc(doc(db, 'activities', activity.id), {
+        ...activity,
+        updatedAt: Timestamp.now()
+      });
+      return activity.id;
+    } else {
+      const docRef = await setDoc(
+        collection(db, 'activities'),
+        {
+          ...activity,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        }
+      );
+      return docRef.id;
+    }
+  } catch (error) {
+    console.error('Failed to save activity:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete activity
+ * @param {string} activityId - activity ID to delete
+ */
+export async function deleteActivity(activityId) {
+  try {
+    await deleteDoc(doc(db, 'activities', activityId));
+  } catch (error) {
+    console.error('Failed to delete activity:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get invitations
+ * @returns {Promise<Array>} - invitations array
+ */
+export async function getInvitations() {
+  try {
+    const snap = await getDocs(collection(db, 'invitations'));
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Failed to load invitations:', error);
+    return [];
+  }
+}
+
+/**
+ * Create invitation
+ * @param {object} invitation - invitation data
+ * @returns {Promise<string>} - invitation ID
+ */
+export async function createInvitation(invitation) {
+  try {
+    const docRef = await setDoc(
+      collection(db, 'invitations'),
+      {
+        ...invitation,
+        createdAt: Timestamp.now()
+      }
+    );
+    return docRef.id;
+  } catch (error) {
+    console.error('Failed to create invitation:', error);
+    throw error;
+  }
 }
 
 /**
@@ -202,57 +401,9 @@ export function importScoutData(jsonString) {
 }
 
 /**
- * Clear old data from localStorage (older than X days)
- * @param {number} days - days threshold
- * @param {string} key - localStorage key
- * @returns {boolean} - success status
- */
-export function clearOldData(days = 90, key = 'leaderScouts') {
-  try {
-    const scouts = loadScouts(key, []);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - days);
-
-    const filtered = scouts.filter(scout => {
-      const scoutDate = new Date(scout.createdAt);
-      return scoutDate > cutoffDate;
-    });
-
-    return saveScouts(filtered, key);
-  } catch (error) {
-    console.error('Failed to clear old data:', error);
-    return false;
-  }
-}
-
-/**
- * Get statistics about scouts
- * @param {array} scouts - scouts array
- * @returns {object} - stats object
- */
-export function getScoutStats(scouts = []) {
-  const approved = scouts.filter(s => s.status === 'approved').length;
-  const pending = scouts.filter(s => s.status === 'pending').length;
-  const ranks = {};
-
-  scouts.forEach(scout => {
-    ranks[scout.rank] = (ranks[scout.rank] || 0) + 1;
-  });
-
-  return {
-    total: scouts.length,
-    approved,
-    pending,
-    rejection: scouts.length - approved - pending,
-    ranks,
-    approvalRate: scouts.length > 0 ? Math.round((approved / scouts.length) * 100) : 0
-  };
-}
-
-/**
  * Generate unique ID for scouts
- * @returns {number} - unique timestamp-based ID
+ * @returns {string} - unique timestamp-based ID
  */
 export function generateScoutId() {
-  return Date.now();
+  return Date.now().toString();
 }

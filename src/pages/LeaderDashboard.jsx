@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData, generateId, DEFAULT_EVENTS, getEvents } from '../utils/adminData';
 import {

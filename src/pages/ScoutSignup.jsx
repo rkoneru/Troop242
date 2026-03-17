@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function ScoutSignup() {

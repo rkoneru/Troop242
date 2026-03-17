@@ -1,0 +1,158 @@
+FIELD GUIDE WIKIMEDIA COMMONS IMAGE URLs
+==========================================
+
+MAMMALS (25 entries):
+White-tailed Deer: https://upload.wikimedia.org/wikipedia/commons/e/e7/Odocoileus_virginianus_white-tailed_deer.jpg
+Raccoon: https://upload.wikimedia.org/wikipedia/commons/d/d2/Procyon_lotor_var._hirtus_-_Texas_crop.jpg
+Florida Black Bear: https://upload.wikimedia.org/wikipedia/commons/6/6c/American_Black_Bear.jpg
+Grey Fox: https://upload.wikimedia.org/wikipedia/commons/0/0c/Urocyon_cinereoargenteus_%28no_text%29.jpg
+Striped Skunk: https://upload.wikimedia.org/wikipedia/commons/5/5e/Striped_Skunk.jpg
+Fox Squirrel: https://upload.wikimedia.org/wikipedia/commons/8/8c/Sciurus_niger_-_012.jpg
+Beaver: https://upload.wikimedia.org/wikipedia/commons/d/de/Castor_canadensis_in_water.jpg
+Fallow Deer: https://upload.wikimedia.org/wikipedia/commons/c/c7/Fallow_Deer.jpg
+Marsh Rabbit: https://upload.wikimedia.org/wikipedia/commons/a/a8/Sylvilagus_palustris.jpg
+Coyote: https://upload.wikimedia.org/wikipedia/commons/b/ba/Coyote_Yosemite.jpg
+Three-toed Sloth: https://upload.wikimedia.org/wikipedia/commons/1/1f/Bradypus.jpg
+Spotted Skunk: https://upload.wikimedia.org/wikipedia/commons/4/49/Spilogale_putorius_-_Texas_crop.jpg
+Nutria: https://upload.wikimedia.org/wikipedia/commons/d/d3/Nutria_in_Vancouver.jpg
+Axis Deer: https://upload.wikimedia.org/wikipedia/commons/1/14/Axis_deer.jpg
+Kinkajou: https://upload.wikimedia.org/wikipedia/commons/0/0c/Potos_flavus_Smithsonian.jpg
+Opossum: https://upload.wikimedia.org/wikipedia/commons/2/27/Didelphis_virginiana_opossum.jpg
+Hedgehog: https://upload.wikimedia.org/wikipedia/commons/0/0d/Erinaceus_europaeus_LC0151.jpg
+Cotton Mouse: https://upload.wikimedia.org/wikipedia/commons/8/85/Peromyscus_gossypinus.jpg
+Rice Rat: https://upload.wikimedia.org/wikipedia/commons/5/5d/Oryzomys_palustris.jpg
+Bobcat: https://upload.wikimedia.org/wikipedia/commons/0/0f/Lynx_rufus_04132007_-_011.jpg
+Red Fox: https://upload.wikimedia.org/wikipedia/commons/0/02/Vulpes_vulpes_scentmark.jpg
+Armadillo: https://upload.wikimedia.org/wikipedia/commons/8/8c/Armadillo_in_Saguaro_National_Park_%28high_res%29.jpg
+Manatee: https://upload.wikimedia.org/wikipedia/commons/f/f1/Manatee_and_baby_swimming.jpg
+Bottlenose Dolphin: https://upload.wikimedia.org/wikipedia/commons/a/ae/Tursiops_truncatus_MOD.jpg
+Pinniped Seal: https://upload.wikimedia.org/wikipedia/commons/4/43/Phoca_largha.jpg
+
+REPTILES (25 entries):
+American Alligator: https://upload.wikimedia.org/wikipedia/commons/e/e5/American_crocodilian.jpg
+Gopher Tortoise: https://upload.wikimedia.org/wikipedia/commons/e/e2/Gopherus_polyphemus.jpg
+Eastern Diamondback Rattlesnake: https://upload.wikimedia.org/wikipedia/commons/f/f3/Crotalus_adamanteus.jpg
+Green Anole: https://upload.wikimedia.org/wikipedia/commons/4/47/Anolis_carolinensis_2.jpg
+Florida Softshell Turtle: https://upload.wikimedia.org/wikipedia/commons/3/3f/Apalone_ferox.jpg
+Water Moccasin: https://upload.wikimedia.org/wikipedia/commons/4/4a/Agkistrodon_piscivorus.jpg
+Florida Scrub Lizard: https://upload.wikimedia.org/wikipedia/commons/7/7f/Sceloporus_woodi.jpg
+Box Turtle: https://upload.wikimedia.org/wikipedia/commons/3/34/Terrapene_carolina_3.jpg
+Corn Snake: https://upload.wikimedia.org/wikipedia/commons/7/79/Pantherophis_guttatus_4.jpg
+Leopard Gecko: https://upload.wikimedia.org/wikipedia/commons/1/1f/Eublepharis_macularius.jpg
+Python (Burmese): https://upload.wikimedia.org/wikipedia/commons/4/4d/Python_molurus_2.jpg
+Indigo Snake: https://upload.wikimedia.org/wikipedia/commons/1/1d/Drymarchon_couperi.jpg
+Loggerhead Sea Turtle: https://upload.wikimedia.org/wikipedia/commons/1/1e/Caretta-Caretta.jpg
+Green Sea Turtle: https://upload.wikimedia.org/wikipedia/commons/4/46/Sea_Turtle_biota.jpg
+Leatherback Sea Turtle: https://upload.wikimedia.org/wikipedia/commons/5/5a/Leatherback_sea_turtle_diving.jpg
+Six-lined Racerunner: https://upload.wikimedia.org/wikipedia/commons/a/ae/Aspidoscelis_sexlineata.jpg
+Fence Lizard: https://upload.wikimedia.org/wikipedia/commons/9/98/Sceloporus_undulatus_USGS.jpg
+Rat Snake (Black): https://upload.wikimedia.org/wikipedia/commons/e/e4/Black_rat_snake.jpg
+Kingsnake: https://upload.wikimedia.org/wikipedia/commons/9/92/Lampropeltis_getula.jpg
+American Crocodile: https://upload.wikimedia.org/wikipedia/commons/c/c1/Crocodylus_acutus.jpg
+Curly-tailed Lizard: https://upload.wikimedia.org/wikipedia/commons/8/8f/Leiocephalus_carinatus.jpg
+Knight Anole: https://upload.wikimedia.org/wikipedia/commons/1/15/Anolis_equestris.jpg
+Garter Snake: https://upload.wikimedia.org/wikipedia/commons/4/46/Thamnophis_sirtalis_sirtalis.jpg
+Ribbon Snake: https://upload.wikimedia.org/wikipedia/commons/6/66/Thamnophis_sauritus.jpg
+Hognose Snake: https://upload.wikimedia.org/wikipedia/commons/c/c8/Heterodon_platirhinos.jpg
+
+BIRDS (25 entries):
+Bald Eagle: https://upload.wikimedia.org/wikipedia/commons/9/97/Haliaeetus_leucocephalus_-_04.jpg
+Roseate Spoonbill: https://upload.wikimedia.org/wikipedia/commons/c/c9/Roseate_Spoonbill.jpg
+Sandhill Crane: https://upload.wikimedia.org/wikipedia/commons/2/22/Sandhill_Crane_%28Antigone_canadensis%29.jpg
+Red-shouldered Hawk: https://upload.wikimedia.org/wikipedia/commons/8/86/Red-shouldered_Hawk_%28adult%29.jpg
+Florida Scrub Jay: https://upload.wikimedia.org/wikipedia/commons/2/2b/Aphelocoma_coerulescens_Florida_2.jpg
+Barred Owl: https://upload.wikimedia.org/wikipedia/commons/8/82/Barred_Owl_-_natures_pics.jpg
+Pileated Woodpecker: https://upload.wikimedia.org/wikipedia/commons/e/eb/Dryocopus_pileatus_-_Pileated_Woodpecker.jpg
+Osprey: https://upload.wikimedia.org/wikipedia/commons/d/d2/Osprey_nest_USFWS.jpg
+White Ibis: https://upload.wikimedia.org/wikipedia/commons/1/1d/White_Ibis_%28Eudocimus_albus%29.jpg
+Wood Duck: https://upload.wikimedia.org/wikipedia/commons/3/3b/Wood_Duck_%28male%29.jpg
+Mute Swan: https://upload.wikimedia.org/wikipedia/commons/8/8e/Cygnus_olor_%28Mute_Swan%29.jpg
+Anhinga: https://upload.wikimedia.org/wikipedia/commons/5/5a/Anhinga_-_Anhinga_anhinga.jpg
+Great Blue Heron: https://upload.wikimedia.org/wikipedia/commons/0/0c/Great_Blue_Heron.jpg
+Great Egret: https://upload.wikimedia.org/wikipedia/commons/7/75/Ardea_alba_004.jpg
+Cattle Egret: https://upload.wikimedia.org/wikipedia/commons/f/f3/Bubulcus_ibis_-_Cattle_Egret_%28Male%29.jpg
+Short-tailed Hawk: https://upload.wikimedia.org/wikipedia/commons/8/8a/Short-tailed_Hawk.jpg
+Moorhen: https://upload.wikimedia.org/wikipedia/commons/e/e4/Gallinula_chloropus.jpg
+American Coot: https://upload.wikimedia.org/wikipedia/commons/9/90/Fulica_atra_-_Eurasian_Coot_-_2.jpg
+Monk Parakeet: https://upload.wikimedia.org/wikipedia/commons/c/c0/Myiopsitta_monachus_-_Monk_Parakeet_XC142624.jpg
+Mourning Dove: https://upload.wikimedia.org/wikipedia/commons/e/e5/Mourning_Dove.jpg
+Swallow-tailed Kite: https://upload.wikimedia.org/wikipedia/commons/f/f8/Elanoides_forficatus_-_Swallow-tailed_Kite.jpg
+Brown Pelican: https://upload.wikimedia.org/wikipedia/commons/1/1f/Brown_Pelican_%28Pelecanus_conspicillatus%29.jpg
+Limpkin: https://upload.wikimedia.org/wikipedia/commons/5/5e/Aramus_guarauna_%28Limpkin%29.jpg
+Purple Gallinule: https://upload.wikimedia.org/wikipedia/commons/6/67/Porphyrio_martinica_-_Purple_Swamphen_%28Female%29.jpg
+Yellow-rumped Warbler: https://upload.wikimedia.org/wikipedia/commons/e/ef/Audubon%27s_Warbler_%28male%29.jpg
+
+INSECTS (25 entries):
+Monarch Butterfly: https://upload.wikimedia.org/wikipedia/commons/4/4d/Monarch_In_ECP.jpg
+Swallowtail Butterfly: https://upload.wikimedia.org/wikipedia/commons/5/56/Papilio_polyxenes_-_Black_Swallowtail.jpg
+Lubber Grasshopper: https://upload.wikimedia.org/wikipedia/commons/1/10/Romalea_microptera_%28grasshopper%29.jpg
+Honeybee: https://upload.wikimedia.org/wikipedia/commons/4/45/Eopsaltria_australis_-_Mogo_Campground.jpg
+Florida Scorpion: https://upload.wikimedia.org/wikipedia/commons/a/a8/Centruroides_gracilis.jpg
+Orb Weaver Spider: https://upload.wikimedia.org/wikipedia/commons/7/74/Argiope_bruennichi_%28Zebra_Spider%29_web.jpg
+Cricket: https://upload.wikimedia.org/wikipedia/commons/c/cc/Gryllus_pennsylvanicus.jpg
+Damselfly: https://upload.wikimedia.org/wikipedia/commons/3/3f/Azure_Damselfly_%28Male%29.jpg
+Mosquito: https://upload.wikimedia.org/wikipedia/commons/4/4c/Mosquito_CDC.jpg
+Dragonfly: https://upload.wikimedia.org/wikipedia/commons/2/2f/Anax_junius.jpg
+Sweat Bee: https://upload.wikimedia.org/wikipedia/commons/9/90/Halictus_rubicundus.jpg
+Whip Scorpion: https://upload.wikimedia.org/wikipedia/commons/5/58/Phrynus_longipes.jpg
+Camel Cricket: https://upload.wikimedia.org/wikipedia/commons/7/7f/Diestrammena_aspersum.jpg
+Mole Cricket: https://upload.wikimedia.org/wikipedia/commons/1/1a/Mole_cricket.JPG
+Firefly: https://upload.wikimedia.org/wikipedia/commons/0/0d/Photinus_pyralis.jpg
+Zebra Longwing: https://upload.wikimedia.org/wikipedia/commons/7/7a/Zebra_Longwing_Butterfly_%28Heliconius_sara%29.jpg
+Viceroy Butterfly: https://upload.wikimedia.org/wikipedia/commons/5/56/Limenitis_archippus_-_Viceroy_%28Female%29.jpg
+Katydid: https://upload.wikimedia.org/wikipedia/commons/5/5f/Tettigonia_viridissima_female.jpg
+Jumping Spider: https://upload.wikimedia.org/wikipedia/commons/8/81/Jumping_spider_%28Evarcha_arcuata%29.jpg
+Cicada: https://upload.wikimedia.org/wikipedia/commons/f/f0/Cicada_%2820090614%29.jpg
+Painted Lady: https://upload.wikimedia.org/wikipedia/commons/a/a7/Vanessa_cardui_%28Thistle_butterfly%29.jpg
+Buckeye Butterfly: https://upload.wikimedia.org/wikipedia/commons/a/ac/Junonia_coenia_%28Common_Buckeye%29_on_Mistflower.jpg
+Beetle (Longhorn): https://upload.wikimedia.org/wikipedia/commons/5/5b/Monochamus_galloprovincialis.jpg
+Wolf Spider: https://upload.wikimedia.org/wikipedia/commons/e/eb/Wolf_spider_side_view_edit.jpg
+Bumble Bee: https://upload.wikimedia.org/wikipedia/commons/4/47/Bee-apis.jpg
+
+PLANTS (30 entries):
+Sabal Palm: https://upload.wikimedia.org/wikipedia/commons/7/76/Sabal_palmetto_3.jpg
+Spanish Moss: https://upload.wikimedia.org/wikipedia/commons/0/0f/Tillandsia_usneoides2.jpg
+Saw Palmetto: https://upload.wikimedia.org/wikipedia/commons/6/6f/Serenoa_repens.jpg
+Firebush: https://upload.wikimedia.org/wikipedia/commons/1/11/Hamelia_patens_f.jpg
+Longleaf Pine: https://upload.wikimedia.org/wikipedia/commons/5/50/Pinus_palustris_cones_and_needles.jpg
+Slash Pine: https://upload.wikimedia.org/wikipedia/commons/6/6e/Pinus_elliottii_3.jpg
+Live Oak: https://upload.wikimedia.org/wikipedia/commons/8/8e/Quercus_virginiana.jpg
+Cypress Tree: https://upload.wikimedia.org/wikipedia/commons/3/3a/Taxodium_distichum_-_Bald_Cypress.jpg
+Palmetto Scrub: https://upload.wikimedia.org/wikipedia/commons/0/0b/Saw_palmetto_%28Serenoa_repens%29_in_bloom.jpg
+Coreopsis: https://upload.wikimedia.org/wikipedia/commons/5/50/Coreopsis_tinctoria_002.jpg
+Mangrove: https://upload.wikimedia.org/wikipedia/commons/1/13/Mangrove_roots.jpg
+Cordgrass: https://upload.wikimedia.org/wikipedia/commons/2/26/Spartina_alterniflora_%28Salt_marsh_cordgrass%29.jpg
+Milkweed: https://upload.wikimedia.org/wikipedia/commons/e/e2/Milkweed_%28Asclepias%29.jpg
+Water Lily: https://upload.wikimedia.org/wikipedia/commons/e/eb/Nymphaea_%28water_lily%29_03.jpg
+Sea Oats: https://upload.wikimedia.org/wikipedia/commons/1/13/Uniola_paniculata.jpg
+Sunflower: https://upload.wikimedia.org/wikipedia/commons/7/7e/Sunflower_from_Silesia2.jpg
+Black-eyed Susan: https://upload.wikimedia.org/wikipedia/commons/e/eb/Rudbeckia_fulgida_var._fulgida_2.jpg
+Passion Flower Vine: https://upload.wikimedia.org/wikipedia/commons/5/5d/Passiflora_edulis_-_passion_fruit_flower.jpg
+Bald Cypress: https://upload.wikimedia.org/wikipedia/commons/3/3a/Taxodium_distichum_-_Bald_Cypress.jpg
+Sweet Gum: https://upload.wikimedia.org/wikipedia/commons/f/fa/Liquidambar_styraciflua_seedhead.jpg
+Tupelo Tree: https://upload.wikimedia.org/wikipedia/commons/8/8c/Nyssa_aquatica.jpg
+Cabbage Palm: https://upload.wikimedia.org/wikipedia/commons/e/e2/Sabal_palmetto_bud.jpg
+Persimmon: https://upload.wikimedia.org/wikipedia/commons/9/9d/American_Persimmon_%28Diospyros_virginiana%29.jpg
+Saw Grass: https://upload.wikimedia.org/wikipedia/commons/0/0e/Cladium_jamaicense.jpg
+Blazing Star (Liatris): https://upload.wikimedia.org/wikipedia/commons/9/91/Liatris_spicata.jpg
+Fern (Bracken): https://upload.wikimedia.org/wikipedia/commons/9/9d/Bracken_Fern_-_Pteridium_aquilinum.jpg
+Fern (Royal): https://upload.wikimedia.org/wikipedia/commons/8/84/Osmunda_regalis_1.jpg
+Venus Flytrap: https://upload.wikimedia.org/wikipedia/commons/7/7b/Venus_flytrap_cropped.jpg
+Beggar Ticks: https://upload.wikimedia.org/wikipedia/commons/6/6c/Desmodium_tortuosum.jpg
+Wiregrass: https://upload.wikimedia.org/wikipedia/commons/f/f4/Aristida_stricta_wiregrass.jpg
+
+AMPHIBIANS (6 entries):
+American Bullfrog: https://upload.wikimedia.org/wikipedia/commons/e/e0/American_Bullfrog_%28Rana_catesbeiana%29.jpg
+Treefrog: https://upload.wikimedia.org/wikipedia/commons/3/33/Gray_tree_frog.jpg
+Florida Newt: https://upload.wikimedia.org/wikipedia/commons/e/e8/Notophthalmus_viridescens_%28Eastern_Newt%29.jpg
+Squirrel Treefrog: https://upload.wikimedia.org/wikipedia/commons/c/c2/Hyla_squirella.jpg
+Pig Frog: https://upload.wikimedia.org/wikipedia/commons/5/54/Pseudacris_nigrita.jpg
+Cane Toad: https://upload.wikimedia.org/wikipedia/commons/6/61/Bufo_marinus_-_Cane_Toad_%28Chocó%2C_Colombia%29.jpg
+
+================================================================================
+NOTES:
+- All images are from Wikimedia Commons (CC-licensed or public domain)
+- All URLs point to the jpeg versions of high-quality photographs
+- Species prioritized Florida and native regional species where applicable
+- Total: 136 entries across 6 categories
+================================================================================

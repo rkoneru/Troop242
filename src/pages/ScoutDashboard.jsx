@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { auth, db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData } from '../utils/adminData';
 

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { auth, db } from '../firebase/firebase';
 import '../styles/member-login.css';
 
 // Email suggestions based on profile selection

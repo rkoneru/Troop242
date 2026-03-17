@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trash2, Plus, Edit2, Shield, ShieldOff } from 'lucide-react';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { loadData, saveData, generateId, DEFAULT_STATS, DEFAULT_LEADERS, DEFAULT_EVENTS, DEFAULT_ANNOUNCEMENTS } from '../utils/adminData';
 import { THEMES } from '../utils/themes';

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Search, ChevronDown, LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/header.css';
 
