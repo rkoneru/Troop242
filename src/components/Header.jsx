@@ -36,6 +36,7 @@ export default function Header() {
   const [resourcesDropdownOpen, setResourcesDropdownOpen] = useState(false);
   const [guideDropdownTimeout, setGuideDropdownTimeout] = useState(null);
   const [resourcesDropdownTimeout, setResourcesDropdownTimeout] = useState(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 8);
@@ -147,15 +148,124 @@ export default function Header() {
         {/* User + Search + Mobile Toggle */}
         <div className="header-actions">
           {user && profile && (
-            <div className="header-user-menu">
-              <div className="header-user-avatar">{profile.name?.[0]?.toUpperCase() || '?'}</div>
-              <span className="header-user-name">{profile.name}</span>
-              <Link to="/profile" className="header-user-profile" aria-label="View profile">
-                <User size={16} />
-              </Link>
-              <button className="header-user-logout" onClick={handleLogout} aria-label="Logout">
-                <LogOut size={16} />
+            <div className="header-user-menu" style={{ position: 'relative' }}>
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <div className="header-user-avatar" style={{ width: '32px', height: '32px', margin: 0 }}>
+                  {profile.name?.[0]?.toUpperCase() || '?'}
+                </div>
+                <span className="header-user-name">{profile.name}</span>
+                <ChevronDown size={16} style={{ transition: 'transform 0.2s', transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </button>
+
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      right: 0,
+                      marginTop: '8px',
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid var(--divider)',
+                      borderRadius: '8px',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                      minWidth: '200px',
+                      zIndex: 1000
+                    }}
+                  >
+                    <Link
+                      to="/profile"
+                      onClick={() => {
+                        scrollToTop();
+                        setUserMenuOpen(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 16px',
+                        color: 'var(--text-primary)',
+                        textDecoration: 'none',
+                        borderBottom: '1px solid var(--divider)',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      <User size={16} /> My Profile
+                    </Link>
+
+                    {['leader', 'admin'].includes(profile?.role) && (
+                      <Link
+                        to="/send-invitations"
+                        onClick={() => {
+                          scrollToTop();
+                          setUserMenuOpen(false);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 16px',
+                          color: 'var(--text-primary)',
+                          textDecoration: 'none',
+                          borderBottom: '1px solid var(--divider)',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        📧 Send Invitations
+                      </Link>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setUserMenuOpen(false);
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 16px',
+                        background: 'none',
+                        border: 'none',
+                        color: '#ef4444',
+                        cursor: 'pointer',
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      <LogOut size={16} /> Logout
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 
@@ -256,6 +366,13 @@ export default function Header() {
                 <Link to="/profile" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <User size={16} /> My Profile
                 </Link>
+
+                {['leader', 'admin'].includes(profile?.role) && (
+                  <Link to="/send-invitations" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
+                    📧 Send Invitations
+                  </Link>
+                )}
+
                 <button
                   onClick={() => {
                     handleLogout();
