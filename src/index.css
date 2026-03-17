@@ -471,3 +471,145 @@ button, .btn {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ===== UI FRAMEWORK OVERRIDES ===== */
+
+/* --- GLASSMORPHISM+ (enhanced) --- */
+[data-framework="glass"] .glass-card {
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 20px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 8px 32px rgba(0,0,0,0.28);
+}
+[data-framework="glass"] .glass-card:hover {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 16px 48px rgba(0,0,0,0.35);
+}
+
+/* --- SKEUOMORPHISM --- */
+[data-framework="skeu"] .glass-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: linear-gradient(145deg, #c9aa6f, #b8925a);
+  border: 3px solid #8b6914;
+  border-radius: 8px;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+[data-framework="skeu"] .glass-card:hover {
+  box-shadow: 6px 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+[data-framework="skeu"] .btn-primary,
+[data-framework="skeu"] button[type="submit"] {
+  border-radius: 6px !important;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  transform: translateY(0);
+  transition: all 0.1s ease !important;
+}
+[data-framework="skeu"] .btn-primary:active,
+[data-framework="skeu"] button[type="submit"]:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+}
+
+/* --- NEO-BRUTALISM --- */
+[data-framework="brutal"] .glass-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--glass-bg, #ffffff);
+  border: 3px solid #000000 !important;
+  border-radius: 0 !important;
+  box-shadow: 6px 6px 0 #000000 !important;
+}
+[data-framework="brutal"] .glass-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 #000000 !important;
+}
+[data-framework="brutal"] .btn-primary,
+[data-framework="brutal"] button[type="submit"] {
+  border-radius: 0 !important;
+  border: 3px solid #000 !important;
+  box-shadow: 4px 4px 0 #000 !important;
+}
+[data-framework="brutal"] .btn-primary:hover,
+[data-framework="brutal"] button[type="submit"]:hover {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 1px 1px 0 #000 !important;
+}
+[data-framework="brutal"] h1,
+[data-framework="brutal"] h2,
+[data-framework="brutal"] h3 {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* --- CLAYMORPHISM --- */
+[data-framework="clay"] .glass-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.10),
+    inset 0 -5px 10px rgba(0,0,0,0.08),
+    inset 0 5px 10px rgba(255,255,255,0.65) !important;
+}
+[data-framework="clay"] .glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 28px 70px rgba(0,0,0,0.14),
+    inset 0 -5px 10px rgba(0,0,0,0.08),
+    inset 0 5px 10px rgba(255,255,255,0.7) !important;
+}
+[data-framework="clay"] .btn-primary,
+[data-framework="clay"] button[type="submit"] {
+  border-radius: 20px !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.5) !important;
+}
+
+/* --- MINIMALISM --- */
+[data-framework="minimal"] .glass-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+[data-framework="minimal"] .glass-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+  border-color: #d1d5db !important;
+}
+[data-framework="minimal"] .btn-primary,
+[data-framework="minimal"] button[type="submit"] {
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  background: var(--accent) !important;
+}
+[data-framework="minimal"] h1,
+[data-framework="minimal"] h2 {
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+/* --- LIQUID GLASS (visionOS) --- */
+[data-framework="liquid"] .glass-card {
+  backdrop-filter: blur(48px) saturate(200%);
+  -webkit-backdrop-filter: blur(48px) saturate(200%);
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.12),
+    0 24px 64px rgba(0,0,0,0.38),
+    inset 0 1px 0 rgba(255,255,255,0.38) !important;
+}
+[data-framework="liquid"] .glass-card:hover {
+  background: rgba(255, 255, 255, 0.11);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.18),
+    0 32px 80px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.45) !important;
+}

@@ -160,3 +160,42 @@ export const THEMES = {
     }
   }
 };
+
+export const FRAMEWORKS = {
+  glass: {
+    name: 'Glassmorphism',
+    description: 'Frosted glass panels with deep blur and light refraction',
+    emoji: '🪟',
+    preview: { bg: 'linear-gradient(135deg, #0a1628, #050a24)', card: 'rgba(255,255,255,0.15)', border: 'rgba(255,255,255,0.3)' }
+  },
+  skeu: {
+    name: 'Skeuomorphism',
+    description: 'Physical texture — leather cards, raised 3D buttons',
+    emoji: '📚',
+    preview: { bg: '#c8a96e', card: '#b8935a', border: '#8b6914' }
+  },
+  brutal: {
+    name: 'Neo-Brutalism',
+    description: 'Raw, bold — thick black borders, hard offset shadows',
+    emoji: '💥',
+    preview: { bg: '#FFFBF0', card: '#ffffff', border: '#000000' }
+  },
+  clay: {
+    name: 'Claymorphism',
+    description: 'Puffy, inflated 3D — soft pastel with clay-like depth',
+    emoji: '🫧',
+    preview: { bg: '#f0f4ff', card: '#ffffff', border: 'rgba(255,255,255,0.8)' }
+  },
+  minimal: {
+    name: 'Minimalism',
+    description: 'Whitespace first — thin borders, no shadows, content leads',
+    emoji: '◽',
+    preview: { bg: '#ffffff', card: 'rgba(0,0,0,0.01)', border: '#e5e7eb' }
+  },
+  liquid: {
+    name: 'Liquid Glass',
+    description: 'Apple visionOS style — ultra-blur, deep refraction, specular highlights',
+    emoji: '💧',
+    preview: { bg: 'linear-gradient(135deg, #0a1628, #050a24)', card: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.2)' }
+  }
+};

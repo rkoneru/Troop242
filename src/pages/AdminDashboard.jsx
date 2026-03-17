@@ -55,6 +55,7 @@ export default function AdminDashboard() {
       try {
         const snap = await getDocs(collection(db, 'users'));
         const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        console.log('✓ Loaded users:', loaded);
         setUsers(loaded);
       } catch (error) {
         console.error('Error loading users:', error);

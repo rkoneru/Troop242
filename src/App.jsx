@@ -96,6 +96,7 @@ function AppRoutes() {
 
 function App() {
   useEffect(() => {
+    // Apply color theme
     const userTheme = localStorage.getItem('troopTheme');
     const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
     const active = userTheme || adminDefault;
@@ -103,6 +104,10 @@ function App() {
     Object.entries(tokens).forEach(([key, value]) => {
       document.documentElement.style.setProperty(key, value);
     });
+
+    // Apply UI framework
+    const savedFramework = localStorage.getItem('troopFramework') || 'glass';
+    document.body.dataset.framework = savedFramework;
   }, []);
 
   return (

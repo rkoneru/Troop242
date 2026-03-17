@@ -2,10 +2,11 @@
 import { Palette } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { THEMES } from '../utils/themes';
+import { THEMES, FRAMEWORKS } from '../utils/themes';
 
 export default function Appearance() {
   const [currentTheme, setCurrentTheme] = useState('current');
+  const [currentFramework, setCurrentFramework] = useState('glass');
 
   const applyTheme = (themeName) => {
     const theme = THEMES[themeName];
@@ -15,16 +16,29 @@ export default function Appearance() {
     localStorage.setItem('troopTheme', themeName);
   };
 
+  const applyFramework = (frameworkName) => {
+    document.body.dataset.framework = frameworkName;
+    localStorage.setItem('troopFramework', frameworkName);
+  };
+
   useEffect(() => {
     const userTheme = localStorage.getItem('troopTheme');
     const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
     const active = userTheme || adminDefault;
     setCurrentTheme(active);
+
+    const savedFramework = localStorage.getItem('troopFramework') || 'glass';
+    setCurrentFramework(savedFramework);
   }, []);
 
   const handleThemeChange = (themeName) => {
     setCurrentTheme(themeName);
     applyTheme(themeName);
+  };
+
+  const handleFrameworkChange = (frameworkName) => {
+    setCurrentFramework(frameworkName);
+    applyFramework(frameworkName);
   };
 
   const containerVariants = {
@@ -239,6 +253,110 @@ export default function Appearance() {
 
                   {/* Selection Status */}
                   {currentTheme === key && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '8px 12px',
+                        backgroundColor: 'var(--accent-dim)',
+                        borderRadius: '8px',
+                        color: 'var(--accent)',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <span>✓</span>
+                      <span>Selected</span>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* UI Framework Section */}
+      <section className="section section--dark">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ marginBottom: 48 }}
+          >
+            <h2 style={{ textAlign: 'center', marginBottom: 12 }}>UI Framework</h2>
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: 40, maxWidth: '600px', margin: '0 auto 40px' }}>
+              Choose how cards, buttons, and elements look. Mix and match with any color theme!
+            </p>
+
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
+            >
+              {Object.entries(FRAMEWORKS).map(([key, framework]) => (
+                <motion.div
+                  key={key}
+                  variants={itemVariants}
+                  className="glass-card"
+                  onClick={() => handleFrameworkChange(key)}
+                  style={{
+                    padding: 24,
+                    cursor: 'pointer',
+                    border: currentFramework === key ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
+                    transition: 'all 0.3s ease',
+                    overflow: 'hidden'
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {/* Framework Preview */}
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '120px',
+                      borderRadius: '12px',
+                      background: framework.preview.bg,
+                      marginBottom: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: `2px solid ${framework.preview.border}`,
+                      position: 'relative'
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: key === 'brutal' ? '0' : key === 'clay' ? '24px' : key === 'minimal' ? '8px' : '12px',
+                        backgroundColor: framework.preview.card,
+                        border: `${key === 'brutal' ? '3px' : '2px'} solid ${framework.preview.border}`,
+                        boxShadow: key === 'brutal' ? '4px 4px 0 rgba(0,0,0,0.3)' : key === 'clay' ? '0 8px 20px rgba(0,0,0,0.15)' : 'none'
+                      }}
+                    />
+                  </div>
+
+                  {/* Framework Name & Emoji */}
+                  <h3 style={{ marginBottom: 8, fontSize: '1.2rem', color: 'var(--text-primary)' }}>
+                    {framework.emoji} {framework.name}
+                  </h3>
+
+                  {/* Framework Description */}
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 16 }}>
+                    {framework.description}
+                  </p>
+
+                  {/* Selection Status */}
+                  {currentFramework === key && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}

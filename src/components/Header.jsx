@@ -238,7 +238,7 @@ export default function Header() {
                         >
                           🔗 Referral Links
                         </Link>
-                        <Link
+                       {/*  <Link
                           to="/send-invitations"
                           onClick={() => {
                             scrollToTop();
@@ -258,7 +258,7 @@ export default function Header() {
                           onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                         >
                           📧 Send Invitations
-                        </Link>
+                        </Link> */}
                       </>
                     )}
 
@@ -395,9 +395,9 @@ export default function Header() {
                     <Link to="/referral-links" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
                       🔗 Referral Links
                     </Link>
-                    <Link to="/send-invitations" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
+                    {/* <Link to="/send-invitations" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
                       📧 Send Invitations
-                    </Link>
+                    </Link> */}
                   </>
                 )}
 
