@@ -55,11 +55,7 @@ export default function MemberLogin() {
     setSelectedProfile(profileKey);
     const profileEmail = PROFILE_EMAILS[profileKey];
     setEmail(profileEmail);
-
-    // Default demo password
-    const defaultPassword = 'admin123';
-    setDemoPassword(defaultPassword);
-    setPassword(defaultPassword);
+    setPassword(''); // Clear password field
 
     try {
       const usersSnap = await getDocs(query(collection(db, 'users'), where('email', '==', profileEmail)));
@@ -67,14 +63,10 @@ export default function MemberLogin() {
         const userData = usersSnap.docs[0].data();
         if (userData.password) {
           setDemoPassword(userData.password);
-          setPassword(userData.password); // Auto-fill password
         }
       }
     } catch (err) {
-      console.error('Error loading demo password:', err);
-      // Use default password on error
-      setDemoPassword(defaultPassword);
-      setPassword(defaultPassword);
+      console.error('Error loading password hint:', err);
     }
   };
 
@@ -86,7 +78,7 @@ export default function MemberLogin() {
       tapRef.current.count = 0;
       setAdminUnlocked(true);
     }
-  };
+  }; 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -298,10 +290,11 @@ export default function MemberLogin() {
                     marginBottom: 16
                   }}
                 >
-                  <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: 'var(--accent)' }}>🔐 Demo Account</p>
-                  <p style={{ margin: '0 0 4px 0' }}>Email: <strong style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{PROFILE_EMAILS[selectedProfile]}</strong></p>
-                  <p style={{ margin: '0 0 4px 0', fontSize: '0.7rem' }}>Password: <strong style={{ fontFamily: 'monospace' }}>{demoPassword || 'admin123'}</strong></p>
-                  <p style={{ margin: 0, fontSize: '0.7rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>Just click to login - no typing needed! 🎉</p>
+                  <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: 'var(--accent)' }}>💡 Demo Credentials</p>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem' }}>Email: <strong style={{ fontFamily: 'monospace' }}>{PROFILE_EMAILS[selectedProfile]}</strong></p>
+                  {demoPassword && (
+                    <p style={{ margin: 0, fontSize: '0.8rem' }}>Password: <strong style={{ fontFamily: 'monospace' }}>{demoPassword}</strong></p>
+                  )}
                 </motion.div>
 
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -335,30 +328,35 @@ export default function MemberLogin() {
                     />
                   </div>
 
-                  {demoPassword && (
-                    <div>
-                      <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                        Password <span style={{ fontSize: '0.75rem', color: 'var(--accent)' }}>(Auto-filled)</span>
-                      </label>
-                      <input
-                        type="password"
-                        value={password}
-                        disabled
-                        placeholder="Demo account - password auto-filled"
-                        style={{
-                          width: '100%',
-                          padding: '12px 16px',
-                          background: 'var(--accent-dim)',
-                          border: '1px solid var(--accent-border)',
-                          borderRadius: 8,
-                          color: 'var(--accent)',
-                          fontSize: '0.95rem',
-                          cursor: 'not-allowed',
-                          opacity: 0.7
-                        }}
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        background: 'var(--input-bg)',
+                        border: '1px solid var(--input-border)',
+                        borderRadius: 8,
+                        color: 'var(--text-primary)',
+                        fontSize: '0.95rem',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = 'var(--accent-border)';
+                        e.target.style.boxShadow = '0 0 0 3px var(--accent-dim)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = 'var(--input-border)';
+                        e.target.style.boxShadow = 'none';
+                      }}
+                    />
+                  </div>
 
                   <button
                     type="submit"
@@ -390,7 +388,7 @@ export default function MemberLogin() {
                       }
                     }}
                   >
-                    {loading ? '⏳ Logging in...' : demoPassword ? '🚀 Click to Login' : 'Login'}
+                    {loading ? '⏳ Logging in...' : 'Login'}
                   </button>
 
                   <div style={{ textAlign: 'center', marginTop: 8 }}>
