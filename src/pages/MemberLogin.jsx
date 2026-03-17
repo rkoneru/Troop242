@@ -63,7 +63,10 @@ export default function MemberLogin() {
         const userData = usersSnap.docs[0].data();
         if (userData.password) {
           setDemoPassword(userData.password);
+          console.log(`✓ Found ${profileKey} account - password: ${userData.password}`);
         }
+      } else {
+        console.warn(`No user found for email: ${profileEmail}`);
       }
     } catch (err) {
       console.error('Error loading password hint:', err);
@@ -92,36 +95,44 @@ export default function MemberLogin() {
     setLoading(true);
 
     try {
-      // Try Firebase Auth first
       let user = null;
       let userProfile = null;
-      let authError = null;
 
+      // Try Firestore password first (primary method)
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        user = userCredential.user;
-        const profileSnap = await getDoc(doc(db, 'users', user.uid));
-        userProfile = profileSnap.data();
-      } catch (e) {
-        authError = e;
-        // Firebase Auth failed, try Firestore password field as fallback
+        const usersSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+        if (usersSnap.empty) {
+          throw new Error('User not found');
+        }
+
+        const firestoreUser = usersSnap.docs[0];
+        userProfile = firestoreUser.data();
+
+        // Check if stored password matches (plain text comparison)
+        if (userProfile.password !== password) {
+          throw new Error('Invalid password');
+        }
+
+        user = { uid: firestoreUser.id, email: firestoreUser.data().email };
+      } catch (firestoreError) {
+        // If Firestore lookup fails, try Firebase Auth
         try {
-          const usersSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
-          if (usersSnap.empty) {
-            throw new Error('User not found');
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          user = userCredential.user;
+          const profileSnap = await getDoc(doc(db, 'users', user.uid));
+          userProfile = profileSnap.data();
+        } catch (authError) {
+          // Both methods failed
+          if (authError.code === 'auth/user-not-found' || firestoreError.message === 'User not found') {
+            throw new Error('No account found with this email');
+          } else if (authError.code === 'auth/wrong-password' || firestoreError.message === 'Invalid password') {
+            throw new Error('Incorrect password');
+          } else if (authError.code === 'auth/invalid-email') {
+            throw new Error('Invalid email address');
+          } else if (authError.code === 'auth/user-disabled') {
+            throw new Error('This account has been disabled');
           }
-
-          const firestoreUser = usersSnap.docs[0];
-          userProfile = firestoreUser.data();
-
-          // Check if stored password matches (plain text comparison)
-          if (userProfile.password !== password) {
-            throw new Error('Invalid password');
-          }
-
-          user = { uid: firestoreUser.id, email: firestoreUser.data().email };
-        } catch {
-          throw authError; // Re-throw original Firebase error if Firestore fallback fails
+          throw authError;
         }
       }
 
@@ -151,18 +162,9 @@ export default function MemberLogin() {
       const redirectPath = redirectMap[userProfile.role] || '/';
       navigate(redirectPath);
     } catch (err) {
-      // Firebase error messages
-      let errorMessage = 'Login failed';
-      if (err.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email';
-      } else if (err.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password';
-      } else if (err.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address';
-      } else if (err.code === 'auth/user-disabled') {
-        errorMessage = 'This account has been disabled';
-      }
+      let errorMessage = err.message || 'Login failed';
       setError(errorMessage);
+      console.error('Login error:', err);
       setLoading(false);
     }
   };
@@ -305,25 +307,18 @@ export default function MemberLogin() {
                     <input
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
+                      readOnly
+                      placeholder="Email will auto-fill"
                       style={{
                         width: '100%',
                         padding: '12px 16px',
-                        background: 'var(--input-bg)',
-                        border: '1px solid var(--input-border)',
+                        background: 'var(--accent-dim)',
+                        border: '1px solid var(--accent-border)',
                         borderRadius: 8,
-                        color: 'var(--text-primary)',
+                        color: 'var(--accent)',
                         fontSize: '0.95rem',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--accent-border)';
-                        e.target.style.boxShadow = '0 0 0 3px var(--accent-dim)';
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = 'var(--input-border)';
-                        e.target.style.boxShadow = 'none';
+                        cursor: 'not-allowed',
+                        opacity: 0.8
                       }}
                     />
                   </div>
