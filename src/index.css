@@ -562,8 +562,12 @@ button, .btn {
 [data-framework="clay"] .glass-card h1 {
   color: #1a202c !important;
 }
-[data-framework="clay"] .glass-card p {
+[data-framework="clay"] .glass-card p,
+[data-framework="clay"] .glass-card button {
   color: #4a5568 !important;
+}
+[data-framework="clay"] .glass-card button {
+  color: #1a202c !important;
 }
 [data-framework="clay"] .glass-card:hover {
   transform: translateY(-4px);
