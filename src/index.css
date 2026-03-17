@@ -596,6 +596,30 @@ button, .btn {
   box-shadow: 0 8px 20px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.5) !important;
 }
 
+/* Claymorphism: ensure dark section text stays readable */
+[data-framework="clay"] .section--dark h1,
+[data-framework="clay"] .section--dark h2,
+[data-framework="clay"] .section--dark h3,
+[data-framework="clay"] .section--dark h4,
+[data-framework="clay"] .section--dark h5,
+[data-framework="clay"] .section--dark h6 {
+  color: #ffffff !important;
+}
+[data-framework="clay"] .section--dark p {
+  color: #d1d5db !important;
+}
+[data-framework="clay"] .section--dark .glass-card h1,
+[data-framework="clay"] .section--dark .glass-card h2,
+[data-framework="clay"] .section--dark .glass-card h3,
+[data-framework="clay"] .section--dark .glass-card h4,
+[data-framework="clay"] .section--dark .glass-card h5,
+[data-framework="clay"] .section--dark .glass-card h6 {
+  color: #1a202c !important;
+}
+[data-framework="clay"] .section--dark .glass-card p {
+  color: #4a5568 !important;
+}
+
 /* --- MINIMALISM --- */
 [data-framework="minimal"] .glass-card {
   backdrop-filter: none;
