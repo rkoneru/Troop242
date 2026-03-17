@@ -56,6 +56,11 @@ export default function MemberLogin() {
     const profileEmail = PROFILE_EMAILS[profileKey];
     setEmail(profileEmail);
 
+    // Default demo password
+    const defaultPassword = 'admin123';
+    setDemoPassword(defaultPassword);
+    setPassword(defaultPassword);
+
     try {
       const usersSnap = await getDocs(query(collection(db, 'users'), where('email', '==', profileEmail)));
       if (!usersSnap.empty) {
@@ -67,6 +72,9 @@ export default function MemberLogin() {
       }
     } catch (err) {
       console.error('Error loading demo password:', err);
+      // Use default password on error
+      setDemoPassword(defaultPassword);
+      setPassword(defaultPassword);
     }
   };
 
@@ -291,12 +299,8 @@ export default function MemberLogin() {
                   }}
                 >
                   <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: 'var(--accent)' }}>🔐 Demo Account</p>
-                  <p style={{ margin: '0 0 4px 0' }}>Email: {PROFILE_EMAILS[selectedProfile]}</p>
-                  {demoPassword ? (
-                    <p style={{ margin: '0 0 4px 0', fontSize: '0.7rem' }}>Password: <strong style={{ fontFamily: 'monospace' }}>{demoPassword}</strong></p>
-                  ) : (
-                    <p style={{ margin: '0 0 4px 0' }}>Password: Loading...</p>
-                  )}
+                  <p style={{ margin: '0 0 4px 0' }}>Email: <strong style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{PROFILE_EMAILS[selectedProfile]}</strong></p>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.7rem' }}>Password: <strong style={{ fontFamily: 'monospace' }}>{demoPassword || 'admin123'}</strong></p>
                   <p style={{ margin: 0, fontSize: '0.7rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>Just click to login - no typing needed! 🎉</p>
                 </motion.div>
 
