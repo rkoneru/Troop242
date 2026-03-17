@@ -555,6 +555,15 @@ button, .btn {
     0 20px 60px rgba(0,0,0,0.10),
     inset 0 -5px 10px rgba(0,0,0,0.08),
     inset 0 5px 10px rgba(255,255,255,0.65) !important;
+  color: #2d3748 !important;
+}
+[data-framework="clay"] .glass-card h3,
+[data-framework="clay"] .glass-card h2,
+[data-framework="clay"] .glass-card h1 {
+  color: #1a202c !important;
+}
+[data-framework="clay"] .glass-card p {
+  color: #4a5568 !important;
 }
 [data-framework="clay"] .glass-card:hover {
   transform: translateY(-4px);
