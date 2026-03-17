@@ -292,9 +292,9 @@ export default function ScoutDashboard() {
                 <span style={{ fontWeight: 600 }}>Merit Badges</span>
               </div>
               <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {meritProgress.wishlisted}
+                {meritProgress.total}
               </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>badges in wishlist</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>badges tracked</p>
             </motion.div>
 
             {/* Activities Stat */}
@@ -548,7 +548,7 @@ export default function ScoutDashboard() {
               style={{ padding: 32, cursor: 'pointer' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => window.location.href = '/Troop242/Games/scout-portal.html'}
+              onClick={() => navigate('/scout-portal')}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ fontSize: '2.5rem' }}>📖</div>
@@ -669,13 +669,13 @@ export default function ScoutDashboard() {
                       <div style={{ marginBottom: 16 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : 'var(--text-muted)', marginBottom: 6 }}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Users size={13} /> {activity.signups.length}/{activity.spots} spots
+                            <Users size={13} /> {activity.signedUp?.length ?? 0}/{activity.spots} spots
                           </span>
-                          <span>{full ? 'Full' : `${activity.spots - activity.signups.length} remaining`}</span>
+                          <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length ?? 0)} remaining`}</span>
                         </div>
                         <div style={{ background: 'var(--divider)', borderRadius: 99, height: 6 }}>
                           <div style={{
-                            width: `${Math.min((activity.signups.length / activity.spots) * 100, 100)}%`,
+                            width: `${Math.min(((activity.signedUp?.length ?? 0) / activity.spots) * 100, 100)}%`,
                             background: full ? '#ff6464' : 'var(--accent)',
                             height: '100%',
                             borderRadius: 99,

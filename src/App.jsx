@@ -79,7 +79,7 @@ function AppRoutes() {
       <Route path="/scout-dashboard" element={<><Header /><ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><ScoutDashboard /></ProtectedRoute><Footer /></>} />
       <Route path="/profile" element={<><Header /><ProtectedRoute><UserProfile /></ProtectedRoute><Footer /></>} />
       <Route path="/games" element={<><Header /><GamesLanding /><Footer /></>} />
-      <Route path="/troop-finances" element={<TroopFinances />} />
+      <Route path="/troop-finances" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><TroopFinances /></ProtectedRoute><Footer /></>} />
       <Route path="/send-invitations" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><SendInvitations /></ProtectedRoute><Footer /></>} />
       <Route path="/referral-links" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><ReferralLinks /></ProtectedRoute><Footer /></>} />
       <Route path="/register" element={<><Header /><RegisterWithInvite /><Footer /></>} />
@@ -90,6 +90,7 @@ function AppRoutes() {
       <Route path="/skills-tracker" element={<ProtectedRoute allowedRoles={['scout']}><SkillsTrackerWizard /></ProtectedRoute>} />
       <Route path="/activities" element={<ActivitiesPage />} />
       <Route path="/scout-portal" element={<ScoutToolsPortal />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
