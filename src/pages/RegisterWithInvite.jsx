@@ -15,6 +15,7 @@ export default function RegisterWithInvite() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,9 +29,38 @@ export default function RegisterWithInvite() {
 
     setLoading(true);
     try {
+      const code = inviteCode.toUpperCase();
+
+      // Check for fixed referral links
+      if (code === 'LEADER01') {
+        setInviteData({
+          code: 'LEADER01',
+          role: 'leader',
+          status: 'permanent',
+          inviteId: null,
+          email: '' // Will be set on registration
+        });
+        setStep('register');
+        setLoading(false);
+        return;
+      }
+
+      if (code === 'SCOUT01') {
+        setInviteData({
+          code: 'SCOUT01',
+          role: 'scout',
+          status: 'permanent',
+          inviteId: null,
+          email: '' // Will be set on registration
+        });
+        setStep('register');
+        setLoading(false);
+        return;
+      }
+
       // Search for invitation by code
       const invitationsRef = db.collection('invitations');
-      const snapshot = await invitationsRef.where('code', '==', inviteCode.toUpperCase()).get();
+      const snapshot = await invitationsRef.where('code', '==', code).get();
 
       if (snapshot.empty) {
         setError('Invalid or expired invitation code');
@@ -67,7 +97,7 @@ export default function RegisterWithInvite() {
     e.preventDefault();
     setError('');
 
-    if (!name || !password || !confirmPassword) {
+    if (!email || !name || !password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
@@ -86,13 +116,13 @@ export default function RegisterWithInvite() {
 
     try {
       // Create Firebase Auth user
-      const userCredential = await createUserWithEmailAndPassword(auth, inviteData.email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       // Create Firestore user document
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
-        email: inviteData.email,
+        email: email,
         name,
         role: inviteData.role,
         status: 'approved',
@@ -102,12 +132,14 @@ export default function RegisterWithInvite() {
         createdAt: new Date().toISOString()
       });
 
-      // Mark invitation as used
-      await db.collection('invitations').doc(inviteData.inviteId).update({
-        status: 'accepted',
-        usedBy: user.uid,
-        usedAt: new Date().toISOString()
-      });
+      // Mark invitation as used (if not a permanent referral code)
+      if (inviteData.inviteId) {
+        await db.collection('invitations').doc(inviteData.inviteId).update({
+          status: 'accepted',
+          usedBy: user.uid,
+          usedAt: new Date().toISOString()
+        });
+      }
 
       setStep('success');
     } catch (err) {
@@ -227,10 +259,31 @@ export default function RegisterWithInvite() {
               >
                 <h2 style={{ marginBottom: 8, textAlign: 'center' }}>Create Your Account</h2>
                 <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: 24 }}>
-                  {inviteData?.email} • {inviteData?.role === 'leader' ? '👔 Leader' : '🧭 Scout'}
+                  {inviteData?.role === 'leader' ? '👔 Leader' : '🧭 Scout'}
                 </p>
 
                 <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your.email@example.com"
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        background: 'var(--input-bg)',
+                        border: '1px solid var(--input-border)',
+                        borderRadius: 8,
+                        color: 'var(--text-primary)',
+                        fontSize: '1rem'
+                      }}
+                    />
+                  </div>
+
                   <div>
                     <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                       Full Name

@@ -216,27 +216,50 @@ export default function Header() {
                     </Link>
 
                     {['leader', 'admin'].includes(profile?.role) && (
-                      <Link
-                        to="/send-invitations"
-                        onClick={() => {
-                          scrollToTop();
-                          setUserMenuOpen(false);
-                        }}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '12px 16px',
-                          color: 'var(--text-primary)',
-                          textDecoration: 'none',
-                          borderBottom: '1px solid var(--divider)',
-                          transition: 'background-color 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                      >
-                        📧 Send Invitations
-                      </Link>
+                      <>
+                        <Link
+                          to="/referral-links"
+                          onClick={() => {
+                            scrollToTop();
+                            setUserMenuOpen(false);
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--divider)',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        >
+                          🔗 Referral Links
+                        </Link>
+                        <Link
+                          to="/send-invitations"
+                          onClick={() => {
+                            scrollToTop();
+                            setUserMenuOpen(false);
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--divider)',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        >
+                          📧 Send Invitations
+                        </Link>
+                      </>
                     )}
 
                     <button
@@ -368,9 +391,14 @@ export default function Header() {
                 </Link>
 
                 {['leader', 'admin'].includes(profile?.role) && (
-                  <Link to="/send-invitations" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
-                    📧 Send Invitations
-                  </Link>
+                  <>
+                    <Link to="/referral-links" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
+                      🔗 Referral Links
+                    </Link>
+                    <Link to="/send-invitations" onClick={handleNavClick(() => setMobileMenuOpen(false))} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
+                      📧 Send Invitations
+                    </Link>
+                  </>
                 )}
 
                 <button
