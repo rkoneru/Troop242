@@ -47,7 +47,28 @@ export default function MemberLogin() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [demoPassword, setDemoPassword] = useState('');
   const tapRef = useRef({ count: 0, timer: null });
+
+  // Load demo password from Firestore when profile is selected
+  const handleProfileSelect = async (profileKey) => {
+    setSelectedProfile(profileKey);
+    const profileEmail = PROFILE_EMAILS[profileKey];
+    setEmail(profileEmail);
+
+    try {
+      const usersSnap = await getDocs(query(collection(db, 'users'), where('email', '==', profileEmail)));
+      if (!usersSnap.empty) {
+        const userData = usersSnap.docs[0].data();
+        if (userData.password) {
+          setDemoPassword(userData.password);
+          setPassword(userData.password); // Auto-fill password
+        }
+      }
+    } catch (err) {
+      console.error('Error loading demo password:', err);
+    }
+  };
 
   const handleSecretTap = () => {
     tapRef.current.count += 1;
@@ -192,7 +213,7 @@ export default function MemberLogin() {
                         <motion.div
                           key={key}
                           variants={itemVariants}
-                          onClick={() => setSelectedProfile(key)}
+                          onClick={() => handleProfileSelect(key)}
                           className="glass-card"
                           style={{ padding: 32, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.3s ease', textAlign: 'center' }}
                           whileHover={{ scale: 1.05, borderColor: profile.color }}
@@ -255,7 +276,7 @@ export default function MemberLogin() {
                   </motion.div>
                 )}
 
-                {/* Firebase Login Info */}
+                {/* Demo Credentials */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -269,9 +290,13 @@ export default function MemberLogin() {
                     marginBottom: 16
                   }}
                 >
-                  <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: 'var(--accent)' }}>🔐 Firebase Login:</p>
+                  <p style={{ margin: '0 0 8px 0', fontWeight: 600, color: 'var(--accent)' }}>🔐 Demo Credentials:</p>
                   <p style={{ margin: '0 0 4px 0' }}>Email: {PROFILE_EMAILS[selectedProfile]}</p>
-                  <p style={{ margin: 0 }}>Use your Firebase account password</p>
+                  {demoPassword ? (
+                    <p style={{ margin: 0, fontFamily: 'monospace' }}>Password: <strong>{demoPassword}</strong></p>
+                  ) : (
+                    <p style={{ margin: 0 }}>Password: Loading...</p>
+                  )}
                 </motion.div>
 
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
