@@ -30,6 +30,8 @@ import ActivitiesPage from './pages/ActivitiesPage';
 import GamesLanding from './pages/GamesLanding';
 import ScoutToolsPortal from './pages/ScoutToolsPortal';
 import UserProfile from './pages/UserProfile';
+import SendInvitations from './pages/SendInvitations';
+import RegisterWithInvite from './pages/RegisterWithInvite';
 import './App.css';
 
 /**
@@ -77,6 +79,8 @@ function AppRoutes() {
       <Route path="/profile" element={<><Header /><ProtectedRoute><UserProfile /></ProtectedRoute><Footer /></>} />
       <Route path="/games" element={<><Header /><GamesLanding /><Footer /></>} />
       <Route path="/troop-finances" element={<TroopFinances />} />
+      <Route path="/send-invitations" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><SendInvitations /></ProtectedRoute><Footer /></>} />
+      <Route path="/register" element={<><Header /><RegisterWithInvite /><Footer /></>} />
 
       {/* Wizard pages with custom headers - no global header/footer */}
       <Route path="/rank-tracker" element={<ProtectedRoute allowedRoles={['scout']}><RankTrackerWizard /></ProtectedRoute>} />
