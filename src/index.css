@@ -569,6 +569,20 @@ button, .btn {
 [data-framework="clay"] .glass-card button {
   color: #1a202c !important;
 }
+[data-framework="clay"] .glass-card label {
+  color: #2d3748 !important;
+}
+[data-framework="clay"] .glass-card input,
+[data-framework="clay"] .glass-card textarea,
+[data-framework="clay"] .glass-card select {
+  color: #1a202c !important;
+  background-color: #f7fafc !important;
+  border-color: #cbd5e0 !important;
+}
+[data-framework="clay"] .glass-card input::placeholder,
+[data-framework="clay"] .glass-card textarea::placeholder {
+  color: #a0aec0 !important;
+}
 [data-framework="clay"] .glass-card:hover {
   transform: translateY(-4px);
   box-shadow:
