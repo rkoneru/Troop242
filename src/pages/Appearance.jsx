@@ -302,7 +302,9 @@ export default function Appearance() {
               viewport={{ once: true, margin: '-50px' }}
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
             >
-              {Object.entries(FRAMEWORKS).map(([key, framework]) => (
+              {Object.entries(FRAMEWORKS)
+                .filter(([key]) => key !== 'clay')
+                .map(([key, framework]) => (
                 <motion.div
                   key={key}
                   variants={itemVariants}
