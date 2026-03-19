@@ -76,7 +76,7 @@ export default function MeritTrackerWizard() {
   };
 
   const getWorkbookUrl = (name) =>
-    `https://filestore.scouting.org/filestore/Merit_Badge_ReqandRes/Workbooks/${encodeURIComponent(name)}_Workbook_Fillable.pdf`;
+    `http://usscouts.org/usscouts/mb/worksheets/${encodeURIComponent(name)}.pdf`;
 
   const generateScoutbookSummary = () => {
     const completed = [];
