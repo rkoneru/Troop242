@@ -76,7 +76,7 @@ export default function MeritTrackerWizard() {
   };
 
   const getWorkbookUrl = (name) =>
-    `http://usscouts.org/usscouts/mb/worksheets/${encodeURIComponent(name)}.pdf`;
+    `http://usscouts.org/usscouts/mb/worksheets/${name.replace(/ /g, '-')}.pdf`;
 
   const generateScoutbookSummary = () => {
     const completed = [];
