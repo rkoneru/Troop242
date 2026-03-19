@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Copy, ExternalLink, FileText, BookOpen, Search, X } from 'lucide-react';
 import { BADGE_CATEGORIES, BADGE_PDF_URLS } from './Badges';
 
+// Filter out Eagle Required category
+const VISIBLE_CATEGORIES = BADGE_CATEGORIES.filter(cat => cat.category !== 'Eagle Required');
+
 export default function MeritTrackerWizard() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -59,19 +62,19 @@ export default function MeritTrackerWizard() {
 
   // Compute progress
   const getCompletedCountForCategory = (catIdx) => {
-    return BADGE_CATEGORIES[catIdx].badges.filter(
+    return VISIBLE_CATEGORIES[catIdx].badges.filter(
       (b) => meritProgress[b.name] === 'completed'
     ).length;
   };
 
   const getWorkingCountForCategory = (catIdx) => {
-    return BADGE_CATEGORIES[catIdx].badges.filter(
+    return VISIBLE_CATEGORIES[catIdx].badges.filter(
       (b) => meritProgress[b.name] === 'working'
     ).length;
   };
 
   const hasCompletedInCategory = () => {
-    const category = BADGE_CATEGORIES[selectedCategoryIdx];
+    const category = VISIBLE_CATEGORIES[selectedCategoryIdx];
     return category.badges.some((b) => meritProgress[b.name] === 'completed');
   };
 
@@ -82,7 +85,7 @@ export default function MeritTrackerWizard() {
     const completed = [];
     const working = [];
 
-    BADGE_CATEGORIES.forEach((cat) => {
+    VISIBLE_CATEGORIES.forEach((cat) => {
       cat.badges.forEach((badge) => {
         const status = meritProgress[badge.name];
         if (status === 'completed') {
@@ -122,7 +125,7 @@ export default function MeritTrackerWizard() {
   // Search functionality
   const searchAllBadges = () => {
     const results = [];
-    BADGE_CATEGORIES.forEach((cat, catIdx) => {
+    VISIBLE_CATEGORIES.forEach((cat, catIdx) => {
       cat.badges.forEach((badge) => {
         if (badge.name.toLowerCase().includes(searchQuery.toLowerCase())) {
           results.push({ ...badge, categoryIdx: catIdx, categoryName: cat.category });
@@ -133,7 +136,7 @@ export default function MeritTrackerWizard() {
   };
 
   // Render state
-  const currentCategory = BADGE_CATEGORIES[selectedCategoryIdx];
+  const currentCategory = VISIBLE_CATEGORIES[selectedCategoryIdx];
   const completedCount = getCompletedCountForCategory(selectedCategoryIdx);
   const workingCount = getWorkingCountForCategory(selectedCategoryIdx);
   const searchResults = searchQuery ? searchAllBadges() : [];
@@ -318,7 +321,7 @@ export default function MeritTrackerWizard() {
           <>
             <h2 style={{ fontSize: '1rem', fontWeight: 600, marginTop: 0, marginBottom: 16, color: 'var(--text-muted)' }}>SELECT CATEGORY</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 48 }}>
-              {BADGE_CATEGORIES.map((cat, idx) => {
+              {VISIBLE_CATEGORIES.map((cat, idx) => {
                 const completed = getCompletedCountForCategory(idx);
                 const isSelected = idx === selectedCategoryIdx;
                 return (
