@@ -44,16 +44,18 @@ import './App.css';
 function ProtectedRoute({ children, allowedRoles = null }) {
   const { user, profile, loading } = useAuth();
 
-  if (loading) {
+  if (loading || !user) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
   }
 
-  if (!user) {
-    return <Navigate to="/member-login" replace />;
+  // If user is authenticated and we have a profile, check roles
+  if (profile && allowedRoles && !allowedRoles.includes(profile.role)) {
+    return <Navigate to="/" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(profile?.role)) {
-    return <Navigate to="/" replace />;
+  // If user is authenticated but profile hasn't loaded yet, show loading
+  if (!profile && allowedRoles) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
   }
 
   return children;
