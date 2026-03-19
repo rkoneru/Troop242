@@ -414,8 +414,8 @@ export default function MeritTrackerWizard() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1.5fr 1fr auto auto auto auto',
-                gap: 16,
+                gridTemplateColumns: '1.5fr 1fr 80px 80px 80px 80px',
+                gap: 0,
                 padding: '16px',
                 background: 'var(--bg-primary)',
                 borderBottom: `1px solid var(--divider)`,
@@ -444,8 +444,8 @@ export default function MeritTrackerWizard() {
                   <div
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '1.5fr 1fr auto auto auto auto',
-                      gap: 16,
+                      gridTemplateColumns: '1.5fr 1fr 80px 80px 80px 80px',
+                      gap: 0,
                       padding: '16px',
                       background: isExpanded ? 'var(--bg-primary)' : 'transparent',
                       borderBottom: `1px solid var(--divider)`,
