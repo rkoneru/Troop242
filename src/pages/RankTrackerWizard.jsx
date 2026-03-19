@@ -47,7 +47,6 @@ const RANKS = [
 export default function RankTrackerWizard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [authChecked, setAuthChecked] = useState(false);
 
   // State management
   const [selectedRank, setSelectedRank] = useState(0);
@@ -58,31 +57,9 @@ export default function RankTrackerWizard() {
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Auth guard - run once on mount
+  // Load progress from Firestore when user is available
   useEffect(() => {
-    const stored = sessionStorage.getItem('loggedInUser');
-    if (!stored) {
-      navigate('/member-login');
-      setAuthChecked(true);
-      return;
-    }
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.profile !== 'scout') {
-        navigate('/member-login');
-        setAuthChecked(true);
-        return;
-      }
-      setAuthChecked(true);
-    } catch {
-      navigate('/member-login');
-      setAuthChecked(true);
-    }
-  }, []);
-
-  // Load progress from Firestore after auth check
-  useEffect(() => {
-    if (!authChecked || !user) return;
+    if (!user) return;
 
     const loadProgress = async () => {
       try {
@@ -98,7 +75,7 @@ export default function RankTrackerWizard() {
     };
 
     loadProgress();
-  }, [authChecked, user]);
+  }, [user]);
 
   // Handlers
   const toggleRequirement = async (rankIdx, reqIdx) => {
@@ -199,7 +176,7 @@ Next Steps:
     });
   };
 
-  if (!authChecked || isLoading) {
+  if (isLoading) {
     return (
       <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>

@@ -44,32 +44,10 @@ import './App.css';
 function ProtectedRoute({ children, allowedRoles = null }) {
   const { user, profile, loading } = useAuth();
 
-  // Check sessionStorage for immediate auth
-  const sessionUser = sessionStorage.getItem('loggedInUser');
-  let sessionProfile = null;
-  if (sessionUser) {
-    try {
-      const parsed = JSON.parse(sessionUser);
-      sessionProfile = parsed.profile;
-    } catch {
-      // ignore parsing error
-    }
-  }
-
-  // If sessionStorage user exists, use it immediately (don't wait for Firebase)
-  if (sessionUser && sessionProfile) {
-    if (allowedRoles && !allowedRoles.includes(sessionProfile)) {
-      return <Navigate to="/" replace />;
-    }
-    return children;
-  }
-
-  // Otherwise wait for Firebase to load
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
   }
 
-  // Check Firebase auth
   if (!user) {
     return <Navigate to="/member-login" replace />;
   }

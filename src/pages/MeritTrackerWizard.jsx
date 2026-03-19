@@ -6,31 +6,7 @@ import { BADGE_CATEGORIES, BADGE_PDF_URLS } from './Badges';
 
 export default function MeritTrackerWizard() {
   const navigate = useNavigate();
-  const [authChecked, setAuthChecked] = useState(false);
-  const [isAuthed, setIsAuthed] = useState(false);
-
-  // Auth guard - run once on mount
-  useEffect(() => {
-    const stored = sessionStorage.getItem('loggedInUser');
-    if (!stored) {
-      navigate('/member-login');
-      setAuthChecked(true);
-      return;
-    }
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.profile !== 'scout') {
-        navigate('/member-login');
-        setAuthChecked(true);
-        return;
-      }
-      setIsAuthed(true);
-      setAuthChecked(true);
-    } catch {
-      navigate('/member-login');
-      setAuthChecked(true);
-    }
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
   // State
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
@@ -176,7 +152,7 @@ export default function MeritTrackerWizard() {
     return 'Not Started';
   };
 
-  if (!authChecked) {
+  if (isLoading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
   }
 

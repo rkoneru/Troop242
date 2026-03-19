@@ -7,26 +7,6 @@ import { SKILL_CATEGORIES } from './Skills';
 export default function SkillsTrackerWizard() {
   const navigate = useNavigate();
 
-  // Auth guard
-  const user = (() => {
-    const stored = sessionStorage.getItem('loggedInUser');
-    if (!stored) {
-      navigate('/member-login');
-      return null;
-    }
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.profile !== 'scout') {
-        navigate('/member-login');
-        return null;
-      }
-      return parsed;
-    } catch {
-      navigate('/member-login');
-      return null;
-    }
-  })();
-
   // State
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
   const [trackedSkills, setTrackedSkills] = useState(() => {
