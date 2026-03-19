@@ -94,6 +94,21 @@
   color: var(--text-muted);
 }
 
+/* Select dropdown specific styling */
+.profile-input[type="text"],
+.profile-input[type="email"],
+.profile-input[type="tel"],
+select.profile-input {
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+select.profile-input option {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  padding: 8px;
+}
+
 .profile-badges {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

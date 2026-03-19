@@ -365,13 +365,17 @@ export default function ScoutDashboard() {
                 </p>
               </div>
 
-              <motion.button
+              <button
                 className="btn btn-primary"
-                whileHover={{ gap: 16 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/rank-tracker');
+                  scrollToTop();
+                }}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
               >
                 Continue <ChevronRight size={18} />
-              </motion.button>
+              </button>
             </motion.div>
 
             {/* MERIT BADGE TRACKER TILE */}
@@ -403,13 +407,17 @@ export default function ScoutDashboard() {
                 </div>
               </div>
 
-              <motion.button
+              <button
                 className="btn btn-primary"
-                whileHover={{ gap: 16 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/merit-tracker');
+                  scrollToTop();
+                }}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
               >
                 Browse Badges <ChevronRight size={18} />
-              </motion.button>
+              </button>
             </motion.div>
 
             {/* SKILLS TRACKER TILE */}
@@ -449,13 +457,17 @@ export default function ScoutDashboard() {
                 </p>
               </div>
 
-              <motion.button
+              <button
                 className="btn btn-primary"
-                whileHover={{ gap: 16 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/skills-tracker');
+                  scrollToTop();
+                }}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
               >
                 Track Skills <ChevronRight size={18} />
-              </motion.button>
+              </button>
             </motion.div>
 
             {/* ACTIVITY SIGNUP TILE */}
@@ -497,16 +509,20 @@ export default function ScoutDashboard() {
                 </div>
               </div>
 
-              <motion.button
+              <button
                 className="btn btn-primary"
-                whileHover={{ gap: 16 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/activities');
+                  scrollToTop();
+                }}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
               >
                 View Events <ChevronRight size={18} />
-              </motion.button>
+              </button>
             </motion.div>
 
-            
+
 
             {/* FUNDRAISING TILE */}
             <motion.div
@@ -533,13 +549,17 @@ export default function ScoutDashboard() {
                 </p>
               </div>
 
-              <motion.button
+              <button
                 className="btn btn-primary"
-                whileHover={{ gap: 16 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/calendar');
+                  scrollToTop();
+                }}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
               >
                 View Events <ChevronRight size={18} />
-              </motion.button>
+              </button>
             </motion.div>
 
             {/* SCOUT PORTAL TILE */}
@@ -568,13 +588,16 @@ export default function ScoutDashboard() {
                 </p>
               </div>
 
-              <motion.button
+              <button
                 className="btn btn-primary"
-                whileHover={{ gap: 16 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = '/Troop242/Games/scout-portal.html';
+                }}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
               >
                 Access Portal <ChevronRight size={18} />
-              </motion.button>
+              </button>
             </motion.div>
           </motion.div>
         </div>

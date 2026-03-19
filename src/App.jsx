@@ -44,15 +44,30 @@ import './App.css';
 function ProtectedRoute({ children, allowedRoles = null }) {
   const { user, profile, loading } = useAuth();
 
+  // Check sessionStorage for immediate auth (fallback if Firebase hasn't loaded)
+  const sessionUser = sessionStorage.getItem('loggedInUser');
+  let sessionProfile = null;
+  if (sessionUser) {
+    try {
+      const parsed = JSON.parse(sessionUser);
+      sessionProfile = parsed.profile;
+    } catch {
+      // ignore parsing error
+    }
+  }
+
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
   }
 
-  if (!user) {
+  // Use Firebase profile if loaded, otherwise fall back to sessionStorage
+  const userRole = profile?.role || sessionProfile;
+
+  if (!user && !sessionUser) {
     return <Navigate to="/member-login" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(profile?.role)) {
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
     return <Navigate to="/" replace />;
   }
 
