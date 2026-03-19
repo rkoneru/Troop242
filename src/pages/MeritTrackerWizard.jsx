@@ -156,10 +156,6 @@ export default function MeritTrackerWizard() {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
   }
 
-  if (!isAuthed) {
-    return null;
-  }
-
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: 80, paddingBottom: 40 }}>
       {/* Header */}
