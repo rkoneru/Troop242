@@ -303,7 +303,7 @@ export default function Appearance() {
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
             >
               {Object.entries(FRAMEWORKS)
-                .filter(([key]) => key !== 'clay')
+                .filter(([key]) => !['clay', 'skeu', 'brutal'].includes(key))
                 .map(([key, framework]) => (
                 <motion.div
                   key={key}

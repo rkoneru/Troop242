@@ -215,6 +215,74 @@ export default function Header() {
                       <User size={16} /> My Profile
                     </Link>
 
+                    {profile?.role === 'scout' && (
+                      <>
+                        <Link
+                          to="/scout-dashboard"
+                          onClick={() => {
+                            scrollToTop();
+                            setUserMenuOpen(false);
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--divider)',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        >
+                          📊 Scout Dashboard
+                        </Link>
+                        <Link
+                          to="/scout-portal"
+                          onClick={() => {
+                            scrollToTop();
+                            setUserMenuOpen(false);
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--divider)',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        >
+                          🎮 Scout Portal
+                        </Link>
+                        <Link
+                          to="/profile"
+                          onClick={() => {
+                            scrollToTop();
+                            setUserMenuOpen(false);
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--divider)',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        >
+                          👤 Scout Profile
+                        </Link>
+                      </>
+                    )}
+
                     {['leader', 'admin'].includes(profile?.role) && (
                       <>
                         <Link

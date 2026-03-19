@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
 import { signOut } from 'firebase/auth';
+import { scrollToTop } from '../utils/scrollToTop';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -332,7 +333,7 @@ export default function ScoutDashboard() {
               style={{ padding: 32, cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/rank-tracker')}
+              onClick={() => { navigate('/rank-tracker'); scrollToTop(); }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ fontSize: '2.5rem' }}>⚜️</div>
@@ -514,7 +515,7 @@ export default function ScoutDashboard() {
               style={{ padding: 32, cursor: 'pointer' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/calendar')}
+              onClick={() => { navigate('/calendar'); scrollToTop(); }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ fontSize: '2.5rem' }}>💰</div>
@@ -548,7 +549,8 @@ export default function ScoutDashboard() {
               style={{ padding: 32, cursor: 'pointer' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/scout-portal')}
+              onClick={() => { window.location.href = '/Troop242/Games/scout-portal.html'; }}
+              // onClick={() => { navigate('/scout-portal'); scrollToTop(); }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ fontSize: '2.5rem' }}>📖</div>

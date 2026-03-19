@@ -2,9 +2,10 @@
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { scrollToTop } from '../utils/scrollToTop';
 
 // Merit badge PDF URLs mapping
-const BADGE_PDF_URLS = {
+export const BADGE_PDF_URLS = {
   'Camping': 'https://filestore.scouting.org/filestore/Merit_Badge_ReqandRes/Pamphlets/Camping.pdf',
   'Cooking': 'https://filestore.scouting.org/filestore/Merit_Badge_ReqandRes/Pamphlets/Cooking.pdf',
   'First Aid': 'https://filestore.scouting.org/filestore/Merit_Badge_ReqandRes/Pamphlets/First%20Aid.pdf',
@@ -800,6 +801,40 @@ export default function Badges() {
                 Explore Merit Badges on Scouting.org
               </motion.a>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* OFFICIAL SCOUTS BSA REQUIREMENTS PDF */}
+      <section className="section section--dark">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            className="glass-card"
+            style={{
+              padding: 32,
+              background: 'linear-gradient(135deg, var(--accent-dim) 0%, rgba(0, 214, 143, 0.05) 100%)',
+              border: '2px solid var(--accent-border)',
+              textAlign: 'center'
+            }}
+          >
+            <h3 style={{ color: 'var(--accent)', marginBottom: 16 }}>📋 Official Scouts BSA Requirements</h3>
+            <p style={{ color: 'var(--text-primary)', marginBottom: 20 }}>
+              Download the complete official Scouts BSA Requirements document from Scouting America:
+            </p>
+            <motion.a
+              href="https://www.scouting.org/wp-content/uploads/2026/02/3321625-Scouts-BSA-Requirements.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <ExternalLink size={18} /> Download PDF (Scouts BSA Requirements)
+            </motion.a>
           </motion.div>
         </div>
       </section>

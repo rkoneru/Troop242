@@ -6,6 +6,7 @@ import CampfireIllustration from './troop242-campfire';
 import { useState, useEffect, useMemo } from 'react';
 import { SCOUTING_FACTS } from '../utils/facts';
 import { loadData, DEFAULT_STATS } from '../utils/adminData';
+import { scrollToTop } from '../utils/scrollToTop';
 
 // Did You Know Carousel Component
 function DidYouKnowCarousel() {
@@ -278,7 +279,7 @@ export default function Home() {
                 className="btn btn-primary"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/contact')}
+                onClick={() => { navigate('/contact'); scrollToTop(); }}
               >
                 Start Your Journey
               </motion.button>
@@ -286,7 +287,7 @@ export default function Home() {
                 className="btn btn-outline"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/about')}
+                onClick={() => { navigate('/about'); scrollToTop(); }}
               >
                 Learn More
               </motion.button>
@@ -339,7 +340,7 @@ export default function Home() {
               className="btn btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/new-scout')}
+              onClick={() => { navigate('/new-scout'); scrollToTop(); }}
             >
               Explore the New Scout Guide
             </motion.button>
@@ -544,7 +545,7 @@ export default function Home() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.1 }}
                     viewport={{ once: true }}
-                    onClick={() => navigate('/ranks')}
+                    onClick={() => { navigate('/ranks'); scrollToTop(); }}
                     style={{ cursor: 'pointer' }}
                   >
                     <div className="rank-timeline__emoji" style={{ fontSize: i === 7 ? '4.5rem' : '4rem' }}>
@@ -584,7 +585,7 @@ export default function Home() {
               { emoji: '🤝', title: 'Community Service', count: '15 badges' },
               { emoji: '🦅', title: 'Eagle Required', count: '13 badges' }
             ].map((cat, i) => (
-              <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: 24, textAlign: 'center', cursor: 'pointer' }} whileHover={{ scale: 1.05 }} onClick={() => navigate('/badges')}>
+              <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: 24, textAlign: 'center', cursor: 'pointer' }} whileHover={{ scale: 1.05 }} onClick={() => { navigate('/badges'); scrollToTop(); }}>
                 <div style={{ fontSize: '3rem', marginBottom: 12 }}>{cat.emoji}</div>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: 8 }}>{cat.title}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{cat.count}</p>
@@ -597,7 +598,7 @@ export default function Home() {
               className="btn btn-outline"
               whileHover={{ scale: 1.05, gap: 12 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/badges')}
+              onClick={() => { navigate('/badges'); scrollToTop(); }}
             >
               View All 145+ Badges <ChevronRight size={18} />
             </motion.button>
@@ -641,7 +642,7 @@ export default function Home() {
               className="btn btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/contact')}
+              onClick={() => { navigate('/contact'); scrollToTop(); }}
             >
               Send Us An Email
             </motion.button>

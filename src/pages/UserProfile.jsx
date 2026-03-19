@@ -179,6 +179,27 @@ export default function UserProfile() {
               />
             </div>
 
+            {isEditing && formData.role === 'scout' && (
+              <div className="profile-field">
+                <label>Scout Rank</label>
+                <select
+                  name="rank"
+                  value={formData.rank}
+                  onChange={handleInputChange}
+                  className="profile-input"
+                >
+                  <option value="">Select a rank</option>
+                  <option value="Scout">Scout</option>
+                  <option value="Tenderfoot">Tenderfoot</option>
+                  <option value="2nd Class">2nd Class</option>
+                  <option value="1st Class">1st Class</option>
+                  <option value="Star">Star</option>
+                  <option value="Life">Life</option>
+                  <option value="Eagle">Eagle Scout</option>
+                </select>
+              </div>
+            )}
+
             <div className="profile-badges">
               <div className="profile-badge">
                 <span className="badge-label">Role</span>

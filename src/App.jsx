@@ -33,6 +33,9 @@ import UserProfile from './pages/UserProfile';
 import SendInvitations from './pages/SendInvitations';
 import RegisterWithInvite from './pages/RegisterWithInvite';
 import ReferralLinks from './pages/ReferralLinks';
+import Camping from './pages/camping-animation';
+import CampingGuide from './pages/CampingGuide';
+import ScoutsBSA from './pages/ScoutsBSA';
 import './App.css';
 
 /**
@@ -75,6 +78,7 @@ function AppRoutes() {
       <Route path="/leader-dashboard" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><LeaderDashboard /></ProtectedRoute><Footer /></>} />
       <Route path="/admin-dashboard" element={<><Header /><ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute><Footer /></>} />
       <Route path="/new-scout" element={<><Header /><NewScout /><Footer /></>} />
+      <Route path="/scouts-bsa" element={<><Header /><ScoutsBSA /><Footer /></>} />
       <Route path="/glossary" element={<><Header /><Glossary /><Footer /></>} />
       <Route path="/scout-dashboard" element={<><Header /><ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><ScoutDashboard /></ProtectedRoute><Footer /></>} />
       <Route path="/profile" element={<><Header /><ProtectedRoute><UserProfile /></ProtectedRoute><Footer /></>} />
@@ -83,6 +87,8 @@ function AppRoutes() {
       <Route path="/send-invitations" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><SendInvitations /></ProtectedRoute><Footer /></>} />
       <Route path="/referral-links" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><ReferralLinks /></ProtectedRoute><Footer /></>} />
       <Route path="/register" element={<><Header /><RegisterWithInvite /><Footer /></>} />
+      <Route path="/camping" element={<><Header /><Camping /><Footer /></>} />
+      <Route path="/camping-guide" element={<><Header /><CampingGuide /><Footer /></>} />
 
       {/* Wizard pages with custom headers - no global header/footer */}
       <Route path="/rank-tracker" element={<ProtectedRoute allowedRoles={['scout']}><RankTrackerWizard /></ProtectedRoute>} />

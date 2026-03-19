@@ -1,31 +1,36 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Copy, ExternalLink, Search, X } from 'lucide-react';
-import { BADGE_CATEGORIES } from './Badges';
+import { ArrowLeft, Copy, ExternalLink, FileText, BookOpen, Search, X } from 'lucide-react';
+import { BADGE_CATEGORIES, BADGE_PDF_URLS } from './Badges';
 
 export default function MeritTrackerWizard() {
   const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
 
-  // Auth guard
-  const user = (() => {
+  // Auth guard - run once on mount
+  useEffect(() => {
     const stored = sessionStorage.getItem('loggedInUser');
     if (!stored) {
       navigate('/member-login');
-      return null;
+      setAuthChecked(true);
+      return;
     }
     try {
       const parsed = JSON.parse(stored);
       if (parsed.profile !== 'scout') {
         navigate('/member-login');
-        return null;
+        setAuthChecked(true);
+        return;
       }
-      return parsed;
+      setIsAuthed(true);
+      setAuthChecked(true);
     } catch {
       navigate('/member-login');
-      return null;
+      setAuthChecked(true);
     }
-  })();
+  }, []);
 
   // State
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
@@ -93,6 +98,9 @@ export default function MeritTrackerWizard() {
     const category = BADGE_CATEGORIES[selectedCategoryIdx];
     return category.badges.some((b) => meritProgress[b.name] === 'completed');
   };
+
+  const getWorkbookUrl = (name) =>
+    `https://filestore.scouting.org/filestore/Merit_Badge_ReqandRes/Workbooks/${encodeURIComponent(name)}_Workbook_Fillable.pdf`;
 
   const generateScoutbookSummary = () => {
     const completed = [];
@@ -167,6 +175,14 @@ export default function MeritTrackerWizard() {
     if (status === 'working') return 'In Progress';
     return 'Not Started';
   };
+
+  if (!authChecked) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+  }
+
+  if (!isAuthed) {
+    return null;
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: 80, paddingBottom: 40 }}>
@@ -423,7 +439,7 @@ export default function MeritTrackerWizard() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1.5fr 1fr 1fr auto',
+                gridTemplateColumns: '1.5fr 1fr auto auto auto auto',
                 gap: 16,
                 padding: '16px',
                 background: 'var(--bg-primary)',
@@ -436,6 +452,8 @@ export default function MeritTrackerWizard() {
               <div>Badge Name</div>
               <div style={{ textAlign: 'center' }}>Status</div>
               <div style={{ textAlign: 'center' }}>Link</div>
+              <div style={{ textAlign: 'center' }}>PDF</div>
+              <div style={{ textAlign: 'center' }}>Workbook</div>
               <div style={{ textAlign: 'center' }}>Notes</div>
             </div>
 
@@ -451,7 +469,7 @@ export default function MeritTrackerWizard() {
                   <div
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '1.5fr 1fr 1fr auto',
+                      gridTemplateColumns: '1.5fr 1fr auto auto auto auto',
                       gap: 16,
                       padding: '16px',
                       background: isExpanded ? 'var(--bg-primary)' : 'transparent',
@@ -507,6 +525,42 @@ export default function MeritTrackerWizard() {
                         style={{ color: 'var(--accent)', cursor: 'pointer', display: 'inline-flex' }}
                       >
                         <ExternalLink size={18} />
+                      </motion.a>
+                    </div>
+
+                    {/* PDF Pamphlet Link */}
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      {BADGE_PDF_URLS[badge.name] ? (
+                        <motion.a
+                          href={BADGE_PDF_URLS[badge.name]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          whileHover={{ scale: 1.2 }}
+                          whileTap={{ scale: 0.9 }}
+                          title="Download PDF pamphlet"
+                          style={{ color: 'var(--accent)', cursor: 'pointer', display: 'inline-flex' }}
+                        >
+                          <FileText size={18} />
+                        </motion.a>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>—</span>
+                      )}
+                    </div>
+
+                    {/* Workbook Link */}
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <motion.a
+                        href={getWorkbookUrl(badge.name)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
+                        title="Download fillable workbook"
+                        style={{ color: '#f59e0b', cursor: 'pointer', display: 'inline-flex' }}
+                      >
+                        <BookOpen size={18} />
                       </motion.a>
                     </div>
 

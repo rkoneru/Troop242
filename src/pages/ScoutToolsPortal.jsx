@@ -375,7 +375,7 @@ export default function ScoutToolsPortal() {
     if (searchParams.get('panel')) {
       navigate('/scout-portal', { replace: true });
     }
-  }, [searchParams, navigate]);
+  }, [navigate]);
   const [dashFilter, setDashFilter] = useState('all');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -400,6 +400,7 @@ export default function ScoutToolsPortal() {
   const [quizState, setQuizState] = useState({phase:'intro',q:0,score:0,answered:false});
   const [cipherState, setCipherState] = useState({phase:'intro',msg:0,score:0,input:'',feedback:null});
   const [storyState, setStoryState] = useState({hero:'',setting:'Deep forest',challenge:'Survival emergency',output:null});
+  const [scoutMenuOpen, setScoutMenuOpen] = useState(false);
 
   // Countdown timer effect
   useEffect(() => {
@@ -1022,6 +1023,105 @@ export default function ScoutToolsPortal() {
             </div>
           </div>
           <div className="header-actions">
+            <div style={{ position: 'relative' }}>
+              <button
+                className="btn-menu"
+                onClick={() => setScoutMenuOpen(!scoutMenuOpen)}
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--accent-dim)',
+                  border: '1px solid var(--accent-border)',
+                  borderRadius: '8px',
+                  color: 'var(--accent)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s'
+                }}
+              >
+                ☰ 
+              </button>
+              {scoutMenuOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '8px',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--divider)',
+                  borderRadius: '8px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                  minWidth: '200px',
+                  zIndex: 1000
+                }}>
+                  <button
+                    onClick={() => { navigate('/scout-dashboard'); setScoutMenuOpen(false); }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      borderBottom: '1px solid var(--divider)',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.95rem',
+                      textAlign: 'left',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    📊 Scout Dashboard
+                  </button>
+                  <button
+                    onClick={() => { navigate('/profile'); setScoutMenuOpen(false); }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      borderBottom: '1px solid var(--divider)',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.95rem',
+                      textAlign: 'left',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    👤 Scout Profile
+                  </button>
+                  <button
+                    onClick={() => { navigate('/'); setScoutMenuOpen(false); }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.95rem',
+                      textAlign: 'left',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    🏠 Home
+                  </button>
+                </div>
+              )}
+            </div>
             {activePanel && (
               <button className="btn-back" onClick={goBack}>
                 ← Back to Dashboard
@@ -1079,7 +1179,7 @@ export default function ScoutToolsPortal() {
           <div className="nav-divider"></div>
           <div className="nav-section">
             <div className="nav-section-title">🎮 Games</div>
-            {['star-quiz','first-aid','cipher','story','knot-challenge','badge-quest','survival-game','nature-matcher','games-hub'].map(id=>{
+            {['star-quiz','first-aid','cipher','story','games-hub'].map(id=>{
               const card = DASHBOARD_CARDS.find(c=>c.id===id);
               return (
                 <button key={id} className={`nav-item ${activePanel===id?'active':''}`} onClick={()=>{

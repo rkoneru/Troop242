@@ -54,6 +54,7 @@ export default function Footer() {
               <FooterLink to="/about">About Us</FooterLink>
               <FooterLink to="/stories">Stories</FooterLink>
               <FooterLink to="/contact">Contact Us</FooterLink>
+              {/* <FooterLink to="/camping">Camping</FooterLink> */}
               {/* {canViewScoutPortal && (
                 <a href="/Troop242/Games/scout-portal.html" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'opacity 0.2s' }}>🎮Scout Portal</a>
               )} */}
@@ -64,11 +65,13 @@ export default function Footer() {
           <div className="footer-section">
             <h4 style={{ marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Guide</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <FooterLink to="/scouts-bsa">What is Scouts BSA?</FooterLink>
               <FooterLink to="/new-scout">New Scout</FooterLink>
               <FooterLink to="/scout-principles">Scout Principles</FooterLink>
               <FooterLink to="/skills">Scout Skills</FooterLink>
-              <FooterLink to="/ranks">Ranks</FooterLink>
+              <FooterLink to="/ranks">Scout Ranks</FooterLink>
               <FooterLink to="/badges">Merit Badges</FooterLink>
+              <FooterLink to="/camping-guide">Camping Guide</FooterLink>
               <FooterLink to="/glossary">Glossary</FooterLink>
             </div>
           </div>
@@ -82,7 +85,7 @@ export default function Footer() {
               <FooterLink to="/calendar">Troop Calendar</FooterLink>
               <FooterLink to="/member-login">Member Login</FooterLink>
               {canViewScoutPortal && (
-                <a href="/Troop242/Games/scout-portal.html" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'opacity 0.2s' }}>Scout Portal</a>
+                <FooterLink to="/scout-portal">Scout Portal</FooterLink>
               )}
             </div>
           </div>

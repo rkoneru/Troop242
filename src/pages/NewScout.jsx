@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, BookOpen, Users, Award, MapPin, Star, Lock } from 'lucide-react';
 import { useState } from 'react';
+import { scrollToTop } from '../utils/scrollToTop';
 
 const FIRST_30_DAYS = [
   { day: 'Day 1', title: 'Attend your first troop meeting', desc: 'Show up on Tuesday at 7:00 PM. Wear comfortable clothes — no uniform needed yet. Just introduce yourself and meet the patrol!' },
@@ -84,13 +85,41 @@ export default function NewScout() {
               Everything you need to know to get started with Troop 242. From your first meeting to your first campout — we have got you covered.
             </p>
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <motion.button className="btn btn-primary" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate('/contact')}>
+              <motion.button className="btn btn-primary" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { navigate('/contact'); scrollToTop(); }}>
                 Join Troop 242 <ChevronRight size={18} />
               </motion.button>
-              <motion.button className="btn btn-outline" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate('/ranks')}>
+              <motion.button className="btn btn-outline" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { navigate('/ranks'); scrollToTop(); }}>
                 See All Ranks
               </motion.button>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* WHAT IS SCOUTS BSA - INTRO */}
+      <section className="section" style={{ background: 'var(--bg-secondary)' }}>
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            className="glass-card"
+            style={{ padding: 48, textAlign: 'center' }}
+          >
+            <h2 style={{ marginBottom: 24 }}>What is Scouts BSA?</h2>
+            <p style={{ fontSize: '1.05rem', color: 'var(--text-muted)', marginBottom: 32, maxWidth: '700px', margin: '0 auto 32px' }}>
+              Scouts BSA is a program in Scouting America for boys and girls aged 11-17. We focus on Character Development,
+              Citizenship Training, Leadership, and Mental & Physical Fitness through outdoor adventures, skill-building, and community service.
+            </p>
+            <motion.button
+              className="btn btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { navigate('/scouts-bsa'); scrollToTop(); }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              Learn More About Scouts BSA <ChevronRight size={18} />
+            </motion.button>
           </motion.div>
         </div>
       </section>
@@ -294,7 +323,7 @@ export default function NewScout() {
               <p style={{ color: 'var(--text-muted)', lineHeight: 1.8, marginBottom: 20 }}>
                 Each rank requires completing specific requirements: learning skills, doing service hours, holding leadership roles, and earning merit badges. A Board of Review with troop committee members marks each rank advancement.
               </p>
-              <motion.button className="btn btn-primary" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate('/ranks')}>
+              <motion.button className="btn btn-primary" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { navigate('/ranks'); scrollToTop(); }}>
                 See Full Rank Details <ChevronRight size={18} />
               </motion.button>
             </motion.div>
@@ -449,10 +478,10 @@ export default function NewScout() {
               Come to any Tuesday meeting at 7:00 PM. No experience needed — just show up!
             </p>
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <motion.button className="btn btn-primary" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate('/contact')}>
+              <motion.button className="btn btn-primary" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { navigate('/contact'); scrollToTop(); }}>
                 Contact Us <ChevronRight size={18} />
               </motion.button>
-              <motion.button className="btn btn-outline" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate('/calendar')}>
+              <motion.button className="btn btn-outline" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { navigate('/calendar'); scrollToTop(); }}>
                 See Next Meeting
               </motion.button>
             </div>

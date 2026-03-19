@@ -3,6 +3,7 @@ import { Users, Zap, Award, Heart, Target, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { loadData, DEFAULT_STATS, DEFAULT_LEADERS } from '../utils/adminData';
+import { scrollToTop } from '../utils/scrollToTop';
 
 export default function About() {
   const navigate = useNavigate();
@@ -216,6 +217,110 @@ export default function About() {
         </div>
       </section>
 
+      {/* SCOUTS BSA INFORMATION SECTION */}
+      <section className="section">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            style={{ textAlign: 'center', marginBottom: 48 }}
+          >
+            <h2 style={{ marginBottom: 24 }}>Understanding Scouts BSA</h2>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: '700px', margin: '0 auto' }}>
+              Scouts BSA is the program in Scouting America for boys and girls aged 11-17 years. One of the oldest youth organizations
+              in the United States, it offers diverse outdoor activities and character development opportunities.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            className="glass-card"
+            style={{ padding: 40, marginBottom: 48, background: 'var(--glass-bg)', border: '1px solid var(--accent-border)' }}
+          >
+            <h3 style={{ color: 'var(--accent)', marginBottom: 20, fontSize: '1.3rem' }}>Our Core Pillars</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}>
+              {[
+                { emoji: '🎓', title: 'Character Development', description: 'Building ethical and moral foundations' },
+                { emoji: '🇺🇸', title: 'Citizenship Training', description: 'Developing responsible community members' },
+                { emoji: '👨‍💼', title: 'Leadership', description: 'Cultivating skilled and confident leaders' },
+                { emoji: '💪', title: 'Mental & Physical Fitness', description: 'Promoting healthy lifestyles and resilience' }
+              ].map((pillar, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  style={{ textAlign: 'center' }}
+                >
+                  <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{pillar.emoji}</div>
+                  <h4 style={{ color: 'var(--accent)', marginBottom: 8 }}>{pillar.title}</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{pillar.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ textAlign: 'center', marginBottom: 48 }}
+          >
+            <h3 style={{ marginBottom: 32, fontSize: '1.3rem' }}>What Scouts Experience</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16 }}>
+              {[
+                { emoji: '🏕️', activity: 'Camping' },
+                { emoji: '🥾', activity: 'Hiking' },
+                { emoji: '🎯', activity: 'Hobbies' },
+                { emoji: '🎒', activity: 'Backpacking' },
+                { emoji: '🛶', activity: 'Canoeing' },
+                { emoji: '💼', activity: 'Career Exploration' },
+                { emoji: '🔥', activity: 'Outdoor Cooking' },
+                { emoji: '🚴', activity: 'Mountain Biking' },
+                { emoji: '🤝', activity: 'Community Service' },
+                { emoji: '🚣', activity: 'Kayaking' },
+                { emoji: '⚙️', activity: 'STEM' },
+                { emoji: '🧗', activity: 'Climbing' },
+                { emoji: '🏊', activity: 'Swimming' },
+                { emoji: '👨‍💼', activity: 'Leadership' },
+                { emoji: '🦅', activity: 'Eagle Scout' }
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.03 }}
+                  viewport={{ once: true }}
+                  className="glass-card"
+                  style={{ padding: 16, textAlign: 'center' }}
+                >
+                  <div style={{ fontSize: '2rem', marginBottom: 8 }}>{item.emoji}</div>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 500 }}>{item.activity}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            className="glass-card"
+            style={{ padding: 40, background: 'linear-gradient(135deg, var(--accent-dim) 0%, rgba(0, 214, 143, 0.05) 100%)', border: '2px solid var(--accent-border)' }}
+          >
+            <p style={{ fontSize: '1.05rem', lineHeight: 1.8, color: 'var(--text-primary)', margin: 0 }}>
+              Scouts also participate in organized events like <strong>summer camp, community service projects,
+              and National and World Scout Jamborees</strong>. Scouting encourages young people to try new things, serve others in their communities,
+              and tackle any challenge they might face in their lives with full hearts and clear minds.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Commitment to Values */}
       <section className="section section--dark">
         <div className="container">
@@ -233,7 +338,7 @@ export default function About() {
               className="btn btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/contact')}
+              onClick={() => { navigate('/contact'); scrollToTop(); }}
             >
               Join Troop 242 Today
             </motion.button>
