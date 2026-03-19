@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { scrollToTop } from '../utils/scrollToTop';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData } from '../utils/adminData';
@@ -46,6 +46,25 @@ export default function ScoutDashboard() {
   const { user, profile, loading } = useAuth();
   const [activities, setActivities] = useState([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
+  const [rankChecks, setRankChecks] = useState({});
+
+  // Load progress data from Firestore
+  useEffect(() => {
+    if (!user) return;
+
+    const loadProgress = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'progress', user.uid));
+        if (snap.exists()) {
+          setRankChecks(snap.data().rankChecks || {});
+        }
+      } catch (error) {
+        console.error('Error loading progress:', error);
+      }
+    };
+
+    loadProgress();
+  }, [user]);
 
   // Load activities from Firestore
   useEffect(() => {
@@ -88,16 +107,6 @@ export default function ScoutDashboard() {
       </section>
     );
   }
-
-  // Read progress data from Firestore (will be migrated later)
-  // For now, still read from localStorage as fallback
-  const rankChecks = (() => {
-    try {
-      return JSON.parse(localStorage.getItem('rankChecks') || '{}');
-    } catch {
-      return {};
-    }
-  })();
 
   const trackedSkills = (() => {
     try {
