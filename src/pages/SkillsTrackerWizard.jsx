@@ -370,10 +370,11 @@ export default function SkillsTrackerWizard() {
 
             {/* Table Rows */}
             {currentCategory.skills.map((skill, idx) => {
+              const skillName = typeof skill === 'string' ? skill : skill.name;
               const key = `${selectedCategoryIdx}-${idx}`;
               const isChecked = !!trackedSkills[key];
               const note = skillNotes[key] || '';
-              const isExpanded = expandedSkill === skill;
+              const isExpanded = expandedSkill === skillName;
 
               return (
                 <div key={idx}>
@@ -399,7 +400,7 @@ export default function SkillsTrackerWizard() {
                   >
                     {/* Skill Name */}
                     <div style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-main)' }}>
-                      {skill}
+                      {typeof skill === 'string' ? skill : skill.name}
                     </div>
 
                     {/* Checkbox */}
@@ -427,7 +428,7 @@ export default function SkillsTrackerWizard() {
 
                     {/* Notes Indicator */}
                     <div
-                      onClick={() => setExpandedSkill(isExpanded ? null : skill)}
+                      onClick={() => setExpandedSkill(isExpanded ? null : skillName)}
                       style={{
                         textAlign: 'center',
                         fontSize: '0.9rem',
@@ -455,7 +456,7 @@ export default function SkillsTrackerWizard() {
                         }}
                       >
                         <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 500, marginBottom: 8, color: 'var(--text-muted)' }}>
-                          Notes for {skill}
+                          Notes for {skillName}
                         </label>
                         <textarea
                           value={note}
