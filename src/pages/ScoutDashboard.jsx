@@ -280,6 +280,19 @@ export default function ScoutDashboard() {
                 {rankProgress.completed}/{rankProgress.total} requirements
               </p>
             </motion.div>
+   
+
+            {/* Merit Badges Stat */}
+            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <Badge size={24} style={{ color: 'var(--accent)' }} />
+                <span style={{ fontWeight: 600 }}>Merit Badges</span>
+              </div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
+                {meritProgress.total}
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>badges tracked</p>
+            </motion.div>
 
             {/* Skills Stat */}
             <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
@@ -293,18 +306,6 @@ export default function ScoutDashboard() {
               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
                 {skillsProgress.tracked}/{skillsProgress.total} tracked
               </p>
-            </motion.div>
-
-            {/* Merit Badges Stat */}
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <Badge size={24} style={{ color: 'var(--accent)' }} />
-                <span style={{ fontWeight: 600 }}>Merit Badges</span>
-              </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {meritProgress.total}
-              </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>badges tracked</p>
             </motion.div>
 
             {/* Activities Stat */}

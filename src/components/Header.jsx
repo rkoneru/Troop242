@@ -93,6 +93,7 @@ export default function Header() {
         {/* Desktop Nav */}
         <nav className="header-nav">
           <Link to="/" onClick={handleNavClick()} className="header-nav-link">Home</Link>
+          
 
           {/* Guide Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleGuideMouseEnter} onMouseLeave={handleGuideMouseLeave}>
@@ -259,7 +260,7 @@ export default function Header() {
                         >
                           🎮 Scout Portal
                         </Link>
-                        <Link
+                        {/* <Link
                           to="/profile"
                           onClick={() => {
                             scrollToTop();
@@ -279,7 +280,7 @@ export default function Header() {
                           onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                         >
                           👤 Scout Profile
-                        </Link>
+                        </Link> */}
                       </>
                     )}
 

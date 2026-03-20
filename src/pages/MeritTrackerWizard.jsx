@@ -171,7 +171,7 @@ export default function MeritTrackerWizard() {
             whileTap={{ scale: 0.95 }}
             style={{ display: 'flex', alignItems: 'center', gap: 8 }}
           >
-            <ArrowLeft size={18} /> Back to Dashboard
+            <ArrowLeft size={18} /> Back
           </motion.button>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Merit Badge Tracker</h1>
           <div style={{ width: 120 }} />
@@ -427,7 +427,7 @@ export default function MeritTrackerWizard() {
               <div>Badge Name</div>
               <div style={{ textAlign: 'center' }}>Status</div>
               <div style={{ textAlign: 'center' }}>Link</div>
-              <div style={{ textAlign: 'center' }}>PDF</div>
+              <div style={{ textAlign: 'center' }}>Pamphlet</div>
               <div style={{ textAlign: 'center' }}>Workbook</div>
               <div style={{ textAlign: 'center' }}>Notes</div>
             </div>

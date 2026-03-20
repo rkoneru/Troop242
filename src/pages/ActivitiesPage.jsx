@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Users, MapPin, Calendar } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, MapPin, Calendar, Heart } from 'lucide-react';
+import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
 import { loadData, saveData, generateId } from '../utils/adminData';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -14,8 +16,65 @@ export default function ActivitiesPage() {
 
   // State
   const [activities, setActivities] = useState(() => loadData('troopActivities', []));
+  const [events, setEvents] = useState([]);
+  const [myRsvps, setMyRsvps] = useState({});
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ title: '', date: '', location: '', description: '', spots: '' });
   const [signupConfirmed, setSignupConfirmed] = useState({});
+
+  // Load events from Firestore
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'troopEvents'));
+        const loadedEvents = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setEvents(loadedEvents.sort((a, b) => new Date(a.date) - new Date(b.date)));
+      } catch (error) {
+        console.error('Error loading events:', error);
+      }
+    };
+    loadEvents();
+  }, []);
+
+  // Load user's RSVPs from Firestore
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const loadRsvps = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'eventRsvps', user.uid));
+        if (snap.exists()) {
+          setMyRsvps(snap.data());
+        }
+      } catch (error) {
+        console.error('Error loading RSVPs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRsvps();
+  }, [user]);
+
+  // Toggle RSVP for an event
+  const toggleRsvp = async (eventId) => {
+    if (!user) return;
+
+    const updated = { ...myRsvps };
+    updated[eventId] = !updated[eventId];
+    if (!updated[eventId]) delete updated[eventId];
+
+    setMyRsvps(updated);
+
+    try {
+      await setDoc(doc(db, 'eventRsvps', user.uid), updated, { merge: true });
+    } catch (error) {
+      console.error('Error saving RSVP:', error);
+    }
+  };
 
   // Handlers
   const handleCreateActivity = () => {
@@ -90,7 +149,7 @@ export default function ActivitiesPage() {
             whileTap={{ scale: 0.95 }}
             style={{ display: 'flex', alignItems: 'center', gap: 8 }}
           >
-            <ArrowLeft size={18} /> Back to Dashboard
+            <ArrowLeft size={18} /> Back
           </motion.button>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Troop Activities</h1>
           <div style={{ width: 120 }} />
@@ -160,99 +219,186 @@ export default function ActivitiesPage() {
           </>
         )}
 
-        {/* ACTIVITY CARDS */}
+        {/* ACTIVITY & EVENT CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {activities.length === 0 ? (
+          {activities.length === 0 && events.length === 0 ? (
             <div className="col-span-full text-center py-10 text-[var(--text-muted)]">
-              <p>No activities yet. {user?.profile === 'leader' ? 'Create one above!' : 'Check back soon!'}</p>
+              <p>No activities or events yet. {user?.profile === 'leader' ? 'Create one above!' : 'Check back soon!'}</p>
             </div>
           ) : (
-            activities.map((activity) => (
-              <motion.div
-                key={activity.id}
-                className="glass-card p-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <h3 className="text-lg font-bold mt-0 mb-3 text-[var(--text-main)]">
-                  {activity.title}
-                </h3>
-
-                <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
-                  <Calendar size={16} /> {activity.date}
-                </div>
-
-                {activity.location && (
-                  <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
-                    <MapPin size={16} /> {activity.location}
-                  </div>
-                )}
-
-                {activity.description && (
-                  <p className="text-[var(--text-muted)] text-sm mb-3 mt-2">
-                    {activity.description}
-                  </p>
-                )}
-
-                <div
-                  className={`flex items-center gap-2 px-3 py-3 bg-[var(--bg-primary)] rounded-lg mb-4 text-sm ${
-                    isFull(activity) ? 'text-red-500' : 'text-[var(--accent)]'
-                  }`}
+            <>
+              {/* Activities */}
+              {activities.map((activity) => (
+                <motion.div
+                  key={activity.id}
+                  className="glass-card p-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
                 >
-                  <Users size={16} /> {activity.signups.length}/{activity.spots} Spots {isFull(activity) ? '(Full)' : 'Available'}
-                </div>
+                  <h3 className="text-lg font-bold mt-0 mb-3 text-[var(--text-main)]">
+                    {activity.title}
+                  </h3>
 
-                {/* Leader view: show signups */}
-                {user?.profile === 'leader' && activity.signups.length > 0 && (
-                  <div className="mb-4 text-sm text-[var(--text-muted)]">
-                    <p className="font-medium mb-2">Signed Up:</p>
-                    <ul className="m-0 pl-5">
-                      {activity.signups.map((name, idx) => (
-                        <li key={idx}>{name}</li>
-                      ))}
-                    </ul>
+                  <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
+                    <Calendar size={16} /> {activity.date}
                   </div>
-                )}
 
-                {/* Scout view: sign up button */}
-                {user?.profile === 'scout' && (
-                  <>
-                    {!isSignedUp(activity) && !isFull(activity) && (
-                      <motion.button
-                        className="btn btn-primary w-full"
-                        onClick={() => handleSignup(activity.id)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Sign Up
-                      </motion.button>
-                    )}
-                    {isSignedUp(activity) && (
-                      <div className="px-3 py-3 text-center bg-[var(--bg-primary)] rounded-lg text-[var(--accent)] font-semibold">
-                        ✓ Signed Up!
-                      </div>
-                    )}
-                    {isFull(activity) && !isSignedUp(activity) && (
-                      <div className="px-3 py-3 text-center bg-[var(--bg-primary)] rounded-lg text-red-500 font-semibold">
-                        Activity Full
-                      </div>
-                    )}
-                  </>
-                )}
+                  {activity.location && (
+                    <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
+                      <MapPin size={16} /> {activity.location}
+                    </div>
+                  )}
 
-                {/* Leader view: delete button */}
-                {user?.profile === 'leader' && (
-                  <motion.button
-                    className="btn btn-outline w-full flex items-center justify-center gap-2 text-red-500 border-red-500"
-                    onClick={() => handleDeleteActivity(activity.id)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  {activity.description && (
+                    <p className="text-[var(--text-muted)] text-sm mb-3 mt-2">
+                      {activity.description}
+                    </p>
+                  )}
+
+                  <div
+                    className={`flex items-center gap-2 px-3 py-3 bg-[var(--bg-primary)] rounded-lg mb-4 text-sm ${
+                      isFull(activity) ? 'text-red-500' : 'text-[var(--accent)]'
+                    }`}
                   >
-                    <Trash2 size={16} /> Delete
-                  </motion.button>
-                )}
-              </motion.div>
-            ))
+                    <Users size={16} /> {activity.signups.length}/{activity.spots} Spots {isFull(activity) ? '(Full)' : 'Available'}
+                  </div>
+
+                  {/* Leader view: show signups */}
+                  {user?.profile === 'leader' && activity.signups.length > 0 && (
+                    <div className="mb-4 text-sm text-[var(--text-muted)]">
+                      <p className="font-medium mb-2">Signed Up:</p>
+                      <ul className="m-0 pl-5">
+                        {activity.signups.map((name, idx) => (
+                          <li key={idx}>{name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Scout view: sign up button */}
+                  {user?.profile === 'scout' && (
+                    <>
+                      {!isSignedUp(activity) && !isFull(activity) && (
+                        <motion.button
+                          className="btn btn-primary w-full"
+                          onClick={() => handleSignup(activity.id)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Sign Up
+                        </motion.button>
+                      )}
+                      {isSignedUp(activity) && (
+                        <div className="px-3 py-3 text-center bg-[var(--bg-primary)] rounded-lg text-[var(--accent)] font-semibold">
+                          ✓ Signed Up!
+                        </div>
+                      )}
+                      {isFull(activity) && !isSignedUp(activity) && (
+                        <div className="px-3 py-3 text-center bg-[var(--bg-primary)] rounded-lg text-red-500 font-semibold">
+                          Activity Full
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Leader view: delete button */}
+                  {user?.profile === 'leader' && (
+                    <motion.button
+                      className="btn btn-outline w-full flex items-center justify-center gap-2 text-red-500 border-red-500"
+                      onClick={() => handleDeleteActivity(activity.id)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Trash2 size={16} /> Delete
+                    </motion.button>
+                  )}
+                </motion.div>
+              ))}
+
+              {/* Events from Firestore */}
+              {events.map((event) => (
+                <motion.div
+                  key={event.id}
+                  className="glass-card p-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <h3 className="text-lg font-bold mt-0 mb-3 text-[var(--text-main)]">
+                    {event.title}
+                  </h3>
+
+                  {event.createdBy && (
+                    <p className="text-[var(--text-muted)] text-sm mb-2">
+                      👤 By {event.createdBy}
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
+                    <Calendar size={16} /> {new Date(event.date).toLocaleDateString()}
+                  </div>
+
+                  {event.time && (
+                    <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
+                      🕐 {event.time}
+                    </div>
+                  )}
+
+                  {event.location && (
+                    <div className="flex items-center gap-2 mb-2 text-[var(--text-muted)] text-sm">
+                      <MapPin size={16} /> {event.location}
+                    </div>
+                  )}
+
+                  {event.description && (
+                    <p className="text-[var(--text-muted)] text-sm mb-3 mt-2">
+                      {event.description}
+                    </p>
+                  )}
+
+                  {/* Scout view: RSVP button */}
+                  {user?.profile === 'scout' && (
+                    <motion.button
+                      onClick={() => toggleRsvp(event.id)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 16px',
+                        background: myRsvps[event.id] ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                        border: `2px solid ${myRsvps[event.id] ? '#ef4444' : 'var(--divider)'}`,
+                        color: myRsvps[event.id] ? '#ef4444' : 'var(--text-muted)',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = myRsvps[event.id] ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = myRsvps[event.id] ? 'rgba(239, 68, 68, 0.2)' : 'transparent';
+                      }}
+                    >
+                      <Heart
+                        size={18}
+                        fill={myRsvps[event.id] ? '#ef4444' : 'none'}
+                        stroke="currentColor"
+                      />
+                      {myRsvps[event.id] ? 'Interested' : 'Mark Interested'}
+                    </motion.button>
+                  )}
+
+                  {!user?.profile === 'scout' && (
+                    <p className="text-[var(--text-muted)] text-sm text-center mt-4">
+                      {event.signups && event.spots ? `${event.signups.length} interested` : 'Event'}
+                    </p>
+                  )}
+                </motion.div>
+              ))}
+            </>
           )}
         </div>
       </div>

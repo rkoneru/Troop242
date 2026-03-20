@@ -178,7 +178,7 @@ Next Steps:
 
   if (isLoading) {
     return (
-      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <section style={{ minHeight: '10vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <p>Loading rank tracker...</p>
         </div>
@@ -207,7 +207,7 @@ Next Steps:
       <section
         style={{
           background: 'linear-gradient(135deg, var(--bg-secondary), var(--bg-primary))',
-          padding: '24px 0',
+          padding: '24px',
           borderBottom: '1px solid var(--divider)',
           position: 'sticky',
           top: 0,
@@ -225,7 +225,7 @@ Next Steps:
             style={{ display: 'flex', alignItems: 'center', gap: 8 }}
           >
             <ArrowLeft size={18} />
-            Back to Dashboard
+            Back
           </motion.button>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
             <h1 style={{ marginBottom: 0, fontSize: '1.5rem', textAlign: 'center' }}>Rank Advancement Tracker</h1>
@@ -235,7 +235,7 @@ Next Steps:
       </section>
 
       {/* Main Content */}
-      <section style={{ padding: '40px 20px', minHeight: 'calc(100vh - 200px)' }}>
+      <section style={{ padding: '10px 10px 10px 10px', minHeight: 'calc(10vh - 200px)' }}>
         <div className="container" style={{ maxWidth: '900px', margin: '0 auto' }}>
           {/* Rank Selector */}
           <motion.div

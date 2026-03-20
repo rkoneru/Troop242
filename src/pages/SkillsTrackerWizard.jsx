@@ -114,7 +114,7 @@ export default function SkillsTrackerWizard() {
             whileTap={{ scale: 0.95 }}
             style={{ display: 'flex', alignItems: 'center', gap: 8 }}
           >
-            <ArrowLeft size={18} /> Back to Dashboard
+            <ArrowLeft size={18} /> Back
           </motion.button>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Skills Tracker</h1>
           <div style={{ width: 120 }} />
