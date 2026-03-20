@@ -86,6 +86,18 @@ export default function SkillsTrackerWizard() {
   }
 
   const currentCategory = SKILL_CATEGORIES[selectedCategoryIdx];
+
+  // Safety check for currentCategory
+  if (!currentCategory) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+          <p>Category data is loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   const categoryProgress = getCategoryProgress(selectedCategoryIdx);
   const allComplete = categoryProgress.completed === categoryProgress.total && categoryProgress.total > 0;
 
