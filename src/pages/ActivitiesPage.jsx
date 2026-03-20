@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2, Users, MapPin, Calendar, Heart } from 'lucide-react';
-import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { loadData, saveData, generateId } from '../utils/adminData';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,18 +22,17 @@ export default function ActivitiesPage() {
   const [form, setForm] = useState({ title: '', date: '', location: '', description: '', spots: '' });
   const [signupConfirmed, setSignupConfirmed] = useState({});
 
-  // Load events from Firestore
+  // Load events from localStorage (same as Calendar page)
   useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        const snap = await getDocs(collection(db, 'troopEvents'));
-        const loadedEvents = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setEvents(loadedEvents.sort((a, b) => new Date(a.date) - new Date(b.date)));
-      } catch (error) {
-        console.error('Error loading events:', error);
+    try {
+      const storedEvents = localStorage.getItem('troop_events');
+      if (storedEvents) {
+        const loaded = JSON.parse(storedEvents);
+        setEvents(loaded.sort((a, b) => new Date(a.date) - new Date(b.date)));
       }
-    };
-    loadEvents();
+    } catch (error) {
+      console.error('Error loading events from localStorage:', error);
+    }
   }, []);
 
   // Load user's RSVPs from Firestore
