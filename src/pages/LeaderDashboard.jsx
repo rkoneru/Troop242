@@ -2,10 +2,11 @@ import { CheckCircle, Clock, Users, TrendingUp, Calendar, MapPin, Plus, Trash2, 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, where, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData, generateId, DEFAULT_EVENTS, getEvents } from '../utils/adminData';
+import { RANKS } from '../data/rankRequirements';
 import {
   loadScouts,
   saveScouts,
@@ -30,8 +31,6 @@ import {
   formatValidationErrors
 } from '../utils/leaderValidation';
 
-const RANKS = ['Scout', 'Tenderfoot', '2nd Class', '1st Class', 'Star', 'Life', 'Eagle'];
-
 export default function LeaderDashboard() {
   const navigate = useNavigate();
   const { user, profile, loading } = useAuth();
@@ -39,7 +38,7 @@ export default function LeaderDashboard() {
   // State management
   const [selectedTab, setSelectedTab] = useState('scouts');
   const [scoutsData, setScoutsData] = useState([]);
-  const [events, setEvents] = useState(() => loadData('troop_events', DEFAULT_EVENTS));
+  const [events, setEvents] = useState(() => loadData('leaderEvents', []));
   const [troopActivities, setTroopActivities] = useState(() => loadData('troopActivities', []));
   const [invitations, setInvitations] = useState(() => loadData('leaderInvitations', []));
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,6 +47,8 @@ export default function LeaderDashboard() {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoadingScouts, setIsLoadingScouts] = useState(true);
+  const [scoutProgress, setScoutProgress] = useState({});
+  const [isLoadingProgress, setIsLoadingProgress] = useState(false);
 
   // Form states
   const [newScoutForm, setNewScoutForm] = useState({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
@@ -83,6 +84,28 @@ export default function LeaderDashboard() {
 
     loadFirestoreScouts();
   }, [user, profile, loading, navigate]);
+
+  // Load progress data when progress tab is selected
+  useEffect(() => {
+    if (selectedTab !== 'progress' || scoutsData.length === 0) return;
+
+    setIsLoadingProgress(true);
+    const approvedScouts = scoutsData.filter(s => s.status === 'approved');
+
+    Promise.all(
+      approvedScouts.map(s => getDoc(doc(db, 'progress', s.id)))
+    ).then(snaps => {
+      const progressMap = {};
+      snaps.forEach((snap, i) => {
+        progressMap[approvedScouts[i].id] = snap.exists() ? snap.data() : {};
+      });
+      setScoutProgress(progressMap);
+    }).catch(error => {
+      console.error('Error loading scout progress:', error);
+    }).finally(() => {
+      setIsLoadingProgress(false);
+    });
+  }, [selectedTab, scoutsData]);
 
   // Clear messages after 3 seconds
   useEffect(() => {
@@ -270,7 +293,7 @@ export default function LeaderDashboard() {
 
     const updated = [...events, event];
     setEvents(updated);
-    saveData('troop_events', updated);
+    saveData('leaderEvents', updated);
     setNewEventForm({ title: '', date: '', time: '', location: '', description: '' });
     showSuccess('Event created successfully!');
   }, [newEventForm, events, clearErrors, showError, showSuccess]);
@@ -278,7 +301,7 @@ export default function LeaderDashboard() {
   const handleDeleteEvent = useCallback((eventId) => {
     const updated = events.filter(e => e.id !== eventId);
     setEvents(updated);
-    saveData('troop_events', updated);
+    saveData('leaderEvents', updated);
     showSuccess('Event deleted.');
   }, [events, showSuccess]);
 
@@ -291,7 +314,7 @@ export default function LeaderDashboard() {
       };
     });
     setEvents(updatedEvents);
-    saveData('troop_events', updatedEvents);
+    saveData('leaderEvents', updatedEvents);
   }, [events, showSuccess]);
 
   // INVITATION HANDLERS
@@ -684,7 +707,7 @@ export default function LeaderDashboard() {
 
           {/* Tabs */}
           <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 16, flexWrap: 'wrap' }}>
-            {['scouts', 'activities', 'events', 'invitations'].map(tab => (
+            {['scouts', 'activities', 'events', 'invitations', 'progress'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
@@ -703,6 +726,7 @@ export default function LeaderDashboard() {
                 {tab === 'activities' && `📅 Activities (${troopActivities.length})`}
                 {tab === 'events' && `📆 Events (${events.length})`}
                 {tab === 'invitations' && `📧 Invitations (${invitations.length})`}
+                {tab === 'progress' && `📊 Progress`}
               </button>
             ))}
           </div>
@@ -760,7 +784,7 @@ export default function LeaderDashboard() {
                     }}
                   >
                     {RANKS.map(rank => (
-                      <option key={rank} value={rank}>{rank}</option>
+                      <option key={rank.name} value={rank.name}>{rank.name}</option>
                     ))}
                   </select>
                   <input
@@ -1340,6 +1364,80 @@ export default function LeaderDashboard() {
                   ))
                 )}
               </div>
+            </motion.div>
+          )}
+
+          {/* PROGRESS TAB */}
+          {selectedTab === 'progress' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+              {isLoadingProgress ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+                  <p>Loading scout progress...</p>
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
+                    <thead>
+                      <tr style={{ background: 'rgba(255, 255, 255, 0.08)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                        <th style={{ padding: '12px', textAlign: 'left', color: '#9ca3af', fontWeight: 600, minWidth: '150px' }}>Scout Name</th>
+                        {RANKS.map(rank => (
+                          <th key={rank} style={{ padding: '12px', textAlign: 'center', color: '#9ca3af', fontWeight: 600, minWidth: '100px' }}>{rank}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {scoutsData
+                        .filter(s => s.status === 'approved')
+                        .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+                        .map(scout => (
+                          <tr key={scout.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                            <td style={{ padding: '12px', color: '#fff', fontWeight: 500 }}>{scout.name}</td>
+                            {RANKS.map((rank, rankIdx) => {
+                              const scoutData = scoutProgress[scout.id] || {};
+                              const checks = scoutData.rankChecks || {};
+                              const total = RANKS[rankIdx].requirements.length;
+                              let completed = 0;
+                              for (let i = 0; i < total; i++) {
+                                if (checks[`${rankIdx}-${i}`]) completed++;
+                              }
+                              const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                              let bgColor = '#374151'; // gray
+                              if (percentage === 100) bgColor = '#10b981'; // green
+                              else if (percentage > 0) bgColor = '#f59e0b'; // yellow
+
+                              return (
+                                <td key={rank} style={{ padding: '12px', textAlign: 'center' }}>
+                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                                    <div style={{
+                                      width: '100%',
+                                      height: '4px',
+                                      background: '#1f2937',
+                                      borderRadius: 2,
+                                      overflow: 'hidden'
+                                    }}>
+                                      <div style={{
+                                        height: '100%',
+                                        width: `${percentage}%`,
+                                        background: bgColor,
+                                        transition: 'width 0.3s'
+                                      }} />
+                                    </div>
+                                    <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>{completed}/{total}</span>
+                                  </div>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                  {scoutsData.filter(s => s.status === 'approved').length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+                      <p>No approved scouts yet.</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
           )}
         </div>

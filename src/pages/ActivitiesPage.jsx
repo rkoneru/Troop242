@@ -22,10 +22,10 @@ export default function ActivitiesPage() {
   const [form, setForm] = useState({ title: '', date: '', location: '', description: '', spots: '' });
   const [signupConfirmed, setSignupConfirmed] = useState({});
 
-  // Load events from localStorage (same as Calendar page)
+  // Load events from leader-created events (not admin Upcoming Events)
   useEffect(() => {
     try {
-      const storedEvents = localStorage.getItem('troop_events');
+      const storedEvents = localStorage.getItem('leaderEvents');
       if (storedEvents) {
         const loaded = JSON.parse(storedEvents);
         setEvents(loaded.sort((a, b) => new Date(a.date) - new Date(b.date)));
