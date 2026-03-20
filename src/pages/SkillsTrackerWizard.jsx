@@ -74,6 +74,17 @@ export default function SkillsTrackerWizard() {
     return results;
   };
 
+  // Guard against empty SKILL_CATEGORIES
+  if (!SKILL_CATEGORIES || SKILL_CATEGORIES.length === 0) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+          <p>Skills data is loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   const currentCategory = SKILL_CATEGORIES[selectedCategoryIdx];
   const categoryProgress = getCategoryProgress(selectedCategoryIdx);
   const allComplete = categoryProgress.completed === categoryProgress.total && categoryProgress.total > 0;
