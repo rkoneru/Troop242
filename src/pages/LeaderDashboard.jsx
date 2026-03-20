@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { collection, getDocs, query, where, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { saveData, loadData, generateId, DEFAULT_EVENTS, getEvents } from '../utils/adminData';
+import { saveData, loadData, generateId, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
 import {
   loadScouts,
@@ -38,8 +38,8 @@ export default function LeaderDashboard() {
   // State management
   const [selectedTab, setSelectedTab] = useState('scouts');
   const [scoutsData, setScoutsData] = useState([]);
-  const [events, setEvents] = useState(() => loadData('leaderEvents', []));
-  const [troopActivities, setTroopActivities] = useState(() => loadData('troopActivities', []));
+  const [allItems, setAllItems] = useState([]);
+  const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [invitations, setInvitations] = useState(() => loadData('leaderInvitations', []));
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -49,6 +49,10 @@ export default function LeaderDashboard() {
   const [isLoadingScouts, setIsLoadingScouts] = useState(true);
   const [scoutProgress, setScoutProgress] = useState({});
   const [isLoadingProgress, setIsLoadingProgress] = useState(false);
+
+  // Derived state from allItems
+  const troopActivities = useMemo(() => allItems.filter(i => i.type === 'activity'), [allItems]);
+  const events = useMemo(() => allItems.filter(i => i.type === 'event'), [allItems]);
 
   // Form states
   const [newScoutForm, setNewScoutForm] = useState({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
@@ -84,6 +88,24 @@ export default function LeaderDashboard() {
 
     loadFirestoreScouts();
   }, [user, profile, loading, navigate]);
+
+  // Load activities and events from Firestore
+  useEffect(() => {
+    if (loading || !user) return;
+
+    const loadItems = async () => {
+      try {
+        const items = await getActivities();
+        setAllItems(items);
+      } catch (err) {
+        console.error('Error loading activities:', err);
+      } finally {
+        setIsLoadingItems(false);
+      }
+    };
+
+    loadItems();
+  }, [user, loading]);
 
   // Load progress data when progress tab is selected
   useEffect(() => {
@@ -133,7 +155,7 @@ export default function LeaderDashboard() {
   }, [scoutsData, filterStatus, searchQuery]);
 
   const totalActivitySignups = useMemo(
-    () => troopActivities.reduce((sum, a) => sum + (a.signups?.length || 0), 0),
+    () => troopActivities.reduce((sum, a) => sum + (a.signedUp?.length || 0), 0),
     [troopActivities]
   );
 
@@ -223,7 +245,7 @@ export default function LeaderDashboard() {
 
 
   // ACTIVITY HANDLERS
-  const handleCreateActivity = useCallback(() => {
+  const handleCreateActivity = useCallback(async () => {
     clearErrors();
 
     const validation = validateActivityForm(newActivityForm);
@@ -239,7 +261,7 @@ export default function LeaderDashboard() {
     }
 
     const activity = {
-      id: generateId(),
+      type: 'activity',
       title: newActivityForm.title,
       date: newActivityForm.date,
       time: newActivityForm.time,
@@ -247,27 +269,36 @@ export default function LeaderDashboard() {
       description: newActivityForm.description,
       spots: parseInt(newActivityForm.spots) || 20,
       dues: parseFloat(newActivityForm.dues) || 0,
-      signups: [],
+      signedUp: [],
       duesPaid: [],
-      createdAt: new Date().toISOString()
+      createdBy: profile?.name || 'Leader'
     };
 
-    const updated = [...troopActivities, activity];
-    setTroopActivities(updated);
-    saveData('troopActivities', updated);
-    setNewActivityForm({ title: '', date: '', time: '', location: '', description: '', spots: '20', dues: '0' });
-    showSuccess('Activity created successfully!');
-  }, [newActivityForm, troopActivities, clearErrors, showError, showSuccess]);
+    try {
+      await saveActivity(activity);
+      const refreshed = await getActivities();
+      setAllItems(refreshed);
+      setNewActivityForm({ title: '', date: '', time: '', location: '', description: '', spots: '20', dues: '0' });
+      showSuccess('Activity created successfully!');
+    } catch (err) {
+      console.error('Error creating activity:', err);
+      showError('title', 'Failed to create activity');
+    }
+  }, [newActivityForm, troopActivities, profile, clearErrors, showError, showSuccess]);
 
-  const handleDeleteActivity = useCallback((activityId) => {
-    const updated = troopActivities.filter((a) => a.id !== activityId);
-    setTroopActivities(updated);
-    saveData('troopActivities', updated);
-    showSuccess('Activity deleted.');
-  }, [troopActivities, showSuccess]);
+  const handleDeleteActivity = useCallback(async (activityId) => {
+    try {
+      await deleteActivity(activityId);
+      setAllItems(prev => prev.filter(i => i.id !== activityId));
+      showSuccess('Activity deleted.');
+    } catch (err) {
+      console.error('Error deleting activity:', err);
+      showError('title', 'Failed to delete activity');
+    }
+  }, [showSuccess, showError]);
 
   // EVENT HANDLERS
-  const handleCreateEvent = useCallback(() => {
+  const handleCreateEvent = useCallback(async () => {
     clearErrors();
 
     const validation = validateEventForm(newEventForm);
@@ -276,46 +307,42 @@ export default function LeaderDashboard() {
       return;
     }
 
-    const creatorName = profile?.name || 'Leader';
-
     const event = {
-      id: generateId(),
+      type: 'event',
       title: newEventForm.title,
       date: newEventForm.date,
       time: newEventForm.time,
       location: newEventForm.location,
       description: newEventForm.description,
-      signups: [],
-      spots: 100,
-      createdBy: creatorName,
-      createdAt: new Date().toISOString()
+      signedUp: [],
+      duesPaid: [],
+      spots: 9999,
+      dues: 0,
+      createdBy: profile?.name || 'Leader'
     };
 
-    const updated = [...events, event];
-    setEvents(updated);
-    saveData('leaderEvents', updated);
-    setNewEventForm({ title: '', date: '', time: '', location: '', description: '' });
-    showSuccess('Event created successfully!');
-  }, [newEventForm, events, clearErrors, showError, showSuccess]);
+    try {
+      await saveActivity(event);
+      const refreshed = await getActivities();
+      setAllItems(refreshed);
+      setNewEventForm({ title: '', date: '', time: '', location: '', description: '' });
+      showSuccess('Event created successfully!');
+    } catch (err) {
+      console.error('Error creating event:', err);
+      showError('title', 'Failed to create event');
+    }
+  }, [newEventForm, profile, clearErrors, showError, showSuccess]);
 
-  const handleDeleteEvent = useCallback((eventId) => {
-    const updated = events.filter(e => e.id !== eventId);
-    setEvents(updated);
-    saveData('leaderEvents', updated);
-    showSuccess('Event deleted.');
-  }, [events, showSuccess]);
-
-  const handleAddEventSignup = useCallback((eventId) => {
-    const updatedEvents = events.map(evt => {
-      if (evt.id !== eventId) return evt;
-      return {
-        ...evt,
-        signups: Array.isArray(evt.signups) ? evt.signups : []
-      };
-    });
-    setEvents(updatedEvents);
-    saveData('leaderEvents', updatedEvents);
-  }, [events, showSuccess]);
+  const handleDeleteEvent = useCallback(async (eventId) => {
+    try {
+      await deleteActivity(eventId);
+      setAllItems(prev => prev.filter(i => i.id !== eventId));
+      showSuccess('Event deleted.');
+    } catch (err) {
+      console.error('Error deleting event:', err);
+      showError('title', 'Failed to delete event');
+    }
+  }, [showSuccess, showError]);
 
   // INVITATION HANDLERS
   const handleCreateInvitation = useCallback(() => {
@@ -461,21 +488,66 @@ export default function LeaderDashboard() {
   );
 
   // Mark dues as paid
-  const handleMarkDuesPaid = useCallback((activityId, scoutIndex) => {
-    const updatedActivities = troopActivities.map(a => {
+  const handleMarkDuesPaid = useCallback(async (activityId, signup) => {
+    const updatedActivities = allItems.map(a => {
       if (a.id !== activityId) return a;
       const updated = { ...a };
       if (!updated.duesPaid) updated.duesPaid = [];
-      const signup = a.signups?.[scoutIndex];
-      if (signup && !updated.duesPaid.some(p => p.scoutName === signup.scoutName)) {
-        updated.duesPaid.push({ scoutName: signup.scoutName, paidAt: new Date().toISOString() });
+      if (!updated.duesPaid.some(p => p.scoutName === signup.name)) {
+        updated.duesPaid.push({ scoutName: signup.name, paidAt: new Date().toISOString() });
       }
       return updated;
     });
-    setTroopActivities(updatedActivities);
-    saveData('troopActivities', updatedActivities);
-    showSuccess('Dues marked as paid!');
-  }, [troopActivities, showSuccess]);
+    setAllItems(updatedActivities);
+
+    try {
+      const activity = updatedActivities.find(a => a.id === activityId);
+      await saveActivity({ id: activityId, duesPaid: activity.duesPaid });
+      showSuccess('Dues marked as paid!');
+    } catch (err) {
+      console.error('Error marking dues paid:', err);
+      showError('title', 'Failed to mark dues paid');
+    }
+  }, [allItems, showSuccess, showError]);
+
+  // Send Monday Newsletter
+  const handleSendNewsletter = useCallback(() => {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const subject = `Troop 242 Weekly Update — ${dateStr}`;
+
+    const upcoming = [...allItems]
+      .filter(i => new Date(i.date) >= today)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const lines = ['Hello Troop 242 Families,', '', 'Here is your weekly update on upcoming activities and events:', ''];
+
+    upcoming.forEach(item => {
+      const d = new Date(item.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      const timeStr = item.time ? ` at ${item.time}` : '';
+      const typeLabel = item.type === 'activity' ? 'ACTIVITY' : 'EVENT';
+      const signupCount = item.signedUp?.length || 0;
+
+      lines.push(`[${typeLabel}] ${item.title}`);
+      lines.push(`  Date: ${d}${timeStr}`);
+      if (item.location) lines.push(`  Location: ${item.location}`);
+      if (item.description) lines.push(`  Details: ${item.description}`);
+      if (item.type === 'activity') {
+        const spotsRemaining = item.spots - signupCount;
+        lines.push(`  Signups: ${signupCount} / ${item.spots} (${spotsRemaining} spots remaining)`);
+      } else {
+        lines.push(`  Interested: ${signupCount} scouts`);
+      }
+      lines.push('');
+    });
+
+    lines.push('See you at the meetings!');
+    lines.push('Troop 242 Leadership');
+
+    const body = lines.join('\n');
+    const mailtoUrl = `mailto:troop242sanford@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoUrl, '_blank');
+  }, [allItems]);
 
   const ActivityCard = ({ activity }) => (
     <motion.div
@@ -572,16 +644,15 @@ export default function LeaderDashboard() {
         {expandedRosters[activity.id] ? 'Hide Roster' : 'View Roster'}
       </button>
 
-      {expandedRosters[activity.id] && activity.signups && activity.signups.length > 0 && (
+      {expandedRosters[activity.id] && activity.signedUp && activity.signedUp.length > 0 && (
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600, color: '#9ca3af' }}>Signups ({activity.signups.length}):</p>
-          {activity.signups.map((signup, idx) => {
-            const scoutName = typeof signup === 'object' ? signup.scoutName : signup;
-            const isDuesPaid = activity.duesPaid?.some(p => p.scoutName === scoutName);
+          <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600, color: '#9ca3af' }}>Signups ({activity.signedUp.length}):</p>
+          {activity.signedUp.map((signup, idx) => {
+            const isDuesPaid = activity.duesPaid?.some(p => p.scoutName === signup.name);
             return (
               <div key={idx} style={{ padding: '8px', marginBottom: 6, background: 'rgba(255, 255, 255, 0.02)', borderRadius: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>
-                  {scoutName}
+                  {signup.name}
                   {activity.dues > 0 && (
                     <span style={{ marginLeft: 8, fontSize: '0.75rem', color: isDuesPaid ? '#52b788' : '#d4a853' }}>
                       {isDuesPaid ? '✓ Paid' : `💰 $${activity.dues} due`}
@@ -590,7 +661,7 @@ export default function LeaderDashboard() {
                 </span>
                 {activity.dues > 0 && !isDuesPaid && (
                   <button
-                    onClick={() => handleMarkDuesPaid(activity.id, idx)}
+                    onClick={() => handleMarkDuesPaid(activity.id, signup)}
                     style={{
                       padding: '4px 8px',
                       background: 'rgba(82, 183, 136, 0.2)',
@@ -917,6 +988,9 @@ export default function LeaderDashboard() {
               {/* Create Activity Form */}
               <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: 12, padding: 20, marginBottom: 32 }}>
                 <h3 style={{ margin: '0 0 16px 0', color: '#fff' }}>➕ Create Activity</h3>
+                 <p style={{ margin: '0 0 16px 0', color: '#9ca3af', fontSize: '0.9rem' }}>
+                  📢 Activities are shared with all scouts and allow RSVPs. Scouts can indicate interest when viewing Activities.
+                </p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
                   <input
                     type="text"
@@ -1140,23 +1214,41 @@ export default function LeaderDashboard() {
                     fontFamily: 'inherit'
                   }}
                 />
-                <button
-                  onClick={handleCreateEvent}
-                  style={{
-                    width: '100%',
-                    padding: '12px 24px',
-                    background: 'rgba(0, 214, 143, 0.2)',
-                    border: '1px solid rgba(0, 214, 143, 0.3)',
-                    color: '#00d68f',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <Plus size={18} style={{ display: 'inline', marginRight: 6 }} />
-                  Create Event
-                </button>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={handleCreateEvent}
+                    style={{
+                      flex: 1,
+                      padding: '12px 24px',
+                      background: 'rgba(0, 214, 143, 0.2)',
+                      border: '1px solid rgba(0, 214, 143, 0.3)',
+                      color: '#00d68f',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Plus size={18} style={{ display: 'inline', marginRight: 6 }} />
+                    Create Event
+                  </button>
+                  <button
+                    onClick={handleSendNewsletter}
+                    style={{
+                      flex: 1,
+                      padding: '12px 24px',
+                      background: 'rgba(212, 168, 83, 0.2)',
+                      border: '1px solid rgba(212, 168, 83, 0.3)',
+                      color: '#d4a853',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    📧 Send Monday Newsletter
+                  </button>
+                </div>
               </div>
 
               {/* Event List */}

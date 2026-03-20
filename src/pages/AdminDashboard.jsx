@@ -177,7 +177,7 @@ export default function AdminDashboard() {
           >
             <h1 style={{ marginBottom: 16 }}>⚙️ Admin Dashboard</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
-              Manage announcements, events, troop stats, and leader information
+              Manage announcements, Upcoming events for Home Page, troop stats, and leader information
             </p>
           </motion.div>
         </div>
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
         <div className="container">
           {/* Tab Navigation */}
           <div style={{ display: 'flex', gap: 12, marginBottom: 40, flexWrap: 'wrap', justifyContent: 'center' }}>
-            {['stats', 'users', 'announcements', 'events', 'leaders', 'theme'].map(tab => (
+            {['stats', 'users', 'announcements', 'Upcoming events', 'leaders', 'theme'].map(tab => (
               <motion.button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -554,7 +554,7 @@ export default function AdminDashboard() {
             </motion.div>
           )}
 
-          {/* TAB: EVENTS */}
+          {/* TAB: HOME PAGE EVENTS */}
           {activeTab === 'events' && (
             <motion.div
               key="events"
@@ -564,11 +564,11 @@ export default function AdminDashboard() {
             >
               {/* Add Event Form */}
               <div className="glass-card" style={{ padding: 32, marginBottom: 32 }}>
-                <h2 style={{ marginBottom: 24 }}>Add Event</h2>
+                <h2 style={{ marginBottom: 24 }}>Add Upcoming Events for Home Page</h2>
                 <div style={{ display: 'grid', gap: 16 }}>
                   <div>
                     <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 8, fontWeight: 600 }}>
-                      Event Title
+                     Upcoming Event Title
                     </label>
                     <input
                       type="text"

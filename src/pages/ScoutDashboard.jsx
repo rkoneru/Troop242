@@ -8,16 +8,8 @@ import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/fires
 import { auth, db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData } from '../utils/adminData';
-
-const RANKS = [
-  { name: 'Scout', emoji: '⚜️' },
-  { name: 'Tenderfoot', emoji: '🎖️' },
-  { name: '2nd Class', emoji: '🗝️' },
-  { name: '1st Class', emoji: '🛡️' },
-  { name: 'Star', emoji: '⭐' },
-  { name: 'Life', emoji: '✨' },
-  { name: 'Eagle', emoji: '🦅' },
-];
+import { RANKS } from '../data/rankRequirements';
+import { BADGE_CATEGORIES } from './Badges';
 
 const ACTIVITIES = [
   { id: 1, name: 'Camping Trip', icon: '⛺' },
@@ -47,6 +39,9 @@ export default function ScoutDashboard() {
   const [activities, setActivities] = useState([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
   const [rankChecks, setRankChecks] = useState({});
+  const [meritProgressData, setMeritProgressData] = useState({});
+  const [trackedSkillsData, setTrackedSkillsData] = useState({});
+  const [miscAwardsData, setMiscAwardsData] = useState({});
 
   // Load progress data from Firestore
   useEffect(() => {
@@ -56,7 +51,11 @@ export default function ScoutDashboard() {
       try {
         const snap = await getDoc(doc(db, 'progress', user.uid));
         if (snap.exists()) {
-          setRankChecks(snap.data().rankChecks || {});
+          const data = snap.data();
+          setRankChecks(data.rankChecks || {});
+          setMeritProgressData(data.meritProgress || {});
+          setTrackedSkillsData(data.trackedSkills || {});
+          setMiscAwardsData(data.miscAwards || {});
         }
       } catch (error) {
         console.error('Error loading progress:', error);
@@ -108,14 +107,6 @@ export default function ScoutDashboard() {
     );
   }
 
-  const trackedSkills = (() => {
-    try {
-      return JSON.parse(localStorage.getItem('trackedSkills') || '{}');
-    } catch {
-      return {};
-    }
-  })();
-
   const badgeWishlist = (() => {
     try {
       return JSON.parse(localStorage.getItem('badgeWishlist') || '[]');
@@ -141,8 +132,8 @@ export default function ScoutDashboard() {
   const getRankProgress = () => {
     let totalReqs = 0;
     let completedReqs = 0;
-    RANKS.forEach((_, rankIdx) => {
-      const reqCount = [3, 4, 4, 4, 4, 4, 4][rankIdx];
+    RANKS.forEach((rank, rankIdx) => {
+      const reqCount = rank.requirements.length;
       totalReqs += reqCount;
       for (let j = 0; j < reqCount; j++) {
         if (rankChecks[`${rankIdx}-${j}`]) completedReqs++;
@@ -152,21 +143,25 @@ export default function ScoutDashboard() {
   };
 
   const getMeritProgress = () => {
-    const meritProgress = (() => {
-      try {
-        return JSON.parse(localStorage.getItem('meritProgress') || '{}');
-      } catch {
-        return {};
-      }
-    })();
-    const completed = Object.values(meritProgress).filter((v) => v === 'completed').length;
-    const working = Object.values(meritProgress).filter((v) => v === 'working').length;
-    return { completed, working, total: completed + working };
+    const completed = Object.values(meritProgressData).filter((v) => v === 'completed').length;
+    const working = Object.values(meritProgressData).filter((v) => v === 'working').length;
+
+    // Count Eagle Required badges
+    const eagleRequiredCat = BADGE_CATEGORIES.find(cat => cat.category === 'Eagle Required');
+    const eagleRequiredBadges = eagleRequiredCat ? eagleRequiredCat.badges.filter(badge => !badge.isHeader) : [];
+    const eagleRequiredCompleted = eagleRequiredBadges.filter(badge => meritProgressData[badge.name] === 'completed').length;
+
+    const totalBadges = BADGE_CATEGORIES.reduce((sum, cat) => {
+      const validBadges = cat.badges.filter(badge => !badge.isHeader).length;
+      return sum + validBadges;
+    }, 0);
+
+    return { completed, working, total: totalBadges, eagleRequired: eagleRequiredCompleted };
   };
 
   const getSkillsProgress = () => {
     const TOTAL_SKILLS = 80;
-    const tracked = Object.values(trackedSkills).filter(Boolean).length;
+    const tracked = Object.values(trackedSkillsData).filter(Boolean).length;
     return { tracked, total: TOTAL_SKILLS, percentage: Math.round((tracked / TOTAL_SKILLS) * 100) };
   };
 
@@ -175,10 +170,19 @@ export default function ScoutDashboard() {
     return { signedUp: mySignupCount, total };
   };
 
+  const getMiscAwardsCount = () => Object.values(miscAwardsData).filter(Boolean).length;
+
+  const getMiscAwardsProgress = () => {
+    const tracked = Object.values(miscAwardsData).filter(Boolean).length;
+    const total = 89; // Total awards across all 15 categories
+    return { tracked, total, percentage: total > 0 ? Math.round((tracked / total) * 100) : 0 };
+  };
+
   const rankProgress = getRankProgress();
   const meritProgress = getMeritProgress();
   const skillsProgress = getSkillsProgress();
   const activityProgress = getActivityProgress();
+  const miscAwardsProgress = getMiscAwardsProgress();
 
   // Find current rank (first incomplete)
   let currentRankIdx = 0;
@@ -289,9 +293,25 @@ export default function ScoutDashboard() {
                 <span style={{ fontWeight: 600 }}>Merit Badges</span>
               </div>
               <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {meritProgress.total}
+                {meritProgress.eagleRequired} 🦅 + {meritProgress.completed}
               </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>badges tracked</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
+                {meritProgress.eagleRequired} 🦅 required + {meritProgress.completed - meritProgress.eagleRequired} completed + {meritProgress.working} in progress
+              </p>
+            </motion.div>
+
+            {/* Misc Awards Stat */}
+            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <Zap size={24} style={{ color: 'var(--accent)' }} />
+                <span style={{ fontWeight: 600 }}>Misc Awards</span>
+              </div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
+                {miscAwardsProgress.percentage}%
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
+                {miscAwardsProgress.tracked}/{miscAwardsProgress.total} tracked
+              </p>
             </motion.div>
 
             {/* Skills Stat */}
@@ -408,12 +428,25 @@ export default function ScoutDashboard() {
               </div>
 
               <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Progress</span>
                   <span style={{ fontWeight: 600 }}>{meritProgress.completed} completed</span>
                 </div>
+                <div style={{ background: 'var(--divider)', borderRadius: 8, height: 6, marginBottom: 8, overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: `${meritProgress.total > 0 ? (meritProgress.completed / meritProgress.total) * 100 : 0}%`,
+                      background: 'var(--accent)',
+                      height: '100%',
+                      transition: 'width 0.3s ease',
+                    }}
+                  />
+                </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {meritProgress.working > 0 && <span>{meritProgress.working} in progress</span>}
+                  {meritProgress.total} total badges
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  {meritProgress.eagleRequired} 🦅 required • {meritProgress.completed - meritProgress.eagleRequired} completed • {meritProgress.working} in progress
                 </div>
               </div>
 
@@ -430,6 +463,49 @@ export default function ScoutDashboard() {
               </button>
             </motion.div>
 
+            {/* MISC AWARDS TILE */}
+            <motion.div
+              variants={itemVariants}
+              className="glass-card"
+              style={{ padding: 32, cursor: 'pointer' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => { navigate('/misc-awards'); scrollToTop(); }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                <div style={{ fontSize: '2.5rem' }}>🏆</div>
+                <div>
+                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Misc Awards</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
+                    Special recognitions & emblems
+                  </p>
+                </div>
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Progress</span>
+                  <span style={{ fontWeight: 600 }}>{miscAwardsProgress.percentage}%</span>
+                </div>
+                <div style={{ background: 'var(--divider)', borderRadius: 8, height: 6, marginBottom: 8, overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: `${miscAwardsProgress.percentage}%`,
+                      background: 'var(--accent)',
+                      height: '100%',
+                      transition: 'width 0.3s ease',
+                    }}
+                  />
+                </div>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+                  {miscAwardsProgress.tracked} of {miscAwardsProgress.total} awards earned
+                </p>
+              </div>
+              <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); navigate('/misc-awards'); scrollToTop(); }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                Track Awards <ChevronRight size={18} />
+              </button>
+            </motion.div>
+          
             {/* SKILLS TRACKER TILE */}
             <motion.div
               variants={itemVariants}
@@ -535,7 +611,7 @@ export default function ScoutDashboard() {
 
 
             {/* FUNDRAISING TILE */}
-            <motion.div
+         {/*    <motion.div
               variants={itemVariants}
               className="glass-card"
               style={{ padding: 32, cursor: 'pointer' }}
@@ -570,7 +646,7 @@ export default function ScoutDashboard() {
               >
                 View Events <ChevronRight size={18} />
               </button>
-            </motion.div>
+            </motion.div> */}
 
             {/* SCOUT PORTAL TILE */}
              <motion.div
@@ -610,8 +686,8 @@ export default function ScoutDashboard() {
               </button>
             </motion.div>
           </motion.div>
-        </div>
-
+      </div>
+          
         {/* ── ACTIVITIES INLINE SECTION ── */}
         <div style={{ marginTop: 64 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, marginLeft: 20, marginRight: 20 }}>

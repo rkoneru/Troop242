@@ -2,31 +2,24 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Copy, ExternalLink, FileText, BookOpen, Search, X } from 'lucide-react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { BADGE_CATEGORIES, BADGE_PDF_URLS } from './Badges';
 
 // Filter out Eagle Required category
-const VISIBLE_CATEGORIES = BADGE_CATEGORIES.filter(cat => cat.category !== 'Eagle Required');
+// const VISIBLE_CATEGORIES = BADGE_CATEGORIES.filter(cat => cat.category !== 'Eagle Required');
+const VISIBLE_CATEGORIES = BADGE_CATEGORIES;
 
 export default function MeritTrackerWizard() {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
   // State
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
-  const [meritProgress, setMeritProgress] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('meritProgress') || '{}');
-    } catch {
-      return {};
-    }
-  });
-  const [meritNotes, setMeritNotes] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('meritNotes') || '{}');
-    } catch {
-      return {};
-    }
-  });
+  const [meritProgress, setMeritProgress] = useState({});
+  const [meritNotes, setMeritNotes] = useState({});
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [expandedBadge, setExpandedBadge] = useState(null);
@@ -34,6 +27,62 @@ export default function MeritTrackerWizard() {
   const [categoryViewOpen, setCategoryViewOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
+
+  // Load progress from Firestore with localStorage fallback (migration)
+  useEffect(() => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+
+    const loadProgress = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'progress', user.uid));
+        const data = snap.data() || {};
+
+        if (data.meritProgress) {
+          // Firestore data exists, use it
+          setMeritProgress(data.meritProgress);
+          setMeritNotes(data.meritNotes || {});
+        } else {
+          // No Firestore data, check localStorage for migration
+          const localMerit = (() => {
+            try {
+              return JSON.parse(localStorage.getItem('meritProgress') || '{}');
+            } catch {
+              return {};
+            }
+          })();
+          const localNotes = (() => {
+            try {
+              return JSON.parse(localStorage.getItem('meritNotes') || '{}');
+            } catch {
+              return {};
+            }
+          })();
+
+          if (Object.keys(localMerit).length > 0 || Object.keys(localNotes).length > 0) {
+            // Migrate from localStorage to Firestore
+            setMeritProgress(localMerit);
+            setMeritNotes(localNotes);
+            await setDoc(
+              doc(db, 'progress', user.uid),
+              { meritProgress: localMerit, meritNotes: localNotes },
+              { merge: true }
+            );
+            localStorage.removeItem('meritProgress');
+            localStorage.removeItem('meritNotes');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading merit progress:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProgress();
+  }, [user]);
 
   // Detect mobile on mount
   useEffect(() => {
@@ -44,20 +93,44 @@ export default function MeritTrackerWizard() {
   }, []);
 
   // Handlers
-  const cycleBadgeStatus = (badgeName) => {
+  const cycleBadgeStatus = async (badgeName) => {
     const current = meritProgress[badgeName];
     const next = !current ? 'working' : current === 'working' ? 'completed' : undefined;
     const updated = { ...meritProgress };
     if (next === undefined) delete updated[badgeName];
     else updated[badgeName] = next;
     setMeritProgress(updated);
-    localStorage.setItem('meritProgress', JSON.stringify(updated));
+
+    // Save to Firestore
+    if (user) {
+      try {
+        await setDoc(
+          doc(db, 'progress', user.uid),
+          { meritProgress: updated },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error('Error saving merit progress:', error);
+      }
+    }
   };
 
-  const saveBadgeNote = (badgeName, text) => {
+  const saveBadgeNote = async (badgeName, text) => {
     const updated = { ...meritNotes, [badgeName]: text };
     setMeritNotes(updated);
-    localStorage.setItem('meritNotes', JSON.stringify(updated));
+
+    // Save to Firestore
+    if (user) {
+      try {
+        await setDoc(
+          doc(db, 'progress', user.uid),
+          { meritNotes: updated },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error('Error saving merit notes:', error);
+      }
+    }
   };
 
   // Compute progress
@@ -78,8 +151,12 @@ export default function MeritTrackerWizard() {
     return category.badges.some((b) => meritProgress[b.name] === 'completed');
   };
 
-  const getWorkbookUrl = (name) =>
-    `http://usscouts.org/usscouts/mb/worksheets/${name.replace(/ /g, '-')}.pdf`;
+  const trimBadgeName = (name) => name.replace(/^[✓⭐━\s]+/, '').trim();
+
+  const getWorkbookUrl = (name) => {
+    const cleanName = trimBadgeName(name);
+    return `http://usscouts.org/usscouts/mb/worksheets/${cleanName.replace(/ /g, '-')}.pdf`;
+  };
 
   const generateScoutbookSummary = () => {
     const completed = [];
@@ -437,6 +514,37 @@ export default function MeritTrackerWizard() {
               const status = meritProgress[badge.name];
               const note = meritNotes[badge.name] || '';
               const isExpanded = expandedBadge === badge.name;
+              const isHeader = badge.isHeader;
+              const isEagleCategory = currentCategory.category === 'Eagle Required';
+              const badgeNameDisplay = isEagleCategory ? badge.name.replace(/^[✓⭐━\s]+/, '').trim() : badge.name;
+
+              // Header row - no action buttons
+              if (isHeader) {
+                return (
+                  <div key={idx}>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1.5fr 1fr 80px 80px 80px 80px',
+                        gap: 0,
+                        padding: '16px',
+                        background: 'transparent',
+                        borderBottom: `1px solid var(--divider)`,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        {badgeNameDisplay}
+                      </div>
+                      <div />
+                      <div />
+                      <div />
+                      <div />
+                      <div />
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <div key={idx}>
@@ -505,9 +613,9 @@ export default function MeritTrackerWizard() {
 
                     {/* PDF Pamphlet Link */}
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                      {BADGE_PDF_URLS[badge.name] ? (
+                      {BADGE_PDF_URLS[trimBadgeName(badge.name)] ? (
                         <motion.a
-                          href={BADGE_PDF_URLS[badge.name]}
+                          href={BADGE_PDF_URLS[trimBadgeName(badge.name)]}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}

@@ -284,6 +284,54 @@ export default function Header() {
                       </>
                     )}
 
+                    {profile?.role === 'leader' && (
+                      <Link
+                        to="/leader-dashboard"
+                        onClick={() => {
+                          scrollToTop();
+                          setUserMenuOpen(false);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 16px',
+                          color: 'var(--text-primary)',
+                          textDecoration: 'none',
+                          borderBottom: '1px solid var(--divider)',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        👥 Leader Dashboard
+                      </Link>
+                    )}
+
+                    {profile?.role === 'admin' && (
+                      <Link
+                        to="/admin-dashboard"
+                        onClick={() => {
+                          scrollToTop();
+                          setUserMenuOpen(false);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 16px',
+                          color: 'var(--text-primary)',
+                          textDecoration: 'none',
+                          borderBottom: '1px solid var(--divider)',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        ⚙️ Admin Dashboard
+                      </Link>
+                    )}
+
                     {['leader', 'admin'].includes(profile?.role) && (
                       <>
                         <Link

@@ -1124,7 +1124,7 @@ export default function ScoutToolsPortal() {
             </div>
             {activePanel && (
               <button className="btn-back" onClick={goBack}>
-                ← Back to Dashboard
+                ← Back 
               </button>
             )}
           </div>

@@ -2,32 +2,81 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Check, X } from 'lucide-react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { SKILL_CATEGORIES } from './Skills';
 
 export default function SkillsTrackerWizard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // State
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
-  const [trackedSkills, setTrackedSkills] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('trackedSkills') || '{}');
-    } catch {
-      return {};
-    }
-  });
-  const [skillNotes, setSkillNotes] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('skillNotes') || '{}');
-    } catch {
-      return {};
-    }
-  });
+  const [trackedSkills, setTrackedSkills] = useState({});
+  const [skillNotes, setSkillNotes] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const [expandedSkill, setExpandedSkill] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [categoryViewOpen, setCategoryViewOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
+
+  // Load progress from Firestore with localStorage fallback (migration)
+  useEffect(() => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+
+    const loadProgress = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'progress', user.uid));
+        const data = snap.data() || {};
+
+        if (data.trackedSkills) {
+          // Firestore data exists, use it
+          setTrackedSkills(data.trackedSkills);
+          setSkillNotes(data.skillNotes || {});
+        } else {
+          // No Firestore data, check localStorage for migration
+          const localSkills = (() => {
+            try {
+              return JSON.parse(localStorage.getItem('trackedSkills') || '{}');
+            } catch {
+              return {};
+            }
+          })();
+          const localNotes = (() => {
+            try {
+              return JSON.parse(localStorage.getItem('skillNotes') || '{}');
+            } catch {
+              return {};
+            }
+          })();
+
+          if (Object.keys(localSkills).length > 0 || Object.keys(localNotes).length > 0) {
+            // Migrate from localStorage to Firestore
+            setTrackedSkills(localSkills);
+            setSkillNotes(localNotes);
+            await setDoc(
+              doc(db, 'progress', user.uid),
+              { trackedSkills: localSkills, skillNotes: localNotes },
+              { merge: true }
+            );
+            localStorage.removeItem('trackedSkills');
+            localStorage.removeItem('skillNotes');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading skill progress:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProgress();
+  }, [user]);
 
   // Detect mobile on mount
   useEffect(() => {
@@ -38,18 +87,42 @@ export default function SkillsTrackerWizard() {
   }, []);
 
   // Handlers
-  const toggleSkill = (catIdx, skillIdx) => {
+  const toggleSkill = async (catIdx, skillIdx) => {
     const key = `${catIdx}-${skillIdx}`;
     const updated = { ...trackedSkills, [key]: !trackedSkills[key] };
     setTrackedSkills(updated);
-    localStorage.setItem('trackedSkills', JSON.stringify(updated));
+
+    // Save to Firestore
+    if (user) {
+      try {
+        await setDoc(
+          doc(db, 'progress', user.uid),
+          { trackedSkills: updated },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error('Error saving skill progress:', error);
+      }
+    }
   };
 
-  const saveSkillNote = (catIdx, skillIdx, text) => {
+  const saveSkillNote = async (catIdx, skillIdx, text) => {
     const key = `${catIdx}-${skillIdx}`;
     const updated = { ...skillNotes, [key]: text };
     setSkillNotes(updated);
-    localStorage.setItem('skillNotes', JSON.stringify(updated));
+
+    // Save to Firestore
+    if (user) {
+      try {
+        await setDoc(
+          doc(db, 'progress', user.uid),
+          { skillNotes: updated },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error('Error saving skill notes:', error);
+      }
+    }
   };
 
   // Compute progress
@@ -74,6 +147,17 @@ export default function SkillsTrackerWizard() {
     });
     return results;
   };
+
+  // Guard against loading state
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+          <p>Loading skills tracker...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Guard against empty SKILL_CATEGORIES
   if (!SKILL_CATEGORIES || SKILL_CATEGORIES.length === 0) {

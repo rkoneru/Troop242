@@ -1,6 +1,10 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+import { Heart } from 'lucide-react';
 import '../styles/calendar.css';
 
 const PACKING_LISTS = {
@@ -10,8 +14,11 @@ const PACKING_LISTS = {
 };
 
 export default function Calendar() {
+  const { user, profile } = useAuth();
   const [activeTab, setActiveTab] = useState('meetings');
   const [events, setEvents] = useState([]);
+  const [myRsvps, setMyRsvps] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
@@ -23,6 +30,46 @@ export default function Calendar() {
       console.error('Failed to load events from localStorage:', error);
     }
   }, []);
+
+  // Load user's RSVPs from Firestore
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const loadRsvps = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'eventRsvps', user.uid));
+        if (snap.exists()) {
+          setMyRsvps(snap.data());
+        }
+      } catch (error) {
+        console.error('Error loading RSVPs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRsvps();
+  }, [user]);
+
+  // Toggle RSVP for an event
+  const toggleRsvp = async (eventId) => {
+    if (!user) return;
+
+    const updated = { ...myRsvps };
+    updated[eventId] = !updated[eventId];
+    if (!updated[eventId]) delete updated[eventId];
+
+    setMyRsvps(updated);
+
+    try {
+      await setDoc(doc(db, 'eventRsvps', user.uid), updated, { merge: true });
+    } catch (error) {
+      console.error('Error saving RSVP:', error);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -165,6 +212,47 @@ export default function Calendar() {
                     {event.description && (
                       <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--divider)' }}>
                         {event.description}
+                      </p>
+                    )}
+
+                    {user && profile?.role === 'scout' && (
+                      <button
+                        onClick={() => toggleRsvp(event.id)}
+                        style={{
+                          marginTop: 'auto',
+                          padding: '10px 16px',
+                          background: myRsvps[event.id] ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                          border: `2px solid ${myRsvps[event.id] ? '#ef4444' : 'var(--divider)'}`,
+                          color: myRsvps[event.id] ? '#ef4444' : 'var(--text-muted)',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          fontWeight: 500,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 8,
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = myRsvps[event.id] ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = myRsvps[event.id] ? 'rgba(239, 68, 68, 0.2)' : 'transparent';
+                        }}
+                      >
+                        <Heart
+                          size={18}
+                          fill={myRsvps[event.id] ? '#ef4444' : 'none'}
+                          stroke="currentColor"
+                        />
+                        {myRsvps[event.id] ? 'Interested' : 'Mark Interested'}
+                      </button>
+                    )}
+
+                    {!user && (
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 'auto', textAlign: 'center' }}>
+                        Sign in to RSVP to events
                       </p>
                     )}
                   </motion.div>

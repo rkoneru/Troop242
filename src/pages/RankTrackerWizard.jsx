@@ -1,48 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, LogOut, Check, Copy, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Check, Copy, ExternalLink, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
-
-const RANKS = [
-  {
-    name: 'Scout',
-    emoji: '⚜️',
-    requirements: ['Join a Troop', 'Understand Scout Oath & Law', 'Learn Scout Skills'],
-  },
-  {
-    name: 'Tenderfoot',
-    emoji: '🎖️',
-    requirements: ['2 Months in Troop', 'Camping Skills', 'Cooking & Fire Safety', 'Knot Tying'],
-  },
-  {
-    name: '2nd Class',
-    emoji: '🗝️',
-    requirements: ['3 Months Service', 'Navigation Skills', 'First Aid', 'Outdoor Survival'],
-  },
-  {
-    name: '1st Class',
-    emoji: '🛡️',
-    requirements: ['6 Months Since Last', 'Leadership Experience', 'Communication', 'Swimming/Hiking'],
-  },
-  {
-    name: 'Star',
-    emoji: '⭐',
-    requirements: ['4 Months Service', '5 Merit Badges', 'Project Leadership', 'Service Hours'],
-  },
-  {
-    name: 'Life',
-    emoji: '✨',
-    requirements: ['4 Months Service', '8 Merit Badges', 'Significant Project', 'Community Impact'],
-  },
-  {
-    name: 'Eagle',
-    emoji: '🦅',
-    requirements: ['Eagle Project', '21 Merit Badges', 'Life Skills Mastery', 'Character Excellence'],
-  },
-];
+import { RANKS } from '../data/rankRequirements';
 
 export default function RankTrackerWizard() {
   const navigate = useNavigate();
@@ -50,9 +13,9 @@ export default function RankTrackerWizard() {
 
   // State management
   const [selectedRank, setSelectedRank] = useState(0);
-  const [currentReqIdx, setCurrentReqIdx] = useState(0);
   const [rankChecks, setRankChecks] = useState({});
   const [notes, setNotes] = useState({});
+  const [expandedReq, setExpandedReq] = useState(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -116,22 +79,8 @@ export default function RankTrackerWizard() {
     }
   };
 
-  const nextRequirement = () => {
-    const currentRank = RANKS[selectedRank];
-    if (currentReqIdx < currentRank.requirements.length - 1) {
-      setCurrentReqIdx(currentReqIdx + 1);
-    }
-  };
-
-  const prevRequirement = () => {
-    if (currentReqIdx > 0) {
-      setCurrentReqIdx(currentReqIdx - 1);
-    }
-  };
-
   const selectRank = (rankIdx) => {
     setSelectedRank(rankIdx);
-    setCurrentReqIdx(0);
   };
 
   const generateScoutbookSummary = () => {
@@ -142,10 +91,10 @@ export default function RankTrackerWizard() {
     rank.requirements.forEach((req, idx) => {
       const key = `${selectedRank}-${idx}`;
       if (rankChecks[key]) {
-        completedReqs.push(`${idx + 1}. ${req} ✓`);
+        completedReqs.push(`${req.code}. ${req.text} ✓`);
       }
       if (notes[key]) {
-        notesText.push(`- Req ${idx + 1}: ${notes[key]}`);
+        notesText.push(`- Req ${req.code}: ${notes[key]}`);
       }
     });
 
@@ -189,10 +138,6 @@ Next Steps:
   if (!user) return null;
 
   const currentRank = RANKS[selectedRank];
-  const currentReq = currentRank.requirements[currentReqIdx];
-  const reqKey = `${selectedRank}-${currentReqIdx}`;
-  const isChecked = rankChecks[reqKey];
-  const currentNotes = notes[reqKey] || '';
 
   // Count completed requirements in current rank
   let completedCount = 0;
@@ -235,7 +180,7 @@ Next Steps:
       </section>
 
       {/* Main Content */}
-      <section style={{ padding: '10px 10px 10px 10px', minHeight: 'calc(10vh - 200px)' }}>
+      <section style={{ padding: '20px', minHeight: 'calc(100vh - 200px)' }}>
         <div className="container" style={{ maxWidth: '900px', margin: '0 auto' }}>
           {/* Rank Selector */}
           <motion.div
@@ -288,117 +233,159 @@ Next Steps:
             })}
           </motion.div>
 
-          {/* Breadcrumb & Progress */}
+          {/* Progress Bar */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
             style={{ marginBottom: 32, textAlign: 'center' }}
           >
-            <p style={{ color: 'var(--text-muted)', marginBottom: 12 }}>
-              {currentRank.emoji} {currentRank.name} {'>'} Requirement {currentReqIdx + 1} of {currentRank.requirements.length}
+            <p style={{ color: 'var(--text-muted)', marginBottom: 12, fontSize: '1rem', fontWeight: 600 }}>
+              {currentRank.emoji} {currentRank.name} — {completedCount}/{currentRank.requirements.length} requirements complete
             </p>
             <div style={{ background: 'var(--divider)', borderRadius: 99, height: 8 }}>
               <div
                 style={{
-                  width: `${((currentReqIdx + 1) / currentRank.requirements.length) * 100}%`,
+                  width: `${(completedCount / currentRank.requirements.length) * 100}%`,
                   background: 'var(--accent)',
                   height: '100%',
                   borderRadius: 99,
-                  transition: 'width 0.6s ease',
+                  transition: 'width 0.3s ease',
                 }}
               />
             </div>
           </motion.div>
 
-          {/* Wizard Card */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${selectedRank}-${currentReqIdx}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="glass-card"
-              style={{
-                padding: 40,
-                marginBottom: 40,
-                border: isChecked ? '2px solid var(--accent)' : '1px solid var(--divider)',
-              }}
-            >
-              {/* Requirement Text */}
-              <div style={{ marginBottom: 32, textAlign: 'center' }}>
-                <h2 style={{ marginBottom: 16, fontSize: '2rem', marginTop: 0 }}>
-                  {currentReq}
-                </h2>
-              </div>
+          {/* Requirements List */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {currentRank.requirements.map((req, idx) => {
+                const reqKey = `${selectedRank}-${idx}`;
+                const isChecked = rankChecks[reqKey];
+                const reqNotes = notes[reqKey] || '';
+                const isExpanded = expandedReq === idx;
 
-              {/* Checkbox */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  marginBottom: 32,
-                  padding: 16,
-                  background: isChecked ? 'rgba(var(--accent-rgb), 0.05)' : 'transparent',
-                  borderRadius: 12,
-                  cursor: 'pointer',
-                }}
-                onClick={() => toggleRequirement(selectedRank, currentReqIdx)}
-              >
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    border: `2px solid ${isChecked ? 'var(--accent)' : 'var(--divider)'}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: isChecked ? 'var(--accent)' : 'transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {isChecked && <Check size={24} color="white" />}
-                </div>
-                <span style={{ fontSize: '1.1rem', fontWeight: 600 }}>
-                  {isChecked ? 'Completed' : 'Mark as Complete'}
-                </span>
-              </div>
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    style={{
+                      background: isChecked ? 'rgba(16, 185, 129, 0.05)' : 'var(--bg-secondary)',
+                      border: isChecked ? '1px solid #10b981' : '1px solid var(--divider)',
+                      borderRadius: 12,
+                      padding: '16px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {/* Header Row */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 12,
+                      }}
+                      onClick={() => setExpandedReq(isExpanded ? null : idx)}
+                    >
+                      {/* Checkbox */}
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleRequirement(selectedRank, idx);
+                        }}
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: '50%',
+                          border: `2px solid ${isChecked ? 'var(--accent)' : 'var(--divider)'}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: isChecked ? 'var(--accent)' : 'transparent',
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                          marginTop: '2px',
+                        }}
+                      >
+                        {isChecked && <Check size={16} color="white" />}
+                      </div>
 
-              {/* Notes Field */}
-              <div style={{ marginBottom: 32 }}>
-                <label style={{ display: 'block', marginBottom: 12, fontWeight: 600 }}>
-                  Notes {'&'} Evidence
-                </label>
-                <textarea
-                  value={currentNotes}
-                  onChange={(e) => saveNotes(selectedRank, currentReqIdx, e.target.value)}
-                  onBlur={() => saveNotes(selectedRank, currentReqIdx, currentNotes)}
-                  placeholder="Add notes about how you completed this requirement (optional)..."
-                  style={{
-                    width: '100%',
-                    minHeight: '120px',
-                    padding: 12,
-                    borderRadius: 8,
-                    border: '1px solid var(--divider)',
-                    background: 'var(--bg-primary)',
-                    color: 'inherit',
-                    fontFamily: 'inherit',
-                    fontSize: '0.95rem',
-                    resize: 'vertical',
-                  }}
-                />
-              </div>
+                      {/* Content */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              background: 'var(--accent)',
+                              color: 'white',
+                              padding: '2px 8px',
+                              borderRadius: 4,
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {req.code}
+                          </span>
+                          <span
+                            style={{
+                              textDecoration: isChecked ? 'line-through' : 'none',
+                              color: isChecked ? 'var(--text-muted)' : 'inherit',
+                              fontSize: '0.95rem',
+                            }}
+                          >
+                            {req.text}
+                          </span>
+                        </div>
 
-              {/* Auto-save Indicator */}
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, textAlign: 'right' }}>
-                💾 Auto-saved
-              </p>
-            </motion.div>
-          </AnimatePresence>
+                        {/* Notes Preview */}
+                        {reqNotes && !isExpanded && (
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '4px 0 0 0', fontStyle: 'italic' }}>
+                            {reqNotes.substring(0, 60)}{reqNotes.length > 60 ? '...' : ''}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Expand Icon */}
+                      <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+                        {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                      </div>
+                    </div>
+
+                    {/* Expanded Notes Section */}
+                    {isExpanded && (
+                      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
+                        <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.9rem' }}>
+                          Notes & Evidence
+                        </label>
+                        <textarea
+                          value={reqNotes}
+                          onChange={(e) => saveNotes(selectedRank, idx, e.target.value)}
+                          onBlur={() => saveNotes(selectedRank, idx, reqNotes)}
+                          onClick={(e) => e.stopPropagation()}
+                          placeholder="Add notes about how you completed this requirement (optional)..."
+                          style={{
+                            width: '100%',
+                            minHeight: '80px',
+                            padding: 12,
+                            borderRadius: 8,
+                            border: '1px solid var(--divider)',
+                            background: 'var(--bg-primary)',
+                            color: 'inherit',
+                            fontFamily: 'inherit',
+                            fontSize: '0.9rem',
+                            resize: 'vertical',
+                          }}
+                        />
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
 
           {/* Board of Review Ready (only shows when all complete) */}
           {allComplete && (
@@ -423,70 +410,50 @@ Next Steps:
             </motion.div>
           )}
 
-          {/* Navigation */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: 20,
-              marginBottom: 40,
-              flexWrap: 'wrap',
-            }}
+
+          {/* Submit Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            style={{ marginTop: 40, marginBottom: 40 }}
           >
-            <motion.button
-              className="btn btn-outline"
-              onClick={prevRequirement}
-              disabled={currentReqIdx === 0}
-              whileHover={{ scale: currentReqIdx === 0 ? 1 : 1.05 }}
-              whileTap={{ scale: currentReqIdx === 0 ? 1 : 0.95 }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                opacity: currentReqIdx === 0 ? 0.5 : 1,
-                cursor: currentReqIdx === 0 ? 'not-allowed' : 'pointer',
-              }}
-            >
-              <ChevronLeft size={20} />
-              Previous
-            </motion.button>
-
-            <span style={{ fontWeight: 600, minWidth: '150px', textAlign: 'center' }}>
-              Step {currentReqIdx + 1} of {currentRank.requirements.length}
-            </span>
-
-            <motion.button
-              className="btn btn-primary"
-              onClick={nextRequirement}
-              disabled={currentReqIdx === currentRank.requirements.length - 1}
-              whileHover={{ scale: currentReqIdx === currentRank.requirements.length - 1 ? 1 : 1.05 }}
-              whileTap={{ scale: currentReqIdx === currentRank.requirements.length - 1 ? 1 : 0.95 }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                opacity: currentReqIdx === currentRank.requirements.length - 1 ? 0.5 : 1,
-                cursor: currentReqIdx === currentRank.requirements.length - 1 ? 'not-allowed' : 'pointer',
-              }}
-            >
-              Next
-              <ChevronRight size={20} />
-            </motion.button>
-          </div>
-
-          {/* Submit to Scoutbook Button */}
-          {allComplete && (
-            <motion.button
-              className="btn btn-primary"
-              onClick={() => setShowSubmitModal(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ width: '100%', padding: '16px 24px', fontSize: '1rem', marginBottom: 40 }}
-            >
-              Submit to Scoutbook
-            </motion.button>
-          )}
+            {allComplete ? (
+              <motion.button
+                className="btn btn-primary"
+                onClick={() => setShowSubmitModal(true)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                style={{
+                  width: '100%',
+                  padding: '18px 24px',
+                  fontSize: '1.05rem',
+                  fontWeight: 600,
+                  background: 'linear-gradient(135deg, var(--accent), #059669)',
+                  border: 'none',
+                  borderRadius: 12,
+                  color: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                ✓ All Requirements Complete — Submit to Scoutbook
+              </motion.button>
+            ) : (
+              <div
+                style={{
+                  padding: 16,
+                  borderRadius: 12,
+                  border: '1px dashed var(--divider)',
+                  textAlign: 'center',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                <p style={{ margin: 0, fontSize: '0.95rem' }}>
+                  Complete all {currentRank.requirements.length} requirements above to submit
+                </p>
+              </div>
+            )}
+          </motion.div>
         </div>
       </section>
 

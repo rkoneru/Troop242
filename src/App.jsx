@@ -36,6 +36,7 @@ import ReferralLinks from './pages/ReferralLinks';
 import Camping from './pages/camping-animation';
 import CampingGuide from './pages/CampingGuide';
 import ScoutsBSA from './pages/ScoutsBSA';
+import MiscAwardsTracker from './pages/MiscAwardsTracker';
 import './App.css';
 
 /**
@@ -97,6 +98,7 @@ function AppRoutes() {
       <Route path="/rank-tracker" element={<ProtectedRoute allowedRoles={['scout']}><RankTrackerWizard /></ProtectedRoute>} />
       <Route path="/merit-tracker" element={<ProtectedRoute allowedRoles={['scout']}><MeritTrackerWizard /></ProtectedRoute>} />
       <Route path="/skills-tracker" element={<ProtectedRoute allowedRoles={['scout']}><SkillsTrackerWizard /></ProtectedRoute>} />
+      <Route path="/misc-awards" element={<ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><MiscAwardsTracker /></ProtectedRoute>} />
       <Route path="/activities" element={<ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><ActivitiesPage /></ProtectedRoute>} />
       <Route path="/scout-portal" element={<ScoutToolsPortal />} />
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -266,3 +266,37 @@ export function saveData(key, value) {
 export function generateId() {
   return `item-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
+
+/**
+ * Load all activities (both activities and events) from Firestore
+ */
+export async function getActivities() {
+  const snap = await getDocs(query(collection(db, 'activities'), orderBy('date', 'asc')));
+  return snap.docs.map(d => ({ id: d.id, ...d.data(), signedUp: d.data().signedUp || [] }));
+}
+
+/**
+ * Save or update an activity in Firestore
+ * @param {*} activityData - activity object. If it has an id field, updates; otherwise creates new
+ */
+export async function saveActivity(activityData) {
+  if (activityData.id) {
+    const { id, ...rest } = activityData;
+    await updateDoc(doc(db, 'activities', id), { ...rest, updatedAt: Timestamp.now() });
+    return id;
+  } else {
+    const ref = await addDoc(collection(db, 'activities'), {
+      ...activityData,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now()
+    });
+    return ref.id;
+  }
+}
+
+/**
+ * Delete an activity from Firestore
+ */
+export async function deleteActivity(activityId) {
+  await deleteDoc(doc(db, 'activities', activityId));
+}

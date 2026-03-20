@@ -190,7 +190,7 @@ export default function Home() {
 
     return [
       { id: 'meeting1', date: getNextTuesdayWithTime(), day: 'Tuesday', type: 'Meeting', icon: '📍', title: 'Weekly Troop Meeting', time: '7:00 PM EST', location: '3512 S Orlando Dr, Sanford, FL 32773', recurring: 'Every Tuesday' },
-      { id: 'campout', date: createEventDate(2026, 3, 19, 0, 0), day: 'Thursday', type: 'Campout', icon: '🏕️', title: 'Spring Campout', time: 'All Day', location: 'Keys, Florida', featured: true },
+      { id: 'campout', date: createEventDate(2026, 4, 24, 0, 0), day: 'Friday', type: 'Campout', icon: '🏕️', title: 'Spotlight on Pioneering', time: 'All Weekend', location: 'Palm Bluff Conservation Area SJRM, Osteen, FL', featured: true },
       { id: 'boardreview', date: createEventDate(2026, 3, 31, 18, 0), day: 'Tuesday', type: 'Board Review', icon: '📋', title: 'Board of Review', time: '6:00 PM EST', location: '3512 S Orlando Dr, Sanford, FL 32773' },
       { id: 'courtofhonor', date: createEventDate(2026, 6, 2, 19, 0), day: 'Tuesday', type: 'Court of Honor', icon: '👑', title: 'Court of Honor', time: '7:00 PM EST', location: '3512 S Orlando Dr, Sanford, FL 32773' ,featured: true}
     ];
