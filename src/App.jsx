@@ -97,7 +97,7 @@ function AppRoutes() {
       <Route path="/rank-tracker" element={<ProtectedRoute allowedRoles={['scout']}><RankTrackerWizard /></ProtectedRoute>} />
       <Route path="/merit-tracker" element={<ProtectedRoute allowedRoles={['scout']}><MeritTrackerWizard /></ProtectedRoute>} />
       <Route path="/skills-tracker" element={<ProtectedRoute allowedRoles={['scout']}><SkillsTrackerWizard /></ProtectedRoute>} />
-      <Route path="/activities" element={<ActivitiesPage />} />
+      <Route path="/activities" element={<ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><ActivitiesPage /></ProtectedRoute>} />
       <Route path="/scout-portal" element={<ScoutToolsPortal />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

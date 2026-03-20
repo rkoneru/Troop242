@@ -3,29 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2, Users, MapPin, Calendar } from 'lucide-react';
 import { loadData, saveData, generateId } from '../utils/adminData';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ActivitiesPage() {
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
 
-  // Auth guard
-  const [user, setUser] = useState(null);
-  useEffect(() => {
-    const stored = sessionStorage.getItem('loggedInUser');
-    if (!stored) {
-      navigate('/member-login');
-      return;
-    }
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.profile !== 'scout' && parsed.profile !== 'leader') {
-        navigate('/member-login');
-        return;
-      }
-      setUser(parsed);
-    } catch {
-      navigate('/member-login');
-    }
-  }, [navigate]);
+  // Get user display name
+  const userName = user?.displayName || user?.email || profile?.name || 'Scout';
 
   // State
   const [activities, setActivities] = useState(() => loadData('troopActivities', []));
@@ -60,7 +45,6 @@ export default function ActivitiesPage() {
   };
 
   const handleSignup = (activityId) => {
-    const userName = user?.name || user?.email || 'Scout';
     const updated = activities.map((act) =>
       act.id === activityId
         ? { ...act, signups: [...act.signups, userName] }
