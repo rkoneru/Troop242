@@ -66,8 +66,9 @@ export default function SkillsTrackerWizard() {
     const results = [];
     SKILL_CATEGORIES.forEach((cat, catIdx) => {
       cat.skills.forEach((skill, skillIdx) => {
-        if (skill.toLowerCase().includes(searchQuery.toLowerCase())) {
-          results.push({ name: skill, categoryIdx: catIdx, skillIdx, categoryName: cat.category });
+        const skillName = typeof skill === 'string' ? skill : skill.name;
+        if (skillName.toLowerCase().includes(searchQuery.toLowerCase())) {
+          results.push({ name: skillName, categoryIdx: catIdx, skillIdx, categoryName: cat.category });
         }
       });
     });
