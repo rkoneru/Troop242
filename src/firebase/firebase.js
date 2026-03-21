@@ -12,6 +12,7 @@ import { getFirestore } from 'firebase/firestore';
  * 4. Create a Firestore database (Firestore → Create database)
  * 5. Copy your config object from Project settings → General tab
  * 6. Replace the firebaseConfig object below with your credentials
+ * 7. Set environment variables: VITE_FIREBASE_API_KEY, etc.
  */
 
 const firebaseConfig = {
@@ -23,11 +24,22 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || ''
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app;
+let auth;
+let db;
 
-// Export auth and db for use in the app
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+try {
+  // Only initialize Firebase if config is complete
+  if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } else {
+    console.warn('Firebase config is incomplete. Public pages will work without authentication.');
+  }
+} catch (error) {
+  console.error('Failed to initialize Firebase:', error.message);
+}
 
+export { auth, db };
 export default app;

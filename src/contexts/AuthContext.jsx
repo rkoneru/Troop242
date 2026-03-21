@@ -20,6 +20,12 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // If Firebase is not initialized, allow app to work without auth
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     // Listen for Firebase auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
