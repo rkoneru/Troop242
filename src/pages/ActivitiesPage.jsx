@@ -19,6 +19,9 @@ export default function ActivitiesPage() {
   const activities = allItems.filter(i => i.type === 'activity');
   const events = allItems.filter(i => i.type === 'event');
 
+  // Calculate signup count for user
+  const mySignupCount = activities.filter(a => a.signedUp?.some(s => s.uid === user?.uid)).length;
+
   // Load all activities and events from Firestore
   useEffect(() => {
     if (!user) {
@@ -126,7 +129,7 @@ export default function ActivitiesPage() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
         <h2 className="text-xl font-bold mb-5">Troop Activities</h2>
 
-  {/* ── ACTIVITIES INLINE SECTION ── */}
+        {/* ── ACTIVITIES INLINE SECTION ── */}
         <div style={{ marginTop: 64 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, marginLeft: 20, marginRight: 20 }}>
             <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>🏕️ Upcoming Activities</h2>
