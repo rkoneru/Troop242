@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MapPin, Calendar, Heart } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Calendar, Clock, Heart } from 'lucide-react';
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -117,7 +117,7 @@ export default function ActivitiesPage() {
 
   const isFull = (activity) => activity.type === 'activity' && (activity.signedUp?.length || 0) >= activity.spots;
 
-  const backRoute = user?.profile === 'leader' ? '/leader-dashboard' : '/scout-dashboard';
+  const backRoute = profile?.role === 'leader' ? '/leader-dashboard' : '/scout-dashboard';
 
   if (!user) return null;
 
@@ -301,7 +301,7 @@ export default function ActivitiesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {activities.length === 0 && events.length === 0 ? (
             <div className="col-span-full text-center py-10 text-[var(--text-muted)]">
-              <p>No activities or events yet. {user?.profile === 'leader' ? 'Create one above!' : 'Check back soon!'}</p>
+              <p>No activities or events yet. {profile?.role === 'leader' ? 'Create one above!' : 'Check back soon!'}</p>
             </div>
           ) : (
             <>
