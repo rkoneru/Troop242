@@ -11,8 +11,7 @@ import { getFirestore } from 'firebase/firestore';
  * 3. Enable Email/Password authentication (Auth → Sign-in method → Email/Password)
  * 4. Create a Firestore database (Firestore → Create database)
  * 5. Copy your config object from Project settings → General tab
- * 6. Replace the firebaseConfig object below with your credentials
- * 7. Set environment variables: VITE_FIREBASE_API_KEY, etc.
+ * 6. Set environment variables: VITE_FIREBASE_API_KEY, etc.
  */
 
 const firebaseConfig = {
@@ -24,22 +23,36 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || ''
 };
 
-let app;
-let auth;
-let db;
+let app = null;
+let auth = null;
+let db = null;
+let firebaseError = null;
 
 try {
   // Only initialize Firebase if config is complete
   if (firebaseConfig.apiKey && firebaseConfig.projectId) {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
+    try {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+      console.log('Firebase initialized successfully');
+    } catch (initError) {
+      firebaseError = initError;
+      console.error('Firebase initialization error:', initError.message);
+      console.error('Code:', initError.code);
+      // Reset to null so app works without Firebase
+      app = null;
+      auth = null;
+      db = null;
+    }
   } else {
     console.warn('Firebase config is incomplete. Public pages will work without authentication.');
   }
 } catch (error) {
+  firebaseError = error;
   console.error('Failed to initialize Firebase:', error.message);
 }
 
-export { auth, db };
+// Export with null-safe defaults
+export { auth, db, firebaseError };
 export default app;
