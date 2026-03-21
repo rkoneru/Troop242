@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
+import { verifyInvitation, markInvitationUsed } from '../utils/invitations';
 
 export default function RegisterWithInvite() {
   const navigate = useNavigate();
@@ -30,61 +31,15 @@ export default function RegisterWithInvite() {
     setLoading(true);
     try {
       const code = inviteCode.toUpperCase();
+      const invitation = await verifyInvitation(code);
 
-      // Check for fixed referral links
-      if (code === 'LEADER01') {
-        setInviteData({
-          code: 'LEADER01',
-          role: 'leader',
-          status: 'permanent',
-          inviteId: null,
-          email: '' // Will be set on registration
-        });
-        setStep('register');
-        setLoading(false);
-        return;
-      }
-
-      if (code === 'SCOUT01') {
-        setInviteData({
-          code: 'SCOUT01',
-          role: 'scout',
-          status: 'permanent',
-          inviteId: null,
-          email: '' // Will be set on registration
-        });
-        setStep('register');
-        setLoading(false);
-        return;
-      }
-
-      // Search for invitation by code
-      const invitationsRef = db.collection('invitations');
-      const snapshot = await invitationsRef.where('code', '==', code).get();
-
-      if (snapshot.empty) {
+      if (!invitation) {
         setError('Invalid or expired invitation code');
         setLoading(false);
         return;
       }
 
-      const invite = snapshot.docs[0].data();
-
-      // Check if expired
-      if (new Date(invite.expiresAt) < new Date()) {
-        setError('This invitation has expired');
-        setLoading(false);
-        return;
-      }
-
-      // Check if already used
-      if (invite.status !== 'pending') {
-        setError('This invitation has already been used');
-        setLoading(false);
-        return;
-      }
-
-      setInviteData({ ...invite, inviteId: snapshot.docs[0].id });
+      setInviteData(invitation);
       setStep('register');
     } catch (err) {
       setError('Error verifying invitation: ' + err.message);
@@ -131,14 +86,8 @@ export default function RegisterWithInvite() {
         createdAt: new Date().toISOString()
       });
 
-      // Mark invitation as used (if not a permanent referral code)
-      if (inviteData.inviteId) {
-        await db.collection('invitations').doc(inviteData.inviteId).update({
-          status: 'accepted',
-          usedBy: user.uid,
-          usedAt: new Date().toISOString()
-        });
-      }
+      // Mark invitation as used
+      await markInvitationUsed(inviteData.code, user.uid, email);
 
       setStep('success');
     } catch (err) {
