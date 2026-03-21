@@ -41,6 +41,34 @@ import MiscAwardsTracker from './pages/MiscAwardsTracker';
 import './App.css';
 
 /**
+ * Theme manager that applies auth-state-driven theme switching
+ */
+function ThemeManager({ children }) {
+  const { profile } = useAuth();
+
+  useEffect(() => {
+    const isScout = profile?.role === 'scout';
+
+    // Color theme: user override > scout default > global default
+    const userTheme = localStorage.getItem('troopTheme');
+    const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
+    const scoutDefault = isScout ? 'white' : null;
+    const active = userTheme || scoutDefault || adminDefault;
+    const tokens = THEMES[active]?.tokens || THEMES.current.tokens;
+    Object.entries(tokens).forEach(([key, value]) => {
+      document.documentElement.style.setProperty(key, value);
+    });
+
+    // UI framework: user override > scout default > global default
+    const userFramework = localStorage.getItem('troopFramework');
+    const activeFramework = userFramework || (isScout ? 'liquid' : 'glass');
+    document.body.setAttribute('data-framework', activeFramework);
+  }, [profile]);
+
+  return children;
+}
+
+/**
  * Protected route wrapper that checks authentication
  */
 function ProtectedRoute({ children, allowedRoles = null }) {
@@ -110,29 +138,16 @@ function AppRoutes() {
 }
 
 function App() {
-  useEffect(() => {
-    // Apply color theme
-    const userTheme = localStorage.getItem('troopTheme');
-    const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
-    const active = userTheme || adminDefault;
-    const tokens = THEMES[active]?.tokens || THEMES.current.tokens;
-    Object.entries(tokens).forEach(([key, value]) => {
-      document.documentElement.style.setProperty(key, value);
-    });
-
-    // Apply UI framework
-    const savedFramework = localStorage.getItem('troopFramework') || 'glass';
-    document.body.dataset.framework = savedFramework;
-  }, []);
-
   return (
     <AuthProvider>
-      <Router basename="/Troop242/">
-        <div className="app">
-          <AppRoutes />
-          <SearchWidget />
-        </div>
-      </Router>
+      <ThemeManager>
+        <Router basename="/Troop242/">
+          <div className="app">
+            <AppRoutes />
+            <SearchWidget />
+          </div>
+        </Router>
+      </ThemeManager>
     </AuthProvider>
   );
 }
