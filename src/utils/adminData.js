@@ -299,3 +299,22 @@ export async function saveActivity(activityData) {
 export async function deleteActivity(activityId) {
   await deleteDoc(doc(db, 'activities', activityId));
 }
+
+/**
+ * Initialize troop settings document if it doesn't exist
+ */
+export async function initializeTroopSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'troop', 'settings'));
+    if (!snap.exists()) {
+      // Create troop/settings with default values
+      await setDoc(doc(db, 'troop', 'settings'), {
+        stats: DEFAULT_STATS,
+        createdAt: Timestamp.now()
+      });
+      console.log('✓ Initialized troop/settings with default stats');
+    }
+  } catch (error) {
+    console.error('Error initializing troop settings:', error);
+  }
+}

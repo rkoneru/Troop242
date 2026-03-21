@@ -6,6 +6,7 @@ import SearchWidget from './components/SearchWidget';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { THEMES } from './utils/themes';
+import { initializeTroopSettings } from './utils/adminData';
 import Home from './pages/Home';
 import Ranks from './pages/Ranks';
 import Badges from './pages/Badges';
@@ -45,6 +46,11 @@ import './App.css';
  */
 function ThemeManager({ children }) {
   const { profile } = useAuth();
+
+  useEffect(() => {
+    // Initialize troop settings on first load
+    initializeTroopSettings();
+  }, []);
 
   useEffect(() => {
     const isScout = profile?.role === 'scout';
