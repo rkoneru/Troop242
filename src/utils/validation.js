@@ -6,8 +6,8 @@
 import { z } from 'zod';
 
 // Email validation regex
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[\d\s\-\+\(\)]+$/;
+const _EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^[\d\s+()]+$/;
 
 /**
  * User/Authentication Schemas
@@ -175,7 +175,7 @@ export function validate(data, schema) {
     });
 
     return { valid: false, errors };
-  } catch (error) {
+  } catch (_error) {
     return { valid: false, errors: { _global: 'Validation error' } };
   }
 }

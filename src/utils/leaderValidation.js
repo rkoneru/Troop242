@@ -54,7 +54,7 @@ export function validatePhone(phone) {
   }
 
   // Allow various formats: 1234567890, (123) 456-7890, 123-456-7890, etc.
-  const phoneRegex = /^[\d\s\-\(\)\.]+$/;
+  const phoneRegex = /^[\d\s\-().]+$/;
 
   if (!phoneRegex.test(phone)) {
     return { valid: false, error: 'Invalid phone format' };

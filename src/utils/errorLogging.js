@@ -48,7 +48,7 @@ export function logError(error, context = {}) {
 /**
  * Log event to Firestore audit logs
  */
-async function logToFirestore(collection, data) {
+async function logToFirestore(_collection, _data) {
   try {
     // In production, would log to Firestore
     // const db = getFirestore();

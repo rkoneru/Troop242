@@ -22,7 +22,7 @@ choco install k6
 
 ## Load Test Script
 
-**File:** `load-test.js`
+**File:** `src/utils/load-test.js`
 
 ### What It Tests
 

@@ -17,7 +17,7 @@ export function isUserUnder13(birthDate) {
  * Request parental consent for user under 13
  * Sends consent link to parent email
  */
-export async function requestParentalConsent(childEmail, parentEmail, childName) {
+export async function requestParentalConsent(childEmail, parentEmail, _childName) {
   // In production, this would call a Cloud Function
   // For now, return success
   return {
@@ -68,7 +68,7 @@ export async function deleteUserData(userId) {
     const activitiesSnap = await getDocs(collection(db, 'activities'));
     for (const activityDoc of activitiesSnap.docs) {
       const signedUp = activityDoc.data().signedUp || [];
-      const filtered = signedUp.filter(s => s.uid !== userId);
+      const _filtered = signedUp.filter(s => s.uid !== userId);
       // Would need updateDoc here in real implementation
     }
 
