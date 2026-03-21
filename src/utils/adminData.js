@@ -19,9 +19,9 @@ import { db } from '../firebase/firebase';
 
 // Default values for initial setup
 export const DEFAULT_STATS = {
-  eagleScouts: '25+',
-  activeScouts: '50+',
-  yearsServing: '20'
+  eagleScouts: '20+',
+  activeScouts: '34+',
+  yearsServing: '25'
 };
 
 export const DEFAULT_EVENTS = [];
