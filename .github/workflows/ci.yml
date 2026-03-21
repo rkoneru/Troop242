@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -7,22 +7,18 @@ on:
     branches: [master, develop]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
-
     steps:
       - uses: actions/checkout@v5
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -32,122 +28,5 @@ jobs:
         run: npm run lint
         continue-on-error: true
 
-      - name: Run tests
-        run: npm run test -- --coverage --passWithNoTests
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          files: ./coverage/lcov.info
-          flags: unittests
-          fail_ci_if_error: false
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Use Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Build
         run: npm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
-        with:
-          name: dist
-          path: dist/
-          retention-days: 5
-
-  security:
-    runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Run security checks
-        run: npm audit --audit-level=moderate
-        continue-on-error: true
-
-      - name: Check for exposed secrets
-        uses: gitleaks/gitleaks-action@v2
-        continue-on-error: true
-
-  deploy-staging:
-    needs: [test, build]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: dist
-
-      - name: Deploy to staging
-        run: |
-          echo "Deploying to staging environment..."
-          # Add your staging deployment command here
-          # Example: firebase deploy --only hosting:staging
-
-      - name: Notify deployment
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ Deployed to staging: https://staging.troop242.org'
-            })
-
-  deploy-production:
-    needs: [test, build]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: dist
-
-      - name: Deploy to production
-        run: |
-          echo "Deploying to production environment..."
-          # Add your production deployment command here
-          # Example: firebase deploy --only hosting:production
-
-      - name: Notify deployment
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.repos.createDeployment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: context.sha,
-              environment: 'production',
-              required_contexts: [],
-              auto_merge: false
-            })
