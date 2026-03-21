@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { Heart } from 'lucide-react';
+import { getEvents } from '../utils/adminData';
 import '../styles/calendar.css';
 
 const PACKING_LISTS = {
@@ -21,14 +22,15 @@ export default function Calendar() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const storedEvents = localStorage.getItem('troop_events');
-      if (storedEvents) {
-        setEvents(JSON.parse(storedEvents));
+    const loadEventsData = async () => {
+      try {
+        const loaded = await getEvents();
+        setEvents(loaded);
+      } catch (error) {
+        console.error('Failed to load events from Firestore:', error);
       }
-    } catch (error) {
-      console.error('Failed to load events from localStorage:', error);
-    }
+    };
+    loadEventsData();
   }, []);
 
   // Load user's RSVPs from Firestore

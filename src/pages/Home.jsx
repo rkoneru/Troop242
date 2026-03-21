@@ -4,7 +4,7 @@ import { ChevronRight, Calendar, Users, Zap, Award, MapPin, Clock, Mail, Heart, 
 import CampfireIllustration from './troop242-campfire';
 import { useState, useEffect, useMemo } from 'react';
 import { SCOUTING_FACTS } from '../utils/facts';
-import { loadData, DEFAULT_STATS } from '../utils/adminData';
+import { DEFAULT_STATS, loadTroopData } from '../utils/adminData';
 import { scrollToTop } from '../utils/scrollToTop';
 import ScoutPath from './ScoutPath';
 
@@ -168,7 +168,7 @@ function WhyUsCard({ icon: Icon, title, desc }) {
 export default function Home() {
   const navigate = useNavigate();
   const [countdowns, setCountdowns] = useState({});
-  const stats = loadData('troop_stats', DEFAULT_STATS);
+  const [stats, setStats] = useState(DEFAULT_STATS);
 
   // Helper function to create dates - leaders enter actual month numbers (1-12)
   const createEventDate = (year, month, day, hour = 0, minute = 0) => {
@@ -194,6 +194,15 @@ export default function Home() {
       { id: 'boardreview', date: createEventDate(2026, 3, 31, 18, 0), day: 'Tuesday', type: 'Board Review', icon: '📋', title: 'Board of Review', time: '6:00 PM EST', location: '3512 S Orlando Dr, Sanford, FL 32773' },
       { id: 'courtofhonor', date: createEventDate(2026, 6, 2, 19, 0), day: 'Tuesday', type: 'Court of Honor', icon: '👑', title: 'Court of Honor', time: '7:00 PM EST', location: '3512 S Orlando Dr, Sanford, FL 32773' ,featured: true}
     ];
+  }, []);
+
+  // Load stats from Firestore
+  useEffect(() => {
+    const loadStats = async () => {
+      const loaded = await loadTroopData('stats', DEFAULT_STATS);
+      setStats(loaded);
+    };
+    loadStats();
   }, []);
 
   // Calculate countdown timers

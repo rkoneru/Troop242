@@ -5,7 +5,7 @@ import { Trash2, Plus, Edit2, Shield, ShieldOff } from 'lucide-react';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { loadData, saveData, generateId, DEFAULT_STATS, DEFAULT_LEADERS, DEFAULT_EVENTS, DEFAULT_ANNOUNCEMENTS } from '../utils/adminData';
+import { loadData, saveData, generateId, DEFAULT_STATS, DEFAULT_LEADERS, DEFAULT_EVENTS, DEFAULT_ANNOUNCEMENTS, loadTroopData, saveTroopData, getEvents, saveEvent, deleteEvent } from '../utils/adminData';
 import { THEMES } from '../utils/themes';
 
 export default function AdminDashboard() {
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   const [defaultTheme, setDefaultTheme] = useState(() => localStorage.getItem('troopThemeDefault') || 'current');
 
   // Stats state
-  const [stats, setStats] = useState(() => loadData('troop_stats', DEFAULT_STATS));
+  const [stats, setStats] = useState(DEFAULT_STATS);
   const [statsForm, setStatsForm] = useState(stats);
 
   // Users state (Firestore)
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
   const [annForm, setAnnForm] = useState({ title: '', body: '', date: '', pinned: false });
 
   // Events state
-  const [events, setEvents] = useState(() => loadData('troop_events', DEFAULT_EVENTS));
+  const [events, setEvents] = useState(DEFAULT_EVENTS);
   const [eventForm, setEventForm] = useState({ title: '', date: '', location: '', description: '' });
 
   // Leaders state
@@ -67,10 +67,33 @@ export default function AdminDashboard() {
     loadUsers();
   }, [loading]);
 
+  // Load stats from Firestore
+  useEffect(() => {
+    const loadStats = async () => {
+      const loaded = await loadTroopData('stats', DEFAULT_STATS);
+      setStats(loaded);
+      setStatsForm(loaded);
+    };
+    loadStats();
+  }, []);
+
+  // Load events from Firestore
+  useEffect(() => {
+    const loadEventsData = async () => {
+      const loaded = await getEvents();
+      setEvents(loaded);
+    };
+    loadEventsData();
+  }, []);
+
   // Save handlers
-  const handleSaveStats = () => {
-    saveData('troop_stats', statsForm);
-    setStats(statsForm);
+  const handleSaveStats = async () => {
+    try {
+      await saveTroopData('stats', statsForm);
+      setStats(statsForm);
+    } catch (error) {
+      console.error('Error saving stats:', error);
+    }
   };
 
   const handleAddAnnouncement = () => {
@@ -88,19 +111,29 @@ export default function AdminDashboard() {
     saveData('troop_announcements', updated);
   };
 
-  const handleAddEvent = () => {
+  const handleAddEvent = async () => {
     if (eventForm.title && eventForm.date) {
-      const newEvents = [...events, { id: generateId(), ...eventForm }];
-      setEvents(newEvents);
-      saveData('troop_events', newEvents);
-      setEventForm({ title: '', date: '', location: '', description: '' });
+      try {
+        await saveEvent(eventForm);
+        // Reload events from Firestore
+        const loaded = await getEvents();
+        setEvents(loaded);
+        setEventForm({ title: '', date: '', location: '', description: '' });
+      } catch (error) {
+        console.error('Error adding event:', error);
+      }
     }
   };
 
-  const handleDeleteEvent = (id) => {
-    const updated = events.filter(e => e.id !== id);
-    setEvents(updated);
-    saveData('troop_events', updated);
+  const handleDeleteEvent = async (id) => {
+    try {
+      await deleteEvent(id);
+      // Reload events from Firestore
+      const loaded = await getEvents();
+      setEvents(loaded);
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
   };
 
   const handleAddLeader = () => {
