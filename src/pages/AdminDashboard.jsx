@@ -89,10 +89,13 @@ export default function AdminDashboard() {
   // Save handlers
   const handleSaveStats = async () => {
     try {
+      console.log('Saving stats:', statsForm);
       await saveTroopData('stats', statsForm);
+      console.log('✓ Stats saved successfully');
       setStats(statsForm);
     } catch (error) {
       console.error('Error saving stats:', error);
+      alert(`Error saving stats: ${error.message}`);
     }
   };
 
