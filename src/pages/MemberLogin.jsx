@@ -23,6 +23,12 @@ export default function MemberLogin() {
       return;
     }
 
+    // Check if Firebase is properly configured
+    if (!auth || !db) {
+      setError('Firebase is not properly configured. Please check your environment variables.');
+      return;
+    }
+
     setLoading(true);
 
     try {

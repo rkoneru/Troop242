@@ -32,7 +32,13 @@ export async function requestParentalConsent(childEmail, parentEmail, _childName
  * Get all user data for GDPR subject access request
  */
 export async function getUserData(userId) {
-  const db = getFirestore();
+  let db;
+  try {
+    db = getFirestore();
+  } catch (error) {
+    console.error('Firebase not initialized for GDPR request:', error);
+    return { success: false, message: 'Firebase not configured' };
+  }
 
   try {
     // Collect data from all relevant collections
