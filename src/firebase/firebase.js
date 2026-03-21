@@ -23,26 +23,31 @@ let db = null;
 let firebaseError = null;
 
 try {
+  console.log('Firebase config:', {
+    apiKey: firebaseConfig.apiKey ? '***' : 'missing',
+    projectId: firebaseConfig.projectId || 'missing'
+  });
+
   if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     try {
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       db = getFirestore(app);
-      console.log('Firebase initialized successfully');
+      console.log('✅ Firebase initialized successfully');
     } catch (initError) {
       firebaseError = initError;
-      console.error('Firebase initialization error:', initError.message);
+      console.error('❌ Firebase initialization error:', initError.message);
       console.error('Code:', initError.code);
       app = null;
       auth = null;
       db = null;
     }
   } else {
-    console.warn('Firebase config is incomplete.');
+    console.warn('⚠️ Firebase config is incomplete. Public pages will work without authentication.');
   }
 } catch (error) {
   firebaseError = error;
-  console.error('Failed to initialize Firebase:', error.message);
+  console.error('❌ Failed to initialize Firebase:', error.message);
 }
 
 export { auth, db, firebaseError };
