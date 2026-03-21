@@ -126,7 +126,6 @@ export default function RegisterWithInvite() {
         name,
         role: inviteData.role,
         status: 'approved',
-        password, // Fallback for Firestore login
         joinDate: new Date().toISOString(),
         phone: '',
         createdAt: new Date().toISOString()

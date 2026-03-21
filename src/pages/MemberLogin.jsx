@@ -29,42 +29,24 @@ export default function MemberLogin() {
       let user = null;
       let userProfile = null;
 
-      // Try Firestore password first (primary method)
+      // Use Firebase Auth for all authentication (secure, hashed passwords)
       try {
-        const usersSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
-        if (usersSnap.empty) {
-          throw new Error('User not found');
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        user = userCredential.user;
+        const profileSnap = await getDoc(doc(db, 'users', user.uid));
+        userProfile = profileSnap.data();
+      } catch (authError) {
+        // Handle Firebase Auth errors
+        if (authError.code === 'auth/user-not-found') {
+          throw new Error('No account found with this email');
+        } else if (authError.code === 'auth/wrong-password') {
+          throw new Error('Incorrect password');
+        } else if (authError.code === 'auth/invalid-email') {
+          throw new Error('Invalid email address');
+        } else if (authError.code === 'auth/user-disabled') {
+          throw new Error('This account has been disabled');
         }
-
-        const firestoreUser = usersSnap.docs[0];
-        userProfile = firestoreUser.data();
-
-        // Check if stored password matches (plain text comparison)
-        if (userProfile.password !== password) {
-          throw new Error('Invalid password');
-        }
-
-        user = { uid: firestoreUser.id, email: firestoreUser.data().email };
-      } catch (firestoreError) {
-        // If Firestore lookup fails, try Firebase Auth
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          user = userCredential.user;
-          const profileSnap = await getDoc(doc(db, 'users', user.uid));
-          userProfile = profileSnap.data();
-        } catch (authError) {
-          // Both methods failed
-          if (authError.code === 'auth/user-not-found' || firestoreError.message === 'User not found') {
-            throw new Error('No account found with this email');
-          } else if (authError.code === 'auth/wrong-password' || firestoreError.message === 'Invalid password') {
-            throw new Error('Incorrect password');
-          } else if (authError.code === 'auth/invalid-email') {
-            throw new Error('Invalid email address');
-          } else if (authError.code === 'auth/user-disabled') {
-            throw new Error('This account has been disabled');
-          }
-          throw authError;
-        }
+        throw authError;
       }
 
       if (!user) {
