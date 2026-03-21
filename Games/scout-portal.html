@@ -36,6 +36,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .hdr-sd{display:inline-flex}
 .hdr-sd .text{display:inline}
 .hdr-sd .icon-only{display:none}
+.hdr-refresh{margin-left:8px;padding:8px 12px;font-size:16px}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
 .hdr-sd{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;background-color:var(--g);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',system-ui,sans-serif;transition:.15s}
 .hdr-back{display:none;align-items:center;gap:6px;color:rgba(255,255,255,.7);
@@ -72,7 +73,40 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 /* ═══ DASHBOARD ═══ */
 #dashboard{padding:28px 24px}
-.dash-hero{margin-bottom:24px}
+.dash-hero{
+  margin-bottom:24px;
+  background: linear-gradient(135deg, rgba(27, 67, 50, 0.05) 0%, rgba(82, 183, 136, 0.03) 100%),
+    repeating-linear-gradient(45deg, transparent, transparent 400px, rgba(82, 183, 136, 0.02) 400px, rgba(82, 183, 136, 0.02) 800px);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(82, 183, 136, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+.dash-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23D8F3DC" opacity=".1"/><circle cx="50" cy="50" r="35" fill="none" stroke="%2352B788" stroke-width="1" opacity=".15"/><path d="M50 15 L65 45 L95 45 L70 65 L80 95 L50 75 L20 95 L30 65 L5 45 L35 45 Z" fill="%2352B788" opacity=".08"/></svg>') center/cover;
+  pointer-events: none;
+}
+.dash-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -50px;
+  left: -50px;
+  width: 180px;
+  height: 180px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23D8F3DC" opacity=".1"/><circle cx="50" cy="50" r="35" fill="none" stroke="%2352B788" stroke-width="1" opacity=".15"/><path d="M50 15 L65 45 L95 45 L70 65 L80 95 L50 75 L20 95 L30 65 L5 45 L35 45 Z" fill="%2352B788" opacity=".08"/></svg>') center/cover;
+  pointer-events: none;
+}
+.dash-hero h2, .dash-hero p {
+  position: relative;
+  z-index: 2;
+}
 .dash-hero h2{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
 .dash-hero p{font-size:14px;color:var(--mu)}
 .cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
@@ -429,7 +463,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   </a>
 
 
-  <span class="portal-title"><span class="text">Scout Portal</span><span class="icon-only">Scout</span></span>
+  <span class="portal-title">Scout Portal</span>
+  <button class="hdr-sd hdr-refresh" onclick="location.reload()" title="Refresh page">🔄</button>
   <button class="hdr-sd" onclick="goToScoutDashboard()"><span class="text">← Scout Dashboard</span><span class="icon-only">←</span></button>
 
 </div>
@@ -444,8 +479,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <button class="nav-item" onclick="openPanel('attendance','📋 Attendance Tracker')">
       <span class="nav-icon">📋</span>Attendance Tracker
     </button>
-    <button class="nav-item" onclick="openPanel('merit','🎖️ Merit Badge Tracker')">
-      <span class="nav-icon">🎖️</span>Merit Badge Tracker
+    <button class="nav-item" onclick="openPanel('registration','📝 Scout Details Registration')">
+        <span class="nav-icon">📝</span>Scout Details 
     </button>
     <button class="nav-item" onclick="openPanel('packing','🎒 Packing List Generator')">
       <span class="nav-icon">🎒</span>Packing List Generator
@@ -479,11 +514,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <button class="nav-item" onclick="openPanel('scoreboard','🏆 Patrol Scoreboard')">
       <span class="nav-icon">🏆</span>Patrol Scoreboard
     </button>
-    <button class="nav-item" onclick="openPanel('menu','🍳 Menu Planner')">
-      <span class="nav-icon">🍳</span>Menu Planner
-    </button>
-    <button class="nav-item" onclick="openPanel('registration','📝 Event Registration')">
-      <span class="nav-icon">📝</span>Event Registration
+    <button class="nav-item" onclick="openPanel('fundraiser','📝 Scout Fundraiser')">
+        <span class="nav-icon">📝</span>Scout Fundraiser
+      </button>
+    <button class="nav-item" onclick="openPanel('grubmaster','🍳 GrubMaster Pro')">
+      <span class="nav-icon">🍳</span>GrubMaster Pro
     </button>
   </div>
   <div class="nav-divider"></div>
@@ -512,12 +547,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 <!-- DASHBOARD -->
 <div id="dashboard">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-    <div class="dash-hero" style="margin-bottom:0">
-      <h2>Welcome to Scout Portal</h2>
-      <p>Tools, learning, games, and event management for Troop 242 Scouts and leaders</p>
-    </div>
-    <!-- <button class="btn btn-outline" onclick="goToScoutDashboard()" style="white-space:nowrap;flex-shrink:0">← Scout Dashboard</button> -->
+  <div class="dash-hero">
+    <h2>Welcome to Scout Portal</h2>
+    <p>Tools, learning, games, and event management for Troop 242 Scouts and leaders</p>
   </div>
   <div class="cat-tabs">
     <button class="cat-tab active" onclick="filterCat('all',this)">All (26)</button>
@@ -534,10 +566,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <div class="feat-desc">Check Scouts in/out with printable meeting roster</div>
       <span class="feat-tag pill gold">Tool</span>
     </div>
-    <div class="feat-card" data-cat="tools" onclick="openPanel('merit','🎖️ Merit Badge Tracker')">
-      <span class="feat-icon">🎖️</span>
-      <div class="feat-name">Merit Badge Tracker</div>
-      <div class="feat-desc">Track required & elective merit badges toward Eagle</div>
+     <div class="feat-card" data-cat="events" onclick="openPanel('registration','📝 Scout Details')">
+      <span class="feat-icon">📝</span>
+      <div class="feat-name">Scout Details Registration</div>
+      <div class="feat-desc">Sign-up form with parent contact and emergency info</div>
       <span class="feat-tag pill gold">Tool</span>
     </div>
     <div class="feat-card" data-cat="tools" onclick="openPanel('packing','🎒 Packing List Generator')">
@@ -589,18 +621,19 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <div class="feat-desc">Live leaderboard for inter-patrol competitions</div>
       <span class="feat-tag pill red">Event</span>
     </div>
-    <div class="feat-card" data-cat="events" onclick="openPanel('menu','🍳 Menu Planner')">
-      <span class="feat-icon">🍳</span>
-      <div class="feat-name">Menu Planner</div>
-      <div class="feat-desc">Plan meals by day with auto-generated shopping list</div>
-      <span class="feat-tag pill red">Event</span>
-    </div>
-    <div class="feat-card" data-cat="events" onclick="openPanel('registration','📝 Event Registration')">
+    <div class="feat-card" data-cat="events" onclick="window.open('https://rkoneru.github.io/ScoutFundraiser/','_blank')">
+      <!-- <div class="feat-card" data-cat="events" onclick="openPanel('menu','🍳 Menu Planner')"></div> -->
       <span class="feat-icon">📝</span>
-      <div class="feat-name">Event Registration</div>
-      <div class="feat-desc">Sign-up form with parent contact and emergency info</div>
+      <div class="feat-name">Fundraiser</div>
+      <div class="feat-desc">Log the transactions for the Troop fundraiser</div>
       <span class="feat-tag pill red">Event</span>
     </div>
+     <div class="feat-card" data-cat="events" onclick="window.open('https://rkoneru.github.io/GrubMaster-Pro/','_blank')">
+      <span class="feat-icon">🍳</span>
+      <div class="feat-name">GrubMaster Pro</div>
+      <div class="feat-desc">Manage meal planning and grocery lists for events</div>
+      <span class="feat-tag pill red">Event</span>
+    </div> 
     <div class="feat-card" data-cat="games" onclick="openPanel('star-quiz','⭐ Star Navigation Quiz')">
       <span class="feat-icon">⭐</span>
       <div class="feat-name">Star Navigation Quiz</div>
@@ -1512,7 +1545,7 @@ function filterFieldGuide(category, button) {
 <!-- ═══════════════════════════════════════════ -->
 <!-- PANEL: MENU PLANNER -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="panel" id="panel-menu">
+<!-- <div class="panel" id="panel-menu">
 <div class="panel-inner">
   <h2>🍳 Menu Planner</h2>
   <p class="panel-subtitle">Plan meals day by day — auto-generates a shopping list</p>
@@ -1533,7 +1566,7 @@ function filterFieldGuide(category, button) {
   </div>
   <div class="shopping-output" id="shopping-output"></div>
 </div>
-</div>
+</div> -->
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- PANEL: EVENT REGISTRATION -->
@@ -1542,7 +1575,7 @@ function filterFieldGuide(category, button) {
 <div class="panel-inner">
   <h2>📝 Event Registration</h2>
   <p class="panel-subtitle">Scout sign-up form with parent contact and emergency information</p>
-  <div class="card" style="margin-bottom:14px">
+ <!--  <div class="card" style="margin-bottom:14px">
     <div class="label" style="margin-bottom:12px">Event Details</div>
     <div class="form-row" style="margin-bottom:12px">
       <div class="form-group">
@@ -1554,7 +1587,7 @@ function filterFieldGuide(category, button) {
         <input class="input" type="date" id="reg-date">
       </div>
     </div>
-  </div>
+  </div> -->
   <div id="reg-form-wrap">
     <div class="card">
       <div class="label" style="margin-bottom:14px">Scout Information</div>
@@ -1627,6 +1660,46 @@ function filterFieldGuide(category, button) {
       </div>
       <div class="reg-entries" id="reg-entries"></div>
     </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: SCOUT FUNDRAISER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-fundraiser">
+<div class="panel-inner">
+  <h2>📝 Scout Fundraiser</h2>
+  <p class="panel-subtitle">Manage troop fundraising campaigns and track progress</p>
+  <div class="card" style="text-align: center; padding: 40px 20px;">
+    <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+    <p style="color: var(--mu); margin-bottom: 20px;">Scout Fundraiser Tool</p>
+    <p style="font-size: 14px; color: var(--mu); line-height: 1.6; margin-bottom: 20px;">
+      This tool helps manage troop fundraising campaigns, track donations, and coordinate volunteer efforts.
+    </p>
+    <button class="btn" onclick="window.open('https://rkoneru.github.io/ScoutFundraiser/','_blank')">
+      🔗 Open Scout Fundraiser
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL: GRUBMASTER PRO -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-grubmaster">
+<div class="panel-inner">
+  <h2>🍳 GrubMaster Pro</h2>
+  <p class="panel-subtitle">Plan meals, manage supplies, and organize camp cooking</p>
+  <div class="card" style="text-align: center; padding: 40px 20px;">
+    <div style="font-size: 48px; margin-bottom: 16px;">🍳</div>
+    <p style="color: var(--mu); margin-bottom: 20px;">GrubMaster Pro Tool</p>
+    <p style="font-size: 14px; color: var(--mu); line-height: 1.6; margin-bottom: 20px;">
+      Plan camp meals, manage food supplies, create shopping lists, and organize cooking duties for your troop events.
+    </p>
+    <button class="btn" onclick="window.open('https://rkoneru.github.io/GrubMaster-Pro/','_blank')">
+      🔗 Open GrubMaster Pro
+    </button>
   </div>
 </div>
 </div>

@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Calendar, Users, Zap, Award, MapPin, Clock, Mail, Heart, Shield, ChevronLeft } from 'lucide-react';
-import ConstellationBackground from '../components/ConstellationBackground';
 import CampfireIllustration from './troop242-campfire';
 import { useState, useEffect, useMemo } from 'react';
 import { SCOUTING_FACTS } from '../utils/facts';
 import { loadData, DEFAULT_STATS } from '../utils/adminData';
 import { scrollToTop } from '../utils/scrollToTop';
+import ScoutPath from './ScoutPath';
 
 // Did You Know Carousel Component
 function DidYouKnowCarousel() {
@@ -327,8 +327,8 @@ export default function Home() {
             className="glass-card"
             style={{
               padding: 48,
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
-              border: '2px solid rgba(16, 185, 129, 0.3)',
+              background: 'linear-gradient(135deg, var(--accent-dim) 0%, transparent 100%)',
+              border: '2px solid var(--accent-border)',
               textAlign: 'center'
             }}
           >
@@ -560,6 +560,8 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      
 
       {/* MERIT BADGES SECTION */}
       <section className="section">

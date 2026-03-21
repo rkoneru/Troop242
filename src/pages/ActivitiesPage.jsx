@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MapPin, Calendar, Clock, Heart } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Calendar, Clock, Heart, CheckCircle } from 'lucide-react';
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,11 +15,13 @@ export default function ActivitiesPage() {
   const [loading, setLoading] = useState(true);
   const [signupConfirmed, setSignupConfirmed] = useState({});
 
-  // Derive activities and events from allItems
-  const activities = allItems.filter(i => i.type === 'activity');
-  const events = allItems.filter(i => i.type === 'event');
+  // Derive activities and events from allItems, filter out past dates
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const activities = allItems.filter(i => i.type === 'activity' && new Date(i.date) >= today);
+  const events = allItems.filter(i => i.type === 'event' && new Date(i.date) >= today);
 
-  // Calculate signup count for user
+  // Calculate signup count for upcoming activities only (not completed)
   const mySignupCount = activities.filter(a => a.signedUp?.some(s => s.uid === user?.uid)).length;
 
   // Animation variants
@@ -143,95 +145,35 @@ export default function ActivitiesPage() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
         <h2 className="text-xl font-bold mb-5">Troop Activities</h2>
 
-        {/* ── ACTIVITIES INLINE SECTION ── */}
-        <div style={{ marginTop: 64 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, marginLeft: 20, marginRight: 20 }}>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>🏕️ Upcoming Activities</h2>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              {mySignupCount} signed up
-            </span>
-          </div>
-
-          {activities.length === 0 ? (
-            <div className="glass-card" style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', margin: '0 20px' }}>
-              No activities scheduled yet. Check back soon!
-            </div>
-          ) : (
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-50px' }}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: 20,
-                padding: '0 20px'
-              }}
-            >
-              {activities
-                .slice()
-                .sort((a, b) => new Date(a.date) - new Date(b.date))
-                .map((activity) => {
-                  const signedUp = isSignedUp(activity);
-                  const full = isFull(activity);
-
-                  return (
-                    <motion.div
-                      key={activity.id}
-                      variants={itemVariants}
-                      className="glass-card"
-                      style={{
-                        padding: 24,
-                        border: signedUp
-                          ? '1px solid var(--accent-border)'
-                          : '1px solid var(--glass-border)',
-                      }}
-                    >
-                      {/* Title + signed-up badge */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>{activity.title}</h3>
-                        {signedUp && (
-                          <span style={{
-                            padding: '3px 10px',
-                            background: 'var(--accent-dim)',
-                            color: 'var(--accent)',
-                            border: '1px solid var(--accent-border)',
-                            borderRadius: 20,
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            whiteSpace: 'nowrap',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 4
-                          }}>
-                            <CheckCircle size={12} />
-                            Signed Up
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Meta */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14, color: 'var(--text-muted)', fontSize: '0.87rem' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <Calendar size={14} />
-                          {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-                          {activity.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {activity.time}</>}
-                        </span>
-                        {activity.location && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <MapPin size={14} /> {activity.location}
-                          </span>
-                        )}
-                      </div>
-
-                      {activity.description && (
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: 16, lineHeight: 1.5 }}>
-                          {activity.description}
-                        </p>
-                      )}
-
-                      {/* Spots bar */}
+       {/* MY SIGNUPS TABLE */}
+        {mySignupCount > 0 && (
+          <div style={{ marginTop: 64, marginBottom: 64 }}>
+            <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>📋 My Signups</h2>
+            <div style={{ overflowX: 'auto', background: 'var(--bg-secondary)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Activity</th>
+                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Date</th>
+                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Location</th>
+                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Spots</th>
+                    <th style={{ padding: '16px', textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(activities || [])
+                    .filter(a => isSignedUp(a))
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .map((activity) => {
+                      const full = isFull(activity);
+                      return (
+                      <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                        <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>{activity.title}</td>
+                        <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>
+                          {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </td>
+                        <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>{activity.location || '—'}</td>
+                        <td style={{ padding: '16px', textAlign: 'center' }}>{/* Spots bar */}
                       <div style={{ marginBottom: 16 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : 'var(--text-muted)', marginBottom: 6 }}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -248,87 +190,15 @@ export default function ActivitiesPage() {
                             transition: 'width 0.4s ease',
                           }} />
                         </div>
-                      </div>
-
-                      {/* CTA */}
-                      {!signedUp && !full && (
-                        <motion.button
-                          className="btn btn-primary"
-                          style={{ width: '100%', justifyContent: 'center' }}
-                          onClick={() => handleSignup(activity.id)}
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                        >
-                          Sign Up
-                        </motion.button>
-                      )}
-                      {signedUp && (
-                        <div style={{
-                          padding: '10px 16px',
-                          textAlign: 'center',
-                          background: 'var(--accent-dim)',
-                          border: '1px solid var(--accent-border)',
-                          borderRadius: 10,
-                          color: 'var(--accent)',
-                          fontWeight: 600,
-                          fontSize: '0.9rem',
-                        }}>
-                          You're signed up!
-                        </div>
-                      )}
-                      {!signedUp && full && (
-                        <div style={{
-                          padding: '10px 16px',
-                          textAlign: 'center',
-                          background: 'rgba(255, 100, 100, 0.1)',
-                          border: '1px solid rgba(255, 100, 100, 0.3)',
-                          borderRadius: 10,
-                          color: '#ff6464',
-                          fontWeight: 600,
-                          fontSize: '0.9rem',
-                        }}>
-                          Activity Full
-                        </div>
-                      )}
-                    </motion.div>
-                  );
-                })}
-            </motion.div>
-          )}
-        </div>
-
-        {/* MY SIGNUPS TABLE */}
-        {mySignupCount > 0 && (
-          <div style={{ marginTop: 64, marginBottom: 64 }}>
-            <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>📋 My Signups</h2>
-            <div style={{ overflowX: 'auto', background: 'var(--bg-secondary)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Activity</th>
-                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Date</th>
-                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Location</th>
-                    <th style={{ padding: '16px', textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(activities || [])
-                    .filter(a => isSignedUp(a))
-                    .sort((a, b) => new Date(a.date) - new Date(b.date))
-                    .map((activity) => (
-                      <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                        <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>{activity.title}</td>
-                        <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>
-                          {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </td>
-                        <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>{activity.location || '—'}</td>
+                      </div></td>
                         <td style={{ padding: '16px', textAlign: 'center' }}>
                           <span style={{ background: 'rgba(82, 183, 136, 0.2)', color: '#52b788', padding: '4px 12px', borderRadius: 20, fontSize: '0.85rem', fontWeight: 600 }}>
                             ✓ Signed Up
                           </span>
                         </td>
                       </tr>
-                    ))}
+                    );
+                    })}
                 </tbody>
               </table>
             </div>

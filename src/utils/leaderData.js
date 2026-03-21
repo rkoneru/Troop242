@@ -29,14 +29,14 @@ export async function loadScouts() {
     const snap = await getDocs(
       query(
         collection(db, 'users'),
-        where('role', '==', 'scout'),
-        orderBy('name')
+        where('role', '==', 'scout')
       )
     );
+    // Sort by name in the application instead of Firestore to avoid needing a composite index
     return snap.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
+    })).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   } catch (error) {
     console.error('Failed to load scouts:', error);
     return DEFAULT_SCOUTS;

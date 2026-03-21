@@ -2,23 +2,12 @@ import { CheckCircle, Clock, Users, TrendingUp, Calendar, MapPin, Plus, Trash2, 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { collection, getDocs, query, where, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, query, updateDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { saveData, loadData, generateId, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
+import { saveData, loadData, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
-import {
-  loadScouts,
-  saveScouts,
-  getScoutStats,
-  searchScouts,
-  generateScoutId,
-  updateScout,
-  deleteScout,
-  getScoutsByStatus,
-  exportScoutData,
-  importScoutData
-} from '../utils/leaderData';
+import { searchScouts, generateScoutId } from '../utils/leaderData';
 import {
   validateActivityForm,
   validateEventForm,
@@ -39,16 +28,13 @@ export default function LeaderDashboard() {
   const [selectedTab, setSelectedTab] = useState('scouts');
   const [scoutsData, setScoutsData] = useState([]);
   const [allItems, setAllItems] = useState([]);
-  const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [invitations, setInvitations] = useState(() => loadData('leaderInvitations', []));
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [expandedRosters, setExpandedRosters] = useState({});
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
-  const [isLoadingScouts, setIsLoadingScouts] = useState(true);
   const [scoutProgress, setScoutProgress] = useState({});
-  const [isLoadingProgress, setIsLoadingProgress] = useState(false);
   const [editingActivity, setEditingActivity] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '', dues: '' });
 
@@ -62,73 +48,84 @@ export default function LeaderDashboard() {
   const [newInvitationForm, setNewInvitationForm] = useState({ name: '', email: '', type: 'scout' });
   const [newActivityForm, setNewActivityForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '', dues: '' });
 
-  // Load scouts from Firestore
+  // Load scouts from Firestore with real-time updates
   useEffect(() => {
-    if (loading) return;
-
-    const loadFirestoreScouts = async () => {
-      try {
-        const snap = await getDocs(
-          query(collection(db, 'users'), where('role', '==', 'scout'))
-        );
-        const loaded = snap.docs.map(d => ({
-          id: d.id,
-          ...d.data()
-        }));
-        setScoutsData(loaded);
-      } catch (error) {
-        console.error('Error loading scouts:', error);
-      } finally {
-        setIsLoadingScouts(false);
+    if (loading || !user || !profile || profile.role !== 'leader') {
+      if (!user || !profile || profile.role !== 'leader') {
+        navigate('/member-login');
       }
-    };
-
-    if (!user || !profile || profile.role !== 'leader') {
-      navigate('/member-login');
       return;
     }
 
-    loadFirestoreScouts();
+    // Set up real-time listener for scouts (all users with role=scout)
+    const unsubscribe = onSnapshot(
+      collection(db, 'users'),
+      (snap) => {
+        const scouts = snap.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+          .filter(u => u.role === 'scout')
+          .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        setScoutsData(scouts);
+      },
+      (error) => {
+        console.error('Error loading scouts:', error);
+        setScoutsData([]);
+      }
+    );
+
+    return () => unsubscribe();
   }, [user, profile, loading, navigate]);
 
-  // Load activities and events from Firestore
+  // Load activities and events from Firestore with real-time updates
   useEffect(() => {
     if (loading || !user) return;
 
-    const loadItems = async () => {
-      try {
-        const items = await getActivities();
+    // Set up real-time listener for activities collection
+    const unsubscribe = onSnapshot(
+      query(collection(db, 'activities')),
+      (snap) => {
+        const items = snap.docs.map(d => ({ id: d.id, ...d.data(), signedUp: d.data().signedUp || [] }));
         setAllItems(items);
-      } catch (err) {
-        console.error('Error loading activities:', err);
-      } finally {
-        setIsLoadingItems(false);
+      },
+      (err) => {
+        console.error('Error listening to activities:', err);
       }
-    };
+    );
 
-    loadItems();
+    return () => unsubscribe();
   }, [user, loading]);
 
   // Load progress data when progress tab is selected
   useEffect(() => {
-    if (selectedTab !== 'progress' || scoutsData.length === 0) return;
+    // Only set up listeners when progress tab is active
+    if (selectedTab !== 'progress' || scoutsData.length === 0) {
+      return;
+    }
 
-    setIsLoadingProgress(true);
     const approvedScouts = scoutsData.filter(s => s.status === 'approved');
+    if (approvedScouts.length === 0) {
+      return;
+    }
 
-    Promise.all(
-      approvedScouts.map(s => getDoc(doc(db, 'progress', s.id)))
-    ).then(snaps => {
-      const progressMap = {};
-      snaps.forEach((snap, i) => {
-        progressMap[approvedScouts[i].id] = snap.exists() ? snap.data() : {};
-      });
-      setScoutProgress(progressMap);
-    }).catch(error => {
-      console.error('Error loading scout progress:', error);
-    }).finally(() => {
-      setIsLoadingProgress(false);
-    });
+    // Set up real-time listeners for all approved scouts' progress
+    const unsubscribers = approvedScouts.map(scout =>
+      onSnapshot(
+        doc(db, 'progress', scout.id),
+        (snap) => {
+          const data = snap.exists() ? snap.data() : {};
+          setScoutProgress(prev => ({ ...prev, [scout.id]: data }));
+        },
+        (error) => {
+          console.error(`Error listening to progress for ${scout.id}:`, error);
+        }
+      )
+    );
+
+    // Cleanup all listeners when effect cleanup runs
+    return () => unsubscribers.forEach(unsub => unsub());
   }, [selectedTab, scoutsData]);
 
   // Clear messages after 3 seconds
@@ -140,7 +137,16 @@ export default function LeaderDashboard() {
   }, [successMessage]);
 
   // Computed values (memoized)
-  const scoutStats = useMemo(() => getScoutStats(scoutsData), [scoutsData]);
+  const scoutStats = useMemo(() => ({
+    total: scoutsData.length,
+    approved: scoutsData.filter(s => s.status === 'approved').length,
+    pending: scoutsData.filter(s => s.status === 'pending').length,
+    rejected: scoutsData.filter(s => s.status === 'rejected').length,
+    approvalRate: scoutsData.length > 0
+      ? Math.round((scoutsData.filter(s => s.status === 'approved').length / scoutsData.length) * 100)
+      : 0,
+    ranks: {}
+  }), [scoutsData]);
 
   const filteredScouts = useMemo(() => {
     let filtered = scoutsData;
@@ -484,8 +490,14 @@ export default function LeaderDashboard() {
         <div
           style={{
             padding: '4px 12px',
-            background: scout.status === 'approved' ? 'rgba(82, 183, 136, 0.2)' : 'rgba(212, 168, 83, 0.2)',
-            color: scout.status === 'approved' ? '#52b788' : '#d4a853',
+            background:
+              scout.status === 'approved' ? 'rgba(82, 183, 136, 0.2)' :
+              scout.status === 'rejected' ? 'rgba(239, 68, 68, 0.2)' :
+              'rgba(212, 168, 83, 0.2)',
+            color:
+              scout.status === 'approved' ? '#52b788' :
+              scout.status === 'rejected' ? '#ef4444' :
+              '#d4a853',
             borderRadius: 6,
             fontSize: '0.8rem',
             fontWeight: 600,
@@ -642,13 +654,13 @@ export default function LeaderDashboard() {
             }}>
               <div style={{
                 height: '100%',
-                width: `${Math.min((activity.signups?.length || 0) / activity.spots * 100, 100)}%`,
+                width: `${Math.min((activity.signedUp?.length || 0) / activity.spots * 100, 100)}%`,
                 background: isActivityFull(activity) ? '#ef4444' : '#52b788',
                 transition: 'width 0.3s'
               }} />
             </div>
             <span style={{ color: '#9ca3af', minWidth: '60px' }}>
-              {activity.signups?.length || 0}/{activity.spots}
+              {activity.signedUp?.length || 0}/{activity.spots}
             </span>
           </div>
           {activity.description && (
@@ -848,7 +860,7 @@ export default function LeaderDashboard() {
           {/* Tabs */}
           <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 16, flexWrap: 'wrap' }}>
             {/* {['scouts', 'activities', 'events', 'invitations', 'progress'].map(tab => ( */}
-             {['scouts', 'activities', 'progress'].map(tab => (
+             {[ 'activities', 'signups', 'scouts','progress'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
@@ -863,10 +875,12 @@ export default function LeaderDashboard() {
                   transition: 'all 0.2s ease'
                 }}
               >
-                {tab === 'scouts' && `👥 Scouts (${scoutsData.length})`}
+               
                 {tab === 'activities' && `📅 Activities (${troopActivities.length})`}
                 {tab === 'events' && `📆 Events (${events.length})`}
                 {tab === 'invitations' && `📧 Invitations (${invitations.length})`}
+                {tab === 'signups' && `📝 Signups (${totalActivitySignups})`}
+                {tab === 'scouts' && `👥 Scouts (${scoutsData.length})`}
                 {tab === 'progress' && `📊 Progress`}
               </button>
             ))}
@@ -1028,9 +1042,10 @@ export default function LeaderDashboard() {
                     fontSize: '0.95rem'
                   }}
                 >
-                  <option value="all">All Statuses</option>
+                  <option value="all">All Scouts</option>
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
                 </select>
               </div>
 
@@ -1212,9 +1227,18 @@ export default function LeaderDashboard() {
                     No activities yet. Create one above!
                   </div>
                 ) : (
-                  troopActivities.map(activity => (
-                    <ActivityCard key={activity.id} activity={activity} />
-                  ))
+                  troopActivities
+                    .slice()
+                    .sort((a, b) => {
+                      // Sort by available slots (more slots first), then by date
+                      const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
+                      const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
+                      if (slotsB !== slotsA) return slotsB - slotsA;
+                      return new Date(a.date) - new Date(b.date);
+                    })
+                    .map(activity => (
+                      <ActivityCard key={activity.id} activity={activity} />
+                    ))
                 )}
               </div>
             </motion.div>
@@ -1349,7 +1373,16 @@ export default function LeaderDashboard() {
                     No events scheduled yet.
                   </div>
                 ) : (
-                  events.map(event => (
+                  events
+                    .slice()
+                    .sort((a, b) => {
+                      // Sort by available slots (more slots first), then by date
+                      const slotsA = (a.spots || 9999) - (a.signedUp?.length || 0);
+                      const slotsB = (b.spots || 9999) - (b.signedUp?.length || 0);
+                      if (slotsB !== slotsA) return slotsB - slotsA;
+                      return new Date(a.date) - new Date(b.date);
+                    })
+                    .map(event => (
                     <motion.div
                       key={event.id}
                       initial={{ opacity: 0, y: 10 }}
@@ -1375,9 +1408,9 @@ export default function LeaderDashboard() {
                             {event.time && <span>🕐 {event.time}</span>}
                             {event.location && <span>📍 {event.location}</span>}
                           </div>
-                          {event.signups && event.signups.length > 0 && (
+                          {event.signedUp && event.signedUp.length > 0 && (
                             <div style={{ fontSize: '0.9rem', color: '#52b788', marginBottom: 8 }}>
-                              ✓ {event.signups.length} scout{event.signups.length !== 1 ? 's' : ''} interested
+                              ✓ {event.signedUp.length} scout{event.signedUp.length !== 1 ? 's' : ''} interested
                             </div>
                           )}
                         </div>
@@ -1547,21 +1580,90 @@ export default function LeaderDashboard() {
             </motion.div>
           )}
 
+          {/* Troop SIGNUPS TABLE */}
+          {selectedTab === 'signups' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+              {totalActivitySignups > 0 && (
+                <div style={{ marginTop: 64, marginBottom: 64 }}>
+                  <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>📋 Activity Signups</h2>
+                  <div style={{ overflowX: 'auto', background: 'var(--bg-secondary)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Activity</th>
+                          <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Date</th>
+                          <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Location</th>
+                          <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Spots</th>
+                          <th style={{ padding: '16px', textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Signups</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(troopActivities || [])
+                          .sort((a, b) => {
+                            // Sort by available slots (more slots first), then by date
+                            const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
+                            const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
+                            if (slotsB !== slotsA) return slotsB - slotsA;
+                            return new Date(a.date) - new Date(b.date);
+                          })
+                          .map((activity) => {
+                            const full = (activity.signedUp?.length || 0) >= activity.spots;
+                            return (
+                            <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                              <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>{activity.title}</td>
+                              <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>
+                                {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </td>
+                              <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>{activity.location || '—'}</td>
+                              <td style={{ padding: '16px', textAlign: 'center' }}>{/* Spots bar */}
+                            <div style={{ marginBottom: 16 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : 'var(--text-muted)', marginBottom: 6 }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  <Users size={13} /> {activity.signedUp?.length ?? 0}/{activity.spots} spots
+                                </span>
+                                <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length ?? 0)} remaining`}</span>
+                              </div>
+                              <div style={{ background: 'var(--divider)', borderRadius: 99, height: 6 }}>
+                                <div style={{
+                                  width: `${Math.min(((activity.signedUp?.length ?? 0) / activity.spots) * 100, 100)}%`,
+                                  background: full ? '#ff6464' : 'var(--accent)',
+                                  height: '100%',
+                                  borderRadius: 99,
+                                  transition: 'width 0.4s ease',
+                                }} />
+                              </div>
+                            </div></td>
+                              <td style={{ padding: '16px', textAlign: 'center' }}>
+                                <span style={{ color: '#9ca3af', fontSize: '0.9rem', fontWeight: 500 }}>
+                                  {activity.signedUp?.length ?? 0} scouts
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+
           {/* PROGRESS TAB */}
           {selectedTab === 'progress' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-              {isLoadingProgress ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-                  <p>Loading scout progress...</p>
-                </div>
-              ) : (
-                <div style={{ overflowX: 'auto' }}>
+              <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
                     <thead>
                       <tr style={{ background: 'rgba(255, 255, 255, 0.08)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                         <th style={{ padding: '12px', textAlign: 'left', color: '#9ca3af', fontWeight: 600, minWidth: '150px' }}>Scout Name</th>
-                        {RANKS.map(rank => (
-                          <th key={rank} style={{ padding: '12px', textAlign: 'center', color: '#9ca3af', fontWeight: 600, minWidth: '100px' }}>{rank}</th>
+                        {RANKS.map((rank, idx) => (
+                          <th key={idx} style={{ padding: '12px', textAlign: 'center', color: '#9ca3af', fontWeight: 600, minWidth: '100px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                              <span style={{ fontSize: '1.5rem' }}>{rank.emoji}</span>
+                              <span style={{ fontSize: '0.85rem' }}>{rank.name}</span>
+                            </div>
+                          </th>
                         ))}
                       </tr>
                     </thead>
@@ -1575,7 +1677,7 @@ export default function LeaderDashboard() {
                             {RANKS.map((rank, rankIdx) => {
                               const scoutData = scoutProgress[scout.id] || {};
                               const checks = scoutData.rankChecks || {};
-                              const total = RANKS[rankIdx].requirements.length;
+                              const total = rank.requirements.length;
                               let completed = 0;
                               for (let i = 0; i < total; i++) {
                                 if (checks[`${rankIdx}-${i}`]) completed++;
@@ -1586,7 +1688,7 @@ export default function LeaderDashboard() {
                               else if (percentage > 0) bgColor = '#f59e0b'; // yellow
 
                               return (
-                                <td key={rank} style={{ padding: '12px', textAlign: 'center' }}>
+                                <td key={rankIdx} style={{ padding: '12px', textAlign: 'center' }}>
                                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                                     <div style={{
                                       width: '100%',
@@ -1616,8 +1718,7 @@ export default function LeaderDashboard() {
                       <p>No approved scouts yet.</p>
                     </div>
                   )}
-                </div>
-              )}
+              </div>
             </motion.div>
           )}
         </div>

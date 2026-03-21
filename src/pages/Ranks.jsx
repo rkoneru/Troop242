@@ -1,6 +1,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ScoutPath from './ScoutPath';
 
 const RANKS = [
   {
@@ -98,6 +99,9 @@ export default function Ranks() {
           </motion.div>
         </div>
       </section>
+
+      {/* SCOUT PATH SECTION */}
+      <ScoutPath />
 
       {/* RANKS GRID */}
       <section className="section">
