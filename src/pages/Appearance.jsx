@@ -5,8 +5,15 @@ import { motion } from 'framer-motion';
 import { THEMES, FRAMEWORKS } from '../utils/themes';
 
 export default function Appearance() {
-  const [currentTheme, setCurrentTheme] = useState('current');
-  const [currentFramework, setCurrentFramework] = useState('glass');
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    const userTheme = localStorage.getItem('troopTheme');
+    const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
+    return userTheme || adminDefault;
+  });
+
+  const [currentFramework, setCurrentFramework] = useState(() => {
+    return localStorage.getItem('troopFramework') || 'glass';
+  });
 
   const applyTheme = (themeName) => {
     const theme = THEMES[themeName];
@@ -17,19 +24,9 @@ export default function Appearance() {
   };
 
   const applyFramework = (frameworkName) => {
-    document.body.dataset.framework = frameworkName;
+    document.body.setAttribute('data-framework', frameworkName);
     localStorage.setItem('troopFramework', frameworkName);
   };
-
-  useEffect(() => {
-    const userTheme = localStorage.getItem('troopTheme');
-    const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
-    const active = userTheme || adminDefault;
-    setCurrentTheme(active);
-
-    const savedFramework = localStorage.getItem('troopFramework') || 'glass';
-    setCurrentFramework(savedFramework);
-  }, []);
 
   const handleThemeChange = (themeName) => {
     setCurrentTheme(themeName);

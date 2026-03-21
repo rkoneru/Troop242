@@ -21,9 +21,9 @@ export default function TroopFinances() {
         navigate('/member-login');
         return;
       }
-      setUser(parsed);
     } catch {
       navigate('/member-login');
+      return;
     }
   }, [navigate]);
 

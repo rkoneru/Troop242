@@ -31,9 +31,13 @@ export default function ActivityForm({ onSubmit, initialValues = null, isEditing
 
   const form = useForm(defaultValues, async (values) => {
     await onSubmit(values);
-    form.resetForm();
     setShowForm(false);
   }, validateForm);
+
+  // Reset form when showing/hiding
+  if (!showForm) {
+    form.resetForm();
+  }
 
   return (
     <div className="activity-form">

@@ -11,6 +11,11 @@ import { useForm } from '../../hooks/useForm';
 export default function SettingsPanel({ settings = {}, onSave }) {
   const [showSettings, setShowSettings] = useState(false);
 
+  const handleSubmit = async (values) => {
+    await onSave(values);
+    setShowSettings(false);
+  };
+
   const form = useForm(
     {
       troopName: settings.troopName || 'Troop 242',
@@ -22,10 +27,7 @@ export default function SettingsPanel({ settings = {}, onSave }) {
       scoutMeetingDay: settings.scoutMeetingDay || 'Monday',
       scoutMeetingTime: settings.scoutMeetingTime || '18:30',
     },
-    async (values) => {
-      await onSave(values);
-      setShowSettings(false);
-    }
+    handleSubmit
   );
 
   return (
