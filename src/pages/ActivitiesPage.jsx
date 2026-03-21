@@ -22,6 +22,20 @@ export default function ActivitiesPage() {
   // Calculate signup count for user
   const mySignupCount = activities.filter(a => a.signedUp?.some(s => s.uid === user?.uid)).length;
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+  };
+
   // Load all activities and events from Firestore
   useEffect(() => {
     if (!user) {
