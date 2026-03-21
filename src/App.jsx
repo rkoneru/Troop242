@@ -94,8 +94,7 @@ function ProtectedRoute({ children, allowedRoles = null }) {
 
 function AppRoutes() {
   return (
-    <ErrorBoundary>
-      <Routes>
+    <Routes>
         {/* Pages with global header/footer */}
         <Route path="/" element={<><Header /><Home /><Footer /></>} />
         <Route path="/ranks" element={<><Header /><Ranks /><Footer /></>} />
@@ -133,22 +132,23 @@ function AppRoutes() {
         <Route path="/scout-portal" element={<ScoutToolsPortal />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </ErrorBoundary>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeManager>
-        <Router basename="/Troop242/">
-          <div className="app">
-            <AppRoutes />
-            <SearchWidget />
-          </div>
-        </Router>
-      </ThemeManager>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ThemeManager>
+          <Router basename="/Troop242/">
+            <div className="app">
+              <AppRoutes />
+              <SearchWidget />
+            </div>
+          </Router>
+        </ThemeManager>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
