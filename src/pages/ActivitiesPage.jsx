@@ -312,11 +312,11 @@ export default function ActivitiesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {activities
+                  {(activities || [])
                     .filter(a => isSignedUp(a))
                     .sort((a, b) => new Date(a.date) - new Date(b.date))
                     .map((activity) => (
-                      <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', hover: { background: 'rgba(255, 255, 255, 0.02)' } }}>
+                      <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                         <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>{activity.title}</td>
                         <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>
                           {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -351,7 +351,7 @@ export default function ActivitiesPage() {
                 padding: '0 20px'
               }}
             >
-              {activities
+              {(activities || [])
                 .filter(a => !isSignedUp(a))
                 .slice()
                 .sort((a, b) => new Date(a.date) - new Date(b.date))
