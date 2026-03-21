@@ -49,6 +49,8 @@ export default function LeaderDashboard() {
   const [isLoadingScouts, setIsLoadingScouts] = useState(true);
   const [scoutProgress, setScoutProgress] = useState({});
   const [isLoadingProgress, setIsLoadingProgress] = useState(false);
+  const [editingActivity, setEditingActivity] = useState(null);
+  const [editForm, setEditForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '', dues: '' });
 
   // Derived state from allItems
   const troopActivities = useMemo(() => allItems.filter(i => i.type === 'activity'), [allItems]);
@@ -58,7 +60,7 @@ export default function LeaderDashboard() {
   const [newScoutForm, setNewScoutForm] = useState({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
   const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
   const [newInvitationForm, setNewInvitationForm] = useState({ name: '', email: '', type: 'scout' });
-  const [newActivityForm, setNewActivityForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '20', dues: '0' });
+  const [newActivityForm, setNewActivityForm] = useState({ title: '', date: '', time: '', location: '', description: '', spots: '', dues: '' });
 
   // Load scouts from Firestore
   useEffect(() => {
@@ -296,6 +298,54 @@ export default function LeaderDashboard() {
       showError('title', 'Failed to delete activity');
     }
   }, [showSuccess, showError]);
+
+  const handleEditActivity = useCallback((activity) => {
+    setEditingActivity(activity.id);
+    setEditForm({
+      title: activity.title,
+      date: activity.date,
+      time: activity.time,
+      location: activity.location,
+      description: activity.description,
+      spots: activity.spots.toString(),
+      dues: activity.dues.toString()
+    });
+  }, []);
+
+  const handleSaveEdit = useCallback(async () => {
+    clearErrors();
+    const validation = validateActivityForm(editForm);
+    if (!validation.valid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    try {
+      await saveActivity({
+        id: editingActivity,
+        type: 'activity',
+        title: editForm.title,
+        date: editForm.date,
+        time: editForm.time,
+        location: editForm.location,
+        description: editForm.description,
+        spots: parseInt(editForm.spots) || 20,
+        dues: parseFloat(editForm.dues) || 0
+      });
+      const refreshed = await getActivities();
+      setAllItems(refreshed);
+      setEditingActivity(null);
+      showSuccess('Activity updated successfully!');
+    } catch (err) {
+      console.error('Error saving activity:', err);
+      showError('title', 'Failed to update activity');
+    }
+  }, [editingActivity, editForm, clearErrors, showError, showSuccess]);
+
+  const handleCancelEdit = useCallback(() => {
+    setEditingActivity(null);
+    setEditForm({ title: '', date: '', time: '', location: '', description: '', spots: '', dues: '' });
+  }, []);
 
   // EVENT HANDLERS
   const handleCreateEvent = useCallback(async () => {
@@ -605,20 +655,39 @@ export default function LeaderDashboard() {
             <p style={{ margin: '0', color: '#9ca3af', fontSize: '0.85rem' }}>{activity.description}</p>
           )}
         </div>
-        <button
-          onClick={() => handleDeleteActivity(activity.id)}
-          style={{
-            padding: '6px 10px',
-            background: 'rgba(239, 68, 68, 0.2)',
-            color: '#ef4444',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer',
-            marginLeft: 12
-          }}
-        >
-          <Trash2 size={16} />
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => handleEditActivity(activity)}
+            style={{
+              padding: '6px 10px',
+              background: 'rgba(59, 130, 246, 0.2)',
+              color: '#3b82f6',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: '0.85rem',
+              fontWeight: 600
+            }}
+          >
+            ✎ Edit
+          </button>
+          <button
+            onClick={() => handleDeleteActivity(activity.id)}
+            style={{
+              padding: '6px 10px',
+              background: 'rgba(239, 68, 68, 0.2)',
+              color: '#ef4444',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer'
+            }}
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
 
       <button
@@ -778,7 +847,8 @@ export default function LeaderDashboard() {
 
           {/* Tabs */}
           <div style={{ display: 'flex', gap: 12, borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 16, flexWrap: 'wrap' }}>
-            {['scouts', 'activities', 'events', 'invitations', 'progress'].map(tab => (
+            {/* {['scouts', 'activities', 'events', 'invitations', 'progress'].map(tab => ( */}
+             {['scouts', 'activities', 'progress'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
@@ -1048,8 +1118,8 @@ export default function LeaderDashboard() {
                   />
                   <input
                     type="number"
-                    min="1"
-                    placeholder="Spots"
+                    // min="1"
+                    placeholder="Open Spots"
                     value={newActivityForm.spots}
                     onChange={(e) => setNewActivityForm({ ...newActivityForm, spots: e.target.value })}
                     style={{
@@ -1063,7 +1133,7 @@ export default function LeaderDashboard() {
                   />
                   <input
                     type="number"
-                    min="0"
+                    // min="0"
                     step="0.01"
                     placeholder="Dues ($)"
                     value={newActivityForm.dues}
@@ -1095,23 +1165,41 @@ export default function LeaderDashboard() {
                     fontFamily: 'inherit'
                   }}
                 />
-                <button
-                  onClick={handleCreateActivity}
-                  style={{
-                    width: '100%',
-                    padding: '12px 24px',
-                    background: 'rgba(0, 214, 143, 0.2)',
-                    border: '1px solid rgba(0, 214, 143, 0.3)',
-                    color: '#00d68f',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <Plus size={18} style={{ display: 'inline', marginRight: 6 }} />
-                  Create Activity
-                </button>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={handleCreateActivity}
+                    style={{
+                      flex: 1,
+                      padding: '12px 24px',
+                      background: 'rgba(0, 214, 143, 0.2)',
+                      border: '1px solid rgba(0, 214, 143, 0.3)',
+                      color: '#00d68f',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Plus size={18} style={{ display: 'inline', marginRight: 6 }} />
+                    Create Activity
+                  </button>
+                  <button
+                    onClick={handleSendNewsletter}
+                    style={{
+                      flex: 1,
+                      padding: '12px 24px',
+                      background: 'rgba(212, 168, 83, 0.2)',
+                      border: '1px solid rgba(212, 168, 83, 0.3)',
+                      color: '#d4a853',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    📧 Send Monday Newsletter
+                  </button>
+                </div>
               </div>
 
               {/* Activity List */}
@@ -1132,7 +1220,7 @@ export default function LeaderDashboard() {
             </motion.div>
           )}
 
-          {/* EVENTS TAB */}
+           {/* EVENTS TAB */}
           {selectedTab === 'events' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
               {/* Create Event Form */}
@@ -1317,7 +1405,7 @@ export default function LeaderDashboard() {
                 )}
               </div>
             </motion.div>
-          )}
+          )} 
 
           {/* INVITATIONS TAB */}
           {selectedTab === 'invitations' && (
@@ -1534,6 +1622,215 @@ export default function LeaderDashboard() {
           )}
         </div>
       </section>
+
+      {/* EDIT ACTIVITY MODAL */}
+      {editingActivity && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 12,
+              padding: 32,
+              maxWidth: 500,
+              width: '90%',
+              maxHeight: '90vh',
+              overflow: 'auto'
+            }}
+          >
+            <h2 style={{ marginTop: 0, marginBottom: 20, color: '#fff' }}>Edit Activity</h2>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: 'block', color: '#9ca3af', fontSize: '0.85rem', marginBottom: 4 }}>Title</label>
+              <input
+                type="text"
+                value={editForm.title}
+                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: 6,
+                  color: '#fff',
+                  fontSize: '0.95rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={{ display: 'block', color: '#9ca3af', fontSize: '0.85rem', marginBottom: 4 }}>Date</label>
+                <input
+                  type="date"
+                  value={editForm.date}
+                  onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', color: '#9ca3af', fontSize: '0.85rem', marginBottom: 4 }}>Time</label>
+                <input
+                  type="time"
+                  value={editForm.time}
+                  onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: 'block', color: '#9ca3af', fontSize: '0.85rem', marginBottom: 4 }}>Location</label>
+              <input
+                type="text"
+                value={editForm.location}
+                onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: 6,
+                  color: '#fff',
+                  fontSize: '0.95rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={{ display: 'block', color: '#9ca3af', fontSize: '0.85rem', marginBottom: 4 }}>Spots</label>
+                <input
+                  type="number"
+                  value={editForm.spots}
+                  onChange={(e) => setEditForm({ ...editForm, spots: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', color: '#9ca3af', fontSize: '0.85rem', marginBottom: 4 }}>Dues ($)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editForm.dues}
+                  onChange={(e) => setEditForm({ ...editForm, dues: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', color: '#9ca3af', fontSize: '0.85rem', marginBottom: 4 }}>Description</label>
+              <textarea
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: 6,
+                  color: '#fff',
+                  fontSize: '0.95rem',
+                  minHeight: '80px',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <motion.button
+                onClick={handleSaveEdit}
+                style={{
+                  flex: 1,
+                  padding: '12px 24px',
+                  background: 'rgba(0, 214, 143, 0.2)',
+                  border: '1px solid rgba(0, 214, 143, 0.3)',
+                  color: '#00d68f',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  transition: 'all 0.2s'
+                }}
+                whileHover={{ background: 'rgba(0, 214, 143, 0.3)' }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Save Changes
+              </motion.button>
+              <motion.button
+                onClick={handleCancelEdit}
+                style={{
+                  flex: 1,
+                  padding: '12px 24px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: '#9ca3af',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  transition: 'all 0.2s'
+                }}
+                whileHover={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Cancel
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </>
   );
 }
