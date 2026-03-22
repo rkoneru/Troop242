@@ -225,7 +225,7 @@ export default function ScoutDashboard() {
       {/* Hero Section */}
       <section
         style={{
-          background: 'linear-gradient(135deg, var(--bg-secondary), var(--bg-primary))',
+          background: 'var(--bg-secondary)',
           padding: '40px 20px',
           borderBottom: '1px solid var(--divider)',
         }}
