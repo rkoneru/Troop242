@@ -57,10 +57,13 @@ export default function LeaderDashboard() {
       return;
     }
 
+    console.log('📊 LeaderDashboard: Loading scouts for user:', user.uid, 'role:', profile.role);
+
     // Set up real-time listener for scouts (all users with role=scout)
     const unsubscribe = onSnapshot(
       collection(db, 'users'),
       (snap) => {
+        console.log('✓ Scouts data received:', snap.docs.length, 'total users');
         const scouts = snap.docs
           .map(doc => ({
             id: doc.id,
@@ -68,10 +71,11 @@ export default function LeaderDashboard() {
           }))
           .filter(u => u.role === 'scout')
           .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        console.log('✓ Filtered to', scouts.length, 'scouts');
         setScoutsData(scouts);
       },
       (error) => {
-        console.error('Error loading scouts:', error);
+        console.error('❌ Error loading scouts:', error.code, error.message);
         setScoutsData([]);
       }
     );
@@ -83,15 +87,19 @@ export default function LeaderDashboard() {
   useEffect(() => {
     if (loading || !user) return;
 
+    console.log('📊 LeaderDashboard: Loading activities for user:', user.uid);
+
     // Set up real-time listener for activities collection
     const unsubscribe = onSnapshot(
       query(collection(db, 'activities')),
       (snap) => {
+        console.log('✓ Activities data received:', snap.docs.length, 'items');
         const items = snap.docs.map(d => ({ id: d.id, ...d.data(), signedUp: d.data().signedUp || [] }));
+        console.log('✓ Activities loaded:', items.length);
         setAllItems(items);
       },
       (err) => {
-        console.error('Error listening to activities:', err);
+        console.error('❌ Error listening to activities:', err.code, err.message);
       }
     );
 
