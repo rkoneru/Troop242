@@ -49,9 +49,8 @@ service cloud.firestore {
       // Scout can only read own profile
       allow read: if isOwnUser(uid) && isScout();
 
-      // Leaders/admins can read scouts (not other leaders)
-      allow read: if isLeader() &&
-                       (isOwnUser(uid) || get(/databases/$(database)/documents/users/$(uid)).data.role == 'scout');
+      // Leaders/admins can read all users in the collection
+      allow read: if isLeader();
 
       // Users can only write their own profile
       allow write: if isOwnUser(uid) && isValidUser(request.resource.data);
@@ -62,10 +61,10 @@ service cloud.firestore {
 
     // ACTIVITIES COLLECTION - Role-based access
     match /activities/{activityId} {
-      // Scouts: read all, write/update only own signups
-      allow read: if isScout();
+      // Scouts & Leaders: read all activities
+      allow read: if isScout() || isLeader();
 
-      // Leaders: read all, create/update own, read signups
+      // Leaders: create/update own, read signups
       allow create: if isLeader() && isValidActivity(request.resource.data) && request.resource.data.createdBy == request.auth.uid;
       allow update: if isLeader() &&
                         resource.data.createdBy == request.auth.uid &&
