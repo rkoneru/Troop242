@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knot Quiz — Scout Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --g:#1B4332;--gm:#2D6A4F;--gl:#52B788;--gp:#D8F3DC;
+  --bg:#F7F8F5;--w:#fff;--bd:#E2E8F0;--t:#111827;--mu:#6B7280;
+  --correct:#16A34A;--correctp:#DCFCE7;--wrong:#DC2626;--wrongp:#FEE2E2;
+  --r:12px;--sh:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+.hdr{background:var(--g);padding:16px 20px;display:flex;align-items:center;gap:14px}
+.back{text-decoration:none;color:rgba(255,255,255,.65);font-size:14px;font-weight:500;
+  display:flex;align-items:center;gap:4px;transition:.15s}
+.back:hover{color:#fff}
+.hdr-title{color:#fff;font-size:17px;font-weight:700}
+.hdr-sub{color:rgba(255,255,255,.55);font-size:12px}
+
+.screen{display:none;animation:fadeIn .3s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 57px);padding:32px 20px;text-align:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--g);color:#fff;border:none;border-radius:10px;
+  padding:13px 30px;font-size:15px;font-weight:700;cursor:pointer;
+  transition:.2s;font-family:'Outfit',sans-serif}
+.btn:hover{background:var(--gm);transform:translateY(-1px);box-shadow:0 4px 16px rgba(27,67,50,.25)}
+.btn:active{transform:none}
+.btn-outline{background:var(--w);color:var(--g);border:2px solid var(--bd)}
+.btn-outline:hover{background:var(--gp);border-color:var(--gl);transform:none;box-shadow:none}
+
+/* INTRO */
+.intro-card{background:var(--w);border:1px solid var(--bd);border-radius:16px;
+  padding:40px 36px;max-width:460px;width:100%;box-shadow:var(--sh)}
+.intro-icon{font-size:52px;margin-bottom:16px}
+.intro-card h2{font-size:26px;font-weight:800;margin-bottom:10px;letter-spacing:-.5px}
+.intro-card p{color:var(--mu);font-size:15px;line-height:1.65;margin-bottom:28px}
+
+/* PROGRESS */
+.progress-wrap{max-width:620px;margin:24px auto 0;padding:0 20px}
+.progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-label{font-size:13px;font-weight:600;color:var(--mu)}
+.prog-score{font-size:14px;font-weight:700;color:var(--gm)}
+.progress-bar{height:6px;background:var(--bd);border-radius:100px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gl);border-radius:100px;transition:width .4s ease}
+
+/* QUESTION */
+.q-wrap{max-width:620px;margin:24px auto 0;padding:0 20px 40px}
+.q-card{background:var(--w);border:1px solid var(--bd);border-radius:16px;
+  padding:32px;box-shadow:var(--sh);margin-bottom:16px}
+.q-num{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.q-icon{font-size:24px}
+.q-text{font-size:17px;font-weight:600;line-height:1.55;color:var(--t)}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{background:var(--w);border:2px solid var(--bd);border-radius:10px;
+  padding:14px 18px;font-size:14px;font-weight:600;cursor:pointer;
+  transition:.18s;text-align:left;font-family:'Outfit',sans-serif;color:var(--t)}
+.opt:hover:not(.disabled){border-color:var(--gl);background:var(--gp);transform:translateY(-1px)}
+.opt.correct{border-color:var(--correct);background:var(--correctp);color:var(--correct)}
+.opt.wrong{border-color:var(--wrong);background:var(--wrongp);color:var(--wrong)}
+.opt.disabled{cursor:default;pointer-events:none}
+.fact-box{background:var(--gp);border:1px solid var(--gl);border-radius:10px;
+  padding:14px 18px;font-size:13.5px;color:var(--gm);line-height:1.6;
+  margin-top:14px;font-weight:500;display:none}
+.fact-box.show{display:block;animation:fadeIn .3s ease}
+.next-row{display:flex;justify-content:flex-end;margin-top:16px}
+
+/* RESULTS */
+.results-card{background:var(--w);border:1px solid var(--bd);border-radius:16px;
+  padding:36px;max-width:520px;width:100%;box-shadow:var(--sh)}
+.results-hero{margin-bottom:24px}
+.results-emoji{font-size:52px;margin-bottom:8px}
+.results-score{font-size:60px;font-weight:800;color:var(--g);line-height:1}
+.results-msg{font-size:16px;font-weight:600;color:var(--mu);margin-top:6px;margin-bottom:28px}
+.breakdown{display:flex;gap:12px;margin-bottom:28px;justify-content:center}
+.bk{background:var(--bg);border-radius:10px;padding:16px 24px;text-align:center;flex:1;max-width:140px}
+.bk-num{font-size:28px;font-weight:800}
+.bk-num.c{color:var(--correct)}
+.bk-num.w{color:var(--wrong)}
+.bk-lbl{font-size:12px;color:var(--mu);font-weight:500;margin-top:2px}
+.review{text-align:left;margin-bottom:28px}
+.review-title{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.review-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.review-item:last-child{border-bottom:none}
+.review-icon{font-size:14px}
+.results-btns{display:flex;gap:10px;flex-wrap:wrap}
+
+@media(max-width:500px){.options{grid-template-columns:1fr}.breakdown{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <a href="scout-games-hub.html" class="back">← Games</a>
+  <div>
+    <div class="hdr-title">🪢 Knot Quiz</div>
+    <div class="hdr-sub">10 questions · Scout Knots</div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div id="intro-screen" class="screen active">
+  <div class="center">
+    <div class="intro-card">
+      <div class="intro-icon">🪢</div>
+      <h2>Knot Quiz</h2>
+      <p>Can you identify the right knot for each job? From joining ropes to lashing poles, test your knowledge of the ten essential Scout knots.</p>
+      <button class="btn" onclick="startQuiz()">▶ Start Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span class="prog-label" id="q-label">Question 1 of 10</span>
+      <span class="prog-score" id="q-score">Score: 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="q-wrap">
+    <div class="q-card">
+      <div class="q-num"><span class="q-icon">🪢</span><span id="q-num-text">Question 1</span></div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+    <div class="options" id="options"></div>
+    <div class="fact-box" id="fact-box"></div>
+    <div class="next-row">
+      <button class="btn" id="next-btn" style="display:none" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen" class="screen">
+  <div class="center">
+    <div class="results-card">
+      <div class="results-hero">
+        <div class="results-emoji" id="res-emoji"></div>
+        <div class="results-score" id="res-score"></div>
+        <div class="results-msg" id="res-msg"></div>
+      </div>
+      <div class="breakdown">
+        <div class="bk"><div class="bk-num c" id="r-c">0</div><div class="bk-lbl">Correct</div></div>
+        <div class="bk"><div class="bk-num w" id="r-w">0</div><div class="bk-lbl">Wrong</div></div>
+      </div>
+      <div class="review">
+        <div class="review-title">Quick Review</div>
+        <div id="review-list"></div>
+      </div>
+      <div class="results-btns">
+        <button class="btn" onclick="startQuiz()">🔄 Try Again</button>
+        <button class="btn btn-outline" onclick="location.href='scout-games-hub.html'">← All Games</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS=[
+  {q:"You need to join two ropes of equal diameter into one long rope. Which classic Scout knot do you tie?",
+   opts:["Square Knot","Bowline","Sheet Bend","Clove Hitch"],ans:0,
+   fact:"The Square Knot joins two ropes of equal thickness. It's easy to tie and untie — but avoid it for critical loads since it can slip if the rope diameters differ."},
+  {q:"You need a fixed loop at the end of a rope that won't slip or tighten under load — to toss around a post or use in a rescue. Which knot?",
+   opts:["Figure-Eight","Bowline","Taut-line Hitch","Two Half Hitches"],ans:1,
+   fact:"The Bowline (BOE-lin) creates a fixed loop that won't slip or jam. Sailors call it the 'king of knots.' Memory trick: the rabbit comes out of the hole, around the tree, and back in."},
+  {q:"You need to attach a rope to a flagpole, tree, or spar as a starting point for a lashing. Which knot works best on cylindrical objects?",
+   opts:["Timber Hitch","Clove Hitch","Bowline","Overhand Knot"],ans:1,
+   fact:"The Clove Hitch is the go-to knot for attaching to poles or trees. It's also the traditional starting knot for Square, Diagonal, and Shear lashings."},
+  {q:"Your two ropes are different thicknesses and need to be joined. Which knot is specifically designed for mismatched rope diameters?",
+   opts:["Square Knot","Bowline","Sheet Bend","Figure-Eight"],ans:2,
+   fact:"The Sheet Bend handles mismatched rope diameters. The thicker rope forms the U-shape (bight) and the thinner rope threads through it. For extra security, use a Double Sheet Bend."},
+  {q:"You want to prevent a rope from slipping through a pulley or hole. Which knot creates a reliable 'stopper' at the rope's end?",
+   opts:["Figure-Eight","Square Knot","Clove Hitch","Taut-line Hitch"],ans:0,
+   fact:"The Figure-Eight is the standard stopper knot — bulky enough to catch, and easy to untie even after heavy loading. It's also the foundation of the Figure-Eight Follow-Through used in climbing."},
+  {q:"Setting up a tent in camp, you need a knot on the guy-line that slides to adjust tension but grips firmly when loaded. Which knot?",
+   opts:["Bowline","Clove Hitch","Taut-line Hitch","Sheet Bend"],ans:2,
+   fact:"The Taut-line Hitch is the tent-line knot. It slides along the rope for tension adjustment but locks under load. One of the few truly adjustable hitches in the Scout toolkit."},
+  {q:"Your patrol needs to drag a heavy log to build a pioneering gateway. Which knot grips tighter the more you pull on it?",
+   opts:["Timber Hitch","Bowline","Square Knot","Two Half Hitches"],ans:0,
+   fact:"The Timber Hitch wraps around timber and self-tightens under tension — perfect for dragging or hoisting logs. For directional control, add a Half Hitch a foot up the log."},
+  {q:"You need to tie a rope to a ring, rail, or post quickly and reliably. Which knot uses two loops in the same direction around the standing part?",
+   opts:["Clove Hitch","Two Half Hitches","Bowline","Round Turn & Two Half Hitches"],ans:1,
+   fact:"Two Half Hitches tie quickly and hold well for attaching to rings, rails, and posts. They won't jam under moderate load and are easy to release."},
+  {q:"You're building a pioneering bridge and need to bind two poles together at a right angle. Which lashing technique do you use?",
+   opts:["Round Lashing","Square Lashing","Diagonal Lashing","Tripod Lashing"],ans:1,
+   fact:"Square Lashing secures two spars at right angles. Wrap the rope between the poles (frapping turns) to lock everything tight. It's the foundation of almost all camp gadget construction."},
+  {q:"You need maximum holding power when tying to a post — more secure than Two Half Hitches. Which knot adds a full wrap for extra grip?",
+   opts:["Clove Hitch","Timber Hitch","Round Turn & Two Half Hitches","Bowline on a Bight"],ans:2,
+   fact:"Round Turn & Two Half Hitches adds a full wrap around the object before the hitches. This spreads the load, reduces wear, and provides the most secure attachment — traditional for mooring boats."}
+];
+
+let curQ=0, score=0, userAnswers=[], answered=false;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startQuiz(){
+  curQ=0; score=0; userAnswers=[];
+  renderQuestion();
+  showScreen('quiz-screen');
+}
+
+function renderQuestion(){
+  answered=false;
+  const q=QUESTIONS[curQ];
+  document.getElementById('q-label').textContent=`Question ${curQ+1} of 10`;
+  document.getElementById('q-score').textContent=`Score: ${score}`;
+  document.getElementById('q-num-text').textContent=`Question ${curQ+1}`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('prog-fill').style.width=`${curQ*10}%`;
+  document.getElementById('fact-box').classList.remove('show');
+  document.getElementById('fact-box').style.display='none';
+  document.getElementById('next-btn').style.display='none';
+
+  const opts=document.getElementById('options');
+  opts.innerHTML=q.opts.map((o,i)=>`
+    <button class="opt" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${o}</button>
+  `).join('');
+}
+
+function answer(i){
+  if(answered) return;
+  answered=true;
+  const q=QUESTIONS[curQ];
+  const isCorrect=(i===q.ans);
+  if(isCorrect) score++;
+  userAnswers.push({q:q.q,chosen:q.opts[i],correct:q.opts[q.ans],ok:isCorrect});
+
+  const opts=document.querySelectorAll('.opt');
+  opts.forEach((btn,j)=>{
+    btn.classList.add('disabled');
+    if(j===q.ans) btn.classList.add('correct');
+    else if(j===i && !isCorrect) btn.classList.add('wrong');
+  });
+
+  const fb=document.getElementById('fact-box');
+  fb.textContent=`💡 ${q.fact}`;
+  fb.style.display='block';
+  fb.classList.add('show');
+  document.getElementById('q-score').textContent=`Score: ${score}`;
+  document.getElementById('next-btn').style.display='flex';
+  document.getElementById('next-btn').textContent=curQ<9?'Next →':'See Results';
+}
+
+function nextQuestion(){
+  curQ++;
+  if(curQ>=QUESTIONS.length){showResults();return;}
+  renderQuestion();
+}
+
+function showResults(){
+  document.getElementById('prog-fill').style.width='100%';
+  const pct=score/10;
+  const emojis=['😅','😐','🙂','😊','🌟','🏆'];
+  document.getElementById('res-emoji').textContent=emojis[Math.floor(pct*5)];
+  document.getElementById('res-score').textContent=`${score}/10`;
+  const msgs=[
+    [10,'Perfect score! Eagle-level knot knowledge! 🦅'],
+    [8,'Excellent! You clearly know your knots.'],
+    [6,'Good job! A few to review.'],
+    [4,'Decent start — keep practicing!'],
+    [0,'Time to hit the knot board! You\'ve got this.']
+  ];
+  document.getElementById('res-msg').textContent=msgs.find(([t])=>score>=t)[1];
+  document.getElementById('r-c').textContent=score;
+  document.getElementById('r-w').textContent=10-score;
+
+  document.getElementById('review-list').innerHTML=userAnswers.map(a=>`
+    <div class="review-item">
+      <span class="review-icon">${a.ok?'✅':'❌'}</span>
+      <span style="flex:1;color:var(--mu);font-size:12px">${a.correct}</span>
+    </div>`).join('');
+
+  showScreen('results-screen');
+}
+</script>
+</body>
+</html>

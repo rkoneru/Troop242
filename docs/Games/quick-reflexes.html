@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Reflexes — Troop 242</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --pink: #EC4899; --pinkp: #FCE7F3; --g: #1B4332; --gl: #52B788;
+      --bg: #F7F8F5; --w: #fff; --bd: #E2E8F0; --t: #111827; --mu: #6B7280;
+      --r: 14px; --sh: 0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--t);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      background: linear-gradient(135deg, var(--pink) 0%, #F472B6 100%);
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(236, 72, 153, .2) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+    .sub {
+      color: rgba(255, 255, 255, .7);
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .15s;
+    }
+    .back-btn:hover { background: rgba(255, 255, 255, .25); }
+
+    .container { max-width: 700px; margin: 0 auto; }
+    .game-wrapper { display: flex; flex-direction: column; gap: 32px; }
+
+    .game-card {
+      background: var(--w);
+      border: 2px solid var(--bd);
+      border-radius: var(--r);
+      padding: 32px;
+      box-shadow: var(--sh);
+    }
+
+    .game-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--t);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .reaction-display {
+      background: var(--pinkp);
+      border: 3px solid var(--pink);
+      border-radius: 10px;
+      padding: 40px;
+      text-align: center;
+      margin: 24px 0;
+      font-size: 3rem;
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .reaction-display.waiting {
+      background: #FF6B9D;
+      color: #fff;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .reaction-display.ready {
+      background: var(--gl);
+      color: #fff;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .stats-display {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .stat-item {
+      background: var(--pinkp);
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--pink);
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--pink);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .btn-primary {
+      background: var(--pink);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #BE185D;
+      transform: translateY(-2px);
+    }
+
+    .results-card {
+      background: var(--pinkp);
+      border: 2px solid var(--pink);
+      border-radius: var(--r);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--sh);
+    }
+
+    .score-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--pink);
+      margin: 20px 0;
+    }
+
+    .message-text {
+      font-size: 1rem;
+      color: var(--t);
+      margin: 20px 0;
+    }
+
+    @media (max-width: 640px) {
+      .game-card { padding: 24px; }
+      .reaction-display { padding: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="scout-games-hub.html" class="back-btn">← Back</a>
+    <h1>⚡ Quick Reflexes</h1>
+    <p class="sub">Test your reaction time speed</p>
+  </header>
+
+  <div class="container">
+    <div id="gameContainer" class="game-wrapper">
+      <div id="gameCard" class="game-card">
+        <div class="game-title">Click when the box turns GREEN!</div>
+
+        <div class="stats-display">
+          <div class="stat-item">
+            <div class="stat-label">Rounds</div>
+            <div class="stat-value" id="roundCount">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Best</div>
+            <div class="stat-value" id="bestTime">—</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Avg</div>
+            <div class="stat-value" id="avgTime">—</div>
+          </div>
+        </div>
+
+        <div class="reaction-display waiting" id="reactionBox" onclick="clickBox()">
+          WAIT...
+        </div>
+
+        <button id="startBtn" class="btn btn-primary" onclick="startRound()">Start</button>
+        <button id="endBtn" class="btn btn-primary" onclick="endGame()" style="display: none; margin-top: 12px;">Done</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen" style="display: none;">
+      <div class="results-card">
+        <div style="font-size: 4rem; margin: 20px 0;">⚡</div>
+        <p style="font-size: 1rem; color: var(--pink); font-weight: 600;">Average Reaction Time</p>
+        <div class="score-display" id="finalScore"></div>
+        <p class="message-text" id="resultMessage"></p>
+        <button class="btn btn-primary" onclick="resetGame()" style="margin-top: 20px;">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let gameActive = false;
+    let roundStartTime = 0;
+    let times = [];
+    let rounds = 0;
+    const MAX_ROUNDS = 5;
+
+    function startRound() {
+      const box = document.getElementById('reactionBox');
+      box.textContent = 'WAIT...';
+      box.className = 'reaction-display waiting';
+      document.getElementById('startBtn').disabled = true;
+
+      const delay = 1000 + Math.random() * 3000;
+      setTimeout(() => {
+        box.textContent = 'CLICK!';
+        box.className = 'reaction-display ready';
+        roundStartTime = Date.now();
+        gameActive = true;
+      }, delay);
+    }
+
+    function clickBox() {
+      if (!gameActive) return;
+
+      gameActive = false;
+      const reactionTime = Date.now() - roundStartTime;
+      times.push(reactionTime);
+      rounds++;
+
+      document.getElementById('roundCount').textContent = rounds;
+
+      const bestTime = Math.min(...times);
+      document.getElementById('bestTime').textContent = bestTime + 'ms';
+
+      const avgTime = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+      document.getElementById('avgTime').textContent = avgTime + 'ms';
+
+      if (rounds < MAX_ROUNDS) {
+        const box = document.getElementById('reactionBox');
+        box.textContent = reactionTime + 'ms';
+        box.className = 'reaction-display';
+        document.getElementById('startBtn').disabled = false;
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'block';
+
+      const avgTime = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+      document.getElementById('finalScore').textContent = avgTime + 'ms';
+
+      let message = '';
+      if (avgTime < 200) {
+        message = '🏆 Incredible! You have elite reflexes!';
+      } else if (avgTime < 300) {
+        message = '⚡ Excellent! Very fast reaction time!';
+      } else if (avgTime < 400) {
+        message = '👍 Good reflexes! Keep practicing.';
+      } else if (avgTime < 500) {
+        message = '📚 Average reflexes. Keep training!';
+      } else {
+        message = '🎯 Work on your reaction time!';
+      }
+      document.getElementById('resultMessage').textContent = message;
+    }
+
+    function endGame() {
+      if (rounds > 0) {
+        showResults();
+      } else {
+        alert('Complete at least one round!');
+      }
+    }
+
+    function resetGame() {
+      times = [];
+      rounds = 0;
+      gameActive = false;
+      document.getElementById('gameContainer').style.display = 'flex';
+      document.getElementById('resultsScreen').style.display = 'none';
+      document.getElementById('roundCount').textContent = '0';
+      document.getElementById('bestTime').textContent = '—';
+      document.getElementById('avgTime').textContent = '—';
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('reactionBox').textContent = 'WAIT...';
+      document.getElementById('reactionBox').className = 'reaction-display waiting';
+    }
+  </script>
+</body>
+</html>
