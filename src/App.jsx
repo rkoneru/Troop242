@@ -55,19 +55,18 @@ function ThemeManager({ children }) {
   useEffect(() => {
     const isScout = profile?.role === 'scout';
 
-    // Color theme: user override > scout default > global default
+    // Color theme: user override > admin default > fallback to 'current'
     const userTheme = localStorage.getItem('troopTheme');
     const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
-    const scoutDefault = isScout ? 'white' : null;
-    const active = userTheme || scoutDefault || adminDefault;
+    const active = userTheme || adminDefault;
     const tokens = THEMES[active]?.tokens || THEMES.current.tokens;
     Object.entries(tokens).forEach(([key, value]) => {
       document.documentElement.style.setProperty(key, value);
     });
 
-    // UI framework: user override > scout default > global default
+    // UI framework: user override > default to 'glass'
     const userFramework = localStorage.getItem('troopFramework');
-    const activeFramework = userFramework || (isScout ? 'liquid' : 'glass');
+    const activeFramework = userFramework || 'glass';
     document.body.setAttribute('data-framework', activeFramework);
   }, [profile]);
 
