@@ -239,9 +239,10 @@ export default function Header() {
                         >
                           📊 Scout Dashboard
                         </Link>
-                        <a
-                          href="/Troop242/Games/scout-portal.html"
+                        <Link
+                          to="/scout-portal"
                           onClick={() => {
+                            scrollToTop();
                             setUserMenuOpen(false);
                           }}
                           style={{
@@ -258,7 +259,7 @@ export default function Header() {
                           onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                         >
                           🎮 Scout Portal
-                        </a>
+                        </Link>
                         {/* <Link
                           to="/profile"
                           onClick={() => {
