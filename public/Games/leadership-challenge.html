@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leadership Challenge — Troop 242</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --amber: #D97706; --amberp: #FEF3C7; --g: #1B4332; --gl: #52B788;
+      --red: #EF4444; --redp: #FEE2E2;
+      --bg: #F7F8F5; --w: #fff; --bd: #E2E8F0; --t: #111827; --mu: #6B7280;
+      --r: 14px; --sh: 0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--t);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      background: linear-gradient(135deg, var(--amber) 0%, #FBBF24 100%);
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(217, 119, 6, .2) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+    .sub {
+      color: rgba(255, 255, 255, .7);
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .15s;
+    }
+    .back-btn:hover {
+      background: rgba(255, 255, 255, .25);
+      gap: 8px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .game-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber) 0%, #FBBF24 100%);
+      transition: width 0.3s ease;
+    }
+
+    .scenario-card {
+      background: var(--w);
+      border: 2px solid var(--bd);
+      border-radius: var(--r);
+      padding: 32px;
+      box-shadow: var(--sh);
+    }
+
+    .scenario-num {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .scenario-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--t);
+      margin-bottom: 20px;
+    }
+
+    .scenario-text {
+      background: var(--amberp);
+      border-left: 4px solid var(--amber);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .choice-btn {
+      padding: 16px 20px;
+      border: 2px solid var(--bd);
+      border-radius: 10px;
+      background: var(--w);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: 'Outfit', sans-serif;
+      text-align: left;
+    }
+
+    .choice-btn:hover {
+      border-color: var(--amber);
+      background: var(--amberp);
+    }
+
+    .choice-btn.selected {
+      border-color: var(--amber);
+      background: var(--amberp);
+    }
+
+    .choice-btn.correct {
+      border-color: var(--gl);
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+    }
+
+    .choice-btn.incorrect {
+      border-color: var(--red);
+      background: var(--redp);
+      color: var(--red);
+    }
+
+    .choice-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .feedback {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .feedback.correct {
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+      border-left: 4px solid var(--gl);
+    }
+
+    .feedback.incorrect {
+      background: var(--redp);
+      color: var(--red);
+      border-left: 4px solid var(--red);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: all .2s ease;
+      letter-spacing: .3px;
+    }
+
+    .btn-primary {
+      background: var(--amber);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #B45309;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(217, 119, 6, .2);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .results-card {
+      background: var(--amberp);
+      border: 2px solid var(--amber);
+      border-radius: var(--r);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--sh);
+    }
+
+    .results-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    .score-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+
+    .score-label {
+      font-size: 1.1rem;
+      color: var(--amber);
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .result-message {
+      font-size: 1.2rem;
+      color: var(--t);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-box {
+      background: var(--w);
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid var(--bd);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--amber);
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 32px 20px;
+        margin-bottom: 32px;
+      }
+
+      .scenario-card {
+        padding: 24px;
+      }
+
+      .score-display {
+        font-size: 2.5rem;
+      }
+
+      .results-card {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="scout-games-hub.html" class="back-btn">← Back</a>
+    <h1>👥 Leadership Challenge</h1>
+    <p class="sub">Make smart decisions in leadership situations</p>
+  </header>
+
+  <div class="container">
+    <div id="gameContainer" class="game-wrapper">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <div id="scenarioCard" class="scenario-card">
+        <div class="scenario-num" id="scenarioNum"></div>
+        <div class="scenario-title" id="scenarioTitle"></div>
+        <div id="scenarioText" class="scenario-text"></div>
+        <div class="choices" id="choicesContainer"></div>
+        <button id="nextBtn" class="btn btn-primary" onclick="nextScenario()" style="display: none; margin-top: 20px;">Next Scenario</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen" style="display: none;">
+      <div class="results-card">
+        <div class="results-icon">👑</div>
+        <div class="score-display" id="finalScore"></div>
+        <div class="score-label">out of 6 scenarios</div>
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Correct</div>
+            <div class="stat-value" id="correctCount"></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value" id="accuracy"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="resetGame()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SCENARIOS = [
+      {
+        title: "Team Member Not Participating",
+        scenario: "During a group activity, one scout sits aside and won't participate. What do you do?",
+        choices: [
+          "Force them to join or criticize them in front of others",
+          "Approach them privately, listen to their concerns, and find a way to involve them",
+          "Ignore them and let them sit out",
+          "Tell another leader about them"
+        ],
+        correct: 1,
+        explanation: "Good leaders listen and understand. Approaching privately shows respect and helps solve the real issue. This builds trust and gets better participation."
+      },
+      {
+        title: "Conflict Between Two Scouts",
+        scenario: "Two scouts on your team are arguing loudly and disrupting the activity. How do you handle it?",
+        choices: [
+          "Tell them to stop fighting or remove them from the group",
+          "Separate them calmly, listen to both sides, help them understand each other, work toward a solution",
+          "Take the side of your favorite scout",
+          "Let them fight it out among themselves"
+        ],
+        correct: 1,
+        explanation: "Mediating conflicts builds stronger teams. Listening to both sides shows fairness and teaches scouts how to resolve disagreements constructively."
+      },
+      {
+        title: "Decision-Making Time",
+        scenario: "Your patrol needs to choose between two activities. You prefer option A, but most of the team wants option B. What do you do?",
+        choices: [
+          "Do option A anyway because you're the leader",
+          "Listen to the team's reasons and respect their choice if it's reasonable",
+          "Compromise by doing both (even if not practical)",
+          "Cancel both activities"
+        ],
+        correct: 1,
+        explanation: "Great leaders empower their team. Respecting the group's input builds leadership skills in others and shows democratic values."
+      },
+      {
+        title: "Someone Makes a Mistake",
+        scenario: "A scout makes an error that affects the group's project. How do you respond?",
+        choices: [
+          "Blame and embarrass them publicly",
+          "Privately discuss the mistake, help them learn from it, and move forward together",
+          "Do the task over without their help",
+          "Give up on the project"
+        ],
+        correct: 1,
+        explanation: "Leaders teach through mistakes. Private feedback protects their dignity while helping them learn and grow. This builds confidence."
+      },
+      {
+        title: "Leading by Example",
+        scenario: "During a challenging hike, you're tired too, but your team is discouraged. What do you do?",
+        choices: [
+          "Complain about how tired you are",
+          "Show enthusiasm, encourage the team, and model the positive attitude you want to see",
+          "Turn back early",
+          "Ask them to carry more of your gear"
+        ],
+        correct: 1,
+        explanation: "Leaders lead by example. Your attitude influences the team. Staying positive and encouraging shows resilience and motivates others."
+      },
+      {
+        title: "Recognizing Achievement",
+        scenario: "A shy scout finally speaks up in a meeting with a good idea. What do you do?",
+        choices: [
+          "Thank them briefly and move on",
+          "Publicly praise them for their contribution and thank them for sharing",
+          "Ignore it",
+          "Say their idea was obvious"
+        ],
+        correct: 1,
+        explanation: "Recognition builds confidence and encourages future participation. Praising a shy scout builds their self-esteem and shows all team members their voice matters."
+      }
+    ];
+
+    let currentScenario = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadScenario() {
+      const s = SCENARIOS[currentScenario];
+      document.getElementById('scenarioNum').textContent = `Scenario ${currentScenario + 1} of ${SCENARIOS.length}`;
+      document.getElementById('scenarioTitle').textContent = s.title;
+      document.getElementById('scenarioText').textContent = s.scenario;
+
+      const container = document.getElementById('choicesContainer');
+      container.innerHTML = '';
+
+      s.choices.forEach((choice, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = choice;
+        btn.onclick = () => selectChoice(idx);
+        container.appendChild(btn);
+      });
+
+      const progress = ((currentScenario + 1) / SCENARIOS.length) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+
+      answered = false;
+      document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function selectChoice(idx) {
+      if (answered) return;
+
+      answered = true;
+      const s = SCENARIOS[currentScenario];
+      const buttons = document.querySelectorAll('.choice-btn');
+
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === s.correct) {
+          btn.classList.add('correct');
+        } else if (i === idx) {
+          btn.classList.add('incorrect');
+        }
+      });
+
+      if (idx === s.correct) {
+        score++;
+      }
+
+      const feedback = document.createElement('div');
+      feedback.className = idx === s.correct ? 'feedback correct' : 'feedback incorrect';
+      feedback.innerHTML = `<strong>${idx === s.correct ? '✓ Great choice!' : '✗ Different approach'}</strong><br>${s.explanation}`;
+      document.getElementById('scenarioCard').appendChild(feedback);
+
+      document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function nextScenario() {
+      currentScenario++;
+      if (currentScenario < SCENARIOS.length) {
+        loadScenario();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'block';
+
+      const percentage = Math.round((score / SCENARIOS.length) * 100);
+
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('correctCount').textContent = score;
+      document.getElementById('accuracy').textContent = percentage + '%';
+
+      let message = '';
+      if (percentage >= 80) {
+        message = "👑 Excellent leader! Your decisions show maturity and good judgment.";
+      } else if (percentage >= 60) {
+        message = "👥 Good leadership instincts! Keep developing these skills.";
+      } else if (percentage >= 40) {
+        message = "📚 Keep learning about leadership. Leadership takes practice!";
+      } else {
+        message = "🌱 Leadership is a skill you can develop. Keep growing!";
+      }
+
+      document.getElementById('resultMessage').textContent = message;
+    }
+
+    function resetGame() {
+      currentScenario = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('gameContainer').style.display = 'flex';
+      document.getElementById('resultsScreen').style.display = 'none';
+      loadScenario();
+    }
+
+    loadScenario();
+  </script>
+</body>
+</html>

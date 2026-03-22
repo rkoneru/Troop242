@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communication Game — Troop 242</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --purple: #7C3AED; --purplep: #EDE9FE; --g: #1B4332; --gl: #52B788;
+      --red: #EF4444; --redp: #FEE2E2; --gold: #C8960C;
+      --bg: #F7F8F5; --w: #fff; --bd: #E2E8F0; --t: #111827; --mu: #6B7280;
+      --r: 14px; --sh: 0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--t);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      background: linear-gradient(135deg, var(--purple) 0%, #A78BFA 100%);
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(124, 58, 237, .2) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+    .sub {
+      color: rgba(255, 255, 255, .7);
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .15s;
+    }
+    .back-btn:hover {
+      background: rgba(255, 255, 255, .25);
+      gap: 8px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .game-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple) 0%, #A78BFA 100%);
+      transition: width 0.3s ease;
+    }
+
+    .game-card {
+      background: var(--w);
+      border: 2px solid var(--bd);
+      border-radius: var(--r);
+      padding: 32px;
+      box-shadow: var(--sh);
+    }
+
+    .round-num {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .instruction-box {
+      background: var(--purplep);
+      border-left: 4px solid var(--purple);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .word-display {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      color: var(--purple);
+      background: var(--purplep);
+      padding: 24px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+    }
+
+    .input-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .input-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .text-input {
+      padding: 12px 16px;
+      border: 2px solid var(--bd);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: 'Outfit', sans-serif;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, .1);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: all .2s ease;
+      letter-spacing: .3px;
+    }
+
+    .btn-primary {
+      background: var(--purple);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #6D28D9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(124, 58, 237, .2);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .feedback {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .feedback.correct {
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+      border-left: 4px solid var(--gl);
+    }
+
+    .feedback.partial {
+      background: rgba(200, 150, 12, .15);
+      color: #92400E;
+      border-left: 4px solid var(--gold);
+    }
+
+    .results-card {
+      background: var(--purplep);
+      border: 2px solid var(--purple);
+      border-radius: var(--r);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--sh);
+    }
+
+    .results-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    .score-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--purple);
+      margin-bottom: 12px;
+    }
+
+    .score-label {
+      font-size: 1.1rem;
+      color: var(--purple);
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .result-message {
+      font-size: 1.2rem;
+      color: var(--t);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-box {
+      background: var(--w);
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid var(--bd);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--purple);
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 32px 20px;
+        margin-bottom: 32px;
+      }
+
+      .game-card {
+        padding: 24px;
+      }
+
+      .word-display {
+        font-size: 1.5rem;
+      }
+
+      .score-display {
+        font-size: 2.5rem;
+      }
+
+      .results-card {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="scout-games-hub.html" class="back-btn">← Back</a>
+    <h1>💬 Communication Game</h1>
+    <p class="sub">Give clear instructions without visual aid</p>
+  </header>
+
+  <div class="container">
+    <div id="gameContainer" class="game-wrapper">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <div id="gameCard" class="game-card">
+        <div class="round-num" id="roundNum"></div>
+        <div class="instruction-box" id="instructions"></div>
+        <div class="word-display" id="wordDisplay"></div>
+
+        <div class="input-area">
+          <label class="input-label">Write your instructions:</label>
+          <textarea id="responseInput" class="text-input" placeholder="Describe this word clearly without saying what it is..."></textarea>
+        </div>
+
+        <button id="submitBtn" class="btn btn-primary" onclick="submitResponse()">Check Response</button>
+        <button id="nextBtn" class="btn btn-primary" onclick="nextRound()" style="display: none; margin-top: 20px;">Next Round</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen" style="display: none;">
+      <div class="results-card">
+        <div class="results-icon">💬</div>
+        <div class="score-display" id="finalScore"></div>
+        <div class="score-label">out of 5 rounds</div>
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Excellent</div>
+            <div class="stat-value" id="excellentCount"></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Good</div>
+            <div class="stat-value" id="goodCount"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="resetGame()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ROUNDS = [
+      {
+        word: "TENT",
+        hints: ["shelter", "camping", "fabric", "portable home"],
+        keywords: ["shelter", "camping", "camp", "fabric", "canvas", "portable", "sleep"]
+      },
+      {
+        word: "COMPASS",
+        hints: ["navigation", "direction", "needle", "map tool"],
+        keywords: ["direction", "navigate", "needle", "magnetic", "navigation", "tool", "map"]
+      },
+      {
+        word: "ROPE",
+        hints: ["knot", "climbing", "tied", "cord"],
+        keywords: ["knot", "tied", "cord", "climb", "climbing", "secure", "tie"]
+      },
+      {
+        word: "CAMPFIRE",
+        hints: ["flame", "wood", "heat", "gathering"],
+        keywords: ["fire", "flame", "wood", "burn", "heat", "gathering", "light"]
+      },
+      {
+        word: "BACKPACK",
+        hints: ["carry", "hiking", "bag", "shoulders"],
+        keywords: ["carry", "pack", "bag", "shoulder", "hiking", "hike", "travel"]
+      }
+    ];
+
+    let currentRound = 0;
+    let score = 0;
+    let excellentCount = 0;
+    let goodCount = 0;
+    let answered = false;
+
+    function loadRound() {
+      const round = ROUNDS[currentRound];
+      document.getElementById('roundNum').textContent = `Round ${currentRound + 1} of ${ROUNDS.length}`;
+      document.getElementById('instructions').textContent = `Give clear instructions to help someone identify this word WITHOUT saying the word itself. Be creative and descriptive!`;
+      document.getElementById('wordDisplay').textContent = round.word;
+      document.getElementById('responseInput').value = '';
+
+      const progress = ((currentRound + 1) / ROUNDS.length) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+
+      answered = false;
+      document.getElementById('submitBtn').style.display = 'block';
+      document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function checkResponse() {
+      const response = document.getElementById('responseInput').value.toLowerCase().trim();
+      const round = ROUNDS[currentRound];
+
+      let quality = 0;
+      let matchedKeywords = 0;
+
+      // Check keyword matches
+      round.keywords.forEach(keyword => {
+        if (response.includes(keyword)) {
+          matchedKeywords++;
+        }
+      });
+
+      // Check if they said the word (penalty)
+      if (response.includes(round.word.toLowerCase())) {
+        return { quality: 'invalid', message: '❌ You directly mentioned the word! Try being more creative.' };
+      }
+
+      // Evaluate quality
+      if (matchedKeywords >= 4 && response.length > 40) {
+        return { quality: 'excellent', message: '🌟 Excellent! Your description is clear and detailed!' };
+      } else if (matchedKeywords >= 2 && response.length > 25) {
+        return { quality: 'good', message: '👍 Good effort! Your hints are helpful.' };
+      } else if (response.length > 15) {
+        return { quality: 'okay', message: '📝 Try adding more specific details.' };
+      } else {
+        return { quality: 'needs-work', message: '💭 Write more description to help others guess.' };
+      }
+    }
+
+    function submitResponse() {
+      if (answered) return;
+
+      const response = document.getElementById('responseInput').value.trim();
+      if (!response) {
+        alert('Please write your instructions first!');
+        return;
+      }
+
+      answered = true;
+      const evaluation = checkResponse();
+
+      if (evaluation.quality === 'excellent') {
+        excellentCount++;
+        score++;
+        document.getElementById('submitBtn').style.color = '#52B788';
+      } else if (evaluation.quality === 'good') {
+        goodCount++;
+        score++;
+        document.getElementById('submitBtn').style.color = '#C8960C';
+      }
+
+      const feedback = document.createElement('div');
+      feedback.className = evaluation.quality === 'excellent' ? 'feedback correct' :
+                          evaluation.quality === 'good' ? 'feedback partial' : 'feedback';
+      feedback.innerHTML = `<strong>${evaluation.message}</strong>`;
+      document.getElementById('gameCard').appendChild(feedback);
+
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function nextRound() {
+      currentRound++;
+      if (currentRound < ROUNDS.length) {
+        loadRound();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'block';
+
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('excellentCount').textContent = excellentCount;
+      document.getElementById('goodCount').textContent = goodCount;
+
+      let message = '';
+      if (score >= 4) {
+        message = "💬 Excellent communicator! Your descriptions are clear and creative!";
+      } else if (score >= 2) {
+        message = "👍 Good communication skills! Keep practicing describing things creatively.";
+      } else {
+        message = "📚 Keep working on descriptive language. Practice explaining things in new ways!";
+      }
+
+      document.getElementById('resultMessage').textContent = message;
+    }
+
+    function resetGame() {
+      currentRound = 0;
+      score = 0;
+      excellentCount = 0;
+      goodCount = 0;
+      answered = false;
+      document.getElementById('gameContainer').style.display = 'flex';
+      document.getElementById('resultsScreen').style.display = 'none';
+      loadRound();
+    }
+
+    loadRound();
+  </script>
+</body>
+</html>

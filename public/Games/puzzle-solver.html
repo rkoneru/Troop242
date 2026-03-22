@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puzzle Solver — Troop 242</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --indigo: #4F46E5; --indigop: #EEF2FF; --g: #1B4332; --gl: #52B788;
+      --red: #EF4444; --redp: #FEE2E2; --bg: #F7F8F5; --w: #fff; --bd: #E2E8F0; --t: #111827; --mu: #6B7280;
+      --r: 14px; --sh: 0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--t);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      background: linear-gradient(135deg, var(--indigo) 0%, #6366F1 100%);
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(79, 70, 229, .2) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+    .sub {
+      color: rgba(255, 255, 255, .7);
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .15s;
+    }
+    .back-btn:hover { background: rgba(255, 255, 255, .25); }
+
+    .container { max-width: 700px; margin: 0 auto; }
+    .game-wrapper { display: flex; flex-direction: column; gap: 32px; }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--indigo) 0%, #6366F1 100%);
+      transition: width 0.3s ease;
+    }
+
+    .puzzle-card {
+      background: var(--w);
+      border: 2px solid var(--bd);
+      border-radius: var(--r);
+      padding: 32px;
+      box-shadow: var(--sh);
+    }
+
+    .puzzle-num {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--indigo);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .puzzle-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--t);
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .puzzle-box {
+      background: var(--indigop);
+      border: 2px solid var(--indigo);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .input-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .text-input {
+      padding: 12px 16px;
+      border: 2px solid var(--bd);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, .1);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .btn-primary {
+      background: var(--indigo);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #4338CA;
+      transform: translateY(-2px);
+    }
+
+    .feedback {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    .feedback.correct {
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+      border-left: 4px solid var(--gl);
+    }
+
+    .feedback.incorrect {
+      background: var(--redp);
+      color: var(--red);
+      border-left: 4px solid var(--red);
+    }
+
+    .results-card {
+      background: var(--indigop);
+      border: 2px solid var(--indigo);
+      border-radius: var(--r);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--sh);
+    }
+
+    .score-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--indigo);
+      margin: 20px 0;
+    }
+
+    @media (max-width: 640px) {
+      .puzzle-card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="scout-games-hub.html" class="back-btn">← Back</a>
+    <h1>🧩 Puzzle Solver</h1>
+    <p class="sub">Solve logic puzzles and brain teasers</p>
+  </header>
+
+  <div class="container">
+    <div id="gameContainer" class="game-wrapper">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <div id="puzzleCard" class="puzzle-card">
+        <div class="puzzle-num" id="puzzleNum"></div>
+        <div class="puzzle-text" id="puzzleText"></div>
+        <div class="puzzle-box" id="puzzleBox"></div>
+
+        <div class="input-area">
+          <input type="text" id="answerInput" class="text-input" placeholder="Enter your answer..." onkeypress="if(event.key==='Enter') submitAnswer()">
+        </div>
+
+        <button id="submitBtn" class="btn btn-primary" onclick="submitAnswer()">Check Answer</button>
+        <button id="nextBtn" class="btn btn-primary" onclick="nextPuzzle()" style="display: none; margin-top: 12px;">Next Puzzle</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen" style="display: none;">
+      <div class="results-card">
+        <div style="font-size: 4rem; margin: 20px 0;">🧩</div>
+        <p style="font-size: 1rem; color: var(--indigo); font-weight: 600; margin: 10px 0;">Puzzles Solved</p>
+        <div class="score-display" id="finalScore"></div>
+        <p id="resultMessage" style="font-size: 1rem; color: var(--t); margin: 20px 0;"></p>
+        <button class="btn btn-primary" onclick="resetGame()" style="margin-top: 20px;">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PUZZLES = [
+      {
+        puzzle: "Three scouts need to cross a river. Their canoe can only hold 2 people at a time. How many trips must they make?",
+        answer: ["3", "three"],
+        explanation: "Trip 1: Two scouts cross. Trip 2: One returns. Trip 3: The other two cross. Total: 3 trips minimum."
+      },
+      {
+        puzzle: "I have cities, but no houses. I have forests, but no trees. What am I?",
+        answer: ["map", "a map"],
+        explanation: "A map is the answer! It shows cities and forests but not the actual buildings or trees."
+      },
+      {
+        puzzle: "Two scouts are in a tent. One is the other's son, but the first is not the son's father. How is this possible?",
+        answer: ["mother", "she's the mother", "one is the mother"],
+        explanation: "One of the scouts is the mother of the other. She is the parent but not the father."
+      },
+      {
+        puzzle: "What gets wetter the more it dries?",
+        answer: ["towel", "a towel"],
+        explanation: "A towel gets wetter as it dries things because it absorbs water."
+      },
+      {
+        puzzle: "Scout A has 12 apples. Scout B has 8 apples. How many apples do they have together?",
+        answer: ["20", "twenty"],
+        explanation: "12 + 8 = 20 apples total. Basic addition!"
+      }
+    ];
+
+    let currentPuzzle = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadPuzzle() {
+      const p = PUZZLES[currentPuzzle];
+      document.getElementById('puzzleNum').textContent = `Puzzle ${currentPuzzle + 1} of ${PUZZLES.length}`;
+      document.getElementById('puzzleText').textContent = p.puzzle;
+      document.getElementById('puzzleBox').textContent = '"' + p.puzzle + '"';
+      document.getElementById('answerInput').value = '';
+
+      const progress = ((currentPuzzle + 1) / PUZZLES.length) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+
+      answered = false;
+      document.getElementById('submitBtn').style.display = 'block';
+      document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function submitAnswer() {
+      if (answered) return;
+
+      const answer = document.getElementById('answerInput').value.toLowerCase().trim();
+      const p = PUZZLES[currentPuzzle];
+
+      answered = true;
+      const isCorrect = p.answer.some(a => a === answer);
+
+      if (isCorrect) {
+        score++;
+      }
+
+      const feedback = document.createElement('div');
+      feedback.className = isCorrect ? 'feedback correct' : 'feedback incorrect';
+      feedback.innerHTML = `<strong>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</strong><br>${p.explanation}`;
+      document.getElementById('puzzleCard').appendChild(feedback);
+
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function nextPuzzle() {
+      currentPuzzle++;
+      if (currentPuzzle < PUZZLES.length) {
+        loadPuzzle();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'block';
+
+      document.getElementById('finalScore').textContent = score;
+
+      let message = '';
+      if (score >= 4) {
+        message = '🧠 Genius! You solved almost all puzzles!';
+      } else if (score >= 3) {
+        message = '👍 Great logic skills! Keep thinking!';
+      } else if (score >= 1) {
+        message = '📚 Good effort! Logic takes practice!';
+      } else {
+        message = '🧩 Keep working on those problem-solving skills!';
+      }
+      document.getElementById('resultMessage').textContent = message;
+    }
+
+    function resetGame() {
+      currentPuzzle = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('gameContainer').style.display = 'flex';
+      document.getElementById('resultsScreen').style.display = 'none';
+      loadPuzzle();
+    }
+
+    loadPuzzle();
+  </script>
+</body>
+</html>
