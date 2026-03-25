@@ -1,0 +1,557 @@
+/* Scout Dashboard New Layout - Air7 Night Inspired */
+
+.scout-dash-new {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  overflow-x: hidden;
+}
+
+/* ============ TOP BAR ============ */
+.scout-dash-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.scout-dash-topbar h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.scout-dash-topbar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ============ MAIN LAYOUT ============ */
+.scout-dash-main {
+  display: flex;
+  flex: 1;
+  gap: 0;
+}
+
+/* LEFT SIDEBAR */
+.scout-dash-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 64px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--divider);
+  padding: 24px 0;
+  flex-shrink: 0;
+}
+
+.scout-dash-sidebar-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.scout-dash-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.scout-dash-icon-btn:hover {
+  color: var(--accent);
+  background: rgba(0, 214, 143, 0.1);
+}
+
+.scout-dash-icon-btn.active {
+  color: var(--accent);
+  background: rgba(0, 214, 143, 0.15);
+}
+
+.scout-dash-sidebar-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-size: 1.5rem;
+}
+
+/* CONTENT AREA */
+.scout-dash-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  gap: 32px;
+  overflow-y: auto;
+  max-width: 1800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============ HERO SECTION ============ */
+.scout-dash-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+
+.scout-dash-hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+}
+
+.scout-dash-hero-title {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.scout-dash-hero-title h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--text-primary);
+}
+
+.scout-dash-hero-title p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.scout-dash-rank-graphic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 280px;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.scout-dash-rank-emoji {
+  font-size: 6rem;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 30px rgba(0, 214, 143, 0.4));
+  animation: float-glow 3s ease-in-out infinite;
+}
+
+@keyframes float-glow {
+  0%, 100% {
+    transform: translateY(0px);
+    filter: drop-shadow(0 0 30px rgba(0, 214, 143, 0.4));
+  }
+  50% {
+    transform: translateY(-8px);
+    filter: drop-shadow(0 0 40px rgba(0, 214, 143, 0.6));
+  }
+}
+
+.scout-dash-rank-glow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 214, 143, 0.15), rgba(0, 214, 143, 0) 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scout-dash-rank-info {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.scout-dash-rank-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.scout-dash-rank-info p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.scout-dash-hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ============ CARDS GRID (below hero) ============ */
+.scout-dash-cards-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* ============ PROGRESS CARD ============ */
+.scout-dash-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all var(--transition-base);
+}
+
+.scout-dash-card:hover {
+  border-color: var(--accent-border);
+  box-shadow: 0 8px 32px rgba(0, 214, 143, 0.1);
+}
+
+.scout-dash-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.scout-dash-card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.scout-dash-card-icon {
+  font-size: 1.5rem;
+}
+
+.scout-dash-progress-large {
+  margin-bottom: 16px;
+}
+
+.scout-dash-progress-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.scout-dash-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--divider);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.scout-dash-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transition: width 0.6s ease;
+  border-radius: 99px;
+}
+
+.scout-dash-progress-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.scout-dash-progress-detail {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* ============ RIGHT PANELS ============ */
+.scout-dash-right-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.scout-dash-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all var(--transition-base);
+  border-left: 4px solid var(--accent);
+}
+
+.scout-dash-panel:hover {
+  box-shadow: 0 8px 32px rgba(0, 214, 143, 0.1);
+}
+
+.scout-dash-panel h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.scout-dash-panel-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.scout-dash-panel-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--divider);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.scout-dash-panel-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transition: width 0.6s ease;
+}
+
+.scout-dash-panel-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* RADIAL PROGRESS (for Activities) */
+.scout-dash-radial-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.scout-dash-radial-circle {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--accent) 0deg,
+    var(--accent) var(--progress-angle, 248.4deg),
+    var(--divider) var(--progress-angle, 248.4deg),
+    var(--divider) 360deg
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scout-dash-radial-inner {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.scout-dash-radial-percent {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.scout-dash-radial-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.scout-dash-radial-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1200px) {
+  .scout-dash-content {
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .scout-dash-hero {
+    gap: 24px;
+  }
+
+  .scout-dash-right-panels {
+    width: 280px;
+  }
+
+  .scout-dash-cards-row {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .scout-dash-main {
+    flex-direction: column;
+  }
+
+  .scout-dash-sidebar {
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--divider);
+    padding: 8px 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .scout-dash-sidebar-icons {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .scout-dash-sidebar-profile {
+    margin-left: auto;
+    margin-right: 8px;
+  }
+
+  .scout-dash-content {
+    padding: 16px;
+    gap: 16px;
+    max-width: 100%;
+  }
+
+  .scout-dash-hero {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .scout-dash-hero-left {
+    min-height: auto;
+  }
+
+  .scout-dash-rank-graphic {
+    height: 200px;
+  }
+
+  .scout-dash-rank-emoji {
+    font-size: 4rem;
+  }
+
+  .scout-dash-rank-glow {
+    width: 240px;
+    height: 240px;
+  }
+
+  .scout-dash-cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .scout-dash-right-panels {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .scout-dash-panel {
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .scout-dash-topbar {
+    flex-wrap: wrap;
+  }
+
+  .scout-dash-topbar h1 {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .scout-dash-topbar-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .scout-dash-content {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .scout-dash-hero-title h2 {
+    font-size: 1.3rem;
+  }
+
+  .scout-dash-card {
+    padding: 16px;
+  }
+
+  .scout-dash-panel {
+    flex: 0 1 100%;
+  }
+
+  .scout-dash-right-panels {
+    flex-direction: column;
+  }
+
+  .scout-dash-rank-emoji {
+    font-size: 3rem;
+  }
+
+  .scout-dash-rank-graphic {
+    height: 160px;
+  }
+
+  .scout-dash-radial-circle {
+    width: 100px;
+    height: 100px;
+  }
+
+  .scout-dash-radial-inner {
+    width: 92px;
+    height: 92px;
+  }
+
+  .scout-dash-radial-percent {
+    font-size: 1.3rem;
+  }
+}

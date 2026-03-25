@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { scrollToTop } from '../utils/scrollToTop';
 import { collection, getDocs, query, orderBy, doc, getDoc, onSnapshot } from 'firebase/firestore';
@@ -10,28 +10,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
 import { BADGE_CATEGORIES } from './Badges';
+import '../styles/ScoutDashboardNew.css';
 
-const ACTIVITIES = [
-  { id: 1, name: 'Camping Trip', icon: '⛺' },
-  { id: 2, name: 'Car Wash', icon: '🚗' },
-  { id: 3, name: 'Shop & Sell', icon: '🪵' },
-  { id: 4, name: 'Community Service', icon: '🌳' },
-  { id: 5, name: 'Hiking Expedition', icon: '🥾' },
-  { id: 6, name: 'Skill Workshop', icon: '🔧' },
-];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
 
 export default function ScoutDashboard() {
   const navigate = useNavigate();
@@ -228,180 +208,221 @@ export default function ScoutDashboard() {
   if (!user) return null;
 
   return (
-    <>
-      {/* Hero Section */}
-      <section
-        style={{
-          background: 'var(--bg-secondary)',
-          padding: '40px 20px',
-          borderBottom: '1px solid var(--divider)',
-        }}
-      >
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 20 }}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <p style={{ color: 'var(--text-muted)', marginBottom: 8, marginTop: 0 }}>Welcome back</p>
-              <h1 style={{ marginBottom: 8, marginTop: 0 }}>Scout Dashboard</h1>
-              <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', marginBottom: 0 }}>
-                {profile?.name || 'Scout'} • Working towards {currentRank.emoji} {currentRank.name}
-              </p>
-            </motion.div>
+    <div className="scout-dash-new">
+      {/* TOP BAR */}
+      <div className="scout-dash-topbar">
+        <h1>Scout Dashboard</h1>
+        <div className="scout-dash-topbar-buttons">
+          <motion.button
+            className="btn btn-primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = '/Troop242/Games/scout-portal.html';
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+          >
+            📖 Scout Portal
+          </motion.button>
+          <motion.button
+            className="btn btn-outline"
+            onClick={handleLogout}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+          >
+            <LogOut size={18} />
+            Log Out
+          </motion.button>
+        </div>
+      </div>
+
+      {/* MAIN LAYOUT */}
+      <div className="scout-dash-main">
+        {/* LEFT SIDEBAR */}
+        <div className="scout-dash-sidebar">
+          <div className="scout-dash-sidebar-icons">
             <motion.button
-              className="btn btn-outline"
-              onClick={handleLogout}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              whileHover={{ scale: 1.05 }}
+              className="scout-dash-icon-btn active"
+              onClick={() => { navigate('/scout-dashboard'); scrollToTop(); }}
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}
+              title="Dashboard"
             >
-              <LogOut size={18} />
-              Log Out
+              📊
+            </motion.button>
+            <motion.button
+              className="scout-dash-icon-btn"
+              onClick={() => { navigate('/rank-tracker'); scrollToTop(); }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              title="Rank Tracker"
+            >
+              ⚜️
+            </motion.button>
+            <motion.button
+              className="scout-dash-icon-btn"
+              onClick={() => { navigate('/merit-tracker'); scrollToTop(); }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              title="Merit Badges"
+            >
+              🎖️
+            </motion.button>
+            <motion.button
+              className="scout-dash-icon-btn"
+              onClick={() => { navigate('/activities'); scrollToTop(); }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              title="Activities"
+            >
+              📅
+            </motion.button>
+            <motion.button
+              className="scout-dash-icon-btn"
+              onClick={() => { navigate('/skills-tracker'); scrollToTop(); }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              title="Skills"
+            >
+              ⚡
             </motion.button>
           </div>
+          <div className="scout-dash-sidebar-profile" title={profile?.name || 'Scout'}>
+            👤
+          </div>
         </div>
-      </section>
 
-      {/* Main Content */}
-      <section style={{ padding: '40px 20px' }}>
-        <div className="container">
-          {/* Quick Stats Row */}
+        {/* CONTENT AREA */}
+        <div className="scout-dash-content">
+          {/* HERO SECTION */}
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: 16,
-              marginBottom: 40,
-            }}
+            className="scout-dash-hero"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            {/* Rank Progress Stat */}
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <Award size={24} style={{ color: 'var(--accent)' }} />
-                <span style={{ fontWeight: 600 }}>Rank Progress</span>
+            {/* LEFT: Rank Hero */}
+            <div className="scout-dash-hero-left">
+              <div className="scout-dash-hero-title">
+                <h2>Welcome back, {profile?.name || 'Scout'}</h2>
+                <p>Working towards {currentRank.emoji} {currentRank.name}</p>
               </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {rankProgress.percentage}%
-              </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                {rankProgress.completed}/{rankProgress.total} requirements
-              </p>
-            </motion.div>
-   
 
-            {/* Merit Badges Stat */}
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <Badge size={24} style={{ color: 'var(--accent)' }} />
-                <span style={{ fontWeight: 600 }}>Merit Badges</span>
+              <div className="scout-dash-rank-graphic">
+                <div className="scout-dash-rank-glow" />
+                <div className="scout-dash-rank-emoji">{currentRank.emoji}</div>
+                <div className="scout-dash-rank-info">
+                  <h3>{currentRank.name}</h3>
+                  <p>Rank {currentRankIdx + 1} of 7</p>
+                </div>
               </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {meritProgress.eagleRequired} 🦅 + {meritProgress.completed - meritProgress.eagleRequired}
-              </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                {meritProgress.eagleRequired} 🦅 required + {meritProgress.completed - meritProgress.eagleRequired} completed + {meritProgress.working} in progress
-              </p>
-            </motion.div>
+            </div>
 
-            {/* Misc Awards Stat */}
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <Zap size={24} style={{ color: 'var(--accent)' }} />
-                <span style={{ fontWeight: 600 }}>Misc Awards</span>
-              </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {miscAwardsProgress.percentage}%
-              </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                {miscAwardsProgress.tracked}/{miscAwardsProgress.total} tracked
-              </p>
-            </motion.div>
+            {/* RIGHT: Right Panels */}
+            <div className="scout-dash-right-panels">
+              {/* Skills Panel */}
+              <motion.div
+                className="scout-dash-panel"
+                whileHover={{ y: -2 }}
+                onClick={() => { navigate('/skills-tracker'); scrollToTop(); }}
+                style={{ cursor: 'pointer' }}
+              >
+                <h4>Skills Tracked</h4>
+                <div className="scout-dash-panel-value">{skillsProgress.percentage}%</div>
+                <div className="scout-dash-panel-bar">
+                  <div
+                    className="scout-dash-panel-fill"
+                    style={{ width: `${skillsProgress.percentage}%` }}
+                  />
+                </div>
+                <div className="scout-dash-panel-text">
+                  {skillsProgress.tracked}/{skillsProgress.total} tracked
+                </div>
+              </motion.div>
 
-            {/* Skills Stat */}
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <Zap size={24} style={{ color: 'var(--accent)' }} />
-                <span style={{ fontWeight: 600 }}>Skills</span>
-              </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {skillsProgress.percentage}%
-              </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                {skillsProgress.tracked}/{skillsProgress.total} tracked
-              </p>
-            </motion.div>
+              {/* Activities Panel (Radial) */}
+              <motion.div
+                className="scout-dash-panel"
+                whileHover={{ y: -2 }}
+                onClick={() => { navigate('/activities'); scrollToTop(); }}
+                style={{ cursor: 'pointer' }}
+              >
+                <h4>Activities</h4>
+                <div className="scout-dash-radial-wrapper">
+                  <div
+                    className="scout-dash-radial-circle"
+                    style={{
+                      '--progress-angle': `${(activityProgress.signedUp / (activityProgress.total || 1)) * 360}deg`,
+                    }}
+                  >
+                    <div className="scout-dash-radial-inner">
+                      <div className="scout-dash-radial-percent">
+                        {Math.round((activityProgress.signedUp / (activityProgress.total || 1)) * 100)}%
+                      </div>
+                      <div className="scout-dash-radial-label">Complete</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="scout-dash-radial-text">
+                  {activityProgress.signedUp} of {activityProgress.total} signed up
+                </div>
+              </motion.div>
 
-            {/* Activities Stat */}
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <Users size={24} style={{ color: 'var(--accent)' }} />
-                <span style={{ fontWeight: 600 }}>Activities</span>
-              </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {activityProgress.signedUp}
-              </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                of {activityProgress.total} signed up
-              </p>
-            </motion.div>
+              {/* Misc Awards Panel */}
+              <motion.div
+                className="scout-dash-panel"
+                whileHover={{ y: -2 }}
+                onClick={() => { navigate('/misc-awards'); scrollToTop(); }}
+                style={{ cursor: 'pointer' }}
+              >
+                <h4>Awards</h4>
+                <div className="scout-dash-panel-value">{miscAwardsProgress.percentage}%</div>
+                <div className="scout-dash-panel-bar">
+                  <div
+                    className="scout-dash-panel-fill"
+                    style={{ width: `${miscAwardsProgress.percentage}%` }}
+                  />
+                </div>
+                <div className="scout-dash-panel-text">
+                  {miscAwardsProgress.tracked}/{miscAwardsProgress.total} earned
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
 
-          {/* Main Tracking Tiles */}
+          {/* CARDS ROW */}
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: 24,
-              marginBottom: 40,
-            }}
+            className="scout-dash-cards-row"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {/* RANK TRACKER TILE */}
+            {/* RANK PROGRESS CARD */}
             <motion.div
-              variants={itemVariants}
-              className="glass-card"
-              style={{ padding: 32, cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
+              className="scout-dash-card"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => { navigate('/rank-tracker'); scrollToTop(); }}
+              style={{ cursor: 'pointer' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: '2.5rem' }}>⚜️</div>
-                <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Rank Tracker</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Track your advancement
-                  </p>
-                </div>
+              <div className="scout-dash-card-header">
+                <div className="scout-dash-card-icon">⚜️</div>
+                <h3>Rank Progress</h3>
               </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: 8 }}>
-                  Currently: {currentRank.emoji} {currentRank.name}
-                </p>
-                <div style={{ background: 'var(--divider)', borderRadius: 99, height: 8 }}>
+              <div className="scout-dash-progress-large">
+                <div className="scout-dash-progress-value">{rankProgress.percentage}%</div>
+                <div className="scout-dash-progress-bar">
                   <div
-                    style={{
-                      width: `${rankProgress.percentage}%`,
-                      background: 'var(--accent)',
-                      height: '100%',
-                      borderRadius: 99,
-                      transition: 'width 0.6s ease',
-                    }}
+                    className="scout-dash-progress-fill"
+                    style={{ width: `${rankProgress.percentage}%` }}
                   />
                 </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '8px 0 0 0' }}>
-                  {rankProgress.percentage}% complete
-                </p>
+                <div className="scout-dash-progress-detail">
+                  {rankProgress.completed}/{rankProgress.total} requirements
+                </div>
               </div>
-
               <button
                 className="btn btn-primary"
                 onClick={(e) => {
@@ -409,54 +430,41 @@ export default function ScoutDashboard() {
                   navigate('/rank-tracker');
                   scrollToTop();
                 }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
+                style={{ width: '100%' }}
               >
-                Continue <ChevronRight size={18} />
+                Track Rank
               </button>
             </motion.div>
 
-            {/* MERIT BADGE TRACKER TILE */}
+            {/* MERIT BADGES CARD */}
             <motion.div
-              variants={itemVariants}
-              className="glass-card"
-              style={{ padding: 32, cursor: 'pointer' }}
+              className="scout-dash-card"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/merit-tracker')}
+              onClick={() => { navigate('/merit-tracker'); scrollToTop(); }}
+              style={{ cursor: 'pointer' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: '2.5rem' }}>🎖️</div>
-                <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Merit Badges</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Explore & earn badges
-                  </p>
-                </div>
+              <div className="scout-dash-card-header">
+                <div className="scout-dash-card-icon">🎖️</div>
+                <h3>Merit Badges</h3>
               </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Progress</span>
-                  <span style={{ fontWeight: 600 }}>{meritProgress.completed} completed</span>
+              <div className="scout-dash-progress-large">
+                <div className="scout-dash-progress-value">
+                  {meritProgress.completed}
+                  <span style={{ fontSize: '1.2rem', marginLeft: 8 }}>🦅</span>
                 </div>
-                <div style={{ background: 'var(--divider)', borderRadius: 8, height: 6, marginBottom: 8, overflow: 'hidden' }}>
+                <div className="scout-dash-progress-bar">
                   <div
+                    className="scout-dash-progress-fill"
                     style={{
                       width: `${meritProgress.total > 0 ? (meritProgress.completed / meritProgress.total) * 100 : 0}%`,
-                      background: 'var(--accent)',
-                      height: '100%',
-                      transition: 'width 0.3s ease',
                     }}
                   />
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {meritProgress.total} total badges
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                <div className="scout-dash-progress-detail">
                   {meritProgress.eagleRequired} 🦅 required • {meritProgress.completed - meritProgress.eagleRequired} completed • {meritProgress.working} in progress
                 </div>
               </div>
-
               <button
                 className="btn btn-primary"
                 onClick={(e) => {
@@ -464,237 +472,14 @@ export default function ScoutDashboard() {
                   navigate('/merit-tracker');
                   scrollToTop();
                 }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
+                style={{ width: '100%' }}
               >
-                Browse Badges <ChevronRight size={18} />
-              </button>
-            </motion.div>
-
-            {/* MISC AWARDS TILE */}
-            <motion.div
-              variants={itemVariants}
-              className="glass-card"
-              style={{ padding: 32, cursor: 'pointer' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => { navigate('/misc-awards'); scrollToTop(); }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: '2.5rem' }}>🏆</div>
-                <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Misc Awards</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Special recognitions & emblems
-                  </p>
-                </div>
-              </div>
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Progress</span>
-                  <span style={{ fontWeight: 600 }}>{miscAwardsProgress.percentage}%</span>
-                </div>
-                <div style={{ background: 'var(--divider)', borderRadius: 8, height: 6, marginBottom: 8, overflow: 'hidden' }}>
-                  <div
-                    style={{
-                      width: `${miscAwardsProgress.percentage}%`,
-                      background: 'var(--accent)',
-                      height: '100%',
-                      transition: 'width 0.3s ease',
-                    }}
-                  />
-                </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-                  {miscAwardsProgress.tracked} of {miscAwardsProgress.total} awards earned
-                </p>
-              </div>
-              <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); navigate('/misc-awards'); scrollToTop(); }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                Track Awards <ChevronRight size={18} />
-              </button>
-            </motion.div>
-          
-            {/* SKILLS TRACKER TILE */}
-            <motion.div
-              variants={itemVariants}
-              className="glass-card"
-              style={{ padding: 32, cursor: 'pointer' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/skills-tracker')}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: '2.5rem' }}>⚡</div>
-                <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Essential Skills</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Master scout skills
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: 8 }}>Skills Tracked</p>
-                <div style={{ background: 'var(--divider)', borderRadius: 99, height: 8 }}>
-                  <div
-                    style={{
-                      width: `${skillsProgress.percentage}%`,
-                      background: 'var(--accent)',
-                      height: '100%',
-                      borderRadius: 99,
-                      transition: 'width 0.6s ease',
-                    }}
-                  />
-                </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '8px 0 0 0' }}>
-                  {skillsProgress.tracked}/{skillsProgress.total} skills
-                </p>
-              </div>
-
-              <button
-                className="btn btn-primary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate('/skills-tracker');
-                  scrollToTop();
-                }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
-              >
-                Track Skills <ChevronRight size={18} />
-              </button>
-            </motion.div>
-
-            {/* ACTIVITY SIGNUP TILE */}
-            <motion.div
-              variants={itemVariants}
-              className="glass-card"
-              style={{ padding: 32, cursor: 'pointer' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/activities')}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: '2.5rem' }}>📅</div>
-                <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Activities & Events</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Sign up for troop events
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Signed Up</span>
-                  <span style={{ fontWeight: 600 }}>
-                    {activityProgress.signedUp}/{activityProgress.total}
-                  </span>
-                </div>
-                <div style={{ background: 'var(--divider)', borderRadius: 99, height: 8 }}>
-                  <div
-                    style={{
-                      width: `${(activityProgress.signedUp / activityProgress.total) * 100}%`,
-                      background: 'var(--accent)',
-                      height: '100%',
-                      borderRadius: 99,
-                      transition: 'width 0.6s ease',
-                    }}
-                  />
-                </div>
-              </div>
-
-              <button
-                className="btn btn-primary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate('/activities');
-                  scrollToTop();
-                }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
-              >
-                View Events <ChevronRight size={18} />
-              </button>
-            </motion.div>
-
-
-
-            {/* FUNDRAISING TILE */}
-         {/*    <motion.div
-              variants={itemVariants}
-              className="glass-card"
-              style={{ padding: 32, cursor: 'pointer' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => { navigate('/calendar'); scrollToTop(); }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: '2.5rem' }}>💰</div>
-                <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Fundraising</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Troop fundraising events
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
-                  Help raise funds for troop activities and equipment. Every scout pitches in!
-                </p>
-              </div>
-
-              <button
-                className="btn btn-primary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate('/calendar');
-                  scrollToTop();
-                }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
-              >
-                View Events <ChevronRight size={18} />
-              </button>
-            </motion.div> */}
-
-            {/* SCOUT PORTAL TILE */}
-             <motion.div
-              variants={itemVariants}
-              className="glass-card"
-              style={{ padding: 32, cursor: 'pointer' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => { window.location.href = '/Troop242/Games/scout-portal.html'; }}
-              // onClick={() => { navigate('/scout-portal'); scrollToTop(); }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ fontSize: '2.5rem' }}>📖</div>
-                <div>
-                  <h3 style={{ marginBottom: 4, marginTop: 0 }}>Scout Portal</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                    Interactive scout tools & games
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
-                  Access attendance tracking, knot guides, packing lists, and interactive games.
-                </p>
-              </div>
-
-              <button
-                className="btn btn-primary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.location.href = '/Troop242/Games/scout-portal.html';
-                }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
-              >
-                Access Portal <ChevronRight size={18} />
+                Browse Badges
               </button>
             </motion.div>
           </motion.div>
+        </div>
       </div>
-    </section>
-    </>
+    </div>
   );
 }
