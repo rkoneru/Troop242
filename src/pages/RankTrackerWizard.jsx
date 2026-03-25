@@ -317,12 +317,8 @@ Next Steps:
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                           <span
                             style={{
-                              display: 'inline-block',
-                              background: 'var(--accent)',
                               color: 'white',
-                              padding: '2px 8px',
-                              borderRadius: 4,
-                              fontSize: '0.75rem',
+                              fontSize: '1.25rem',
                               fontWeight: 700,
                               flexShrink: 0,
                             }}

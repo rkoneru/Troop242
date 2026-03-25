@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { scrollToTop } from '../utils/scrollToTop';
-import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData } from '../utils/adminData';
@@ -43,13 +43,13 @@ export default function ScoutDashboard() {
   const [trackedSkillsData, setTrackedSkillsData] = useState({});
   const [miscAwardsData, setMiscAwardsData] = useState({});
 
-  // Load progress data from Firestore
+  // Load progress data from Firestore with real-time updates
   useEffect(() => {
     if (!user) return;
 
-    const loadProgress = async () => {
-      try {
-        const snap = await getDoc(doc(db, 'progress', user.uid));
+    const unsubscribe = onSnapshot(
+      doc(db, 'progress', user.uid),
+      (snap) => {
         if (snap.exists()) {
           const data = snap.data();
           setRankChecks(data.rankChecks || {});
@@ -57,12 +57,13 @@ export default function ScoutDashboard() {
           setTrackedSkillsData(data.trackedSkills || {});
           setMiscAwardsData(data.miscAwards || {});
         }
-      } catch (error) {
+      },
+      (error) => {
         console.error('Error loading progress:', error);
       }
-    };
+    );
 
-    loadProgress();
+    return () => unsubscribe();
   }, [user]);
 
   // Load activities from Firestore
@@ -151,10 +152,16 @@ export default function ScoutDashboard() {
     const eagleRequiredBadges = eagleRequiredCat ? eagleRequiredCat.badges.filter(badge => !badge.isHeader) : [];
     const eagleRequiredCompleted = eagleRequiredBadges.filter(badge => meritProgressData[badge.name] === 'completed').length;
 
-    const totalBadges = BADGE_CATEGORIES.reduce((sum, cat) => {
-      const validBadges = cat.badges.filter(badge => !badge.isHeader).length;
-      return sum + validBadges;
-    }, 0);
+    // Count unique badge names (to avoid duplicates across categories)
+    const uniqueBadgeNames = new Set();
+    BADGE_CATEGORIES.forEach((cat) => {
+      cat.badges.forEach((badge) => {
+        if (!badge.isHeader) {
+          uniqueBadgeNames.add(badge.name);
+        }
+      });
+    });
+    const totalBadges = uniqueBadgeNames.size;
 
     return { completed, working, total: totalBadges, eagleRequired: eagleRequiredCompleted };
   };
@@ -293,7 +300,7 @@ export default function ScoutDashboard() {
                 <span style={{ fontWeight: 600 }}>Merit Badges</span>
               </div>
               <div style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 4 }}>
-                {meritProgress.eagleRequired} 🦅 + {meritProgress.completed}
+                {meritProgress.eagleRequired} 🦅 + {meritProgress.completed - meritProgress.eagleRequired}
               </div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
                 {meritProgress.eagleRequired} 🦅 required + {meritProgress.completed - meritProgress.eagleRequired} completed + {meritProgress.working} in progress

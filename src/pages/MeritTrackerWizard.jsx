@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Copy, ExternalLink, FileText, BookOpen, Search, X } from 'lucide-react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot, deleteField, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { BADGE_CATEGORIES, BADGE_PDF_URLS } from './Badges';
@@ -28,12 +28,18 @@ export default function MeritTrackerWizard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
 
-  // Load progress from Firestore with localStorage fallback (migration)
+  // Track pending saves to prevent listener from overwriting optimistic updates
+  const pendingSaves = useRef({});
+
+  // Load progress from Firestore with localStorage fallback (migration) + real-time listener
   useEffect(() => {
     if (!user) {
       setIsLoading(false);
       return;
     }
+
+    let isMounted = true;
+    let unsubscribe = null;
 
     const loadProgress = async () => {
       try {
@@ -41,9 +47,11 @@ export default function MeritTrackerWizard() {
         const data = snap.data() || {};
 
         if (data.meritProgress) {
-          // Firestore data exists, use it
-          setMeritProgress(data.meritProgress);
-          setMeritNotes(data.meritNotes || {});
+          // Firestore data exists, use it and set up real-time listener
+          if (isMounted) {
+            setMeritProgress(data.meritProgress);
+            setMeritNotes(data.meritNotes || {});
+          }
         } else {
           // No Firestore data, check localStorage for migration
           const localMerit = (() => {
@@ -63,8 +71,10 @@ export default function MeritTrackerWizard() {
 
           if (Object.keys(localMerit).length > 0 || Object.keys(localNotes).length > 0) {
             // Migrate from localStorage to Firestore
-            setMeritProgress(localMerit);
-            setMeritNotes(localNotes);
+            if (isMounted) {
+              setMeritProgress(localMerit);
+              setMeritNotes(localNotes);
+            }
             await setDoc(
               doc(db, 'progress', user.uid),
               { meritProgress: localMerit, meritNotes: localNotes },
@@ -74,14 +84,51 @@ export default function MeritTrackerWizard() {
             localStorage.removeItem('meritNotes');
           }
         }
+
+        // Set up real-time listener for future updates
+        if (isMounted) {
+          unsubscribe = onSnapshot(
+            doc(db, 'progress', user.uid),
+            (snap) => {
+              const data = snap.data() || {};
+              const newMeritProgress = data.meritProgress || {};
+
+              // Only update badges that don't have pending saves
+              setMeritProgress((prev) => {
+                const merged = { ...newMeritProgress };
+                // Keep any badges that are currently being saved locally
+                Object.keys(pendingSaves.current).forEach((badgeName) => {
+                  if (badgeName in prev) {
+                    merged[badgeName] = prev[badgeName];
+                  }
+                });
+                return merged;
+              });
+
+              setMeritNotes(data.meritNotes || {});
+            },
+            (error) => {
+              console.error('Error in merit progress listener:', error);
+            }
+          );
+        }
       } catch (error) {
         console.error('Error loading merit progress:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadProgress();
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [user]);
 
   // Detect mobile on mount
@@ -99,18 +146,35 @@ export default function MeritTrackerWizard() {
     const updated = { ...meritProgress };
     if (next === undefined) delete updated[badgeName];
     else updated[badgeName] = next;
+
+    // Mark as pending to prevent listener from overwriting this change
+    pendingSaves.current[badgeName] = true;
+
     setMeritProgress(updated);
 
     // Save to Firestore
     if (user) {
       try {
-        await setDoc(
-          doc(db, 'progress', user.uid),
-          { meritProgress: updated },
-          { merge: true }
-        );
+        // If deleting, use updateDoc with deleteField()
+        if (next === undefined) {
+          await updateDoc(
+            doc(db, 'progress', user.uid),
+            { [`meritProgress.${badgeName}`]: deleteField() }
+          );
+        } else {
+          await setDoc(
+            doc(db, 'progress', user.uid),
+            { meritProgress: updated },
+            { merge: true }
+          );
+        }
       } catch (error) {
         console.error('Error saving merit progress:', error);
+      } finally {
+        // Clear pending flag after a short delay to allow Firestore to sync
+        setTimeout(() => {
+          delete pendingSaves.current[badgeName];
+        }, 500);
       }
     }
   };
