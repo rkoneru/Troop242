@@ -1742,7 +1742,8 @@ function showDashboard(){
   document.getElementById('panel-hdr-title').classList.remove('show');
 }
 function goToScoutDashboard(){
-  window.location.href = '/Troop242/scout-dashboard';
+  const basePath = window.location.pathname.includes('/Troop242/') ? '/Troop242' : '';
+  window.location.href = basePath + '/scout-dashboard';
 }
 function goToGames(){
   window.location.href = 'scout-games-hub.html';
