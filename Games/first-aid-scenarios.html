@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First Aid Scenarios — Troop 242</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --g: #1B4332; --gm: #2D6A4F; --gl: #52B788; --gp: #D8F3DC;
+      --red: #EF4444; --redp: #FEE2E2; --gold: #C8960C; --goldp: #FEF9C3;
+      --bg: #F7F8F5; --w: #fff; --bd: #E2E8F0; --t: #111827; --mu: #6B7280;
+      --r: 14px; --sh: 0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--t);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      background: linear-gradient(135deg, var(--red) 0%, var(--redp) 100%);
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(239, 68, 68, .2) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+      color: #fff;
+    }
+    .sub {
+      color: rgba(255, 255, 255, .7);
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .15s;
+    }
+    .back-btn:hover {
+      background: rgba(255, 255, 255, .25);
+      gap: 8px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .scenario-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red) 0%, #FF6B6B 100%);
+      transition: width 0.3s ease;
+    }
+
+    .scenario-card {
+      background: var(--w);
+      border: 2px solid var(--bd);
+      border-radius: var(--r);
+      padding: 32px;
+      box-shadow: var(--sh);
+    }
+
+    .scenario-num {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .scenario-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--t);
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+
+    .scenario-text {
+      background: var(--redp);
+      border-left: 4px solid var(--red);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--t);
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .action-btn {
+      padding: 14px 16px;
+      border: 2px solid var(--bd);
+      border-radius: 10px;
+      background: var(--w);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Outfit', sans-serif;
+      text-align: left;
+    }
+
+    .action-btn:hover {
+      border-color: var(--red);
+      background: var(--redp);
+    }
+
+    .action-btn.selected {
+      border-color: var(--red);
+      background: var(--redp);
+    }
+
+    .action-btn.correct {
+      border-color: var(--gl);
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+    }
+
+    .action-btn.incorrect {
+      border-color: var(--red);
+      background: var(--redp);
+      color: var(--red);
+    }
+
+    .action-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .feedback {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .feedback.correct {
+      background: rgba(82, 183, 136, .15);
+      color: var(--g);
+      border-left: 4px solid var(--gl);
+    }
+
+    .feedback.incorrect {
+      background: var(--redp);
+      color: var(--red);
+      border-left: 4px solid var(--red);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: all .2s ease;
+      letter-spacing: .3px;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #DC2626;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(239, 68, 68, .2);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .results-card {
+      background: var(--redp);
+      border: 2px solid var(--red);
+      border-radius: var(--r);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--sh);
+    }
+
+    .results-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    .score-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--red);
+      margin-bottom: 12px;
+    }
+
+    .score-label {
+      font-size: 1.1rem;
+      color: var(--red);
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .result-message {
+      font-size: 1.2rem;
+      color: var(--t);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-box {
+      background: var(--w);
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid var(--bd);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--red);
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 32px 20px;
+        margin-bottom: 32px;
+      }
+
+      .scenario-card {
+        padding: 24px;
+      }
+
+      .score-display {
+        font-size: 2.5rem;
+      }
+
+      .results-card {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="scout-games-hub.html" class="back-btn">← Back</a>
+    <h1>🚑 First Aid Scenarios</h1>
+    <p class="sub">Learn to respond to emergency situations</p>
+  </header>
+
+  <div class="container">
+    <div id="scenarioContainer" class="scenario-wrapper">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <div id="scenarioCard" class="scenario-card">
+        <div class="scenario-num" id="scenarioNum"></div>
+        <div class="scenario-title" id="scenarioTitle"></div>
+        <div id="scenarioText" class="scenario-text"></div>
+        <div class="actions" id="actionsContainer"></div>
+        <button id="nextBtn" class="btn btn-primary" onclick="nextScenario()" style="display: none; margin-top: 20px;">Next Scenario</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen" style="display: none;">
+      <div class="results-card">
+        <div class="results-icon" id="resultsIcon">🎉</div>
+        <div class="score-display" id="finalScore"></div>
+        <div class="score-label">out of 5 scenarios</div>
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Correct</div>
+            <div class="stat-value" id="correctCount"></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value" id="accuracy"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="resetQuiz()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SCENARIOS = [
+      {
+        title: "Choking Victim",
+        scenario: "A scout at lunch suddenly can't speak and is clutching his throat. He can't cough or breathe.",
+        actions: [
+          "Perform the Heimlich maneuver (abdominal thrusts)",
+          "Give him water to drink",
+          "Slap him on the back",
+          "Call 911 immediately"
+        ],
+        correct: 0,
+        explanation: "For a choking victim who can't speak or breathe, perform abdominal thrusts (Heimlich maneuver). Stand behind them, place fist just above navel, and thrust upward quickly and repeatedly."
+      },
+      {
+        title: "Severe Bleeding",
+        scenario: "A scout cuts their arm on a sharp rock. Blood is flowing steadily. What's your first action?",
+        actions: [
+          "Apply direct pressure with clean cloth/bandage",
+          "Apply a tourniquet immediately",
+          "Rinse the wound thoroughly with water",
+          "Let it bleed to clean out dirt"
+        ],
+        correct: 0,
+        explanation: "For severe bleeding, apply direct pressure with a clean cloth. If bleeding doesn't stop in 10 minutes or is very severe, apply a tourniquet above the wound and call 911."
+      },
+      {
+        title: "Heat Exhaustion",
+        scenario: "A scout collapses during a hike in hot weather. They're sweating heavily, dizzy, and weak. Core temp is high.",
+        actions: [
+          "Get them to shade, cool with water, give electrolyte drinks, monitor",
+          "Make them walk it off",
+          "Give them salt tablets",
+          "Wrap them in blankets"
+        ],
+        correct: 0,
+        explanation: "For heat exhaustion: move to cool/shaded area, apply cool water, have them drink sports drinks or water, elevate legs. If symptoms worsen or body temp exceeds 104°F, call 911."
+      },
+      {
+        title: "Broken Arm",
+        scenario: "A scout falls and has severe pain and swelling in their forearm. You suspect a fracture.",
+        actions: [
+          "Immobilize the arm using a sling or splint, apply ice, elevate, monitor circulation",
+          "Massage the area to reduce swelling",
+          "Have them move the arm to check if it's broken",
+          "Apply a tight bandage to compress it"
+        ],
+        correct: 0,
+        explanation: "For suspected fractures: immobilize the limb using a sling or splint, apply ice to reduce swelling, elevate if possible, and seek medical attention. Don't try to straighten it."
+      },
+      {
+        title: "Unresponsive Scout - CPR Needed",
+        scenario: "A scout is unconscious and not breathing. What's your immediate action?",
+        actions: [
+          "Call 911 immediately, then begin CPR (30 chest compressions, 2 rescue breaths)",
+          "Wait for them to wake up",
+          "Perform the recovery position only",
+          "Give them water"
+        ],
+        correct: 0,
+        explanation: "For unresponsive, non-breathing person: Call 911 immediately (or have someone call). Begin CPR: 30 chest compressions at 100-120 per minute, then 2 rescue breaths. Continue until help arrives or person revives."
+      }
+    ];
+
+    let currentScenario = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadScenario() {
+      const s = SCENARIOS[currentScenario];
+      document.getElementById('scenarioNum').textContent = `Scenario ${currentScenario + 1} of ${SCENARIOS.length}`;
+      document.getElementById('scenarioTitle').textContent = s.title;
+      document.getElementById('scenarioText').textContent = s.scenario;
+
+      const container = document.getElementById('actionsContainer');
+      container.innerHTML = '';
+
+      s.actions.forEach((action, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'action-btn';
+        btn.textContent = action;
+        btn.onclick = () => selectAction(idx);
+        container.appendChild(btn);
+      });
+
+      const progress = ((currentScenario + 1) / SCENARIOS.length) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+
+      answered = false;
+      document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function selectAction(idx) {
+      if (answered) return;
+
+      answered = true;
+      const s = SCENARIOS[currentScenario];
+      const actions = document.querySelectorAll('.action-btn');
+
+      actions.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === s.correct) {
+          btn.classList.add('correct');
+        } else if (i === idx) {
+          btn.classList.add('incorrect');
+        }
+      });
+
+      if (idx === s.correct) {
+        score++;
+      }
+
+      const feedback = document.createElement('div');
+      feedback.className = idx === s.correct ? 'feedback correct' : 'feedback incorrect';
+      feedback.innerHTML = `<strong>${idx === s.correct ? '✓ Correct!' : '✗ Incorrect'}</strong><br>${s.explanation}`;
+      document.getElementById('actionsContainer').parentElement.appendChild(feedback);
+
+      document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function nextScenario() {
+      currentScenario++;
+      if (currentScenario < SCENARIOS.length) {
+        loadScenario();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('scenarioContainer').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'block';
+
+      const percentage = Math.round((score / SCENARIOS.length) * 100);
+
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('correctCount').textContent = score;
+      document.getElementById('accuracy').textContent = percentage + '%';
+
+      let message = '';
+      let icon = '';
+      if (percentage >= 80) {
+        message = "🏥 Excellent! You're ready to help in emergencies!";
+        icon = '🏥';
+      } else if (percentage >= 60) {
+        message = "👍 Good job! You know important first aid skills.";
+        icon = '👍';
+      } else if (percentage >= 40) {
+        message = "📚 Keep studying first aid and CPR.";
+        icon = '📚';
+      } else {
+        message = "🚑 Take a certified first aid course for more training.";
+        icon = '🚑';
+      }
+
+      document.getElementById('resultMessage').textContent = message;
+      document.getElementById('resultsIcon').textContent = icon;
+    }
+
+    function resetQuiz() {
+      currentScenario = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('scenarioContainer').style.display = 'flex';
+      document.getElementById('resultsScreen').style.display = 'none';
+      loadScenario();
+    }
+
+    loadScenario();
+  </script>
+</body>
+</html>

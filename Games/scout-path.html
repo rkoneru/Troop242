@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Scout Path — Troop 242</title>
+<style>
+:root {
+  --bg: #030c05;
+  --path-gold: #c8900a;
+  --path-glow: #e8b830;
+  --badge-tan: #c9a870;
+  --badge-inner: #b89858;
+  --badge-border: #7a5010;
+  --badge-dark: #5a3808;
+  --text-gold: #f0d060;
+  --text-green: #8ab060;
+  --text-muted: #4a6a3a;
+  --red-bsa: #8b1515;
+  --blue-eagle: #1a2d6b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  font-family: Georgia, 'Palatino Linotype', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 48px;
+}
+
+/* ── Header ── */
+.hdr {
+  text-align: center;
+  padding: 40px 24px 16px;
+  position: relative;
+}
+.hdr-eyebrow {
+  font-size: 11px;
+  letter-spacing: .38em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.hdr-title {
+  font-size: 48px;
+  color: var(--text-gold);
+  font-weight: normal;
+  letter-spacing: .04em;
+  line-height: 1.1;
+}
+.hdr-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+/* ── Scene ── */
+.scene-wrap {
+  padding: 0 20px;
+  position: relative;
+}
+.scene-svg { width: 100%; display: block; }
+
+/* ── Badge transitions ── */
+.bw {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  opacity: 0;
+  transform: scale(0.2);
+  transition:
+    opacity .55s cubic-bezier(.34,1.56,.64,1),
+    transform .55s cubic-bezier(.34,1.56,.64,1);
+  cursor: pointer;
+}
+.bw.on { opacity: 1; transform: scale(1); }
+.bw:hover { filter: brightness(1.15); }
+.blabel { opacity: 0; transition: opacity .4s .25s; font-family: Georgia, serif; }
+.bw.on .blabel { opacity: 1; }
+
+/* ── Progress ── */
+.prog-wrap {
+  max-width: 740px;
+  margin: 18px auto 0;
+  padding: 0 24px;
+}
+.prog-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.prog-track {
+  height: 2px;
+  background: #112211;
+  border-radius: 1px;
+  overflow: hidden;
+  position: relative;
+}
+.prog-fill {
+  height: 100%;
+  background: var(--path-gold);
+  width: 0%;
+  border-radius: 1px;
+  transition: width .25s linear;
+}
+.prog-rank {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  margin-top: 8px;
+  min-height: 16px;
+  transition: color .4s;
+}
+.prog-rank.lit { color: var(--text-gold); }
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.ctrl {
+  background: none;
+  border: 1px solid var(--text-muted);
+  color: var(--text-muted);
+  padding: 7px 22px;
+  border-radius: 20px;
+  font-family: Georgia, serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+.ctrl:hover { border-color: var(--text-green); color: var(--text-green); }
+
+/* ── Info overlay ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(3,12,5,.72);
+  z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s;
+}
+.overlay.on { opacity: 1; pointer-events: auto; }
+.icard {
+  background: #0a1e0d;
+  border: 1px solid #2a4a1a;
+  border-radius: 16px;
+  padding: 36px 44px 32px;
+  max-width: 480px;
+  width: 92%;
+  text-align: center;
+  position: relative;
+}
+.icard-num {
+  font-size: 10px;
+  letter-spacing: .35em;
+  color: var(--text-green);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.icard-name {
+  font-size: 30px;
+  color: var(--text-gold);
+  font-weight: normal;
+  margin-bottom: 16px;
+}
+.icard-desc {
+  font-size: 15px;
+  color: #90b870;
+  line-height: 1.7;
+}
+.icard-req {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #1a3a1a;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  letter-spacing: .05em;
+}
+.ix {
+  position: absolute;
+  top: 10px; right: 16px;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 24px; cursor: pointer;
+  line-height: 1;
+}
+.ix:hover { color: var(--text-gold); }
+@media (max-width:600px) {
+  .hdr-title { font-size: 32px; }
+  .icard { padding: 28px 24px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hdr">
+  <p class="hdr-eyebrow">Scouting America &nbsp;·&nbsp; Troop 242 &nbsp;·&nbsp;Sanford &nbsp;·&nbsp; Central Florida</p>
+  <h1 class="hdr-title">The Scout Path</h1>
+  <p class="hdr-sub">Seven Ranks &nbsp;·&nbsp; One Journey &nbsp;·&nbsp; A Lifetime of Character</p>
+</header>
+
+<div class="scene-wrap">
+<svg class="scene-svg" viewBox="0 0 1100 450" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <path id="tp" d="M 38 410 C 95 410 148 385 205 355 S 335 310 430 278 S 585 238 695 210 S 845 182 946 160 L 1072 140"/>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#c8900a" stroke-width="1.5" stroke-linecap="round"/>
+  </marker>
+</defs>
+
+<!-- Sky -->
+<rect x="0" y="0" width="1100" height="290" fill="#020a04"/>
+<!-- Ground -->
+<rect x="0" y="290" width="1100" height="160" fill="#040e05"/>
+<!-- Horizon ambient -->
+<ellipse cx="550" cy="295" rx="500" ry="28" fill="#0a1e0c" opacity=".9"/>
+
+<!-- Stars (generated by JS into this group) -->
+<g id="svgStars"/>
+
+<!-- Moon -->
+<circle cx="980" cy="48" r="22" fill="#1a3020" stroke="#c8a040" stroke-width="1" opacity=".7"/>
+<circle cx="990" cy="44" r="16" fill="#020a04"/>
+
+<!-- Background hills -->
+<path d="M 0 310 Q 200 265 400 290 Q 600 315 800 278 Q 950 255 1100 280 L 1100 450 L 0 450 Z"
+  fill="#050d06"/>
+
+<!-- Distant trees (far bg) -->
+<g fill="#040c05">
+  <polygon points="200,310 220,258 240,310"/>
+  <polygon points="390,305 412,252 434,305"/>
+  <polygon points="600,295 625,240 650,295"/>
+  <polygon points="780,288 805,235 830,288"/>
+</g>
+
+<!-- Left foreground trees -->
+<g fill="#050e06">
+  <polygon points="-5,380 28,260 61,380"/>
+  <polygon points="15,380 52,225 89,380"/>
+  <polygon points="55,370 85,268 115,370"/>
+  <polygon points="0,400 22,325 44,400"/>
+  <polygon points="70,385 96,300 122,385"/>
+</g>
+<!-- Right foreground trees -->
+<g fill="#050e06">
+  <polygon points="1010,360 1038,250 1066,360"/>
+  <polygon points="1035,375 1066,240 1097,375"/>
+  <polygon points="1070,390 1095,300 1120,390"/>
+</g>
+
+<!-- Ground texture stripes -->
+<path d="M 0 340 Q 280 330 550 338 Q 820 346 1100 332" fill="none" stroke="#081508" stroke-width="8"/>
+<path d="M 0 380 Q 280 368 550 376 Q 820 384 1100 370" fill="none" stroke="#081508" stroke-width="12"/>
+
+<!-- Trail shadow -->
+<path d="M 38 410 C 95 410 148 385 205 355 S 335 310 430 278 S 585 238 695 210 S 845 182 946 160 L 1072 140"
+  fill="none" stroke="#4a2e02" stroke-width="16" stroke-linecap="round" opacity=".5"/>
+
+<!-- Golden trail (animated draw) -->
+<path id="trail"
+  d="M 38 410 C 95 410 148 385 205 355 S 335 310 430 278 S 585 238 695 210 S 845 182 946 160 L 1072 140"
+  fill="none" stroke="#c8900a" stroke-width="9" stroke-linecap="round"/>
+
+<!-- Trail highlight -->
+<path d="M 38 407 C 95 407 148 382 205 352 S 335 307 430 275 S 585 235 695 207 S 845 179 946 157 L 1072 137"
+  fill="none" stroke="#e8b830" stroke-width="2.5" stroke-linecap="round" opacity=".35"/>
+
+<!-- ══════════════════════════════════════════════
+     BADGES — each outer <g> positions; inner .bw animates
+     ══════════════════════════════════════════════ -->
+
+<!-- 1. SCOUT (x=118, y=370) -->
+<g transform="translate(118,370)">
+<g class="bw" id="b0" onclick="showInfo(0)">
+  <ellipse cx="0" cy="-7" rx="40" ry="48" fill="#c8900a" opacity=".1"/>
+  <ellipse cx="0" cy="-7" rx="36" ry="43" fill="#c9a870" stroke="#7a5010" stroke-width="2.5"/>
+  <ellipse cx="0" cy="-7" rx="31" ry="38" fill="#c0a060" stroke="#6b4008" stroke-width=".8"/>
+  <!-- Fleur-de-lis -->
+  <g fill="#4a2c06">
+    <path d="M 0,-42 C -5,-36 -5,-24 0,-14 C 5,-24 5,-36 0,-42 Z"/>
+    <path d="M -15,-32 C -12,-38 -7,-36 -4,-30 C -10,-24 -12,-18 -10,-14 C -15,-16 -18,-24 -15,-32 Z"/>
+    <path d="M 15,-32 C 12,-38 7,-36 4,-30 C 10,-24 12,-18 10,-14 C 15,-16 18,-24 15,-32 Z"/>
+    <rect x="-12" y="-16" width="24" height="4" rx="1.5"/>
+    <path d="M -6,-12 L -8,0 Q 0,5 8,0 L 6,-12 Z"/>
+    <!-- Decorative dot -->
+    <circle cx="0" cy="-42" r="2.5" fill="#dfc090"/>
+  </g>
+  <text class="blabel" x="0" y="50" fill="#f0d060" font-size="11" text-anchor="middle" letter-spacing="1.5">SCOUT</text>
+</g>
+</g>
+
+<!-- 2. TENDERFOOT (x=248, y=325) -->
+<g transform="translate(248,325)">
+<g class="bw" id="b1" onclick="showInfo(1)">
+  <ellipse cx="0" cy="-7" rx="40" ry="48" fill="#c8900a" opacity=".1"/>
+  <ellipse cx="0" cy="-7" rx="36" ry="43" fill="#c9a870" stroke="#7a5010" stroke-width="2.5"/>
+  <ellipse cx="0" cy="-7" rx="31" ry="38" fill="#c0a060" stroke="#6b4008" stroke-width=".8"/>
+  <!-- Trefoil -->
+  <g fill="#4a2c06">
+    <circle cx="0" cy="-28" r="10"/>
+    <circle cx="-11" cy="-15" r="10"/>
+    <circle cx="11" cy="-15" r="10"/>
+    <!-- Center cover -->
+    <circle cx="0" cy="-20" r="7" fill="#c0a060"/>
+    <!-- Arrow pointing down -->
+    <polygon points="0,-9 -6,-1 6,-1"/>
+    <rect x="-3" y="-1" width="6" height="6"/>
+    <!-- Star on center -->
+    <polygon points="0,-21 1.5,-18.5 4,-18.5 2,-17 2.5,-14.5 0,-16 -2.5,-14.5 -2,-17 -4,-18.5 -1.5,-18.5" fill="#dfc090"/>
+  </g>
+  <text class="blabel" x="0" y="50" fill="#f0d060" font-size="10" text-anchor="middle" letter-spacing="1">TENDERFOOT</text>
+</g>
+</g>
+
+<!-- 3. SECOND CLASS (x=380, y=280) -->
+<g transform="translate(380,280)">
+<g class="bw" id="b2" onclick="showInfo(2)">
+  <ellipse cx="0" cy="-7" rx="40" ry="48" fill="#c8900a" opacity=".1"/>
+  <ellipse cx="0" cy="-7" rx="36" ry="43" fill="#c9a870" stroke="#7a5010" stroke-width="2.5"/>
+  <ellipse cx="0" cy="-7" rx="31" ry="38" fill="#c0a060" stroke="#6b4008" stroke-width=".8"/>
+  <!-- Compass rose / Second Class design -->
+  <g fill="#4a2c06">
+    <!-- 8 compass points -->
+    <polygon points="0,-36 3,-22 -3,-22"/>
+    <polygon points="0,22 3,8 -3,8"/>
+    <polygon points="-28,-7 -14,-4 -14,-10"/>
+    <polygon points="28,-7 14,-4 14,-10"/>
+    <polygon points="-20,-27 -11,-18 -15,-14"/>
+    <polygon points="20,-27 11,-18 15,-14"/>
+    <polygon points="-20,13 -11,-4 -15,0"/>
+    <polygon points="20,13 11,-4 15,0"/>
+    <!-- Center ring -->
+    <circle cx="0" cy="-7" r="8"/>
+    <circle cx="0" cy="-7" r="5" fill="#c0a060"/>
+    <circle cx="0" cy="-7" r="2.5" fill="#4a2c06"/>
+  </g>
+  <text class="blabel" x="0" y="50" fill="#f0d060" font-size="9.5" text-anchor="middle" letter-spacing=".8">SECOND CLASS</text>
+</g>
+</g>
+
+<!-- 4. FIRST CLASS (x=510, y=240) -->
+<g transform="translate(510,240)">
+<g class="bw" id="b3" onclick="showInfo(3)">
+  <ellipse cx="0" cy="-7" rx="40" ry="48" fill="#c8900a" opacity=".1"/>
+  <ellipse cx="0" cy="-7" rx="36" ry="43" fill="#c9a870" stroke="#7a5010" stroke-width="2.5"/>
+  <ellipse cx="0" cy="-7" rx="31" ry="38" fill="#c0a060" stroke="#6b4008" stroke-width=".8"/>
+  <!-- First Class: eagle + star + fleur-de-lis -->
+  <g fill="#4a2c06">
+    <!-- Large star -->
+    <polygon points="0,-38 4,-25 18,-25 7,-17 11,-4 0,-12 -11,-4 -7,-17 -18,-25 -4,-25"/>
+    <!-- Eagle wings -->
+    <path d="M -22,-8 Q -12,-16 0,-11 Q 12,-16 22,-8 Q 16,-4 8,-3 Q 0,-2 -8,-3 Q -16,-4 -22,-8 Z"/>
+    <!-- Eagle body/head -->
+    <ellipse cx="0" cy="-7" rx="4" ry="5"/>
+    <!-- Small fleur top -->
+    <path d="M 0,-37 C -2,-34 -2,-30 0,-27 C 2,-30 2,-34 0,-37 Z" fill="#dfc090"/>
+    <!-- Star center -->
+    <circle cx="0" cy="-16" r="3" fill="#dfc090"/>
+  </g>
+  <text class="blabel" x="0" y="50" fill="#f0d060" font-size="9.5" text-anchor="middle" letter-spacing=".8">FIRST CLASS</text>
+</g>
+</g>
+
+<!-- 5. STAR (x=660, y=205) -->
+<g transform="translate(660,205)">
+<g class="bw" id="b4" onclick="showInfo(4)">
+  <ellipse cx="0" cy="-7" rx="40" ry="48" fill="#e8b030" opacity=".12"/>
+  <ellipse cx="0" cy="-7" rx="36" ry="43" fill="#c9a870" stroke="#7a5010" stroke-width="2.5"/>
+  <ellipse cx="0" cy="-7" rx="31" ry="38" fill="#c0a060" stroke="#6b4008" stroke-width=".8"/>
+  <!-- Large prominent 5-point star -->
+  <polygon points="0,-40 5.5,-23 22,-23 9,-13 14,-4 0,-12 -14,-4 -9,-13 -22,-23 -5.5,-23"
+    fill="#c8820a" stroke="#8a5004" stroke-width="1.2"/>
+  <!-- Star inner sheen -->
+  <polygon points="0,-32 3,-22 12,-22 5,-16 8,-8 0,-13 -8,-8 -5,-16 -12,-22 -3,-22"
+    fill="#e8a820" opacity=".6"/>
+  <!-- Center -->
+  <circle cx="0" cy="-15" r="4" fill="#8a5004"/>
+  <circle cx="0" cy="-15" r="2.2" fill="#e8c050"/>
+  <!-- Small eagle -->
+  <path d="M -8,-15 Q 0,-20 8,-15 Q 5,-12 0,-11 Q -5,-12 -8,-15 Z" fill="#4a2c06"/>
+  <text class="blabel" x="0" y="50" fill="#f0d060" font-size="11" text-anchor="middle" letter-spacing="1.5">STAR</text>
+</g>
+</g>
+
+<!-- 6. LIFE (x=822, y=178) -->
+<g transform="translate(822,178)">
+<g class="bw" id="b5" onclick="showInfo(5)">
+  <ellipse cx="0" cy="-7" rx="40" ry="48" fill="#cc2020" opacity=".1"/>
+  <ellipse cx="0" cy="-7" rx="36" ry="43" fill="#c9a870" stroke="#7a5010" stroke-width="2.5"/>
+  <ellipse cx="0" cy="-7" rx="31" ry="38" fill="#c0a060" stroke="#6b4008" stroke-width=".8"/>
+  <!-- Red heart -->
+  <path d="M 0,8 C -18,0 -22,-14 -15,-22 C -10,-28 0,-22 0,-22 C 0,-22 10,-28 15,-22 C 22,-14 18,0 0,8 Z"
+    fill="#8b1515"/>
+  <!-- Cross -->
+  <rect x="-3.5" y="-22" width="7" height="20" fill="#f5e8c8" rx="1.5"/>
+  <rect x="-10" y="-17" width="20" height="7" fill="#f5e8c8" rx="1.5"/>
+  <text class="blabel" x="0" y="50" fill="#f0d060" font-size="11" text-anchor="middle" letter-spacing="1.5">LIFE</text>
+</g>
+</g>
+
+<!-- 7. EAGLE SCOUT (x=1008, y=150) — circular blue badge -->
+<g transform="translate(1008,150)">
+<g class="bw" id="b6" onclick="showInfo(6)">
+  <!-- Outer glow ring -->
+  <circle cx="0" cy="0" r="54" fill="#e8b030" opacity=".1"/>
+  <!-- Main badge circle — blue -->
+  <circle cx="0" cy="0" r="48" fill="#1a2d6b" stroke="#c8900a" stroke-width="3"/>
+  <circle cx="0" cy="0" r="44" fill="none" stroke="#e8b030" stroke-width="1"/>
+  <!-- Stars ring -->
+  <g fill="#e8c050">
+    <polygon points="0,-42 1.5,-38 4.5,-38 2.5,-36 3,-33 0,-35 -3,-33 -2.5,-36 -4.5,-38 -1.5,-38"/>
+    <polygon points="0,-42 1.5,-38 4.5,-38 2.5,-36 3,-33 0,-35 -3,-33 -2.5,-36 -4.5,-38 -1.5,-38" transform="rotate(45,0,0)"/>
+    <polygon points="0,-42 1.5,-38 4.5,-38 2.5,-36 3,-33 0,-35 -3,-33 -2.5,-36 -4.5,-38 -1.5,-38" transform="rotate(90,0,0)"/>
+    <polygon points="0,-42 1.5,-38 4.5,-38 2.5,-36 3,-33 0,-35 -3,-33 -2.5,-36 -4.5,-38 -1.5,-38" transform="rotate(135,0,0)"/>
+    <polygon points="0,-42 1.5,-38 4.5,-38 2.5,-36 3,-33 0,-35 -3,-33 -2.5,-36 -4.5,-38 -1.5,-38" transform="rotate(180,0,0)"/>
+    <polygon points="0,-42 1.5,-38 4.5,-38 2.5,-36 3,-33 0,-35 -3,-33 -2.5,-36 -4.5,-38 -1.5,-38" transform="rotate(225,0,0)"/>
+    <polygon points="0,-42 1.5,-38 4.5,-38 2.5,-36 3,-33 0,-35 -3,-33 -2.5,-36 -4.5,-38 -1.5,-38" transform="rotate(270,0,0)"/>
+    <polygon points="0,-42 1.5,-38 4.5,-38 2.5,-36 3,-33 0,-35 -3,-33 -2.5,-36 -4.5,-38 -1.5,-38" transform="rotate(315,0,0)"/>
+  </g>
+  <!-- Eagle body -->
+  <ellipse cx="0" cy="2" rx="6" ry="11" fill="#f5e8c8"/>
+  <!-- Eagle wings spread -->
+  <path d="M -6,0 Q -16,-12 -38,-7 Q -26,-1 -18,1 Q -10,3 -6,2 Z" fill="#f5e8c8"/>
+  <path d="M 6,0 Q 16,-12 38,-7 Q 26,-1 18,1 Q 10,3 6,2 Z" fill="#f5e8c8"/>
+  <!-- Wing detail lines -->
+  <path d="M -6,0 Q -22,-4 -38,-7" fill="none" stroke="#c8b090" stroke-width=".7" opacity=".5"/>
+  <path d="M 6,0 Q 22,-4 38,-7" fill="none" stroke="#c8b090" stroke-width=".7" opacity=".5"/>
+  <!-- Eagle head -->
+  <circle cx="0" cy="-10" r="7" fill="#f5e8c8"/>
+  <!-- Beak -->
+  <polygon points="0,-7 7,-11 0,-15" fill="#e8b030"/>
+  <!-- Eye -->
+  <circle cx="-2" cy="-11" r="1.8" fill="#1a2d6b"/>
+  <!-- Shield on chest -->
+  <path d="M -5,4 L -5,11 Q 0,15 5,11 L 5,4 Z" fill="#c8102e"/>
+  <rect x="-3.5" y="5" width="7" height="2.5" fill="#f5e8c8" rx=".5"/>
+  <rect x="-3.5" y="8.5" width="7" height="2.5" fill="#f5e8c8" rx=".5"/>
+  <!-- Talons -->
+  <path d="M -4,13 Q -8,17 -10,16 M -2,14 Q -3,18 -5,18 M 4,13 Q 8,17 10,16 M 2,14 Q 3,18 5,18"
+    fill="none" stroke="#c8a870" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Badge text -->
+  <text x="0" y="31" font-family="Georgia,serif" font-size="7.5" fill="#e8c050" text-anchor="middle" letter-spacing="2.5">EAGLE SCOUT</text>
+  <text class="blabel" x="0" y="62" font-family="Georgia,serif" font-size="11" fill="#e8c050" text-anchor="middle" letter-spacing="1.5">EAGLE SCOUT</text>
+</g>
+</g>
+
+<!-- ── SCOUT FIGURE (moved by JS) ── -->
+<g id="scout" transform="translate(38,395)">
+  <!-- Pack -->
+  <rect x="-6" y="-26" width="11" height="15" rx="2" fill="#2a4a1a"/>
+  <rect x="-4" y="-27" width="8" height="4" rx="1" fill="#1a3a12"/>
+  <!-- Body/shirt -->
+  <rect x="-5" y="-28" width="10" height="17" rx="2" fill="#3a5a2a"/>
+  <!-- Neckerchief -->
+  <path d="M -3,-26 L 3,-26 L 0,-20 Z" fill="#8b1515"/>
+  <!-- Head -->
+  <circle cx="1" cy="-33" r="5.5" fill="#c8a870"/>
+  <!-- Hat -->
+  <ellipse cx="1" cy="-39" rx="8" ry="2.2" fill="#4a3010"/>
+  <rect x="-3" y="-45" width="8" height="7" rx="2" fill="#5a3a15"/>
+  <!-- Legs (animated via JS) -->
+  <line id="legL" x1="-2" y1="-11" x2="-5" y2="0" stroke="#3a5a2a" stroke-width="3.5" stroke-linecap="round"/>
+  <line id="legR" x1="3" y1="-11" x2="6" y2="0" stroke="#3a5a2a" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Arms -->
+  <line x1="-5" y1="-24" x2="-12" y2="-14" stroke="#3a5a2a" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Walking stick -->
+  <line x1="-12" y1="-14" x2="-14" y2="4" stroke="#6b4008" stroke-width="2" stroke-linecap="round"/>
+  <!-- Right arm -->
+  <line x1="5" y1="-24" x2="9" y2="-14" stroke="#3a5a2a" stroke-width="2.5" stroke-linecap="round"/>
+</g>
+
+</svg>
+</div><!-- end scene-wrap -->
+
+<!-- Progress -->
+<div class="prog-wrap">
+  <div class="prog-ends">
+    <span>Scout</span>
+    <span>Eagle Scout</span>
+  </div>
+  <div class="prog-track">
+    <div class="prog-fill" id="pf"></div>
+  </div>
+  <div class="prog-rank" id="pr">Click any badge to learn more</div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="ctrl" id="btnP">Pause</button>
+  <button class="ctrl" id="btnR">Restart</button>
+</div>
+
+</div><!-- page -->
+
+<!-- Info overlay -->
+<div class="overlay" id="ov">
+  <div class="icard">
+    <button class="ix" onclick="closeInfo()">×</button>
+    <p class="icard-num" id="inum"></p>
+    <h2 class="icard-name" id="iname"></h2>
+    <p class="icard-desc" id="idesc"></p>
+    <p class="icard-req" id="ireq"></p>
+  </div>
+</div>
+
+<script>
+// ── Rank data ──
+const ranks = [
+  { name:'Scout', num:'Rank 1 of 7',
+    desc:'The gateway to Scouting. Scouts learn the Scout Oath, Scout Law, and discover what it means to be part of a patrol and troop.',
+    req:'Complete joining requirements · Learn the Scout Oath & Law · Go on a troop outing · Learn the Outdoor Code' },
+  { name:'Tenderfoot', num:'Rank 2 of 7',
+    desc:'First outdoor skills take root — camping, first aid, and physical fitness — as Scouts begin building lasting patrol friendships.',
+    req:'10 requirements covering camping, first aid, physical fitness, and citizenship' },
+  { name:'Second Class', num:'Rank 3 of 7',
+    desc:'Scouts deepen wilderness skills including navigation, cooking, and swimming safety. Leadership in the patrol grows.',
+    req:'12 requirements · First aid · Map & compass · Camp cooking · Community service' },
+  { name:'First Class', num:'Rank 4 of 7',
+    desc:'A landmark achievement. First Class Scouts master core outdoor skills and begin leading fellow Scouts on adventures.',
+    req:'13 requirements · Advanced first aid · 10-mile hike · Outdoor leadership · Community service' },
+  { name:'Star', num:'Rank 5 of 7',
+    desc:'Leadership and merit badge excellence define the Star Scout. Scouts hold a formal leadership role and serve their community.',
+    req:'Hold a leadership position 4 months · 6 merit badges (4 Eagle-required) · 6 hrs of service' },
+  { name:'Life', num:'Rank 6 of 7 — One Step Away',
+    desc:'The pinnacle before Eagle. Life Scouts demonstrate consistent dedication to service, leadership, and personal growth.',
+    req:'Hold leadership position 6 months · 11 merit badges · Active participation · 6 hrs of service' },
+  { name:'Eagle Scout', num:'Rank 7 of 7 — The Summit',
+    desc:'The highest rank in all of Scouting. Earned by fewer than 4% of Scouts, this title represents exceptional character, citizenship, and leadership. It is carried for a lifetime.',
+    req:'21+ merit badges · Eagle Scout Service Project · 6 months as Life Scout · Board of Review · A legacy of service' }
+];
+
+// ── Star field ──
+(function(){
+  const g = document.getElementById('svgStars');
+  const ns = 'http://www.w3.org/2000/svg';
+  const pts = [
+    [90,25],[195,15],[310,38],[425,12],[540,28],[655,10],[775,34],[890,18],[1005,40],[1065,22],
+    [138,58],[270,50],[460,66],[595,44],[730,60],[885,48],[1040,55],
+    [68,88],[288,78],[495,92],[710,74],[940,86],[1075,70],
+    [155,108],[370,98],[620,104],[850,96],[1090,112],
+    [48,130],[235,122],[500,128],[760,120],[1015,132],
+    [180,22],[460,18],[740,26],[1000,16]
+  ];
+  const styleEl = document.createElement('style');
+  styleEl.textContent = '@keyframes twk{0%,100%{opacity:.15}50%{opacity:.95}}';
+  document.head.appendChild(styleEl);
+  pts.forEach(([cx,cy],i)=>{
+    const r = .4 + Math.random()*.9;
+    const delay = (i*.41)%5;
+    const dur = 1.8+(i*.17)%2.4;
+    const c = document.createElementNS(ns,'circle');
+    c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r);
+    c.setAttribute('fill','#f0e8c8');
+    c.style.animation=`twk ${dur}s ease-in-out ${delay}s infinite`;
+    g.appendChild(c);
+  });
+})();
+
+// ── Trail animated draw ──
+(function(){
+  const t = document.getElementById('trail');
+  const len = t.getTotalLength();
+  t.style.strokeDasharray = len;
+  t.style.strokeDashoffset = len;
+  t.style.transition = 'stroke-dashoffset 15s linear';
+  requestAnimationFrame(()=>{ t.style.strokeDashoffset = 0; });
+})();
+
+// ── Animation state ──
+const TOTAL = 16000;
+const PAUSE = 3500;
+const THRESH = [0.03, 0.18, 0.32, 0.47, 0.61, 0.76, 0.93];
+let revealed = Array(7).fill(false);
+let animStart = null;
+let paused = false;
+let pauseAt = null;
+let pausedOffset = 0;
+let resetPending = false;
+let resetTime = null;
+let legT = 0;
+
+const pathEl = document.getElementById('tp');
+const pathLen = pathEl.getTotalLength();
+
+function ptAt(p){
+  return pathEl.getPointAtLength(Math.max(0, Math.min(1,p)) * pathLen);
+}
+
+function doReveal(i){
+  const el = document.getElementById('b'+i);
+  el.classList.add('on');
+  // Update rank text
+  const pr = document.getElementById('pr');
+  pr.textContent = ranks[i].name.toUpperCase();
+  pr.classList.add('lit');
+  if(i===6) celebrate();
+}
+
+function celebrate(){
+  const svg = document.querySelector('.scene-svg');
+  const ns='http://www.w3.org/2000/svg';
+  for(let i=0;i<12;i++){
+    setTimeout(()=>{
+      const c = document.createElementNS(ns,'circle');
+      const ang = (i/12)*Math.PI*2;
+      const d = 58+Math.random()*22;
+      c.setAttribute('cx', 1008+Math.cos(ang)*d);
+      c.setAttribute('cy', 150+Math.sin(ang)*d);
+      c.setAttribute('r', 2.5+Math.random()*2);
+      c.setAttribute('fill', i%2===0 ? '#e8c050' : '#c8102e');
+      c.style.opacity='1';
+      c.style.transition='opacity 1.2s, r 1.2s';
+      svg.appendChild(c);
+      requestAnimationFrame(()=>{ c.style.opacity='0'; });
+      setTimeout(()=>{ if(c.parentNode) svg.removeChild(c); }, 1300);
+    }, i*70);
+  }
+}
+
+function resetAll(){
+  revealed.fill(false);
+  document.querySelectorAll('.bw').forEach(b=>b.classList.remove('on'));
+  const pr = document.getElementById('pr');
+  pr.textContent='Click any badge to learn more';
+  pr.classList.remove('lit');
+  document.getElementById('pf').style.width='0%';
+  // reset trail
+  const t = document.getElementById('trail');
+  t.style.transition='none';
+  t.style.strokeDashoffset=pathLen;
+  requestAnimationFrame(()=>{
+    t.style.transition='stroke-dashoffset 15s linear';
+    requestAnimationFrame(()=>{ t.style.strokeDashoffset=0; });
+  });
+  // move scout back to start
+  const pt = ptAt(0);
+  document.getElementById('scout').setAttribute('transform',`translate(${pt.x},${pt.y-8})`);
+}
+
+function frame(ts){
+  requestAnimationFrame(frame);
+  if(paused) return;
+  if(!animStart) animStart = ts;
+  const elapsed = ts - animStart - pausedOffset;
+  let prog = elapsed / TOTAL;
+
+  if(prog >= 1){
+    prog = 1;
+    if(!resetTime) resetTime = ts;
+    if(ts - resetTime >= PAUSE){
+      animStart = ts;
+      pausedOffset = 0;
+      resetTime = null;
+      resetAll();
+      return;
+    }
+  }
+
+  // Move scout
+  const pt = ptAt(prog);
+  document.getElementById('scout').setAttribute('transform',`translate(${pt.x},${pt.y-8})`);
+
+  // Walk legs
+  legT += 0.04;
+  const swing = Math.sin(legT) * 7;
+  document.getElementById('legL').setAttribute('x2', -5 + swing);
+  document.getElementById('legL').setAttribute('y2', swing > 0 ? 1 : -1);
+  document.getElementById('legR').setAttribute('x2', 6 - swing);
+  document.getElementById('legR').setAttribute('y2', swing > 0 ? -1 : 1);
+
+  // Progress bar
+  document.getElementById('pf').style.width = (prog * 100) + '%';
+
+  // Badge reveals
+  THRESH.forEach((th,i)=>{
+    if(!revealed[i] && prog >= th){
+      revealed[i] = true;
+      doReveal(i);
+    }
+  });
+}
+
+// ── Controls ──
+let pauseTs = null;
+document.getElementById('btnP').addEventListener('click', function(){
+  paused = !paused;
+  this.textContent = paused ? 'Resume' : 'Pause';
+  if(paused){
+    pauseTs = performance.now();
+  } else {
+    if(pauseTs) pausedOffset += performance.now() - pauseTs;
+    pauseTs = null;
+  }
+});
+
+document.getElementById('btnR').addEventListener('click', function(){
+  paused = false;
+  pausedOffset = 0;
+  pauseTs = null;
+  resetTime = null;
+  document.getElementById('btnP').textContent = 'Pause';
+  animStart = null;
+  resetAll();
+});
+
+// ── Info overlay ──
+function showInfo(i){
+  const r = ranks[i];
+  document.getElementById('inum').textContent = r.num;
+  document.getElementById('iname').textContent = r.name;
+  document.getElementById('idesc').textContent = r.desc;
+  document.getElementById('ireq').textContent = r.req;
+  document.getElementById('ov').classList.add('on');
+}
+function closeInfo(){
+  document.getElementById('ov').classList.remove('on');
+}
+document.getElementById('ov').addEventListener('click',function(e){
+  if(e.target===this) closeInfo();
+});
+// expose for onclick in SVG
+window.showInfo = showInfo;
+window.closeInfo = closeInfo;
+
+// ── Start ──
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

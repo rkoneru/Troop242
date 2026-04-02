@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <script>
+    // GitHub Pages 404 redirect to index.html
+    // This allows React Router to handle client-side routing
+    const path = window.location.pathname;
+    const segments = path.split('/').filter(Boolean);
+
+    // Store the path in sessionStorage so index.html can access it
+    if (segments.length > 1 && segments[0] === 'Troop242') {
+      const route = '/' + segments.slice(1).join('/');
+      sessionStorage.setItem('redirect-route', route);
+    }
+
+    // Redirect to index.html
+    window.location.href = '/Troop242/';
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
