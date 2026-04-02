@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import '../styles/ScoutPath.css';
+import ScoutPatch from '../data/RankPatches/Scout.png';
+import TenderfootPatch from '../data/RankPatches/Tenderfoot.png';
+import SecondClassPatch from '../data/RankPatches/SecondClass.png';
+import FirstClassPatch from '../data/RankPatches/FirstClass.png';
+import StarPatch from '../data/RankPatches/Star.png';
+import LifePatch from '../data/RankPatches/Life.png';
+import EaglePatch from '../data/RankPatches/Eagle.png';
 
 const RANKS_DATA = [
   {
@@ -49,13 +56,13 @@ const RANKS_DATA = [
 ];
 
 const BADGE_POSITIONS = [
-  { x: 140, y: 420, emoji: '⚜️' },
-  { x: 280, y: 365, emoji: '🎖️' },
-  { x: 440, y: 320, emoji: '🗝️' },
-  { x: 620, y: 275, emoji: '🛡️' },
-  { x: 800, y: 230, emoji: '⭐' },
-  { x: 960, y: 185, emoji: '✨' },
-  { x: 1100, y: 160, emoji: '🦅' }
+  { x: 140, y: 420, image: ScoutPatch },
+  { x: 280, y: 365, image: TenderfootPatch },
+  { x: 440, y: 300, image: SecondClassPatch },
+  { x: 620, y: 250, image: FirstClassPatch },
+  { x: 800, y: 200, image: StarPatch },
+  { x: 980, y: 145, image: LifePatch },
+  { x: 1150, y: 105, image: EaglePatch }
 ];
 
 const THRESHOLDS = [0.03, 0.18, 0.32, 0.47, 0.61, 0.76, 0.93];
@@ -315,15 +322,15 @@ export default function ScoutPath() {
                 onClick={() => setSelectedRank(i)}
                 style={{ cursor: 'pointer' }}
               >
-                {/* Badge circle */}
-                <ellipse cx="0" cy="-7" rx="40" ry="48" fill="#c8900a" opacity=".1" />
-                <ellipse cx="0" cy="-7" rx="36" ry="43" fill="#c9a870" stroke="#7a5010" strokeWidth="2.5" />
-                <ellipse cx="0" cy="-7" rx="31" ry="38" fill="#c0a060" stroke="#6b4008" strokeWidth=".8" />
-
-                {/* Emoji badge */}
-                <text x="0" y="-2" textAnchor="middle" fontSize="42" fill="#4a2c06" fontFamily="Arial">
-                  {pos.emoji}
-                </text>
+                {/* Rank patch image */}
+                <image
+                  href={pos.image}
+                  x="-30"
+                  y="-40"
+                  width="60"
+                  height="80"
+                  style={{ pointerEvents: 'none' }}
+                />
 
                 {/* Badge label */}
                 <text x="0" y="50" textAnchor="middle" fontSize="12" fill="#c0a060" fontFamily="Georgia" opacity={revealed[i] ? 1 : 0}>
@@ -339,7 +346,7 @@ export default function ScoutPath() {
       <div className="scout-path__progress">
         {/* Badges earned display */}
         <div className="scout-path__badges-earned">
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16, alignItems: 'center' }}>
             {RANKS_DATA.map((rank, i) => (
               <motion.div
                 key={i}
@@ -349,14 +356,19 @@ export default function ScoutPath() {
                 }}
                 transition={{ type: 'spring', stiffness: 100 }}
                 style={{
-                  fontSize: '2rem',
                   cursor: 'pointer',
-                  filter: revealed[i] ? 'none' : 'grayscale(100%)'
+                  filter: revealed[i] ? 'none' : 'grayscale(100%)',
+                  width: 50,
+                  height: 50
                 }}
                 onClick={() => setSelectedRank(i)}
                 title={rank.name}
               >
-                {BADGE_POSITIONS[i].emoji}
+                <img
+                  src={BADGE_POSITIONS[i].image}
+                  alt={rank.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                />
               </motion.div>
             ))}
           </div>
@@ -368,9 +380,9 @@ export default function ScoutPath() {
         </div>
 
         {/* Timeline progress bar */}
-      {/*   <div className="scout-path__progress-bar">
+        {/*  <div className="scout-path__progress-bar">
           <div className="scout-path__progress-fill" style={{ width: `${progress * 100}%` }} />
-        </div> */}
+        </div>  */}
 
         {/* Badges earned counter */}
         <div className="scout-path__progress-counter">
