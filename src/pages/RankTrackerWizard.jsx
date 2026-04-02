@@ -6,6 +6,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { RANKS } from '../data/rankRequirements';
+import ScoutDashboardMobileSidebar from '../components/ScoutDashboardMobileSidebar';
 
 export default function RankTrackerWizard() {
   const navigate = useNavigate();
@@ -563,6 +564,9 @@ Next Steps:
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* MOBILE BOTTOM NAVIGATION - Hide rank icon since we're on rank page */}
+      <ScoutDashboardMobileSidebar hideActive={true} />
     </>
   );
 }

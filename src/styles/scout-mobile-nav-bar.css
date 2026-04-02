@@ -1,0 +1,85 @@
+/* Scout Mobile Navigation Bar - Full Width, Icons Only */
+
+.scout-mobile-nav-bar {
+  display: none;
+  position: static;
+  width: 100%;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--divider);
+  z-index: 100;
+  padding: 0;
+  height: 60px;
+}
+
+.scout-nav-bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  height: 100%;
+  gap: 0;
+}
+
+/* Icon buttons - no circles, icons only */
+.scout-nav-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-family: inherit;
+  flex: 1;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.scout-nav-icon-btn:hover {
+  background: rgba(0, 214, 143, 0.08);
+  color: var(--accent);
+}
+
+.scout-nav-icon-btn.active {
+  background: rgba(0, 214, 143, 0.12);
+  color: var(--accent);
+  border-bottom: 3px solid var(--accent);
+}
+
+.scout-nav-icon {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.scout-nav-icon-btn.logout {
+  color: var(--text-muted);
+}
+
+.scout-nav-icon-btn.logout:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  border-bottom: none;
+}
+
+/* Show on mobile only */
+@media (max-width: 1024px) {
+  .scout-mobile-nav-bar {
+    display: flex;
+  }
+}
+
+/* Adjust for smaller phones */
+@media (max-width: 480px) {
+  .scout-mobile-nav-bar {
+    height: 56px;
+  }
+
+  .scout-nav-icon {
+    font-size: 1.3rem;
+  }
+}

@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
 import { BADGE_CATEGORIES } from './Badges';
+import ScoutDashboardMobileSidebar from '../components/ScoutDashboardMobileSidebar';
 //import SearchWidget from '../components/SearchWidget';
 import '../styles/ScoutDashboardNew.css';
 import { RANK_MAPPING } from '../data/rankMapping';
@@ -383,6 +384,32 @@ export default function ScoutDashboard() {
             >
               <span>🗺️</span> Scout Portal
             </motion.button>
+
+            <div className="scout-dash-menu-divider" />
+
+            {/* PROFILE CARD */}
+            <motion.div
+              className="scout-dash-profile-card"
+              whileHover={{ y: -2 }}
+              onClick={() => { navigate('/profile'); scrollToTop(); }}
+              style={{ cursor: 'pointer' }}
+            >
+              {previousRank && (
+                <>
+                  <div className="scout-dash-profile-image">
+                    <img
+                      src={RANK_MAPPING[Math.max(currentRankIdx - 1, 0)].patchImageUrl}
+                      alt={previousRank.name}
+                    />
+                  </div>
+                  <div className="scout-dash-profile-info">
+                    <div className="scout-dash-profile-name">{profile?.name || 'Scout'}</div>
+                    <div className="scout-dash-profile-rank">{previousRank.name}</div>
+                  </div>
+                </>
+              )}
+            </motion.div>
+
             <motion.button
               className="scout-dash-menu-item logout"
               onClick={handleLogout}
@@ -634,6 +661,9 @@ export default function ScoutDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* MOBILE BOTTOM NAVIGATION - Hide home icon on dashboard */}
+      <ScoutDashboardMobileSidebar hideActive={true} />
     </div>
   );
 }

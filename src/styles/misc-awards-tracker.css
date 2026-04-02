@@ -1,0 +1,320 @@
+/* Misc Awards Tracker - Mobile Friendly Collapsible Design */
+
+.misc-awards-tracker {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding-top: 70px;
+  padding-bottom: 80px;
+}
+
+/* Header */
+.misc-awards-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--divider);
+  z-index: 100;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.misc-awards-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+/* Container */
+.misc-awards-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Summary Card */
+.misc-awards-summary {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.misc-awards-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.misc-awards-stat-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 8px 0;
+}
+
+.misc-awards-stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 4px 0;
+}
+
+.misc-awards-stat-detail {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Categories */
+.misc-awards-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.misc-awards-category-section {
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--glass-bg);
+}
+
+/* Category Header */
+.misc-awards-category-header {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.misc-awards-category-header:hover {
+  background: rgba(0, 214, 143, 0.05);
+}
+
+.misc-awards-category-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  text-align: left;
+}
+
+.misc-awards-category-emoji {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.misc-awards-category-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.misc-awards-category-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.misc-awards-category-progress {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.misc-awards-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Category Content */
+.misc-awards-category-content {
+  border-top: 1px solid var(--divider);
+  overflow: hidden;
+}
+
+.misc-awards-awards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+/* Award Item */
+.misc-awards-award-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.misc-awards-award-item:hover {
+  background: rgba(0, 214, 143, 0.05);
+  border-color: var(--accent);
+}
+
+.misc-awards-award-item.earned {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+/* Checkbox */
+.misc-awards-award-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--divider);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.misc-awards-award-checkbox.checked {
+  border-color: #10b981;
+  background: #10b981;
+}
+
+/* Award Name */
+.misc-awards-award-name {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.misc-awards-award-item.earned .misc-awards-award-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Earned Badge */
+.misc-awards-award-badge {
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .misc-awards-header {
+    padding: 12px 16px;
+  }
+
+  .misc-awards-title {
+    font-size: 1.2rem;
+  }
+
+  .misc-awards-container {
+    padding: 16px;
+  }
+
+  .misc-awards-summary {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .misc-awards-stat-value {
+    font-size: 2rem;
+  }
+
+  .misc-awards-category-header {
+    padding: 12px;
+  }
+
+  .misc-awards-awards-list {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .misc-awards-award-item {
+    padding: 10px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .misc-awards-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .misc-awards-tracker {
+    padding-top: 60px;
+    padding-bottom: 70px;
+  }
+
+  .misc-awards-header {
+    padding: 10px 12px;
+  }
+
+  .misc-awards-title {
+    font-size: 1rem;
+  }
+
+  .misc-awards-container {
+    padding: 12px;
+  }
+
+  .misc-awards-summary {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .misc-awards-stat-value {
+    font-size: 1.8rem;
+  }
+
+  .misc-awards-categories {
+    gap: 10px;
+  }
+
+  .misc-awards-category-header {
+    padding: 10px;
+  }
+
+  .misc-awards-category-emoji {
+    font-size: 1.25rem;
+  }
+
+  .misc-awards-category-name {
+    font-size: 0.95rem;
+  }
+
+  .misc-awards-award-item {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .misc-awards-award-checkbox {
+    width: 20px;
+    height: 20px;
+    border-width: 1.5px;
+  }
+}

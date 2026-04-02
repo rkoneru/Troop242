@@ -37,6 +37,7 @@ export default function Header() {
   const [guideDropdownTimeout, setGuideDropdownTimeout] = useState(null);
   const [resourcesDropdownTimeout, setResourcesDropdownTimeout] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileUserMenuOpen, setMobileUserMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 8);
@@ -111,7 +112,7 @@ export default function Header() {
               >
                 <Link to="/new-scout" onClick={handleNavClick()} className="header-dropdown-item">New Scout</Link>
                 <Link to="/scout-principles" onClick={handleNavClick()} className="header-dropdown-item">Scout Principles</Link>
-                <Link to="/skills" onClick={handleNavClick()} className="header-dropdown-item">Scout Skills</Link>
+                {/* <Link to="/skills" onClick={handleNavClick()} className="header-dropdown-item">Scout Skills</Link> */}
                 <Link to="/ranks" onClick={handleNavClick()} className="header-dropdown-item">Scout Ranks</Link>
                 <Link to="/badges" onClick={handleNavClick()} className="header-dropdown-item">Merit Badges</Link>
                 <Link to="/glossary" onClick={handleNavClick()} className="header-dropdown-item">Glossary</Link>
@@ -411,6 +412,148 @@ export default function Header() {
           <button className="btn-search" onClick={handleSearchClick} aria-label="Search (Ctrl+K)">
             <Search size={18} />
           </button>
+
+          {/* Mobile User Dropdown */}
+          {user && profile && (
+            <div className="header-mobile-user" style={{ position: 'relative' }}>
+              <button
+                onClick={() => setMobileUserMenuOpen(!mobileUserMenuOpen)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  transition: 'background-color 0.2s',
+                  color: 'var(--text-primary)'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 600, fontSize: '0.85rem' }}>
+                  {profile.name?.[0]?.toUpperCase() || '?'}
+                </div>
+              </button>
+
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {mobileUserMenuOpen && (
+                  <>
+                    <div
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 999
+                      }}
+                      onClick={() => setMobileUserMenuOpen(false)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.2 }}
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: '8px',
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--divider)',
+                        borderRadius: '8px',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                        minWidth: '200px',
+                        zIndex: 1001,
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--divider)' }}>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>{profile.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user?.email}</div>
+                      </div>
+
+                      <Link
+                        to="/profile"
+                        onClick={() => {
+                          scrollToTop();
+                          setMobileUserMenuOpen(false);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 16px',
+                          color: 'var(--text-primary)',
+                          textDecoration: 'none',
+                          borderBottom: '1px solid var(--divider)',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        <User size={16} /> My Profile
+                      </Link>
+
+                      {profile?.role === 'scout' && (
+                        <Link
+                          to="/scout-dashboard"
+                          onClick={() => {
+                            scrollToTop();
+                            setMobileUserMenuOpen(false);
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--divider)',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        >
+                          ⛺ Scout Dashboard
+                        </Link>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setMobileUserMenuOpen(false);
+                        }}
+                        style={{
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 16px',
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--text-primary)',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s',
+                          textAlign: 'left',
+                          fontSize: '1rem',
+                          fontFamily: 'inherit'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(239,68,68,0.1)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        <LogOut size={16} /> Logout
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           <button
             className="btn-mobile-menu"

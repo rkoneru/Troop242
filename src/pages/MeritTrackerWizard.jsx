@@ -6,6 +6,7 @@ import { doc, getDoc, setDoc, onSnapshot, deleteField, updateDoc } from 'firebas
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { BADGE_CATEGORIES, BADGE_PDF_URLS } from './Badges';
+import ScoutDashboardMobileSidebar from '../components/ScoutDashboardMobileSidebar';
 
 // Filter out Eagle Required category
 // const VISIBLE_CATEGORIES = BADGE_CATEGORIES.filter(cat => cat.category !== 'Eagle Required');
@@ -878,6 +879,9 @@ export default function MeritTrackerWizard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* MOBILE BOTTOM NAVIGATION - Hide merit badges icon since we're on merit page */}
+      <ScoutDashboardMobileSidebar hideActive={true} />
     </div>
   );
 }

@@ -42,22 +42,22 @@
   width: 100%;
 }
 
-/* LEFT SIDEBAR - TWO COLUMN DESIGN */
+/* LEFT SIDEBAR - TWO COLUMN DESIGN - Full height between header and footer */
 .scout-dash-sidebar {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 12px;
-  width: 260px;
+  width: auto;
   background: transparent;
   padding: 24px 12px;
   flex-shrink: 0;
   border-right: none;
 }
 
-/* PILL STRIP (LEFT COLUMN) */
+/* PILL STRIP (LEFT COLUMN) - Hidden on desktop, shown only via mobile nav */
 .scout-dash-pill-strip {
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
@@ -97,18 +97,20 @@
   margin-top: auto;
 }
 
-/* MENU PANEL (RIGHT COLUMN) */
+/* MENU PANEL (RIGHT COLUMN) - Full height text menu on desktop */
 .scout-dash-menu-panel {
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: 192px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: transparent;
+  border: none;
   border-radius: 16px;
   padding: 14px 12px;
-  flex-grow: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  flex-grow: 1;
+  box-shadow: none;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
 }
 
 .scout-dash-menu-label {
@@ -118,8 +120,9 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 0 8px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .scout-dash-menu-item {
@@ -159,12 +162,81 @@
   font-size: 0.6rem;
 }
 
-.scout-dash-menu-item.logout {
+/* MENU DIVIDER - Before profile card */
+.scout-dash-menu-divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 12px 0 8px 0;
+  flex-shrink: 0;
+}
+
+/* PROFILE CARD - Pushed down by auto margin */
+.scout-dash-profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
   margin-top: auto;
+  margin-bottom: auto;
+  transition: all 0.2s ease;
+  font-size: 1.95rem;
+  font-weight: 600;
+}
+
+.scout-dash-profile-card:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+.scout-dash-profile-image {
+  width: 120%;
+  max-width: 120px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scout-dash-profile-image img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.scout-dash-profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.scout-dash-profile-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.scout-dash-profile-rank {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.scout-dash-menu-item.logout {
   color: var(--text-muted);
   border-top: 1px solid var(--divider);
   padding-top: 12px;
   margin-top: 12px;
+  flex-shrink: 0;
 }
 
 .scout-dash-menu-item.logout:hover {
@@ -537,39 +609,24 @@
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   .scout-dash-main {
     flex-direction: column;
   }
 
   .scout-dash-sidebar {
-    flex-direction: row;
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--divider);
-    padding: 8px 0;
-    justify-content: flex-start;
-    overflow-x: auto;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    display: none;
   }
 
-  .scout-dash-sidebar-icons {
-    flex-direction: row;
-    gap: 4px;
-  }
-
-  .scout-dash-sidebar-profile {
-    margin-left: auto;
-    margin-right: 8px;
+  .scout-dash-menu-panel {
+    display: none;
   }
 
   .scout-dash-content {
     padding: 20px 24px;
     gap: 20px;
     max-width: 100%;
+    padding-bottom: 100px;
   }
 
   .scout-dash-hero {
@@ -810,43 +867,5 @@
 .tracker-page-wrapper {
   min-height: 100vh;
   background: var(--bg-primary);
-}
-
-/* Show sidebar on mobile only - hide on desktop */
-@media (min-width: 769px) {
-  .tracker-page-wrapper .scout-dash-sidebar {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .tracker-page-wrapper {
-    padding-bottom: 80px;
-  }
-
-  .tracker-page-wrapper .scout-dash-sidebar {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 70px;
-    flex-direction: row;
-    border-top: 1px solid var(--divider);
-    border-right: none;
-    border-bottom: none;
-    padding: 8px 0;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 1000;
-    background: var(--bg-secondary);
-  }
-
-  .tracker-page-wrapper .scout-dash-sidebar-icons {
-    flex-direction: row;
-    gap: 0;
-    width: 100%;
-    justify-content: center;
-  }
+  padding-bottom: 70px;
 }

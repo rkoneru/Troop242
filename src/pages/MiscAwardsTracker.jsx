@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Check, ChevronDown } from 'lucide-react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { MISC_AWARD_CATEGORIES } from '../data/miscAwards';
+import ScoutDashboardMobileSidebar from '../components/ScoutDashboardMobileSidebar';
+import '../styles/misc-awards-tracker.css';
 
 export default function MiscAwardsTracker() {
   const navigate = useNavigate();
@@ -13,8 +15,8 @@ export default function MiscAwardsTracker() {
   const [isLoading, setIsLoading] = useState(true);
 
   // State
-  const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
   const [miscAwards, setMiscAwards] = useState({});
+  const [expandedCategories, setExpandedCategories] = useState({});
 
   // Load progress from Firestore with localStorage fallback (migration)
   useEffect(() => {
@@ -83,6 +85,13 @@ export default function MiscAwardsTracker() {
     }
   };
 
+  const toggleCategory = (catIdx) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [catIdx]: !prev[catIdx],
+    }));
+  };
+
   // Compute progress
   const getCompletedCountForCategory = (catIdx) => {
     return MISC_AWARD_CATEGORIES[catIdx].awards.filter(
@@ -107,185 +116,128 @@ export default function MiscAwardsTracker() {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
   }
 
-  const currentCategory = MISC_AWARD_CATEGORIES[selectedCategoryIdx];
-  const completedCount = getCompletedCountForCategory(selectedCategoryIdx);
-  const totalCount = getTotalForCategory(selectedCategoryIdx);
-
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: 80, paddingBottom: 40 }}>
+    <div className="misc-awards-tracker">
       {/* Header */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'var(--bg-secondary)', borderBottom: `1px solid var(--divider)`, zIndex: 100, padding: '16px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <motion.button
-            className="btn btn-outline"
-            onClick={() => navigate('/scout-dashboard')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-          >
-            <ArrowLeft size={18} /> Back
-          </motion.button>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Misc Awards Tracker</h1>
-          <div style={{ width: 120 }} />
-        </div>
+      <div className="misc-awards-header">
+        <motion.button
+          className="btn btn-outline"
+          onClick={() => navigate('/scout-dashboard')}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
+          <ArrowLeft size={18} /> Back
+        </motion.button>
+        <h1 className="misc-awards-title">Misc Awards Tracker</h1>
+        <div style={{ width: 120 }} />
       </div>
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }}>
+      <div className="misc-awards-container">
         {/* Summary Card */}
         <motion.div
+          className="misc-awards-summary"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{
-            background: 'var(--bg-secondary)',
-            border: `1px solid var(--divider)`,
-            borderRadius: 12,
-            padding: '24px',
-            marginBottom: 24,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: 24,
-          }}
         >
-          <div>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Total Earned</p>
-            <p style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0 0 4px 0' }}>{getTotalEarned()}</p>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>of {getTotalAwards()} awards</p>
+          <div className="misc-awards-stat">
+            <p className="misc-awards-stat-label">Total Earned</p>
+            <p className="misc-awards-stat-value">{getTotalEarned()}</p>
+            <p className="misc-awards-stat-detail">of {getTotalAwards()} awards</p>
           </div>
-          <div>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Progress</p>
-            <p style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0 0 4px 0' }}>
+          <div className="misc-awards-stat">
+            <p className="misc-awards-stat-label">Progress</p>
+            <p className="misc-awards-stat-value">
               {Math.round((getTotalEarned() / getTotalAwards()) * 100)}%
             </p>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>completion rate</p>
+            <p className="misc-awards-stat-detail">completion rate</p>
           </div>
-          <div>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Categories</p>
-            <p style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0 0 4px 0' }}>{MISC_AWARD_CATEGORIES.length}</p>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>total categories</p>
+          <div className="misc-awards-stat">
+            <p className="misc-awards-stat-label">Categories</p>
+            <p className="misc-awards-stat-value">{MISC_AWARD_CATEGORIES.length}</p>
+            <p className="misc-awards-stat-detail">total categories</p>
           </div>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24 }}>
-        {/* Sidebar: Categories */}
-        <div>
-          <div style={{ marginBottom: 16 }}>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: 4 }}>Category Progress</p>
-          </div>
+        {/* Collapsible Categories */}
+        <div className="misc-awards-categories">
+          {MISC_AWARD_CATEGORIES.map((cat, catIdx) => {
+            const isExpanded = expandedCategories[catIdx];
+            const completedCount = getCompletedCountForCategory(catIdx);
+            const totalCount = getTotalForCategory(catIdx);
 
-          <div style={{ border: `1px solid var(--divider)`, borderRadius: 12, overflow: 'hidden' }}>
-            {MISC_AWARD_CATEGORIES.map((cat, idx) => (
-              <motion.button
-                key={idx}
-                onClick={() => setSelectedCategoryIdx(idx)}
-                whileHover={{ backgroundColor: 'rgba(var(--accent-rgb, 0, 214, 143), 0.1)' }}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  textAlign: 'left',
-                  border: 'none',
-                  borderBottom: idx < MISC_AWARD_CATEGORIES.length - 1 ? `1px solid var(--divider)` : 'none',
-                  background: selectedCategoryIdx === idx ? 'var(--accent)' : 'var(--bg-secondary)',
-                  color: selectedCategoryIdx === idx ? 'white' : 'var(--text-main)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: '1.2rem', marginBottom: 4 }}>{cat.emoji}</div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>{cat.category}</div>
-                </div>
-                <div
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    background: selectedCategoryIdx === idx ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
-                    padding: '4px 8px',
-                    borderRadius: 4,
-                  }}
+            return (
+              <div key={catIdx} className="misc-awards-category-section">
+                {/* Category Header */}
+                <motion.button
+                  className="misc-awards-category-header"
+                  onClick={() => toggleCategory(catIdx)}
+                  whileHover={{ backgroundColor: 'rgba(0, 214, 143, 0.05)' }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  {getCompletedCountForCategory(idx)}/{getTotalForCategory(idx)}
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        {/* Main: Awards List */}
-        <div>
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ fontSize: '2.5rem' }}>{currentCategory.emoji}</div>
-              <div>
-                <h2 style={{ marginBottom: 4, marginTop: 0, fontSize: '1.5rem', fontWeight: 600 }}>{currentCategory.category}</h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-                  {completedCount} of {totalCount} earned in this category
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {currentCategory.awards.map((award, awardIdx) => {
-                const isEarned = miscAwards[award];
-                return (
-                  <motion.div
-                    key={awardIdx}
-                    onClick={() => toggleAward(award)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      padding: '16px',
-                      border: isEarned ? '1px solid #10b981' : '1px solid var(--divider)',
-                      borderRadius: 8,
-                      background: isEarned ? 'rgba(16,185,129,0.05)' : 'var(--bg-secondary)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                    }}
-                  >
-                    {/* Checkbox */}
-                    <div
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        border: isEarned ? '2px solid #10b981' : '2px solid var(--divider)',
-                        background: isEarned ? '#10b981' : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {isEarned && <Check size={16} color="white" />}
+                  <div className="misc-awards-category-info">
+                    <span className="misc-awards-category-emoji">{cat.emoji}</span>
+                    <div className="misc-awards-category-text">
+                      <div className="misc-awards-category-name">{cat.category}</div>
+                      <div className="misc-awards-category-progress">
+                        {completedCount}/{totalCount} earned
+                      </div>
                     </div>
-
-                    {/* Award Name */}
-                    <span
-                      style={{
-                        flex: 1,
-                        textDecoration: isEarned ? 'line-through' : 'none',
-                        color: isEarned ? 'var(--text-muted)' : 'var(--text-main)',
-                      }}
-                    >
-                      {award}
-                    </span>
-
-                    {/* Badge */}
-                    {isEarned && (
-                      <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>Earned</span>
-                    )}
+                  </div>
+                  <motion.div
+                    className="misc-awards-chevron"
+                    animate={{ rotate: isExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronDown size={20} />
                   </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+                </motion.button>
+
+                {/* Awards List */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      className="misc-awards-category-content"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="misc-awards-awards-list">
+                        {cat.awards.map((award, awardIdx) => {
+                          const isEarned = miscAwards[award];
+                          return (
+                            <motion.div
+                              key={awardIdx}
+                              className={`misc-awards-award-item ${isEarned ? 'earned' : ''}`}
+                              onClick={() => toggleAward(award)}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              <div className={`misc-awards-award-checkbox ${isEarned ? 'checked' : ''}`}>
+                                {isEarned && <Check size={16} color="white" />}
+                              </div>
+                              <span className="misc-awards-award-name">
+                                {award}
+                              </span>
+                              {isEarned && (
+                                <span className="misc-awards-award-badge">Earned</span>
+                              )}
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
         </div>
       </div>
+
+      {/* MOBILE BOTTOM NAVIGATION - Hide awards icon since we're on awards page */}
+      <ScoutDashboardMobileSidebar hideActive={true} />
     </div>
   );
 }

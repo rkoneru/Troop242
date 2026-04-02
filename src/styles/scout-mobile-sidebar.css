@@ -1,0 +1,89 @@
+/* Scout Bottom Navigation Styles */
+
+.scout-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--divider);
+  z-index: 999;
+  padding: 8px 0;
+  height: 70px;
+}
+
+.scout-bottom-nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  height: 100%;
+  gap: 4px;
+  padding: 0 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scout-bottom-nav-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scout-bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px 6px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  font-family: inherit;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.scout-bottom-nav-item:hover {
+  background: rgba(0, 214, 143, 0.1);
+  color: var(--accent);
+}
+
+.scout-bottom-nav-item.logout {
+  color: var(--text-muted);
+}
+
+.scout-bottom-nav-item.logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.scout-bottom-nav-emoji {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scout-bottom-nav-label {
+  white-space: nowrap;
+  font-size: 0.65rem;
+  line-height: 1;
+  text-align: center;
+  max-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Show on tablet and mobile */
+@media (max-width: 1024px) {
+  .scout-bottom-nav {
+    display: flex;
+  }
+}

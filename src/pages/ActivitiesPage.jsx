@@ -5,6 +5,7 @@ import { ArrowLeft, Users, MapPin, Calendar, Clock, Heart, CheckCircle } from 'l
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import ScoutDashboardMobileSidebar from '../components/ScoutDashboardMobileSidebar';
 
 export default function ActivitiesPage() {
   const navigate = useNavigate();
@@ -328,6 +329,9 @@ export default function ActivitiesPage() {
           </div>
         )}
       </div>
+
+      {/* MOBILE BOTTOM NAVIGATION - Hide activities icon since we're on activities page */}
+      <ScoutDashboardMobileSidebar hideActive={true} />
     </div>
   );
 }

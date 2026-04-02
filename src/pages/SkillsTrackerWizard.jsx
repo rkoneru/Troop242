@@ -6,6 +6,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { SKILL_CATEGORIES } from './Skills';
+import ScoutDashboardMobileSidebar from '../components/ScoutDashboardMobileSidebar';
 
 export default function SkillsTrackerWizard() {
   const navigate = useNavigate();
@@ -590,6 +591,9 @@ export default function SkillsTrackerWizard() {
           </motion.div>
         )}
       </div>
+
+      {/* MOBILE BOTTOM NAVIGATION - Hide skills icon since we're on skills page */}
+      <ScoutDashboardMobileSidebar hideActive={true} />
     </div>
   );
 }
