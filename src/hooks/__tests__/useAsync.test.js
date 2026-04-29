@@ -78,7 +78,7 @@ describe('useAsync', () => {
   it('should re-run on dependency changes', async () => {
     const mockFn = jest.fn().mockResolvedValue('new-data');
 
-    const { rerender } = renderHook(
+    const { rerender, result } = renderHook(
       ({ dep }) => useAsync(mockFn, true, [dep]),
       { initialProps: { dep: 1 } }
     );

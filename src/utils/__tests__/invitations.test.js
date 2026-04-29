@@ -3,18 +3,11 @@
  * Tests secure code generation, verification, and revocation
  */
 
-import {
-  generateSecureInviteCode,
-  createInvitation,
-  verifyInvitation,
-  markInvitationUsed,
-  revokeInvitation,
-} from '../invitations';
-
-// Mock Firestore
+// Mock Firebase and Firestore before importing utility
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
+  doc: jest.fn(),
   addDoc: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
@@ -31,6 +24,20 @@ jest.mock('firebase/firestore', () => ({
     }),
   },
 }));
+
+jest.mock('../../firebase/firebase', () => ({
+  db: {},
+  auth: {},
+  firebaseError: null
+}));
+
+import {
+  generateSecureInviteCode,
+  createInvitation,
+  verifyInvitation,
+  markInvitationUsed,
+  revokeInvitation,
+} from '../invitations';
 
 describe('Invitations Utility', () => {
   describe('generateSecureInviteCode', () => {
