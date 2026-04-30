@@ -5,6 +5,11 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+// Polyfills for JSDOM
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
