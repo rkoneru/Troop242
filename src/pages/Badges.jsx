@@ -1,6 +1,6 @@
 
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { scrollToTop } from '../utils/scrollToTop';
 
@@ -459,19 +459,23 @@ export default function Badges() {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
   };
 
-  const filteredCategories = searchTerm.trim() === ''
-    ? BADGE_CATEGORIES
-    : BADGE_CATEGORIES
-        .map(cat => ({
-          ...cat,
-          badges: cat.badges.filter(badge =>
-            badge.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }))
-        .filter(cat =>
-          cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cat.badges.length > 0
-        );
+  // Memoize filtered categories to prevent expensive re-filtering
+  // on every render (e.g. when toggling category expansion)
+  const filteredCategories = useMemo(() => {
+    return searchTerm.trim() === ''
+      ? BADGE_CATEGORIES
+      : BADGE_CATEGORIES
+          .map(cat => ({
+            ...cat,
+            badges: cat.badges.filter(badge =>
+              badge.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+          }))
+          .filter(cat =>
+            cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cat.badges.length > 0
+          );
+  }, [searchTerm]);
 
   return (
     <>
