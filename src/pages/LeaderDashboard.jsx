@@ -168,8 +168,12 @@ export default function LeaderDashboard() {
   );
 
   // Handler functions
+  // Use cryptographically secure random number generation for temporary passwords
   const generateTempPassword = useCallback(() => {
-    return Math.random().toString(36).slice(2, 10).toUpperCase();
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const array = new Uint8Array(8);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, (byte) => charset[byte % charset.length]).join('');
   }, []);
 
   const showError = useCallback((field, message) => {

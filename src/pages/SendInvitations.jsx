@@ -45,7 +45,13 @@ export default function SendInvitations() {
     loadInvitations();
   }, [user]);
 
-  const generateCode = () => Math.random().toString(36).substring(2, 10).toUpperCase();
+  // Use cryptographically secure random number generation for invitation codes
+  const generateCode = () => {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const array = new Uint8Array(8);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, (byte) => charset[byte % charset.length]).join('');
+  };
 
   const handleSendInvitation = async (e) => {
     e.preventDefault();
