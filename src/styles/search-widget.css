@@ -114,9 +114,15 @@
   font-size: 0.95rem;
 }
 
-.search-result-item:hover {
+.search-result-item:hover,
+.search-result-item.active {
   background: var(--accent-dim);
-  border-color: var(--accent-dim);
+  border-color: var(--accent);
+}
+
+.search-result-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .search-result-icon {
