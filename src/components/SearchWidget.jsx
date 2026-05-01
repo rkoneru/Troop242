@@ -10,6 +10,7 @@ export default function SearchWidget() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef(null);
 
   // Listen for open-search custom event
@@ -47,13 +48,31 @@ export default function SearchWidget() {
       if (query.length >= 2) {
         const searchResults = search(query);
         setResults(searchResults);
+        setActiveIndex(-1);
       } else {
         setResults([]);
+        setActiveIndex(-1);
       }
     };
 
     performSearch();
   }, [query]);
+
+  const handleKeyDown = (e) => {
+    if (results.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1));
+    } else if (e.key === 'Enter') {
+      if (activeIndex >= 0 && activeIndex < results.length) {
+        handleResultClick(results[activeIndex]);
+      }
+    }
+  };
 
   const handleResultClick = (result) => {
     setOpen(false);
@@ -101,7 +120,7 @@ export default function SearchWidget() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Search Input */}
-              <div className="search-input-wrapper">
+              <div className="search-input-wrapper" role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-controls="search-results-listbox">
                 <Search size={20} style={{ color: 'var(--accent)' }} />
                 <input
                   ref={inputRef}
@@ -109,6 +128,10 @@ export default function SearchWidget() {
                   placeholder="Search ranks, badges, events, skills..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  aria-autocomplete="list"
+                  aria-controls="search-results-listbox"
+                  aria-activedescendant={activeIndex >= 0 ? `result-item-${activeIndex}` : undefined}
                 />
                 <button
                   className="btn-close-search"
@@ -121,12 +144,16 @@ export default function SearchWidget() {
 
               {/* Search Results */}
               {results.length > 0 && (
-                <div className="search-results">
+                <div className="search-results" role="listbox" id="search-results-listbox">
                   {results.map((result, i) => (
                     <button
                       key={i}
-                      className="search-result-item"
+                      id={`result-item-${i}`}
+                      role="option"
+                      aria-selected={activeIndex === i}
+                      className={`search-result-item ${activeIndex === i ? 'active' : ''}`}
                       onClick={() => handleResultClick(result)}
+                      onMouseEnter={() => setActiveIndex(i)}
                     >
                       <span className="search-result-icon">{result.icon}</span>
                       <div className="search-result-content">
