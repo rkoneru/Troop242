@@ -41,23 +41,24 @@ export default function SearchWidget() {
     }
   }, [open]);
 
-  // Search on query change
+  // Search on query change with 300ms debounce
   useEffect(() => {
-    const performSearch = () => {
-      if (query.length >= 2) {
-        const searchResults = search(query);
-        setResults(searchResults);
-      } else {
-        setResults([]);
-      }
-    };
+    if (query.length < 2) {
+      return;
+    }
 
-    performSearch();
+    const timeoutId = setTimeout(() => {
+      const searchResults = search(query);
+      setResults(searchResults);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
   }, [query]);
 
   const handleResultClick = (result) => {
     setOpen(false);
     setQuery('');
+    setResults([]);
 
     // External links (http/https) open in new tab
     if (result.url.startsWith('http')) {
@@ -108,7 +109,11 @@ export default function SearchWidget() {
                   className="search-input"
                   placeholder="Search ranks, badges, events, skills..."
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setQuery(val);
+                    if (val.length < 2) setResults([]);
+                  }}
                 />
                 <button
                   className="btn-close-search"
@@ -156,7 +161,10 @@ export default function SearchWidget() {
                       <button
                         key={i}
                         className="search-suggestion-btn"
-                        onClick={() => setQuery(suggestion)}
+                        onClick={() => {
+                          setQuery(suggestion);
+                          if (suggestion.length < 2) setResults([]);
+                        }}
                       >
                         {suggestion}
                       </button>
