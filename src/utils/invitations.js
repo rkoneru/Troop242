@@ -5,16 +5,14 @@
 
 import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
+import { generateSecureRandomString } from './security';
 
 /**
  * Generate a cryptographically secure random invitation code (browser-compatible)
  * @returns {string} 12-character random code (uppercase hex)
  */
 export function generateSecureInviteCode() {
-  // Use Web Crypto API for browser compatibility
-  const array = new Uint8Array(9);
-  crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('').toUpperCase().slice(0, 12);
+  return generateSecureRandomString(12);
 }
 
 /**

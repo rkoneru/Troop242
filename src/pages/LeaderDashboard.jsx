@@ -6,6 +6,7 @@ import { collection, query, updateDoc, doc, onSnapshot } from 'firebase/firestor
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
+import { generateSecureRandomString } from '../utils/security';
 import { RANKS } from '../data/rankRequirements';
 import { searchScouts, generateScoutId } from '../utils/leaderData';
 import {
@@ -169,7 +170,7 @@ export default function LeaderDashboard() {
 
   // Handler functions
   const generateTempPassword = useCallback(() => {
-    return Math.random().toString(36).slice(2, 10).toUpperCase();
+    return generateSecureRandomString(8);
   }, []);
 
   const showError = useCallback((field, message) => {
