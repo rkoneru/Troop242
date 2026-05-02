@@ -16,6 +16,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
+import { generateSecureRandomString } from './security';
 
 // Default values for initial setup
 export const DEFAULT_STATS = {
@@ -263,7 +264,7 @@ export function saveData(key, value) {
  * Generate unique ID for new items
  */
 export function generateId() {
-  return `item-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  return `item-${Date.now()}-${generateSecureRandomString(7).toLowerCase()}`;
 }
 
 /**

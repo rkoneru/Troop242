@@ -1,0 +1,4 @@
+## 2025-05-02 - Secure Random Number Generation and Invitation Consistency
+**Vulnerability:** Use of `Math.random()` for cryptographically sensitive values (invitation codes, temporary passwords) and architectural inconsistency in the invitation system where the UI used auto-generated Firestore IDs instead of the invitation code itself.
+**Learning:** Insecure PRNGs make sensitive values predictable. Additionally, fragmented implementation of security features (like invitation generation) can lead to bypassing security logic (like document-based verification) if not properly centralized and enforced.
+**Prevention:** Always use `window.crypto.getRandomValues()` for sensitive random values. Centralize these operations in a dedicated security utility (e.g., `src/utils/security.js`) and ensure consistent data patterns across the application.
