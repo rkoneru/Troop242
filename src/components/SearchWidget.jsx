@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowRight, ExternalLink } from 'lucide-react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { search } from '../utils/SearchIndex';
 import '../styles/search-widget.css';
 
@@ -10,6 +10,7 @@ export default function SearchWidget() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef(null);
 
   // Listen for open-search custom event
@@ -41,19 +42,38 @@ export default function SearchWidget() {
     }
   }, [open]);
 
-  // Search on query change
+  // Search on query change with 300ms debounce
   useEffect(() => {
-    const performSearch = () => {
+    const timer = setTimeout(() => {
       if (query.length >= 2) {
         const searchResults = search(query);
         setResults(searchResults);
+        setActiveIndex(-1);
       } else {
         setResults([]);
+        setActiveIndex(-1);
       }
-    };
+    }, 300);
 
-    performSearch();
+    return () => clearTimeout(timer);
   }, [query]);
+
+  const handleKeyDown = (e) => {
+    if (results.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(prev => (prev < results.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(prev => (prev > 0 ? prev - 1 : results.length - 1));
+    } else if (e.key === 'Enter') {
+      if (activeIndex >= 0 && activeIndex < results.length) {
+        e.preventDefault();
+        handleResultClick(results[activeIndex]);
+      }
+    }
+  };
 
   const handleResultClick = (result) => {
     setOpen(false);
@@ -109,6 +129,12 @@ export default function SearchWidget() {
                   placeholder="Search ranks, badges, events, skills..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  role="combobox"
+                  aria-expanded={open}
+                  aria-haspopup="listbox"
+                  aria-controls="search-results-listbox"
+                  aria-activedescendant={activeIndex >= 0 ? `result-item-${activeIndex}` : undefined}
                 />
                 <button
                   className="btn-close-search"
@@ -121,12 +147,19 @@ export default function SearchWidget() {
 
               {/* Search Results */}
               {results.length > 0 && (
-                <div className="search-results">
+                <div
+                  id="search-results-listbox"
+                  className="search-results"
+                  role="listbox"
+                >
                   {results.map((result, i) => (
                     <button
+                      id={`result-item-${i}`}
                       key={i}
-                      className="search-result-item"
+                      className={`search-result-item ${i === activeIndex ? 'active' : ''}`}
                       onClick={() => handleResultClick(result)}
+                      role="option"
+                      aria-selected={i === activeIndex}
                     >
                       <span className="search-result-icon">{result.icon}</span>
                       <div className="search-result-content">
