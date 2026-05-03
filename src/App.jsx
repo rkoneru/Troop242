@@ -147,7 +147,12 @@ function App() {
         <ThemeManager>
           <Router basename="/Troop242/">
             <div className="app">
-              <AppRoutes />
+              <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[1000] focus:bg-emerald-500 focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:font-bold">
+                Skip to content
+              </a>
+              <main id="main-content" tabIndex="-1" className="outline-none">
+                <AppRoutes />
+              </main>
               <SearchWidget />
             </div>
           </Router>
