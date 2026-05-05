@@ -1,6 +1,6 @@
 
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { scrollToTop } from '../utils/scrollToTop';
 
@@ -442,6 +442,21 @@ const PDF_BUTTON_COLORS = {
 
 const BADGE_LEVEL_LABEL = 'Beginner';
 
+// Pre-process categories to avoid repeated string manipulations during renders
+const PROCESSED_BADGE_CATEGORIES = BADGE_CATEGORIES.map(cat => ({
+  ...cat,
+  badges: cat.badges.map(badge => {
+    if (badge.isHeader) return badge;
+    const cleanName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
+    return {
+      ...badge,
+      cleanName,
+      isBeginner: BEGINNER_BADGES.includes(cleanName),
+      pdfUrl: BADGE_PDF_URLS[cleanName]
+    };
+  })
+}));
+
 export default function Badges() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -459,19 +474,23 @@ export default function Badges() {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
   };
 
-  const filteredCategories = searchTerm.trim() === ''
-    ? BADGE_CATEGORIES
-    : BADGE_CATEGORIES
-        .map(cat => ({
-          ...cat,
-          badges: cat.badges.filter(badge =>
-            badge.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }))
-        .filter(cat =>
-          cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cat.badges.length > 0
-        );
+  // Memoize filtered categories to prevent re-filtering when toggling category panels
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (term === '') return PROCESSED_BADGE_CATEGORIES;
+
+    return PROCESSED_BADGE_CATEGORIES
+      .map(cat => ({
+        ...cat,
+        badges: cat.badges.filter(badge =>
+          badge.name.toLowerCase().includes(term)
+        )
+      }))
+      .filter(cat =>
+        cat.category.toLowerCase().includes(term) ||
+        cat.badges.length > 0
+      );
+  }, [searchTerm]);
 
   return (
     <>
@@ -621,9 +640,9 @@ export default function Badges() {
                   >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
                       {catItem.badges.map((badge) => {
-                        const cleanBadgeName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
-                        const isBeginnerBadge = BEGINNER_BADGES.includes(cleanBadgeName);
-                        const pdfUrl = BADGE_PDF_URLS[cleanBadgeName];
+                        const cleanBadgeName = badge.cleanName;
+                        const isBeginnerBadge = badge.isBeginner;
+                        const pdfUrl = badge.pdfUrl;
 
                         if (badge.isHeader) {
                           return (
