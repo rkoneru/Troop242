@@ -10,6 +10,7 @@ export default function SearchWidget() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef(null);
 
   // Listen for open-search custom event
@@ -22,7 +23,7 @@ export default function SearchWidget() {
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if (((e.metaKey || e.ctrlKey) && e.key === 'k') || (e.altKey && e.key === 's')) {
         e.preventDefault();
         setOpen(true);
       }
@@ -47,8 +48,10 @@ export default function SearchWidget() {
       if (query.length >= 2) {
         const searchResults = search(query);
         setResults(searchResults);
+        setActiveIndex(-1);
       } else {
         setResults([]);
+        setActiveIndex(-1);
       }
     };
 
@@ -56,8 +59,11 @@ export default function SearchWidget() {
   }, [query]);
 
   const handleResultClick = (result) => {
+    if (!result) return;
     setOpen(false);
     setQuery('');
+    setActiveIndex(-1);
+    setResults([]);
 
     // External links (http/https) open in new tab
     if (result.url.startsWith('http')) {
@@ -65,6 +71,21 @@ export default function SearchWidget() {
     } else {
       // Internal routes use React Router navigate
       navigate(result.url);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (results.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev < results.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      handleResultClick(results[activeIndex]);
     }
   };
 
@@ -103,13 +124,27 @@ export default function SearchWidget() {
               {/* Search Input */}
               <div className="search-input-wrapper">
                 <Search size={20} style={{ color: 'var(--accent)' }} />
-                <input
-                  ref={inputRef}
-                  className="search-input"
-                  placeholder="Search ranks, badges, events, skills..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
+                <div
+                  role="combobox"
+                  aria-expanded={open}
+                  aria-haspopup="listbox"
+                  aria-controls="search-results-listbox"
+                  style={{ flex: 1 }}
+                >
+                  <input
+                    ref={inputRef}
+                    className="search-input"
+                    placeholder="Search ranks, badges, events, skills..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    aria-autocomplete="list"
+                    aria-controls="search-results-listbox"
+                    aria-activedescendant={activeIndex >= 0 ? `search-result-${activeIndex}` : undefined}
+                    aria-label="Search content"
+                    style={{ width: '100%' }}
+                  />
+                </div>
                 <button
                   className="btn-close-search"
                   onClick={() => setOpen(false)}
@@ -121,11 +156,18 @@ export default function SearchWidget() {
 
               {/* Search Results */}
               {results.length > 0 && (
-                <div className="search-results">
+                <div
+                  className="search-results"
+                  id="search-results-listbox"
+                  role="listbox"
+                >
                   {results.map((result, i) => (
                     <button
                       key={i}
-                      className="search-result-item"
+                      id={`search-result-${i}`}
+                      role="option"
+                      aria-selected={activeIndex === i}
+                      className={`search-result-item ${activeIndex === i ? 'active' : ''}`}
                       onClick={() => handleResultClick(result)}
                     >
                       <span className="search-result-icon">{result.icon}</span>
