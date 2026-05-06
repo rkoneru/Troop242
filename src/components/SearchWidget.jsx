@@ -41,18 +41,18 @@ export default function SearchWidget() {
     }
   }, [open]);
 
-  // Search on query change
+  // Bolt Performance Optimization: Debounce search to reduce redundant
+  // calculations on every keystroke. 300ms is the sweet spot for
+  // perceived responsiveness vs efficiency.
   useEffect(() => {
-    const performSearch = () => {
-      if (query.length >= 2) {
-        const searchResults = search(query);
-        setResults(searchResults);
-      } else {
-        setResults([]);
-      }
-    };
+    if (query.length < 2) return;
 
-    performSearch();
+    const timer = setTimeout(() => {
+      const searchResults = search(query);
+      setResults(searchResults);
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [query]);
 
   const handleResultClick = (result) => {
@@ -108,7 +108,13 @@ export default function SearchWidget() {
                   className="search-input"
                   placeholder="Search ranks, badges, events, skills..."
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setQuery(val);
+                    // Synchronously clear results for short queries to
+                    // avoid flash of old results and satisfy linting rules.
+                    if (val.length < 2) setResults([]);
+                  }}
                 />
                 <button
                   className="btn-close-search"
