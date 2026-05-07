@@ -1,0 +1,3 @@
+## 2025-05-15 - [Memoization and Pre-processing in Merit Badges]
+**Learning:** In the `Badges.jsx` component, filtering ~150 merit badges and performing string manipulations (regex, case conversion) and lookups on every render was an efficiency bottleneck. Using `useMemo` for filtering and pre-processing metadata into a static constant significantly reduces the workload on the main thread during UI state changes (like category toggles).
+**Action:** Always identify static or slow-changing datasets that require processing before rendering, and move that logic to module-level constants or memoize with `useMemo` to keep the UI responsive.

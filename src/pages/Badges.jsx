@@ -1,8 +1,7 @@
 
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { scrollToTop } from '../utils/scrollToTop';
 
 // Merit badge PDF URLs mapping
 export const BADGE_PDF_URLS = {
@@ -432,6 +431,25 @@ export const BADGE_CATEGORIES = [
 
 const BEGINNER_BADGES = ['Cooking', 'Camping', 'First Aid', 'Pets', 'Collections', 'Photography', 'Fingerprinting', 'Communication', 'Chess', 'Reading'];
 
+/**
+ * Pre-processed badge categories for performance.
+ * Moves string manipulation and lookups out of the render loop.
+ */
+export const PROCESSED_BADGE_CATEGORIES = BADGE_CATEGORIES.map(cat => ({
+  ...cat,
+  categoryLower: cat.category.toLowerCase(),
+  badges: cat.badges.map(badge => {
+    const cleanName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
+    return {
+      ...badge,
+      cleanName,
+      nameLower: badge.name.toLowerCase(),
+      isBeginner: BEGINNER_BADGES.includes(cleanName),
+      pdfUrl: BADGE_PDF_URLS[cleanName] || null
+    };
+  })
+}));
+
 // Color constants for PDF button styling
 const PDF_BUTTON_COLORS = {
   bgDefault: 'rgba(200, 150, 80, 0.25)',
@@ -439,8 +457,6 @@ const PDF_BUTTON_COLORS = {
   borderDefault: 'rgba(200, 150, 80, 0.4)',
   borderHover: 'rgba(200, 150, 80, 0.7)'
 };
-
-const BADGE_LEVEL_LABEL = 'Beginner';
 
 export default function Badges() {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -459,19 +475,26 @@ export default function Badges() {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
   };
 
-  const filteredCategories = searchTerm.trim() === ''
-    ? BADGE_CATEGORIES
-    : BADGE_CATEGORIES
-        .map(cat => ({
-          ...cat,
-          badges: cat.badges.filter(badge =>
-            badge.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }))
-        .filter(cat =>
-          cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cat.badges.length > 0
-        );
+  /**
+   * Memoized filtered categories to prevent expensive re-calculation
+   * on state changes that don't affect search (e.g., toggling a category).
+   */
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (term === '') return PROCESSED_BADGE_CATEGORIES;
+
+    return PROCESSED_BADGE_CATEGORIES
+      .map(cat => ({
+        ...cat,
+        badges: cat.badges.filter(badge =>
+          badge.nameLower.includes(term)
+        )
+      }))
+      .filter(cat =>
+        cat.categoryLower.includes(term) ||
+        cat.badges.length > 0
+      );
+  }, [searchTerm]);
 
   return (
     <>
@@ -621,9 +644,7 @@ export default function Badges() {
                   >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
                       {catItem.badges.map((badge) => {
-                        const cleanBadgeName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
-                        const isBeginnerBadge = BEGINNER_BADGES.includes(cleanBadgeName);
-                        const pdfUrl = BADGE_PDF_URLS[cleanBadgeName];
+                        const { isBeginner, pdfUrl } = badge;
 
                         if (badge.isHeader) {
                           return (
@@ -713,7 +734,7 @@ export default function Badges() {
                                 </motion.a>
                               )}
                             </motion.div>
-                            {isBeginnerBadge && (
+                            {isBeginner && (
                               <div style={{
                                 position: 'absolute',
                                 top: -8,
