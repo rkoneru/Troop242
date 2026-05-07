@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Copy, Check, Share2, ExternalLink } from 'lucide-react';
-import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { generateSecureInviteCode } from '../utils/invitations';
+import { authSchemas, validate } from '../utils/validation';
 
 export default function SendInvitations() {
   const navigate = useNavigate();
@@ -45,8 +47,6 @@ export default function SendInvitations() {
     loadInvitations();
   }, [user]);
 
-  const generateCode = () => Math.random().toString(36).substring(2, 10).toUpperCase();
-
   const handleSendInvitation = async (e) => {
     e.preventDefault();
     setError('');
@@ -58,16 +58,23 @@ export default function SendInvitations() {
       return;
     }
 
+    // Validate email using common schema
+    const validation = validate({ email }, authSchemas.login.pick({ email: true }));
+    if (!validation.valid) {
+      setError(validation.errors.email || 'Invalid email address');
+      return;
+    }
+
     // Leaders can only invite scouts
     const typeToUse = profile?.role === 'admin' ? inviteType : 'scout';
 
     try {
-      const code = generateCode();
+      const code = generateSecureInviteCode();
       const createdAt = new Date().toISOString();
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
       const registrationUrl = `${window.location.origin}/register?code=${code}`;
 
-      await addDoc(collection(db, 'invitations'), {
+      await setDoc(doc(db, 'invitations', code), {
         email,
         code,
         role: typeToUse,
