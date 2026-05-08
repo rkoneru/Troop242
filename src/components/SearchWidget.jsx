@@ -10,6 +10,7 @@ export default function SearchWidget() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef(null);
 
   // Listen for open-search custom event
@@ -22,7 +23,8 @@ export default function SearchWidget() {
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      // Ctrl+K or Alt+S
+      if (((e.metaKey || e.ctrlKey) && e.key === 'k') || (e.altKey && e.key.toLowerCase() === 's')) {
         e.preventDefault();
         setOpen(true);
       }
@@ -41,23 +43,24 @@ export default function SearchWidget() {
     }
   }, [open]);
 
-  // Search on query change
-  useEffect(() => {
-    const performSearch = () => {
-      if (query.length >= 2) {
-        const searchResults = search(query);
-        setResults(searchResults);
-      } else {
-        setResults([]);
-      }
-    };
+  const handleQueryChange = (e) => {
+    const q = e.target.value;
+    setQuery(q);
 
-    performSearch();
-  }, [query]);
+    if (q.length >= 2) {
+      const searchResults = search(q);
+      setResults(searchResults);
+      setActiveIndex(searchResults.length > 0 ? 0 : -1);
+    } else {
+      setResults([]);
+      setActiveIndex(-1);
+    }
+  };
 
   const handleResultClick = (result) => {
     setOpen(false);
     setQuery('');
+    setResults([]);
 
     // External links (http/https) open in new tab
     if (result.url.startsWith('http')) {
@@ -65,6 +68,21 @@ export default function SearchWidget() {
     } else {
       // Internal routes use React Router navigate
       navigate(result.url);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (results.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev + 1) % results.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev - 1 + results.length) % results.length);
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      handleResultClick(results[activeIndex]);
     }
   };
 
@@ -108,7 +126,13 @@ export default function SearchWidget() {
                   className="search-input"
                   placeholder="Search ranks, badges, events, skills..."
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={handleQueryChange}
+                  onKeyDown={handleKeyDown}
+                  role="combobox"
+                  aria-expanded={open}
+                  aria-controls="search-results-list"
+                  aria-activedescendant={activeIndex >= 0 ? `search-result-${activeIndex}` : undefined}
+                  aria-autocomplete="list"
                 />
                 <button
                   className="btn-close-search"
@@ -121,12 +145,20 @@ export default function SearchWidget() {
 
               {/* Search Results */}
               {results.length > 0 && (
-                <div className="search-results">
+                <div
+                  className="search-results"
+                  id="search-results-list"
+                  role="listbox"
+                >
                   {results.map((result, i) => (
                     <button
                       key={i}
-                      className="search-result-item"
+                      id={`search-result-${i}`}
+                      role="option"
+                      aria-selected={i === activeIndex}
+                      className={`search-result-item ${i === activeIndex ? 'active' : ''}`}
                       onClick={() => handleResultClick(result)}
+                      onMouseEnter={() => setActiveIndex(i)}
                     >
                       <span className="search-result-icon">{result.icon}</span>
                       <div className="search-result-content">
