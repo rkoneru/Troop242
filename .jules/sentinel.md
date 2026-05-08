@@ -1,0 +1,4 @@
+## 2025-05-14 - [Auth] Generic Error Messages to Prevent Email Enumeration
+**Vulnerability:** The `MemberLogin.jsx` component was previously leaking the existence of user accounts by providing specific error messages for non-existent emails (`auth/user-not-found`) versus incorrect passwords (`auth/wrong-password`). This allowed an attacker to enumerate valid user emails.
+**Learning:** Firebase Auth provides granular error codes that are useful for debugging but should be mapped to generic messages in production login forms to maintain privacy. The testing environment required significant polyfills (TextEncoder, TextDecoder) and mocks (IntersectionObserver, Framer Motion) to support React 19 and modern browser APIs in JSDOM.
+**Prevention:** Always use generic "Invalid email or password" messages for any authentication failure that could reveal whether an account exists. Standardize authentication error handling across the application.

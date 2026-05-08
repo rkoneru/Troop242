@@ -6,28 +6,32 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
-jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
-  getAuth: jest.fn(),
-  onAuthStateChanged: jest.fn((auth, callback) => {
-    callback(null);
-    return jest.fn();
-  }),
-}));
+jest.mock('firebase/auth', () => {
+  const actual = jest.requireActual('firebase/auth');
+  return {
+    ...actual,
+    signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
+    getAuth: jest.fn(),
+    onAuthStateChanged: jest.fn((auth, callback) => {
+      callback(null);
+      return jest.fn();
+    }),
+  };
+});
 
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <MemoryRouter initialEntries={['/Troop242/member-login']} basename="/Troop242/">
       <AuthProvider>
         {component}
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -44,7 +48,7 @@ describe('MemberLogin', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
-  it('should require email', async () => {
+  it('should require email and password', async () => {
     const user = userEvent.setup();
     renderComponent(<MemberLogin />);
 
@@ -53,23 +57,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should require password', async () => {
-    const user = userEvent.setup();
-    renderComponent(<MemberLogin />);
-
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    await user.type(emailInput, 'scout@example.com');
-
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
-    await user.click(submitButton);
-
-    // Form should show validation error
-    await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 

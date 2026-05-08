@@ -5,6 +5,19 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+  takeRecords() { return []; }
+};
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -28,11 +41,15 @@ jest.mock('firebase/firestore', () => ({
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
-  getDocs: jest.fn(),
-  getDoc: jest.fn(),
-  setDoc: jest.fn(),
-  updateDoc: jest.fn(),
-  deleteDoc: jest.fn(),
+  getDocs: jest.fn(() => Promise.resolve({ docs: [] })),
+  getDoc: jest.fn(() => Promise.resolve({
+    exists: () => true,
+    data: () => ({ role: 'scout' })
+  })),
+  doc: jest.fn(),
+  setDoc: jest.fn(() => Promise.resolve()),
+  updateDoc: jest.fn(() => Promise.resolve()),
+  deleteDoc: jest.fn(() => Promise.resolve()),
   serverTimestamp: jest.fn(() => new Date()),
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
@@ -61,6 +78,23 @@ const localStorageMock = {
   clear: jest.fn(),
 };
 global.localStorage = localStorageMock;
+
+// Mock framer-motion
+jest.mock('framer-motion', () => ({
+  motion: {
+    div: ({ children, ...props }) => <div {...props}>{children}</div>,
+    section: ({ children, ...props }) => <section {...props}>{children}</section>,
+    h1: ({ children, ...props }) => <h1 {...props}>{children}</h1>,
+    p: ({ children, ...props }) => <p {...props}>{children}</p>,
+    form: ({ children, ...props }) => <form {...props}>{children}</form>,
+    button: ({ children, ...props }) => <button {...props}>{children}</button>,
+  },
+  AnimatePresence: ({ children }) => children,
+  useAnimation: () => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+  }),
+}));
 
 // Suppress console errors in tests
 const originalError = console.error;
