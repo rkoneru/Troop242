@@ -1,6 +1,6 @@
 
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { scrollToTop } from '../utils/scrollToTop';
 
@@ -432,6 +432,24 @@ export const BADGE_CATEGORIES = [
 
 const BEGINNER_BADGES = ['Cooking', 'Camping', 'First Aid', 'Pets', 'Collections', 'Photography', 'Fingerprinting', 'Communication', 'Chess', 'Reading'];
 
+/**
+ * Pre-processed badge categories to avoid redundant calculations
+ * in the render loop for ~150 merit badges.
+ */
+const PROCESSED_BADGE_CATEGORIES = BADGE_CATEGORIES.map(category => ({
+  ...category,
+  badges: category.badges.map(badge => {
+    if (badge.isHeader) return badge;
+    const cleanName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
+    return {
+      ...badge,
+      cleanName,
+      isBeginner: BEGINNER_BADGES.includes(cleanName),
+      pdfUrl: BADGE_PDF_URLS[cleanName]
+    };
+  })
+}));
+
 // Color constants for PDF button styling
 const PDF_BUTTON_COLORS = {
   bgDefault: 'rgba(200, 150, 80, 0.25)',
@@ -459,19 +477,26 @@ export default function Badges() {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
   };
 
-  const filteredCategories = searchTerm.trim() === ''
-    ? BADGE_CATEGORIES
-    : BADGE_CATEGORIES
-        .map(cat => ({
-          ...cat,
-          badges: cat.badges.filter(badge =>
-            badge.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }))
-        .filter(cat =>
-          cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cat.badges.length > 0
-        );
+  /**
+   * Performance optimization: Memoize filtered results to prevent expensive
+   * recalculations of ~150 badges when other state (like selectedCategory) changes.
+   */
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return PROCESSED_BADGE_CATEGORIES;
+
+    return PROCESSED_BADGE_CATEGORIES
+      .map(cat => ({
+        ...cat,
+        badges: cat.badges.filter(badge =>
+          badge.name.toLowerCase().includes(term)
+        )
+      }))
+      .filter(cat =>
+        cat.category.toLowerCase().includes(term) ||
+        cat.badges.length > 0
+      );
+  }, [searchTerm]);
 
   return (
     <>
@@ -621,10 +646,6 @@ export default function Badges() {
                   >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
                       {catItem.badges.map((badge) => {
-                        const cleanBadgeName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
-                        const isBeginnerBadge = BEGINNER_BADGES.includes(cleanBadgeName);
-                        const pdfUrl = BADGE_PDF_URLS[cleanBadgeName];
-
                         if (badge.isHeader) {
                           return (
                             <div
@@ -662,7 +683,7 @@ export default function Badges() {
                                   flex: 1,
                                   padding: '8px 12px',
                                   background: 'var(--accent-dim)',
-                                  borderRadius: pdfUrl ? '8px 0 0 8px' : '8px',
+                                  borderRadius: badge.pdfUrl ? '8px 0 0 8px' : '8px',
                                   fontSize: '0.85rem',
                                   textAlign: 'center',
                                   border: '1px solid var(--accent-dim)',
@@ -683,9 +704,9 @@ export default function Badges() {
                               >
                                 {badge.name}
                               </motion.a>
-                              {pdfUrl && (
+                              {badge.pdfUrl && (
                                 <motion.a
-                                  href={pdfUrl}
+                                  href={badge.pdfUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   style={{
@@ -713,7 +734,7 @@ export default function Badges() {
                                 </motion.a>
                               )}
                             </motion.div>
-                            {isBeginnerBadge && (
+                            {badge.isBeginner && (
                               <div style={{
                                 position: 'absolute',
                                 top: -8,
