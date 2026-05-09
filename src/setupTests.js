@@ -38,6 +38,10 @@ jest.mock('firebase/firestore', () => ({
   arrayRemove: jest.fn(val => val),
 }));
 
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
