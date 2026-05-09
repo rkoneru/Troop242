@@ -1,0 +1,3 @@
+## 2025-05-15 - [Keyboard Navigation and Accessibility for Global Search]
+**Learning:** Implementing the ARIA Combobox pattern with `aria-activedescendant` allows for accessible list navigation without moving physical focus from the search input. This maintains a fluid experience for screen reader users while allowing keyboard-only users to navigate results efficiently.
+**Action:** Always use `aria-activedescendant` and `role="combobox"` for search/lookup components. Pair visual `.active` states with `aria-selected` and include keyboard shortcut hints in `aria-label` for better discoverability.
