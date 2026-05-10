@@ -408,7 +408,7 @@ export default function Header() {
             </div>
           )}
 
-          <button className="btn-search" onClick={handleSearchClick} aria-label="Search (Ctrl+K)">
+          <button className="btn-search" onClick={handleSearchClick} aria-label="Search (Ctrl+K or Alt+S)">
             <Search size={18} />
           </button>
 
@@ -496,6 +496,7 @@ export default function Header() {
                 handleSearchClick();
                 setMobileMenuOpen(false);
               }}
+              aria-label="Open search (Ctrl+K or Alt+S)"
             >
               <Search size={16} /> Search
             </button>

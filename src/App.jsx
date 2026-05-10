@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import SkipLink from './components/SkipLink';
 import SearchWidget from './components/SearchWidget';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -97,44 +98,68 @@ function ProtectedRoute({ children, allowedRoles = null }) {
   return children;
 }
 
+function GlobalLayout() {
+  return (
+    <>
+      <Header />
+      <main id="main-content" tabIndex="-1" style={{ outline: 'none' }}>
+        <Outlet />
+      </main>
+      <Footer />
+    </>
+  );
+}
+
+function WizardLayout() {
+  return (
+    <main id="main-content" tabIndex="-1" style={{ outline: 'none' }}>
+      <Outlet />
+    </main>
+  );
+}
+
 function AppRoutes() {
   return (
     <Routes>
         {/* Pages with global header/footer */}
-        <Route path="/" element={<><Header /><Home /><Footer /></>} />
-        <Route path="/ranks" element={<><Header /><Ranks /><Footer /></>} />
-        <Route path="/badges" element={<><Header /><Badges /><Footer /></>} />
-        <Route path="/skills" element={<><Header /><Skills /><Footer /></>} />
-        <Route path="/scout-principles" element={<><Header /><ScoutPrinciples /><Footer /></>} />
-        <Route path="/stories" element={<><Header /><Stories /><Footer /></>} />
-        <Route path="/about" element={<><Header /><About /><Footer /></>} />
-        <Route path="/appearance" element={<><Header /><Appearance /><Footer /></>} />
-        <Route path="/calendar" element={<><Header /><Calendar /><Footer /></>} />
-        <Route path="/contact" element={<><Header /><Contact /><Footer /></>} />
-        <Route path="/member-login" element={<><Header /><MemberLogin /><Footer /></>} />
-        <Route path="/scout-signup" element={<><Header /><ScoutSignup /><Footer /></>} />
-        <Route path="/leader-dashboard" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><LeaderDashboard /></ProtectedRoute><Footer /></>} />
-        <Route path="/admin-dashboard" element={<><Header /><ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute><Footer /></>} />
-        <Route path="/new-scout" element={<><Header /><NewScout /><Footer /></>} />
-        <Route path="/scouts-bsa" element={<><Header /><ScoutsBSA /><Footer /></>} />
-        <Route path="/glossary" element={<><Header /><Glossary /><Footer /></>} />
-        <Route path="/scout-dashboard" element={<><Header /><ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><ScoutDashboard /></ProtectedRoute><Footer /></>} />
-        <Route path="/profile" element={<><Header /><ProtectedRoute><UserProfile /></ProtectedRoute><Footer /></>} />
-        <Route path="/games" element={<><Header /><GamesLanding /><Footer /></>} />
-        <Route path="/troop-finances" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><TroopFinances /></ProtectedRoute><Footer /></>} />
-        <Route path="/send-invitations" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><SendInvitations /></ProtectedRoute><Footer /></>} />
-        <Route path="/referral-links" element={<><Header /><ProtectedRoute allowedRoles={['leader', 'admin']}><ReferralLinks /></ProtectedRoute><Footer /></>} />
-        <Route path="/register" element={<><Header /><RegisterWithInvite /><Footer /></>} />
-        <Route path="/camping" element={<><Header /><Camping /><Footer /></>} />
-        <Route path="/camping-guide" element={<><Header /><CampingGuide /><Footer /></>} />
+        <Route element={<GlobalLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/ranks" element={<Ranks />} />
+          <Route path="/badges" element={<Badges />} />
+          <Route path="/skills" element={<Skills />} />
+          <Route path="/scout-principles" element={<ScoutPrinciples />} />
+          <Route path="/stories" element={<Stories />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/appearance" element={<Appearance />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/member-login" element={<MemberLogin />} />
+          <Route path="/scout-signup" element={<ScoutSignup />} />
+          <Route path="/leader-dashboard" element={<ProtectedRoute allowedRoles={['leader', 'admin']}><LeaderDashboard /></ProtectedRoute>} />
+          <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/new-scout" element={<NewScout />} />
+          <Route path="/scouts-bsa" element={<ScoutsBSA />} />
+          <Route path="/glossary" element={<Glossary />} />
+          <Route path="/scout-dashboard" element={<ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><ScoutDashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          <Route path="/games" element={<GamesLanding />} />
+          <Route path="/troop-finances" element={<ProtectedRoute allowedRoles={['leader', 'admin']}><TroopFinances /></ProtectedRoute>} />
+          <Route path="/send-invitations" element={<ProtectedRoute allowedRoles={['leader', 'admin']}><SendInvitations /></ProtectedRoute>} />
+          <Route path="/referral-links" element={<ProtectedRoute allowedRoles={['leader', 'admin']}><ReferralLinks /></ProtectedRoute>} />
+          <Route path="/register" element={<RegisterWithInvite />} />
+          <Route path="/camping" element={<Camping />} />
+          <Route path="/camping-guide" element={<CampingGuide />} />
+        </Route>
 
         {/* Wizard pages with custom headers - no global header/footer */}
-        <Route path="/rank-tracker" element={<ProtectedRoute allowedRoles={['scout']}><RankTrackerWizard /></ProtectedRoute>} />
-        <Route path="/merit-tracker" element={<ProtectedRoute allowedRoles={['scout']}><MeritTrackerWizard /></ProtectedRoute>} />
-        <Route path="/skills-tracker" element={<ProtectedRoute allowedRoles={['scout']}><SkillsTrackerWizard /></ProtectedRoute>} />
-        <Route path="/misc-awards" element={<ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><MiscAwardsTracker /></ProtectedRoute>} />
-        <Route path="/activities" element={<ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><ActivitiesPage /></ProtectedRoute>} />
-        <Route path="/scout-portal" element={<ScoutToolsPortal />} />
+        <Route element={<WizardLayout />}>
+          <Route path="/rank-tracker" element={<ProtectedRoute allowedRoles={['scout']}><RankTrackerWizard /></ProtectedRoute>} />
+          <Route path="/merit-tracker" element={<ProtectedRoute allowedRoles={['scout']}><MeritTrackerWizard /></ProtectedRoute>} />
+          <Route path="/skills-tracker" element={<ProtectedRoute allowedRoles={['scout']}><SkillsTrackerWizard /></ProtectedRoute>} />
+          <Route path="/misc-awards" element={<ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><MiscAwardsTracker /></ProtectedRoute>} />
+          <Route path="/activities" element={<ProtectedRoute allowedRoles={['scout', 'leader', 'admin']}><ActivitiesPage /></ProtectedRoute>} />
+          <Route path="/scout-portal" element={<ScoutToolsPortal />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
   );
@@ -147,6 +172,7 @@ function App() {
         <ThemeManager>
           <Router basename="/Troop242/">
             <div className="app">
+              <SkipLink />
               <AppRoutes />
               <SearchWidget />
             </div>
