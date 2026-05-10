@@ -22,7 +22,7 @@ export default function SearchWidget() {
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if (((e.metaKey || e.ctrlKey) && e.key === 'k') || (e.altKey && e.key === 's')) {
         e.preventDefault();
         setOpen(true);
       }
