@@ -41,18 +41,20 @@ export default function SearchWidget() {
     }
   }, [open]);
 
-  // Search on query change
+  // Search on query change with 300ms debounce
+  // This reduces the number of calls to the search index on every keystroke,
+  // improving performance especially on mobile or lower-end devices.
   useEffect(() => {
-    const performSearch = () => {
+    const timer = setTimeout(() => {
       if (query.length >= 2) {
         const searchResults = search(query);
         setResults(searchResults);
       } else {
         setResults([]);
       }
-    };
+    }, 300);
 
-    performSearch();
+    return () => clearTimeout(timer);
   }, [query]);
 
   const handleResultClick = (result) => {
