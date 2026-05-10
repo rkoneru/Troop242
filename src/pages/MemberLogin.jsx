@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 import '../styles/member-login.css';
 
@@ -43,10 +43,13 @@ export default function MemberLogin() {
         userProfile = profileSnap.data();
       } catch (authError) {
         // Handle Firebase Auth errors
-        if (authError.code === 'auth/user-not-found') {
-          throw new Error('No account found with this email');
-        } else if (authError.code === 'auth/wrong-password') {
-          throw new Error('Incorrect password');
+        if (
+          authError.code === 'auth/user-not-found' ||
+          authError.code === 'auth/wrong-password' ||
+          authError.code === 'auth/invalid-credential'
+        ) {
+          // Security: Use generic error message to prevent email enumeration
+          throw new Error('Invalid email or password');
         } else if (authError.code === 'auth/invalid-email') {
           throw new Error('Invalid email address');
         } else if (authError.code === 'auth/user-disabled') {

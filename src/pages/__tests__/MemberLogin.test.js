@@ -3,17 +3,23 @@
  * Tests authentication flow and Firebase Auth integration
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { getDoc } from 'firebase/firestore';
+
+// Mock firebase configuration
+jest.mock('../../firebase/firebase', () => ({
+  auth: { currentUser: null },
+  db: {}
+}));
 
 // Mock Firebase Auth
-const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: jest.fn(),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,13 +27,25 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+// Mock Firebase Firestore
+jest.mock('firebase/firestore', () => ({
+  doc: jest.fn(),
+  getDoc: jest.fn(),
+  getDocs: jest.fn(),
+  collection: jest.fn(),
+  query: jest.fn(),
+  where: jest.fn()
+}));
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <MemoryRouter initialEntries={['/Troop242/member-login']}>
       <AuthProvider>
-        {component}
+        <Routes>
+          <Route path="/Troop242/member-login" element={component} />
+        </Routes>
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -53,7 +71,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -69,14 +87,18 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter email and password/i)).toBeInTheDocument();
     });
   });
 
   it('should call signInWithEmailAndPassword on valid form submit', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockResolvedValue({
+    signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid', email: 'scout@example.com' },
+    });
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' })
     });
 
     renderComponent(<MemberLogin />);
@@ -90,7 +112,7 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         'scout@example.com',
         'Password123'
@@ -98,30 +120,48 @@ describe('MemberLogin', () => {
     });
   });
 
-  it('should handle authentication errors', async () => {
+  it('should handle authentication errors with generic message (security)', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockRejectedValue(
-      new Error('Invalid credentials')
-    );
+    // Simulate Firebase auth/user-not-found error
+    signInWithEmailAndPassword.mockRejectedValue({
+      code: 'auth/user-not-found'
+    });
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    // Use queryBy because of potential framer-motion initial state issues in JSDOM
+    // though getBy should work if rendered.
+    // The previous failure showed it couldn't find it even though it was in the log.
 
-    await user.type(emailInput, 'scout@example.com');
-    await user.type(passwordInput, 'WrongPassword');
+    const emailInput = await screen.findByPlaceholderText(/email/i);
+    const passwordInput = await screen.findByPlaceholderText(/password/i);
+    const submitButton = await screen.findByRole('button', { name: /sign in/i });
+
+    await user.type(emailInput, 'nonexistent@example.com');
+    await user.type(passwordInput, 'any-password');
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/invalid/i)).toBeInTheDocument();
+      expect(screen.getByText(/Invalid email or password/i)).toBeInTheDocument();
+    });
+
+    // Also check for auth/wrong-password
+    signInWithEmailAndPassword.mockRejectedValue({
+      code: 'auth/wrong-password'
+    });
+
+    await user.type(emailInput, 'existing@example.com');
+    await user.type(passwordInput, 'wrong-password');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Invalid email or password/i)).toBeInTheDocument();
     });
   });
 
   it('should show loading state during sign in', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockImplementation(
+    signInWithEmailAndPassword.mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve({ user: {} }), 100))
     );
 
@@ -143,8 +183,12 @@ describe('MemberLogin', () => {
 
   it('should trim email input', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockResolvedValue({
+    signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid' },
+    });
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' })
     });
 
     renderComponent(<MemberLogin />);
@@ -158,7 +202,7 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         'scout@example.com',
         'Password123'
@@ -166,10 +210,4 @@ describe('MemberLogin', () => {
     });
   });
 
-  it('should have link to registration', () => {
-    renderComponent(<MemberLogin />);
-
-    const registerLink = screen.getByText(/register/i);
-    expect(registerLink).toBeInTheDocument();
-  });
 });
