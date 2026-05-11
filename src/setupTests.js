@@ -79,3 +79,33 @@ beforeAll(() => {
 afterAll(() => {
   console.error = originalError;
 });
+
+// Polyfill TextEncoder/TextDecoder for JSDOM
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// IntersectionObserver Mock
+class IntersectionObserver {
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+}
+global.IntersectionObserver = IntersectionObserver;
+
+// Framer Motion Mock
+jest.mock('framer-motion', () => ({
+  ...jest.requireActual('framer-motion'),
+  useReducedMotion: () => false,
+  AnimatePresence: ({ children }) => <>{children}</>,
+  motion: {
+    div: ({ children, ...props }) => <div {...props}>{children}</div>,
+    section: ({ children, ...props }) => <section {...props}>{children}</section>,
+    h1: ({ children, ...props }) => <h1 {...props}>{children}</h1>,
+    p: ({ children, ...props }) => <p {...props}>{children}</p>,
+    a: ({ children, ...props }) => <a {...props}>{children}</a>,
+    button: ({ children, ...props }) => <button {...props}>{children}</button>,
+    ol: ({ children, ...props }) => <ol {...props}>{children}</ol>,
+    li: ({ children, ...props }) => <li {...props}>{children}</li>,
+  },
+}));

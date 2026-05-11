@@ -1,6 +1,6 @@
 
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { scrollToTop } from '../utils/scrollToTop';
 
@@ -459,19 +459,62 @@ export default function Badges() {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
   };
 
-  const filteredCategories = searchTerm.trim() === ''
-    ? BADGE_CATEGORIES
-    : BADGE_CATEGORIES
-        .map(cat => ({
-          ...cat,
-          badges: cat.badges.filter(badge =>
-            badge.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }))
-        .filter(cat =>
-          cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cat.badges.length > 0
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim();
+    if (term === '') {
+      return BADGE_CATEGORIES.map(cat => ({
+        ...cat,
+        badges: cat.badges.map(badge => {
+          if (badge.isHeader) return badge;
+          const cleanBadgeName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
+          return {
+            ...badge,
+            cleanBadgeName,
+            isBeginnerBadge: BEGINNER_BADGES.includes(cleanBadgeName),
+            pdfUrl: BADGE_PDF_URLS[cleanBadgeName]
+          };
+        })
+      }));
+    }
+
+    return BADGE_CATEGORIES
+      .map(cat => {
+        const filteredBadges = cat.badges.map(badge => {
+          if (badge.isHeader) return badge;
+          const cleanBadgeName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
+          return {
+            ...badge,
+            cleanBadgeName,
+            isBeginnerBadge: BEGINNER_BADGES.includes(cleanBadgeName),
+            pdfUrl: BADGE_PDF_URLS[cleanBadgeName]
+          };
+        }).filter(badge =>
+          badge.isHeader || badge.name.toLowerCase().includes(term)
         );
+
+        // Remove headers if they have no matching badges below them until the next header or end of list
+        const badgesWithCleanHeaders = [];
+        for (let i = 0; i < filteredBadges.length; i++) {
+          if (filteredBadges[i].isHeader) {
+            const nextItem = filteredBadges[i + 1];
+            if (nextItem && !nextItem.isHeader) {
+              badgesWithCleanHeaders.push(filteredBadges[i]);
+            }
+          } else {
+            badgesWithCleanHeaders.push(filteredBadges[i]);
+          }
+        }
+
+        return {
+          ...cat,
+          badges: badgesWithCleanHeaders
+        };
+      })
+      .filter(cat =>
+        cat.category.toLowerCase().includes(term) ||
+        cat.badges.some(badge => !badge.isHeader)
+      );
+  }, [searchTerm]);
 
   return (
     <>
@@ -621,9 +664,7 @@ export default function Badges() {
                   >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
                       {catItem.badges.map((badge) => {
-                        const cleanBadgeName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
-                        const isBeginnerBadge = BEGINNER_BADGES.includes(cleanBadgeName);
-                        const pdfUrl = BADGE_PDF_URLS[cleanBadgeName];
+                        const { isBeginnerBadge, pdfUrl } = badge;
 
                         if (badge.isHeader) {
                           return (
