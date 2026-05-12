@@ -1,0 +1,3 @@
+## 2026-05-12 - [Memoization of Large Datasets in Badges Page]
+**Learning:** The `Badges` page was performing expensive filtering/mapping on a dataset of ~150 merit badges during every render. This was particularly wasteful when users interacted with non-search UI states like category expansion, as it triggered a full re-computation of the filtered list.
+**Action:** Use `useMemo` for derived datasets that depend on search terms but are displayed alongside other interactive states. Move static configuration objects (like animation variants) outside components to avoid reference instability and unnecessary allocations.
