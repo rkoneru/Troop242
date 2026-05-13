@@ -114,7 +114,8 @@
   font-size: 0.95rem;
 }
 
-.search-result-item:hover {
+.search-result-item:hover,
+.search-result-item.active {
   background: var(--accent-dim);
   border-color: var(--accent-dim);
 }

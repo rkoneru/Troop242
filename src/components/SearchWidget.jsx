@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowRight, ExternalLink } from 'lucide-react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { search } from '../utils/SearchIndex';
 import '../styles/search-widget.css';
 
@@ -10,6 +10,7 @@ export default function SearchWidget() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef(null);
 
   // Listen for open-search custom event
@@ -19,20 +20,51 @@ export default function SearchWidget() {
     return () => window.removeEventListener('open-search', handler);
   }, []);
 
+  const handleResultClick = (result) => {
+    setOpen(false);
+    setQuery('');
+
+    // External links (http/https) open in new tab
+    if (result.url.startsWith('http')) {
+      window.open(result.url, '_blank', 'noopener,noreferrer');
+    } else {
+      // Internal routes use React Router navigate
+      navigate(result.url);
+    }
+  };
+
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      // Ctrl+K or Alt+S to open
+      if (((e.metaKey || e.ctrlKey) && e.key === 'k') || (e.altKey && e.key === 's')) {
         e.preventDefault();
         setOpen(true);
       }
-      if (e.key === 'Escape' && open) {
+
+      if (!open) return;
+
+      if (e.key === 'Escape') {
         setOpen(false);
+      }
+
+      // Navigate results
+      if (results.length > 0) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setActiveIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setActiveIndex(prev => (prev > 0 ? prev - 1 : 0));
+        } else if (e.key === 'Enter' && activeIndex >= 0) {
+          e.preventDefault();
+          handleResultClick(results[activeIndex]);
+        }
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [open]);
+  }, [open, results, activeIndex, navigate]);
 
   // Focus input when opened
   useEffect(() => {
@@ -47,26 +79,15 @@ export default function SearchWidget() {
       if (query.length >= 2) {
         const searchResults = search(query);
         setResults(searchResults);
+        setActiveIndex(searchResults.length > 0 ? 0 : -1);
       } else {
         setResults([]);
+        setActiveIndex(-1);
       }
     };
 
     performSearch();
   }, [query]);
-
-  const handleResultClick = (result) => {
-    setOpen(false);
-    setQuery('');
-
-    // External links (http/https) open in new tab
-    if (result.url.startsWith('http')) {
-      window.open(result.url, '_blank', 'noopener,noreferrer');
-    } else {
-      // Internal routes use React Router navigate
-      navigate(result.url);
-    }
-  };
 
   return (
     <>
@@ -125,8 +146,9 @@ export default function SearchWidget() {
                   {results.map((result, i) => (
                     <button
                       key={i}
-                      className="search-result-item"
+                      className={`search-result-item ${i === activeIndex ? 'active' : ''}`}
                       onClick={() => handleResultClick(result)}
+                      onMouseEnter={() => setActiveIndex(i)}
                     >
                       <span className="search-result-icon">{result.icon}</span>
                       <div className="search-result-content">
@@ -134,7 +156,7 @@ export default function SearchWidget() {
                         <div className="search-result-excerpt">{result.excerpt.slice(0, 80)}...</div>
                       </div>
                       <span className="search-result-category">{result.category}</span>
-                      <ArrowRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                      <ArrowRight size={14} style={{ color: i === activeIndex ? 'var(--accent)' : 'var(--text-muted)', flexShrink: 0 }} />
                     </button>
                   ))}
                 </div>
