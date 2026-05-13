@@ -5,6 +5,32 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Mock Framer Motion
+jest.mock('framer-motion', () => ({
+  motion: {
+    div: ({ children, ...props }) => <div {...props}>{children}</div>,
+    button: ({ children, ...props }) => <button {...props}>{children}</button>,
+    a: ({ children, ...props }) => <a {...props}>{children}</a>,
+    section: ({ children, ...props }) => <section {...props}>{children}</section>,
+    span: ({ children, ...props }) => <span {...props}>{children}</span>,
+    h1: ({ children, ...props }) => <h1 {...props}>{children}</h1>,
+    li: ({ children, ...props }) => <li {...props}>{children}</li>,
+  },
+  AnimatePresence: ({ children }) => <>{children}</>,
+}));
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
