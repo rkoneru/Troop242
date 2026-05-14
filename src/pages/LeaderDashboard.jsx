@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { collection, query, updateDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { generateSecurePassword } from '../utils/invitations';
 import { saveData, loadData, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
 import { searchScouts, generateScoutId } from '../utils/leaderData';
@@ -169,7 +170,7 @@ export default function LeaderDashboard() {
 
   // Handler functions
   const generateTempPassword = useCallback(() => {
-    return Math.random().toString(36).slice(2, 10).toUpperCase();
+    return generateSecurePassword(8).toUpperCase();
   }, []);
 
   const showError = useCallback((field, message) => {

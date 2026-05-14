@@ -25,6 +25,7 @@ jest.mock('firebase/auth', () => ({
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
+  doc: jest.fn((...args) => ({ path: args.join('/') })),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
@@ -36,7 +37,27 @@ jest.mock('firebase/firestore', () => ({
   serverTimestamp: jest.fn(() => new Date()),
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
+  Timestamp: {
+    now: jest.fn(() => ({
+      toDate: () => new Date(),
+    })),
+    fromDate: jest.fn((date) => ({
+      toDate: () => date,
+    })),
+  },
 }));
+
+// Mock Web Crypto API
+if (typeof window !== 'undefined' && !window.crypto) {
+  window.crypto = {
+    getRandomValues: (arr) => {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Math.floor(Math.random() * 256);
+      }
+      return arr;
+    },
+  };
+}
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
