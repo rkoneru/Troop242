@@ -5,30 +5,32 @@
 
 import {
   generateSecureInviteCode,
+  generateSecurePassword,
   createInvitation,
   verifyInvitation,
   markInvitationUsed,
   revokeInvitation,
 } from '../invitations';
+import { doc, setDoc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 
 // Mock Firestore
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
-  addDoc: jest.fn(),
+  doc: jest.fn((...args) => ({ path: args.join('/') })),
   query: jest.fn(),
   where: jest.fn(),
   getDocs: jest.fn(),
   getDoc: jest.fn(),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
-  serverTimestamp: jest.fn(() => ({
-    toDate: () => new Date(),
-  })),
   Timestamp: {
-    now: () => ({
+    now: jest.fn(() => ({
       toDate: () => new Date(),
-    }),
+    })),
+    fromDate: jest.fn((date) => ({
+      toDate: () => date,
+    })),
   },
 }));
 
@@ -55,7 +57,22 @@ describe('Invitations Utility', () => {
 
     it('should use only alphanumeric characters', () => {
       const code = generateSecureInviteCode();
-      expect(/^[A-Za-z0-9]+$/.test(code)).toBe(true);
+      expect(/^[A-Z0-9]+$/.test(code)).toBe(true);
+    });
+  });
+
+  describe('generateSecurePassword', () => {
+    it('should generate a password of requested length', () => {
+      const pwd = generateSecurePassword(16);
+      expect(pwd.length).toBe(16);
+    });
+
+    it('should use characters from the charset', () => {
+      const pwd = generateSecurePassword(100);
+      const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
+      for (const char of pwd) {
+        expect(charset).toContain(char);
+      }
     });
   });
 
@@ -65,29 +82,33 @@ describe('Invitations Utility', () => {
     });
 
     it('should create an invitation with valid role', async () => {
-      const { addDoc } = require('firebase/firestore');
-      addDoc.mockResolvedValue({ id: 'doc-id' });
+      setDoc.mockResolvedValue({ id: 'doc-id' });
 
-      try {
-        // Note: This will fail because Firestore is mocked, but we can test the call was made
-        await expect(createInvitation('scout', 30, 'leader-uid')).rejects.toThrow();
-      } catch (e) {
-        // Expected due to mocked Firestore
-      }
+      const code = await createInvitation('scout', 30, 'leader-uid');
+      expect(code).toBeDefined();
+      expect(setDoc).toHaveBeenCalled();
+
+      const [docRef, data] = setDoc.mock.calls[0];
+      expect(data.role).toBe('scout');
+      expect(data.createdByUid).toBe('leader-uid');
     });
 
     it('should set expiration correctly', async () => {
-      const { addDoc } = require('firebase/firestore');
-      addDoc.mockResolvedValue({ id: 'doc-id' });
+      setDoc.mockResolvedValue({ id: 'doc-id' });
 
-      try {
-        await createInvitation('leader', 14, 'admin-uid');
-      } catch (e) {
-        // Expected due to mocked Firestore
-      }
+      await createInvitation('leader', 14, 'admin-uid');
 
-      // Verify addDoc was called (it would include expiresAt calculation)
-      expect(addDoc).toHaveBeenCalled();
+      expect(setDoc).toHaveBeenCalled();
+      expect(Timestamp.fromDate).toHaveBeenCalled();
+    });
+
+    it('should include metadata', async () => {
+      setDoc.mockResolvedValue({ id: 'doc-id' });
+
+      await createInvitation('scout', 30, 'leader-uid', { email: 'test@example.com' });
+
+      const [, data] = setDoc.mock.calls[0];
+      expect(data.email).toBe('test@example.com');
     });
   });
 
@@ -96,22 +117,16 @@ describe('Invitations Utility', () => {
       jest.clearAllMocks();
     });
 
-    it('should return false for non-existent code', async () => {
-      const { getDoc } = require('firebase/firestore');
+    it('should return null for non-existent code', async () => {
       getDoc.mockResolvedValue({
         exists: () => false,
       });
 
-      try {
-        const result = await verifyInvitation('nonexistent-code');
-        expect(result).toBe(false);
-      } catch (e) {
-        // Expected due to mocked Firestore
-      }
+      const result = await verifyInvitation('nonexistent-code');
+      expect(result).toBe(null);
     });
 
     it('should reject expired codes', async () => {
-      const { getDoc } = require('firebase/firestore');
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
 
@@ -125,17 +140,11 @@ describe('Invitations Utility', () => {
         }),
       });
 
-      try {
-        const result = await verifyInvitation('expired-code');
-        expect(result).toBe(false);
-      } catch (e) {
-        // Expected due to mocked Firestore
-      }
+      const result = await verifyInvitation('expired-code');
+      expect(result).toBe(null);
     });
 
     it('should reject used codes', async () => {
-      const { getDoc } = require('firebase/firestore');
-
       getDoc.mockResolvedValue({
         exists: () => true,
         data: () => ({
@@ -146,33 +155,25 @@ describe('Invitations Utility', () => {
         }),
       });
 
-      try {
-        const result = await verifyInvitation('used-code');
-        expect(result).toBe(false);
-      } catch (e) {
-        // Expected due to mocked Firestore
-      }
+      const result = await verifyInvitation('used-code');
+      expect(result).toBe(null);
     });
 
-    it('should reject revoked codes', async () => {
-      const { getDoc } = require('firebase/firestore');
-
+    it('should return invitation data for valid code', async () => {
+      const invitationData = {
+        status: 'pending',
+        role: 'scout',
+        expiresAt: {
+          toDate: () => new Date(Date.now() + 86400000),
+        },
+      };
       getDoc.mockResolvedValue({
         exists: () => true,
-        data: () => ({
-          status: 'revoked',
-          expiresAt: {
-            toDate: () => new Date(Date.now() + 86400000),
-          },
-        }),
+        data: () => invitationData,
       });
 
-      try {
-        const result = await verifyInvitation('revoked-code');
-        expect(result).toBe(false);
-      } catch (e) {
-        // Expected due to mocked Firestore
-      }
+      const result = await verifyInvitation('valid-code');
+      expect(result).toEqual(invitationData);
     });
   });
 
@@ -182,25 +183,19 @@ describe('Invitations Utility', () => {
     });
 
     it('should update invitation status to used', async () => {
-      const { getDoc, updateDoc } = require('firebase/firestore');
-      getDoc.mockResolvedValue({
-        exists: () => true,
-        data: () => ({
-          status: 'pending',
-          role: 'scout',
+      setDoc.mockResolvedValue(undefined);
+
+      await markInvitationUsed('code', 'scout-uid', 'scout@example.com');
+
+      expect(setDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          status: 'used',
+          usedBy: 'scout-uid',
+          usedEmail: 'scout@example.com'
         }),
-        ref: 'mock-ref',
-      });
-
-      updateDoc.mockResolvedValue(undefined);
-
-      try {
-        await markInvitationUsed('code', 'scout-uid', 'scout@example.com');
-      } catch (e) {
-        // Expected due to mocked Firestore
-      }
-
-      expect(updateDoc).toHaveBeenCalled();
+        { merge: true }
+      );
     });
   });
 
@@ -210,24 +205,17 @@ describe('Invitations Utility', () => {
     });
 
     it('should update invitation status to revoked', async () => {
-      const { getDoc, updateDoc } = require('firebase/firestore');
-      getDoc.mockResolvedValue({
-        exists: () => true,
-        data: () => ({
-          status: 'pending',
+      setDoc.mockResolvedValue(undefined);
+
+      await revokeInvitation('code');
+
+      expect(setDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          status: 'revoked'
         }),
-        ref: 'mock-ref',
-      });
-
-      updateDoc.mockResolvedValue(undefined);
-
-      try {
-        await revokeInvitation('code');
-      } catch (e) {
-        // Expected due to mocked Firestore
-      }
-
-      expect(updateDoc).toHaveBeenCalled();
+        { merge: true }
+      );
     });
   });
 });

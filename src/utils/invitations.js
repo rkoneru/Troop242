@@ -18,13 +18,26 @@ export function generateSecureInviteCode() {
 }
 
 /**
+ * Generate a cryptographically secure random password
+ * @param {number} length - Password length (default 12)
+ * @returns {string} Secure random alphanumeric string
+ */
+export function generateSecurePassword(length = 12) {
+  const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
+  const array = new Uint8Array(length);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, (byte) => charset[byte % charset.length]).join('');
+}
+
+/**
  * Create a new invitation in Firestore
  * @param {string} role - 'scout' or 'leader'
  * @param {number} expiresInDays - Days until expiration (default 30)
  * @param {string} createdByUid - UID of admin/leader creating invitation (optional)
+ * @param {Object} metadata - Additional invitation metadata (optional)
  * @returns {Promise<string>} The generated invitation code
  */
-export async function createInvitation(role, expiresInDays = 30, createdByUid = null) {
+export async function createInvitation(role, expiresInDays = 30, createdByUid = null, metadata = {}) {
   if (!['scout', 'leader'].includes(role)) {
     throw new Error('Role must be "scout" or "leader"');
   }
@@ -42,7 +55,8 @@ export async function createInvitation(role, expiresInDays = 30, createdByUid = 
     usedBy: null,
     usedAt: null,
     usedEmail: null,
-    createdByUid: createdByUid || null
+    createdByUid: createdByUid || null,
+    ...metadata
   };
 
   try {
