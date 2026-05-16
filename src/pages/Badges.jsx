@@ -1,8 +1,7 @@
 
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { scrollToTop } from '../utils/scrollToTop';
 
 // Merit badge PDF URLs mapping
 export const BADGE_PDF_URLS = {
@@ -440,38 +439,47 @@ const PDF_BUTTON_COLORS = {
   borderHover: 'rgba(200, 150, 80, 0.7)'
 };
 
-const BADGE_LEVEL_LABEL = 'Beginner';
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
 
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
+};
+
+/**
+ * Merit Badges Page
+ * ⚡ OPTIMIZATION:
+ * 1. Static object hoisting: Framer Motion variants defined outside component to avoid recreation.
+ * 2. useMemo for filteredCategories: Prevents expensive O(N*M) recalculation of ~150 badges
+ *    when toggling unrelated state like selectedCategory (expansion).
+ * 3. Search optimization: Lowercase search term once outside the filter loop.
+ */
 export default function Badges() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
-  };
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (term === '') return BADGE_CATEGORIES;
 
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
-  };
-
-  const filteredCategories = searchTerm.trim() === ''
-    ? BADGE_CATEGORIES
-    : BADGE_CATEGORIES
-        .map(cat => ({
-          ...cat,
-          badges: cat.badges.filter(badge =>
-            badge.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }))
-        .filter(cat =>
-          cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cat.badges.length > 0
-        );
+    return BADGE_CATEGORIES
+      .map(cat => ({
+        ...cat,
+        badges: cat.badges.filter(badge =>
+          badge.name.toLowerCase().includes(term)
+        )
+      }))
+      .filter(cat =>
+        cat.category.toLowerCase().includes(term) ||
+        cat.badges.length > 0
+      );
+  }, [searchTerm]);
 
   return (
     <>
