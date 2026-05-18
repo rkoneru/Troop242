@@ -1,0 +1,3 @@
+## 2025-05-15 - Optimizing Large Component Renders in Badges.jsx
+**Learning:** Components with large data sets (like the ~140 merit badges) and frequent state changes for micro-interactions (like toggling a single category) suffer from O(N) re-renders. Re-calculating filters and re-creating Framer Motion variant objects on every render adds measurable overhead to the main thread.
+**Action:** Always wrap heavy data transformations in `useMemo` and define static configuration objects (like animation variants) outside the component function to ensure stable references and avoid redundant work during unrelated state updates.
