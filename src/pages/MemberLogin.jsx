@@ -43,10 +43,12 @@ export default function MemberLogin() {
         userProfile = profileSnap.data();
       } catch (authError) {
         // Handle Firebase Auth errors
-        if (authError.code === 'auth/user-not-found') {
-          throw new Error('No account found with this email');
-        } else if (authError.code === 'auth/wrong-password') {
-          throw new Error('Incorrect password');
+        // Security: Use generic error message for user-not-found, wrong-password,
+        // and invalid-credential to prevent email enumeration attacks.
+        if (authError.code === 'auth/user-not-found' ||
+            authError.code === 'auth/wrong-password' ||
+            authError.code === 'auth/invalid-credential') {
+          throw new Error('Invalid email or password');
         } else if (authError.code === 'auth/invalid-email') {
           throw new Error('Invalid email address');
         } else if (authError.code === 'auth/user-disabled') {
