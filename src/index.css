@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Barlow+Condensed:wght@700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Barlow+Condensed:wght@700;800;900&display=swap");
 @import "tailwindcss";
 
 * {
@@ -47,8 +47,8 @@
   --color-gray-600: #4b5563;
 
   /* Typography */
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-display: 'Barlow Condensed', 'Inter', sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Inter", sans-serif;
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -56,14 +56,17 @@
   --transition-slow: 500ms ease;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   font-family: var(--font-body);
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
 }
 
 #root {
@@ -79,19 +82,34 @@ h1 {
   line-height: 1.05;
 }
 
-h2, h3, h4, h5, h6 {
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.05;
 }
 
-h1 { font-size: clamp(2.5rem, 8vw, 5rem); }
-h2 { font-size: clamp(2rem, 6vw, 3.5rem); }
-h3 { font-size: clamp(1.5rem, 4vw, 2.5rem); }
+h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+}
+h2 {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+}
+h3 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
 
-p { font-size: 1rem; line-height: 1.6; }
-small { font-size: 0.875rem; }
+p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+small {
+  font-size: 0.875rem;
+}
 
 /* Links */
 a {
@@ -130,14 +148,24 @@ a:hover {
 
 /* ===== HERO SECTION V2 ===== */
 .hero-v2 {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 50%,
+    var(--bg-tertiary) 100%
+  );
   position: relative;
   overflow: hidden;
 }
 
 /* ===== INNER PAGE HERO ===== */
 .hero-page {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 50%,
+    var(--bg-tertiary) 100%
+  );
   min-height: 55vh;
   display: flex;
   align-items: center;
@@ -160,8 +188,13 @@ a:hover {
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* ===== GLASSMORPHISM ===== */
@@ -193,14 +226,14 @@ a:hover {
 }
 
 [data-framework="liquid"] .glass-card::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: 20px;
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0.0) 60%
+    rgba(255, 255, 255, 0) 60%
   );
   pointer-events: none;
   z-index: 0;
@@ -230,12 +263,17 @@ a:hover {
 }
 
 @keyframes shimmer {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 /* ===== BUTTONS ===== */
-button, .btn {
+button,
+.btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -332,7 +370,12 @@ select option:hover {
 
 /* ===== COUNTDOWN STRIP ===== */
 .countdown-strip {
-  background: linear-gradient(90deg, var(--bg-primary), var(--bg-secondary), var(--bg-primary));
+  background: linear-gradient(
+    90deg,
+    var(--bg-primary),
+    var(--bg-secondary),
+    var(--bg-primary)
+  );
   border-top: 1px solid var(--accent-dim);
   border-bottom: 1px solid var(--accent-dim);
   padding: 24px;
@@ -446,7 +489,12 @@ select option:hover {
 .rank-timeline__connector {
   flex: 0 1 40px;
   height: 3px;
-  background: linear-gradient(90deg, transparent, var(--color-electric-green), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-electric-green),
+    transparent
+  );
   margin: 0 8px;
 }
 
@@ -512,20 +560,34 @@ select option:hover {
   gap: 24px;
 }
 
-.grid--cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid--cols-3 { grid-template-columns: repeat(3, 1fr); }
-.grid--cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid--cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid--cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid--cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
 
 @media (max-width: 768px) {
-  .grid--cols-4 { grid-template-columns: repeat(2, 1fr); }
-  .grid--cols-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid--cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid--cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 480px) {
-  .grid { gap: 16px; }
+  .grid {
+    gap: 16px;
+  }
   .grid--cols-2,
   .grid--cols-3,
-  .grid--cols-4 { grid-template-columns: 1fr; }
+  .grid--cols-4 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ===== FLEX ===== */
@@ -535,10 +597,43 @@ select option:hover {
   gap: 16px;
 }
 
-.flex--center { justify-content: center; }
-.flex--between { justify-content: space-between; }
-.flex--col { flex-direction: column; }
-.flex--wrap { flex-wrap: wrap; }
+.flex--center {
+  justify-content: center;
+}
+.flex--between {
+  justify-content: space-between;
+}
+.flex--col {
+  flex-direction: column;
+}
+.flex--wrap {
+  flex-wrap: wrap;
+}
+
+/* ===== ACCESSIBILITY ===== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:not(:focus):not(:active) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
 /* ===== REDUCED MOTION ===== */
 @media (prefers-reduced-motion: reduce) {

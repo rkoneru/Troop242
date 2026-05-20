@@ -4,14 +4,26 @@
  */
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
+import { TextEncoder, TextDecoder } from "util";
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
 // Mock Firebase
-jest.mock('firebase/app', () => ({
+jest.mock("firebase/app", () => ({
   initializeApp: jest.fn(),
 }));
 
-jest.mock('firebase/auth', () => ({
+jest.mock("firebase/auth", () => ({
   getAuth: jest.fn(),
   createUserWithEmailAndPassword: jest.fn(),
   signInWithEmailAndPassword: jest.fn(),
@@ -22,7 +34,7 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
-jest.mock('firebase/firestore', () => ({
+jest.mock("firebase/firestore", () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
   query: jest.fn(),
@@ -30,18 +42,19 @@ jest.mock('firebase/firestore', () => ({
   orderBy: jest.fn(),
   getDocs: jest.fn(),
   getDoc: jest.fn(),
+  doc: jest.fn(),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),
   serverTimestamp: jest.fn(() => new Date()),
-  arrayUnion: jest.fn(val => val),
-  arrayRemove: jest.fn(val => val),
+  arrayUnion: jest.fn((val) => val),
+  arrayRemove: jest.fn((val) => val),
 }));
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -67,8 +80,8 @@ const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
     if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render')
+      typeof args[0] === "string" &&
+      args[0].includes("Warning: ReactDOM.render")
     ) {
       return;
     }
