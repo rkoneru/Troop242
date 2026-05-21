@@ -12,14 +12,18 @@ import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
-jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+jest.mock('firebase/auth', () => {
+  const actual = jest.requireActual('firebase/auth');
+  return {
+    ...actual,
+    signInWithEmailAndPassword: (auth, email, password) => mockSignInWithEmailAndPassword(auth, email, password),
   getAuth: jest.fn(),
-  onAuthStateChanged: jest.fn((auth, callback) => {
-    callback(null);
-    return jest.fn();
-  }),
-}));
+    onAuthStateChanged: jest.fn((auth, callback) => {
+      callback(null);
+      return jest.fn();
+    }),
+  };
+});
 
 const renderComponent = (component) => {
   return render(

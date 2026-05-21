@@ -1,0 +1,4 @@
+## 2025-05-15 - Plaintext Password Storage in Firestore
+**Vulnerability:** Multiple administrative and setup scripts (`add-leader.js`, `create-admin-account.js`, `create-test-accounts.js`, `reset-passwords.js`) were explicitly saving user passwords as plaintext strings in the Firestore `users` collection.
+**Learning:** While Firebase Auth handles passwords securely (hashed), the developers duplicated the passwords into Firestore documents, likely for easier account verification or as a fallback for the login UI. This defeated the purpose of secure Auth storage and exposed all user passwords to anyone with Firestore read access (or if the database was compromised).
+**Prevention:** User passwords should never be stored in Firestore or any other database in plaintext. Use Firebase Auth for all authentication needs. If a password must be "remembered" for a setup flow, display it to the admin once and do not persist it in the database.
