@@ -12,6 +12,19 @@
   padding: 16px 0;
 }
 
+.skip-link {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--accent);
+  color: var(--bg-primary) !important;
+  padding: 8px 16px;
+  z-index: 1000;
+  font-weight: 700;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
 .header--scrolled {
   background: var(--header-bg);
   border-bottom-color: var(--accent-dim);
