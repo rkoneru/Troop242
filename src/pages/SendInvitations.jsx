@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Copy, Check, Share2, ExternalLink } from 'lucide-react';
-import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { createInvitation } from '../utils/invitations';
 
 export default function SendInvitations() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function SendInvitations() {
     const loadInvitations = async () => {
       try {
         const snap = await getDocs(
-          query(collection(db, 'invitations'), where('createdBy', '==', user.uid))
+          query(collection(db, 'invitations'), where('createdByUid', '==', user.uid))
         );
         const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         setInvitations(loaded.reverse());
@@ -44,8 +45,6 @@ export default function SendInvitations() {
     };
     loadInvitations();
   }, [user]);
-
-  const generateCode = () => Math.random().toString(36).substring(2, 10).toUpperCase();
 
   const handleSendInvitation = async (e) => {
     e.preventDefault();
@@ -62,22 +61,12 @@ export default function SendInvitations() {
     const typeToUse = profile?.role === 'admin' ? inviteType : 'scout';
 
     try {
-      const code = generateCode();
-      const createdAt = new Date().toISOString();
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
-      const registrationUrl = `${window.location.origin}/register?code=${code}`;
-
-      await addDoc(collection(db, 'invitations'), {
+      const code = await createInvitation(typeToUse, 7, user.uid, {
         email,
-        code,
-        role: typeToUse,
-        status: 'pending',
-        createdBy: user.uid,
-        createdByName: profile?.name,
-        createdAt,
-        expiresAt,
-        registrationUrl
+        createdByName: profile?.name
       });
+
+      const registrationUrl = `${window.location.origin}/register?code=${code}`;
 
       // Generate the invite for display
       setGeneratedInvite({
@@ -91,7 +80,7 @@ export default function SendInvitations() {
 
       // Reload invitations
       const snap = await getDocs(
-        query(collection(db, 'invitations'), where('createdBy', '==', user.uid))
+        query(collection(db, 'invitations'), where('createdByUid', '==', user.uid))
       );
       const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setInvitations(loaded.reverse());

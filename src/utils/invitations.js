@@ -3,7 +3,7 @@
  * Generates secure, expiring invitation codes for user registration
  */
 
-import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, getDocs, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 
 /**
@@ -12,9 +12,28 @@ import { db } from '../firebase/firebase';
  */
 export function generateSecureInviteCode() {
   // Use Web Crypto API for browser compatibility
-  const array = new Uint8Array(9);
+  const array = new Uint8Array(6);
   crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('').toUpperCase().slice(0, 12);
+  // Convert to base36 for more compact, readable alphanumeric codes
+  // We use 6 bytes which gives roughly 8-10 alphanumeric characters
+  const hex = Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return parseInt(hex, 16).toString(36).toUpperCase().padStart(8, '0');
+}
+
+/**
+ * Generate a secure, highly readable random password
+ * @param {number} length - Password length (default 10)
+ * @returns {string} Random alphanumeric password
+ */
+export function generateSecurePassword(length = 10) {
+  const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'; // No similar characters like I, l, 1, 0, O
+  const array = new Uint32Array(length);
+  crypto.getRandomValues(array);
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += charset[array[i] % charset.length];
+  }
+  return password;
 }
 
 /**
@@ -22,9 +41,10 @@ export function generateSecureInviteCode() {
  * @param {string} role - 'scout' or 'leader'
  * @param {number} expiresInDays - Days until expiration (default 30)
  * @param {string} createdByUid - UID of admin/leader creating invitation (optional)
+ * @param {object} metadata - Additional metadata to store (optional)
  * @returns {Promise<string>} The generated invitation code
  */
-export async function createInvitation(role, expiresInDays = 30, createdByUid = null) {
+export async function createInvitation(role, expiresInDays = 30, createdByUid = null, metadata = {}) {
   if (!['scout', 'leader'].includes(role)) {
     throw new Error('Role must be "scout" or "leader"');
   }
@@ -42,7 +62,8 @@ export async function createInvitation(role, expiresInDays = 30, createdByUid = 
     usedBy: null,
     usedAt: null,
     usedEmail: null,
-    createdByUid: createdByUid || null
+    createdByUid: createdByUid || null,
+    ...metadata
   };
 
   try {
@@ -138,7 +159,7 @@ export async function revokeInvitation(code) {
 export async function getAllInvitations() {
   try {
     // This should be called with proper Firestore rules to limit to admins
-    const snap = await db.collection('invitations').get();
+    const snap = await getDocs(collection(db, 'invitations'));
     return snap.docs.map(doc => ({
       code: doc.id,
       ...doc.data()

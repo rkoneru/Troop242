@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
 import { searchScouts, generateScoutId } from '../utils/leaderData';
+import { generateSecurePassword } from '../utils/invitations';
 import {
   validateActivityForm,
   validateEventForm,
@@ -169,7 +170,7 @@ export default function LeaderDashboard() {
 
   // Handler functions
   const generateTempPassword = useCallback(() => {
-    return Math.random().toString(36).slice(2, 10).toUpperCase();
+    return generateSecurePassword(10).toUpperCase();
   }, []);
 
   const showError = useCallback((field, message) => {
