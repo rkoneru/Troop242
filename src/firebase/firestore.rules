@@ -140,7 +140,7 @@ service cloud.firestore {
     // AUDIT LOGS - Read own, admins read all, system writes
     match /auditLogs/{document=**} {
       allow read: if isAdmin() || resource.data.userId == request.auth.uid;
-      allow create: if true; // Cloud Functions write these
+      allow create: if false; // Only Admin SDK (Cloud Functions) should write these
       allow update, delete: if false; // Immutable
     }
 
