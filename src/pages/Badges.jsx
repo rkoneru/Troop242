@@ -1,6 +1,6 @@
 
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { scrollToTop } from '../utils/scrollToTop';
 
@@ -442,36 +442,41 @@ const PDF_BUTTON_COLORS = {
 
 const BADGE_LEVEL_LABEL = 'Beginner';
 
+// Motion variants moved outside component to prevent re-creation on every render
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
+};
+
 export default function Badges() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
-  };
-
-  const filteredCategories = searchTerm.trim() === ''
-    ? BADGE_CATEGORIES
-    : BADGE_CATEGORIES
-        .map(cat => ({
-          ...cat,
-          badges: cat.badges.filter(badge =>
-            badge.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }))
-        .filter(cat =>
-          cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cat.badges.length > 0
-        );
+  // Memoize filtered categories to prevent O(N) recalculations on unrelated renders
+  // (e.g., when toggling selectedCategory)
+  const filteredCategories = useMemo(() => {
+    return searchTerm.trim() === ''
+      ? BADGE_CATEGORIES
+      : BADGE_CATEGORIES
+          .map(cat => ({
+            ...cat,
+            badges: cat.badges.filter(badge =>
+              badge.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+          }))
+          .filter(cat =>
+            cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cat.badges.length > 0
+          );
+  }, [searchTerm]);
 
   return (
     <>
