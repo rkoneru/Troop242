@@ -35,7 +35,6 @@ async function addLeader(name, email, password) {
       name: name,
       role: 'leader',
       status: 'approved',
-      password: password,
       joinDate: new Date().toISOString(),
       phone: '',
       createdAt: new Date().toISOString()
