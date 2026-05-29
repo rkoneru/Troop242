@@ -251,8 +251,8 @@ export default function MemberLogin() {
                   fontSize: '0.9rem',
                   transition: 'color 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--accent-bright)'}
-                onMouseLeave={(e) => e.target.style.color = 'var(--accent)'}
+                onMouseEnter={(e) => (e.target.style.color = 'var(--accent-bright)')}
+                onMouseLeave={(e) => (e.target.style.color = 'var(--accent)')}
               >
                 Register as a Scout →
               </a>

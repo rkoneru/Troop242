@@ -5,6 +5,19 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+// Polyfill for TextEncoder/TextDecoder (required for React Router 7 / Firebase)
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+};
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -17,26 +30,35 @@ jest.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: jest.fn(),
   signOut: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
-    callback(null);
+    if (typeof auth === 'function') {
+      auth(null);
+    } else if (callback) {
+      callback(null);
+    }
     return jest.fn();
   }),
 }));
 
-jest.mock('firebase/firestore', () => ({
-  getFirestore: jest.fn(),
-  collection: jest.fn(),
-  query: jest.fn(),
-  where: jest.fn(),
-  orderBy: jest.fn(),
-  getDocs: jest.fn(),
-  getDoc: jest.fn(),
-  setDoc: jest.fn(),
-  updateDoc: jest.fn(),
-  deleteDoc: jest.fn(),
-  serverTimestamp: jest.fn(() => new Date()),
-  arrayUnion: jest.fn(val => val),
-  arrayRemove: jest.fn(val => val),
-}));
+jest.mock('firebase/firestore', () => {
+  const actual = jest.requireActual('firebase/firestore');
+  return {
+    ...actual,
+    getFirestore: jest.fn(),
+    collection: jest.fn(),
+    query: jest.fn(),
+    where: jest.fn(),
+    orderBy: jest.fn(),
+    getDocs: jest.fn(),
+    getDoc: jest.fn(),
+    setDoc: jest.fn(),
+    updateDoc: jest.fn(),
+    deleteDoc: jest.fn(),
+    serverTimestamp: jest.fn(() => new Date()),
+    arrayUnion: jest.fn((val) => val),
+    arrayRemove: jest.fn((val) => val),
+    doc: jest.fn(),
+  };
+});
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

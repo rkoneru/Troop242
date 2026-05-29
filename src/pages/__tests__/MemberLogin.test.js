@@ -11,9 +11,8 @@ import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock Firebase Auth
-const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: jest.fn(),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,9 +20,12 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { getDoc } from 'firebase/firestore';
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         {component}
       </AuthProvider>
@@ -53,7 +55,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -61,7 +63,7 @@ describe('MemberLogin', () => {
     const user = userEvent.setup();
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
     await user.type(emailInput, 'scout@example.com');
 
     const submitButton = screen.getByRole('button', { name: /sign in/i });
@@ -69,20 +71,24 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter email and password/i)).toBeInTheDocument();
     });
   });
 
   it('should call signInWithEmailAndPassword on valid form submit', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockResolvedValue({
+    signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid', email: 'scout@example.com' },
+    });
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' })
     });
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await user.type(emailInput, 'scout@example.com');
@@ -90,7 +96,7 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         'scout@example.com',
         'Password123'
@@ -100,14 +106,14 @@ describe('MemberLogin', () => {
 
   it('should handle authentication errors', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockRejectedValue(
+    signInWithEmailAndPassword.mockRejectedValue(
       new Error('Invalid credentials')
     );
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await user.type(emailInput, 'scout@example.com');
@@ -121,14 +127,18 @@ describe('MemberLogin', () => {
 
   it('should show loading state during sign in', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockImplementation(
-      () => new Promise(resolve => setTimeout(() => resolve({ user: {} }), 100))
+    signInWithEmailAndPassword.mockImplementation(
+      () => new Promise(resolve => setTimeout(() => resolve({ user: { uid: 'test-uid' } }), 100))
     );
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' })
+    });
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await user.type(emailInput, 'scout@example.com');
@@ -143,14 +153,18 @@ describe('MemberLogin', () => {
 
   it('should trim email input', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockResolvedValue({
+    signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid' },
+    });
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' })
     });
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await user.type(emailInput, '  scout@example.com  ');
@@ -158,7 +172,7 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         'scout@example.com',
         'Password123'
