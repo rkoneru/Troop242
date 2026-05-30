@@ -1,0 +1,4 @@
+## 2025-05-15 - [Privilege Escalation via Overly Permissive Firestore Rules]
+**Vulnerability:** Overly permissive `allow write` rule on the `users` collection allowed authenticated users to modify their own `role` and `status` fields, potentially elevating themselves to `admin`.
+**Learning:** Using `allow write` as a shorthand for `create`, `update`, and `delete` is dangerous for collections containing sensitive authorization fields. Even if the UI doesn't expose these fields for editing, the Firestore API allows direct modification if rules permit.
+**Prevention:** Always split `write` into `create` and `update` for sensitive collections. Use field-level validation (`request.resource.data.field == resource.data.field`) to protect immutable or high-privilege fields from user-driven updates.
