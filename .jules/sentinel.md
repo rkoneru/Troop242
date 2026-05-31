@@ -1,0 +1,4 @@
+## 2025-05-14 - [Plaintext Password Storage in Administrative Scripts]
+**Vulnerability:** Plaintext passwords were being stored in the Firestore `users` collection when using administrative scripts (`add-leader.js`, `create-admin-account.js`, `reset-passwords.js`) and logged to the console in `verify-accounts.js`.
+**Learning:** Even when using a secure authentication service like Firebase Auth, developers may inadvertently persist sensitive credentials in secondary databases or logs for "convenience" or "fallback" purposes, creating a significant security risk.
+**Prevention:** Centralize all credential management in the designated authentication service and ensure that user profile databases only store non-sensitive metadata. Regularly audit administrative scripts for insecure data handling patterns.

@@ -6,14 +6,13 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock Firebase Auth
-const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: jest.fn(),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,13 +20,15 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <MemoryRouter initialEntries={['/Troop242/']}>
       <AuthProvider>
         {component}
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -75,7 +76,7 @@ describe('MemberLogin', () => {
 
   it('should call signInWithEmailAndPassword on valid form submit', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockResolvedValue({
+    signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid', email: 'scout@example.com' },
     });
 
@@ -90,7 +91,7 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         'scout@example.com',
         'Password123'
@@ -100,7 +101,7 @@ describe('MemberLogin', () => {
 
   it('should handle authentication errors', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockRejectedValue(
+    signInWithEmailAndPassword.mockRejectedValue(
       new Error('Invalid credentials')
     );
 
@@ -121,7 +122,7 @@ describe('MemberLogin', () => {
 
   it('should show loading state during sign in', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockImplementation(
+    signInWithEmailAndPassword.mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve({ user: {} }), 100))
     );
 
@@ -143,7 +144,7 @@ describe('MemberLogin', () => {
 
   it('should trim email input', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockResolvedValue({
+    signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid' },
     });
 
@@ -158,7 +159,7 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         'scout@example.com',
         'Password123'

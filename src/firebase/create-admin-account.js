@@ -34,7 +34,6 @@ async function createAdminAccount() {
       name: 'Admin User',
       role: 'admin',
       status: 'approved',
-      password: 'Admin@123', // Fallback password for Firestore login
       joinDate: new Date().toISOString(),
       phone: '',
       createdAt: new Date().toISOString()
