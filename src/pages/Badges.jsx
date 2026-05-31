@@ -1,6 +1,6 @@
 
 import { Search, ArrowRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { scrollToTop } from '../utils/scrollToTop';
 
@@ -432,6 +432,20 @@ export const BADGE_CATEGORIES = [
 
 const BEGINNER_BADGES = ['Cooking', 'Camping', 'First Aid', 'Pets', 'Collections', 'Photography', 'Fingerprinting', 'Communication', 'Chess', 'Reading'];
 
+// Pre-process categories to avoid expensive calculations during render
+const PROCESSED_BADGE_CATEGORIES = BADGE_CATEGORIES.map(cat => ({
+  ...cat,
+  badges: cat.badges.map(badge => {
+    const cleanBadgeName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
+    return {
+      ...badge,
+      cleanBadgeName,
+      isBeginnerBadge: BEGINNER_BADGES.includes(cleanBadgeName),
+      pdfUrl: BADGE_PDF_URLS[cleanBadgeName]
+    };
+  })
+}));
+
 // Color constants for PDF button styling
 const PDF_BUTTON_COLORS = {
   bgDefault: 'rgba(200, 150, 80, 0.25)',
@@ -442,36 +456,32 @@ const PDF_BUTTON_COLORS = {
 
 const BADGE_LEVEL_LABEL = 'Beginner';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
+};
+
 export default function Badges() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
-  };
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim();
+    if (term === '') return PROCESSED_BADGE_CATEGORIES;
 
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } }
-  };
-
-  const filteredCategories = searchTerm.trim() === ''
-    ? BADGE_CATEGORIES
-    : BADGE_CATEGORIES
-        .map(cat => ({
-          ...cat,
-          badges: cat.badges.filter(badge =>
-            badge.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }))
-        .filter(cat =>
-          cat.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cat.badges.length > 0
-        );
+    return PROCESSED_BADGE_CATEGORIES.map(cat => ({
+      ...cat,
+      badges: cat.badges.filter(badge => badge.name.toLowerCase().includes(term))
+    })).filter(cat => cat.category.toLowerCase().includes(term) || cat.badges.length > 0);
+  }, [searchTerm]);
 
   return (
     <>
@@ -621,9 +631,7 @@ export default function Badges() {
                   >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
                       {catItem.badges.map((badge) => {
-                        const cleanBadgeName = badge.name.replace(/^[✓⭐\s]+/, '').trim();
-                        const isBeginnerBadge = BEGINNER_BADGES.includes(cleanBadgeName);
-                        const pdfUrl = BADGE_PDF_URLS[cleanBadgeName];
+                        const { isBeginnerBadge, pdfUrl } = badge;
 
                         if (badge.isHeader) {
                           return (
