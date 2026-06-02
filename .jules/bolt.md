@@ -1,0 +1,3 @@
+## 2025-06-02 - Memoization and Static Constants in Large Components
+**Learning:** In components with large static data sets (like `Badges.jsx` with 140+ badges and categories), re-calculating derived state (like `filteredCategories`) and re-creating configuration objects (like Framer Motion variants) on every render causes unnecessary GC pressure and re-renders of children that depend on those objects.
+**Action:** Move static configuration objects (like animation variants) outside the component definition. Use `useMemo` for derived state that involves mapping or filtering large arrays to ensure stability across renders unless dependencies change.
