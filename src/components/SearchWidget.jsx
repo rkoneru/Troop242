@@ -41,18 +41,22 @@ export default function SearchWidget() {
     }
   }, [open]);
 
-  // Search on query change
+  /**
+   * Search on query change with 300ms debounce.
+   * PERFORMANCE: Reduces search index calls by up to 90% during active typing.
+   * e.g., typing "Eagle Scout" (11 chars) triggers 1 call instead of 10.
+   */
   useEffect(() => {
-    const performSearch = () => {
+    const timer = setTimeout(() => {
       if (query.length >= 2) {
         const searchResults = search(query);
         setResults(searchResults);
       } else {
         setResults([]);
       }
-    };
+    }, 300);
 
-    performSearch();
+    return () => clearTimeout(timer);
   }, [query]);
 
   const handleResultClick = (result) => {
