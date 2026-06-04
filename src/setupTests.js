@@ -5,6 +5,19 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+// Polyfills for JSDOM
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+};
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -25,6 +38,7 @@ jest.mock('firebase/auth', () => ({
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
+  doc: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
