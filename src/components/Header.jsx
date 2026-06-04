@@ -78,6 +78,11 @@ export default function Header() {
 
   return (
     <header className={`header ${scrolled ? 'header--scrolled' : ''}`}>
+      {/* Skip to Content Link */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+
       <div className="container header-content">
         {/* Logo */}
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, color: 'inherit' }}>
