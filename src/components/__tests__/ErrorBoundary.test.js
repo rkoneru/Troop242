@@ -130,7 +130,8 @@ describe('ErrorBoundary', () => {
     await user.click(tryAgainButton);
 
     // Verify error boundary reset
-    expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Something went wrong/i)).not.toBeInTheDocument();
+    expect(screen.getByText('Success')).toBeInTheDocument();
   });
 
   it('should navigate home on go home click', async () => {
