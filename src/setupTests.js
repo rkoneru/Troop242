@@ -5,6 +5,10 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -33,6 +37,12 @@ jest.mock('firebase/firestore', () => ({
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),
+  doc: jest.fn(),
+  addDoc: jest.fn(),
+  Timestamp: {
+    now: jest.fn(() => ({ toMillis: () => Date.now() })),
+    fromDate: jest.fn((date) => ({ toMillis: () => date.getTime() })),
+  },
   serverTimestamp: jest.fn(() => new Date()),
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
