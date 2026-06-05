@@ -41,18 +41,19 @@ export default function SearchWidget() {
     }
   }, [open]);
 
-  // Search on query change
+  // Search on query change (with 300ms debounce to prevent excessive calculations)
   useEffect(() => {
-    const performSearch = () => {
-      if (query.length >= 2) {
-        const searchResults = search(query);
-        setResults(searchResults);
-      } else {
-        setResults([]);
-      }
-    };
+    if (query.length < 2) {
+      setResults([]);
+      return;
+    }
 
-    performSearch();
+    const timer = setTimeout(() => {
+      const searchResults = search(query);
+      setResults(searchResults);
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [query]);
 
   const handleResultClick = (result) => {
