@@ -43,14 +43,16 @@ export default function MemberLogin() {
         userProfile = profileSnap.data();
       } catch (authError) {
         // Handle Firebase Auth errors
-        if (authError.code === 'auth/user-not-found') {
-          throw new Error('No account found with this email');
-        } else if (authError.code === 'auth/wrong-password') {
-          throw new Error('Incorrect password');
+        // Mitigation: Email enumeration prevention by using generic error messages
+        if (
+          authError.code === 'auth/user-not-found' ||
+          authError.code === 'auth/wrong-password' ||
+          authError.code === 'auth/user-disabled' ||
+          authError.code === 'auth/invalid-credential'
+        ) {
+          throw new Error('Invalid email or password');
         } else if (authError.code === 'auth/invalid-email') {
           throw new Error('Invalid email address');
-        } else if (authError.code === 'auth/user-disabled') {
-          throw new Error('This account has been disabled');
         }
         throw authError;
       }
