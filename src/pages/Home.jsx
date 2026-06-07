@@ -8,6 +8,19 @@ import { DEFAULT_STATS, loadTroopData } from '../utils/adminData';
 import { scrollToTop } from '../utils/scrollToTop';
 import ScoutPath from './ScoutPath';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+};
+
 // Did You Know Carousel Component
 function DidYouKnowCarousel() {
   const [currentFact, setCurrentFact] = useState(0);
@@ -102,6 +115,113 @@ function DidYouKnowCarousel() {
   );
 }
 
+// Event Countdown Component - Isolated timer to prevent full page re-renders
+function EventCountdown({ targetDate, variant = 'flip' }) {
+  const [countdown, setCountdown] = useState(null);
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff > 0) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setCountdown({ days, hours, minutes, seconds });
+      } else {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  if (!countdown) return null;
+
+  if (variant === 'compact') {
+    return (
+      <div style={{ marginTop: 16, padding: 12, background: 'var(--accent-dim)', borderRadius: 8, textAlign: 'center' }}>
+        <div style={{ fontSize: '0.9rem', color: 'var(--accent)', fontWeight: 600 }}>
+          {countdown.days}d {countdown.hours}h {countdown.minutes}m {countdown.seconds}s
+        </div>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>until event</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: 6, marginBottom: 20, justifyContent: 'center' }}>
+      {/* Days - Flips every 24 hours */}
+      <motion.div
+        style={{ textAlign: 'center' }}
+        animate={{ rotateX: countdown.days % 24 === 0 ? [0, 360] : 0 }}
+        transition={{ duration: 0.6, ease: 'easeInOut' }}
+      >
+        <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)', minWidth: '32px' }}>
+          {String(countdown.days).padStart(2, '0')}
+        </div>
+        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Days</div>
+      </motion.div>
+
+      {/* Separator */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+        <div style={{ fontSize: '1.2rem', color: 'var(--accent)', fontWeight: 700 }}>:</div>
+      </div>
+
+      {/* Hours - Flips every 60 minutes */}
+      <motion.div
+        style={{ textAlign: 'center' }}
+        animate={{ rotateX: countdown.hours % 24 === 0 ? [0, 360] : 0 }}
+        transition={{ duration: 0.6, ease: 'easeInOut' }}
+      >
+        <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)', minWidth: '32px' }}>
+          {String(countdown.hours).padStart(2, '0')}
+        </div>
+        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Hrs</div>
+      </motion.div>
+
+      {/* Separator */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+        <div style={{ fontSize: '1.2rem', color: 'var(--accent)', fontWeight: 700 }}>:</div>
+      </div>
+
+      {/* Minutes - Flips every 60 seconds */}
+      <motion.div
+        style={{ textAlign: 'center' }}
+        animate={{ rotateX: countdown.minutes % 60 === 0 ? [0, 360] : 0 }}
+        transition={{ duration: 0.6, ease: 'easeInOut' }}
+      >
+        <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)', minWidth: '32px' }}>
+          {String(countdown.minutes).padStart(2, '0')}
+        </div>
+        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Min</div>
+      </motion.div>
+
+      {/* Separator */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+        <div style={{ fontSize: '1.2rem', color: 'var(--accent)', fontWeight: 700 }}>:</div>
+      </div>
+
+      {/* Seconds - Flips every 1 second */}
+      <div style={{ textAlign: 'center' }}>
+        <motion.div
+          key={countdown.seconds}
+          animate={{ rotateX: [0, 360] }}
+          transition={{ duration: 0.6, ease: 'easeInOut' }}
+          style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)', minWidth: '32px' }}
+        >
+          {String(countdown.seconds).padStart(2, '0')}
+        </motion.div>
+        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Sec</div>
+      </div>
+    </div>
+  );
+}
+
 // Flip Card Component
 function WhyUsCard({ icon: Icon, title, desc }) {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -167,7 +287,6 @@ function WhyUsCard({ icon: Icon, title, desc }) {
 
 export default function Home() {
   const navigate = useNavigate();
-  const [countdowns, setCountdowns] = useState({});
   const [stats, setStats] = useState(DEFAULT_STATS);
 
   // Helper function to create dates - leaders enter actual month numbers (1-12)
@@ -205,46 +324,6 @@ export default function Home() {
     loadStats();
   }, []);
 
-  // Calculate countdown timers
-  useEffect(() => {
-    const updateCountdowns = () => {
-      const now = new Date();
-      const newCountdowns = {};
-
-      events.forEach(event => {
-        const diff = event.date - now;
-        if (diff > 0) {
-          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-          newCountdowns[event.id] = { days, hours, minutes, seconds };
-        } else {
-          newCountdowns[event.id] = { days: 0, hours: 0, minutes: 0, seconds: 0 };
-        }
-      });
-
-      setCountdowns(newCountdowns);
-    };
-
-    updateCountdowns();
-    const interval = setInterval(updateCountdowns, 1000); // Update every second
-
-    return () => clearInterval(interval);
-  }, [events]);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
 
   return (
     <>
@@ -401,7 +480,6 @@ export default function Home() {
             viewport={{ once: true, margin: '-100px' }}
           >
             {events.map((event, i) => {
-              const countdown = countdowns[event.id];
               const formattedDate = event.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
               return (
@@ -425,74 +503,7 @@ export default function Home() {
                             {event.title}
                           </h3>
 
-                      {/* Countdown Timer - Synced Flip Animation */}
-                      {countdown && (
-                        <div style={{ display: 'flex', gap: 6, marginBottom: 20, justifyContent: 'center' }}>
-                          {/* Days - Flips every 24 hours (86400 seconds) */}
-                          <motion.div
-                            style={{ textAlign: 'center' }}
-                            animate={{ rotateX: countdown.days % 24 === 0 ? [0, 360] : 0 }}
-                            transition={{ duration: 0.6, ease: 'easeInOut' }}
-                          >
-                            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)', minWidth: '32px' }}>
-                              {String(countdown.days).padStart(2, '0')}
-                            </div>
-                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Days</div>
-                          </motion.div>
-
-                          {/* Separator */}
-                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                            <div style={{ fontSize: '1.2rem', color: 'var(--accent)', fontWeight: 700 }}>:</div>
-                          </div>
-
-                          {/* Hours - Flips every 60 minutes */}
-                          <motion.div
-                            style={{ textAlign: 'center' }}
-                            animate={{ rotateX: countdown.hours % 24 === 0 ? [0, 360] : 0 }}
-                            transition={{ duration: 0.6, ease: 'easeInOut' }}
-                          >
-                            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)', minWidth: '32px' }}>
-                              {String(countdown.hours).padStart(2, '0')}
-                            </div>
-                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Hrs</div>
-                          </motion.div>
-
-                          {/* Separator */}
-                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                            <div style={{ fontSize: '1.2rem', color: 'var(--accent)', fontWeight: 700 }}>:</div>
-                          </div>
-
-                          {/* Minutes - Flips every 60 seconds */}
-                          <motion.div
-                            style={{ textAlign: 'center' }}
-                            animate={{ rotateX: countdown.minutes % 60 === 0 ? [0, 360] : 0 }}
-                            transition={{ duration: 0.6, ease: 'easeInOut' }}
-                          >
-                            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)', minWidth: '32px' }}>
-                              {String(countdown.minutes).padStart(2, '0')}
-                            </div>
-                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Min</div>
-                          </motion.div>
-
-                          {/* Separator */}
-                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                            <div style={{ fontSize: '1.2rem', color: 'var(--accent)', fontWeight: 700 }}>:</div>
-                          </div>
-
-                          {/* Seconds - Flips every 1 second */}
-                          <div style={{ textAlign: 'center' }}>
-                            <motion.div
-                              key={countdown.seconds}
-                              animate={{ rotateX: [0, 360] }}
-                              transition={{ duration: 0.6, ease: 'easeInOut' }}
-                              style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent)', minWidth: '32px' }}
-                            >
-                              {String(countdown.seconds).padStart(2, '0')}
-                            </motion.div>
-                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Sec</div>
-                          </div>
-                        </div>
-                      )}
+                      <EventCountdown targetDate={event.date} variant="flip" />
 
 
                       <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: 16 }}>Click to learn more →</div>
@@ -516,15 +527,7 @@ export default function Home() {
                           </div>
                         </div>
 
-                        {/* Countdown on back */}
-                        {countdown && (
-                          <div style={{ marginTop: 16, padding: 12, background: 'var(--accent-dim)', borderRadius: 8, textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.9rem', color: 'var(--accent)', fontWeight: 600 }}>
-                              {countdown.days}d {countdown.hours}h {countdown.minutes}m {countdown.seconds}s
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>until event</div>
-                          </div>
-                        )}
+                        <EventCountdown targetDate={event.date} variant="compact" />
 
                         {/* <button className="btn btn-primary" style={{ marginTop: 16, width: '100%' }}>Add to Calendar</button> */}
                       </div>
