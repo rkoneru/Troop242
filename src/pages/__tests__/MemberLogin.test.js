@@ -10,10 +10,18 @@ import { BrowserRouter } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
+// Mock Firebase Firestore
+import { getDoc } from 'firebase/firestore';
+jest.mock('firebase/firestore', () => ({
+  ...jest.requireActual('firebase/firestore'),
+  getDoc: jest.fn(),
+  doc: jest.fn(),
+}));
+
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,13 +29,15 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+import { MemoryRouter } from 'react-router-dom';
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <MemoryRouter initialEntries={['/Troop242/']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         {component}
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -53,7 +63,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -69,7 +79,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -77,6 +87,10 @@ describe('MemberLogin', () => {
     const user = userEvent.setup();
     mockSignInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid', email: 'scout@example.com' },
+    });
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' }),
     });
 
     renderComponent(<MemberLogin />);
@@ -100,9 +114,9 @@ describe('MemberLogin', () => {
 
   it('should handle authentication errors', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockRejectedValue(
-      new Error('Invalid credentials')
-    );
+    const error = new Error('auth/invalid-credential');
+    error.code = 'auth/invalid-credential';
+    mockSignInWithEmailAndPassword.mockRejectedValue(error);
 
     renderComponent(<MemberLogin />);
 
@@ -115,15 +129,19 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/invalid/i)).toBeInTheDocument();
+      expect(screen.getByText(/invalid email or password/i)).toBeInTheDocument();
     });
   });
 
   it('should show loading state during sign in', async () => {
     const user = userEvent.setup();
     mockSignInWithEmailAndPassword.mockImplementation(
-      () => new Promise(resolve => setTimeout(() => resolve({ user: {} }), 100))
+      () => new Promise(resolve => setTimeout(() => resolve({ user: { uid: 'test-uid' } }), 100))
     );
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' }),
+    });
 
     renderComponent(<MemberLogin />);
 
@@ -145,6 +163,10 @@ describe('MemberLogin', () => {
     const user = userEvent.setup();
     mockSignInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid' },
+    });
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' }),
     });
 
     renderComponent(<MemberLogin />);
