@@ -1,10 +1,16 @@
-/**
- * Test setup and configuration
- * Runs before each test suite
- */
-
-// Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+};
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -25,15 +31,24 @@ jest.mock('firebase/auth', () => ({
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
+  doc: jest.fn(),
+  addDoc: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
   getDocs: jest.fn(),
-  getDoc: jest.fn(),
+  getDoc: jest.fn(() => Promise.resolve({
+    exists: () => true,
+    data: () => ({ role: 'scout' })
+  })),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),
   serverTimestamp: jest.fn(() => new Date()),
+  Timestamp: {
+    now: () => ({ toMillis: () => Date.now() }),
+    fromDate: (date) => ({ toMillis: () => date.getTime() })
+  },
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
 }));
@@ -62,13 +77,50 @@ const localStorageMock = {
 };
 global.localStorage = localStorageMock;
 
+// Mock Framer Motion
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const Component = (tag) => React.forwardRef(({ children, ...props }, ref) => {
+    const {
+      animate, initial, exit, variants, transition,
+      viewport, whileInView, whileHover, whileTap,
+      onAnimationStart, onAnimationComplete, onUpdate,
+      ...domProps
+    } = props;
+    return React.createElement(tag, { ...domProps, ref }, children);
+  });
+
+  return {
+    motion: {
+      div: Component('div'),
+      button: Component('button'),
+      h1: Component('h1'),
+      h2: Component('h2'),
+      h3: Component('h3'),
+      p: Component('p'),
+      section: Component('section'),
+      span: Component('span'),
+      a: Component('a'),
+      li: Component('li'),
+      nav: Component('nav'),
+      ul: Component('ul'),
+    },
+    AnimatePresence: ({ children }) => React.createElement(React.Fragment, null, children),
+    useAnimation: () => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+    }),
+    useInView: () => [null, true],
+  };
+});
+
 // Suppress console errors in tests
 const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render')
+      (args[0].includes('Warning: ReactDOM.render') || args[0].includes('Warning: React.createElement'))
     ) {
       return;
     }
