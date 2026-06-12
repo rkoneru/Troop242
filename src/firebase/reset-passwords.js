@@ -37,10 +37,10 @@ async function resetPasswords() {
 
         // Update Firestore
         await db.collection('users').doc(user.uid).update({
-          password: account.password,
           name: account.name,
           role: account.role,
-          status: 'approved'
+          status: 'approved',
+          password: admin.firestore.FieldValue.delete()
         });
 
         console.log(`✓ Reset ${account.email}`);

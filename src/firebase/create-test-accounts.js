@@ -56,7 +56,6 @@ async function createTestAccounts() {
           name: account.name,
           role: account.role,
           status: 'approved',
-          password: account.password,
           joinDate: new Date().toISOString(),
           phone: '',
           createdAt: new Date().toISOString()
@@ -76,7 +75,7 @@ async function createTestAccounts() {
                 name: account.name,
                 role: account.role,
                 status: 'approved',
-                password: account.password
+                password: admin.firestore.FieldValue.delete()
               });
               console.log(`  → Updated Firestore document`);
             }
