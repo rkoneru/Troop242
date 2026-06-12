@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, deleteField } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -59,7 +59,8 @@ export default function UserProfile() {
       // Only update editable fields
       await updateDoc(doc(db, 'users', user.uid), {
         name: formData.name,
-        phone: formData.phone
+        phone: formData.phone,
+        password: deleteField() // Clean up plaintext passwords on update
       });
 
       setSuccess('Profile updated successfully!');
