@@ -53,8 +53,17 @@ service cloud.firestore {
       allow read: if isLeader() &&
                        (isOwnUser(uid) || get(/databases/$(database)/documents/users/$(uid)).data.role == 'scout');
 
-      // Users can only write their own profile
-      allow write: if isOwnUser(uid) && isValidUser(request.resource.data);
+      // Users can only create their own profile with 'scout' role and 'pending' status
+      allow create: if isOwnUser(uid) &&
+                      isValidUser(request.resource.data) &&
+                      request.resource.data.role == 'scout' &&
+                      request.resource.data.status == 'pending';
+
+      // Users can update their own profile, but cannot change role or status
+      allow update: if isOwnUser(uid) &&
+                      isValidUser(request.resource.data) &&
+                      request.resource.data.role == resource.data.role &&
+                      request.resource.data.status == resource.data.status;
 
       // Admins can write any user
       allow write: if isAdmin() && isValidUser(request.resource.data);
