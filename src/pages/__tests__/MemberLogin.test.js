@@ -9,11 +9,12 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
+import { getDoc } from 'firebase/firestore';
 
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,13 +22,28 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+// Mock Firestore getDoc
+jest.mock('firebase/firestore', () => {
+  const actual = jest.requireActual('firebase/firestore');
+  return {
+    ...actual,
+    getDoc: jest.fn(() => Promise.resolve({
+      exists: () => true,
+      data: () => ({ role: 'scout' })
+    })),
+    doc: jest.fn(),
+  };
+});
+
+import { MemoryRouter } from 'react-router-dom';
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <MemoryRouter initialEntries={['/Troop242/']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         {component}
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -53,7 +69,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
+      expect(screen.getByText(/enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -69,7 +85,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -100,9 +116,9 @@ describe('MemberLogin', () => {
 
   it('should handle authentication errors', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockRejectedValue(
-      new Error('Invalid credentials')
-    );
+    const authError = new Error('Firebase Auth Error');
+    authError.code = 'auth/user-not-found';
+    mockSignInWithEmailAndPassword.mockRejectedValue(authError);
 
     renderComponent(<MemberLogin />);
 
