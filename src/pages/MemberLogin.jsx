@@ -42,13 +42,17 @@ export default function MemberLogin() {
         const profileSnap = await getDoc(doc(db, 'users', user.uid));
         userProfile = profileSnap.data();
       } catch (authError) {
-        // Handle Firebase Auth errors
-        if (authError.code === 'auth/user-not-found') {
-          throw new Error('No account found with this email');
-        } else if (authError.code === 'auth/wrong-password') {
-          throw new Error('Incorrect password');
-        } else if (authError.code === 'auth/invalid-email') {
-          throw new Error('Invalid email address');
+        // Handle Firebase Auth errors with generic message to prevent email enumeration
+        const genericMessage = 'Invalid email or password';
+        const credentialErrors = [
+          'auth/user-not-found',
+          'auth/wrong-password',
+          'auth/invalid-email',
+          'auth/invalid-credential'
+        ];
+
+        if (credentialErrors.includes(authError.code)) {
+          throw new Error(genericMessage);
         } else if (authError.code === 'auth/user-disabled') {
           throw new Error('This account has been disabled');
         }
