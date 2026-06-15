@@ -3,6 +3,20 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+
+// Polyfills for React Router 7 and modern JS features
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.IntersectionObserver = IntersectionObserver;
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
@@ -25,6 +39,7 @@ jest.mock('firebase/auth', () => ({
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
+  doc: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
