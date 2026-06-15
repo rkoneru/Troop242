@@ -3,17 +3,16 @@
  * Tests authentication flow and Firebase Auth integration
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,13 +20,40 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+jest.mock('firebase/firestore', () => ({
+  getFirestore: jest.fn(),
+  collection: jest.fn(),
+  doc: jest.fn(),
+  query: jest.fn(),
+  where: jest.fn(),
+  orderBy: jest.fn(),
+  getDocs: jest.fn(),
+  getDoc: jest.fn(() => Promise.resolve({
+    exists: () => true,
+    data: () => ({ role: 'scout', name: 'Test Scout' })
+  })),
+  setDoc: jest.fn(),
+  updateDoc: jest.fn(),
+  deleteDoc: jest.fn(),
+  serverTimestamp: jest.fn(() => new Date()),
+  arrayUnion: jest.fn(val => val),
+  arrayRemove: jest.fn(val => val),
+}));
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <MemoryRouter
+      initialEntries={['/Troop242/member-login']}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <AuthProvider>
-        {component}
+        <Routes>
+          <Route path="/Troop242/member-login" element={component} />
+          <Route path="/Troop242/scout-dashboard" element={<div>Scout Dashboard</div>} />
+          <Route path="/Troop242/register" element={<div>Register</div>} />
+        </Routes>
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -53,7 +79,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -61,7 +87,7 @@ describe('MemberLogin', () => {
     const user = userEvent.setup();
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
     await user.type(emailInput, 'scout@example.com');
 
     const submitButton = screen.getByRole('button', { name: /sign in/i });
@@ -69,7 +95,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -169,7 +195,7 @@ describe('MemberLogin', () => {
   it('should have link to registration', () => {
     renderComponent(<MemberLogin />);
 
-    const registerLink = screen.getByText(/register/i);
+    const registerLink = screen.getByRole('link', { name: /register/i });
     expect(registerLink).toBeInTheDocument();
   });
 });
