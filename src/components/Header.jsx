@@ -78,6 +78,7 @@ export default function Header() {
 
   return (
     <header className={`header ${scrolled ? 'header--scrolled' : ''}`}>
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <div className="container header-content">
         {/* Logo */}
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, color: 'inherit' }}>
@@ -97,7 +98,12 @@ export default function Header() {
 
           {/* Guide Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleGuideMouseEnter} onMouseLeave={handleGuideMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              className="header-dropdown-toggle"
+              aria-haspopup="true"
+              aria-expanded={guideDropdownOpen}
+              onClick={() => setGuideDropdownOpen(!guideDropdownOpen)}
+            >
               Guide
               <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
@@ -121,7 +127,12 @@ export default function Header() {
 
           {/* Resources Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleResourcesMouseEnter} onMouseLeave={handleResourcesMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              className="header-dropdown-toggle"
+              aria-haspopup="true"
+              aria-expanded={resourcesDropdownOpen}
+              onClick={() => setResourcesDropdownOpen(!resourcesDropdownOpen)}
+            >
               Resources
               <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
@@ -152,6 +163,8 @@ export default function Header() {
             <div className="header-user-menu" style={{ position: 'relative' }}>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-haspopup="true"
+                aria-expanded={userMenuOpen}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
