@@ -14,6 +14,9 @@ export default {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(gif|ttf|eot|svg|png|jpg|jpeg)$': '<rootDir>/src/__mocks__/fileMock.js',
+    '^\\.\\./firebase/firebase$': '<rootDir>/src/__mocks__/firebase.js',
+    '^\\./firebase/firebase$': '<rootDir>/src/__mocks__/firebase.js',
+    '@/firebase/firebase': '<rootDir>/src/__mocks__/firebase.js',
   },
 
   // Transform JSX/ES6 with Babel

@@ -147,7 +147,9 @@ function App() {
         <ThemeManager>
           <Router basename="/Troop242/">
             <div className="app">
-              <AppRoutes />
+              <main id="main-content">
+                <AppRoutes />
+              </main>
               <SearchWidget />
             </div>
           </Router>
