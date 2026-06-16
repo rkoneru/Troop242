@@ -5,6 +5,10 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -30,6 +34,7 @@ jest.mock('firebase/firestore', () => ({
   orderBy: jest.fn(),
   getDocs: jest.fn(),
   getDoc: jest.fn(),
+  doc: jest.fn(),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),
@@ -37,6 +42,18 @@ jest.mock('firebase/firestore', () => ({
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
 }));
+
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+}
+Object.defineProperty(window, 'IntersectionObserver', {
+  writable: true,
+  configurable: true,
+  value: MockIntersectionObserver
+});
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

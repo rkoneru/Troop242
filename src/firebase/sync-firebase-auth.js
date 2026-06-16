@@ -48,6 +48,8 @@ async function syncFirebaseAuth() {
               displayName: account.email.split('@')[0]
             });
 
+            // Note: We deliberately don't store password in Firestore users collection
+
             console.log(`✓ Created ${account.email} (UID: ${newUser.uid})`);
           } catch (createError) {
             console.error(`✗ Failed to create ${account.email}:`, createError.message);
