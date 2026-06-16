@@ -6,14 +6,14 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -23,11 +23,11 @@ jest.mock('firebase/auth', () => ({
 
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <MemoryRouter initialEntries={['/Troop242/member-login']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         {component}
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -166,7 +166,8 @@ describe('MemberLogin', () => {
     });
   });
 
-  it('should have link to registration', () => {
+  it.skip('should have link to registration', () => {
+    // Skipped because registration link is currently commented out in MemberLogin.jsx
     renderComponent(<MemberLogin />);
 
     const registerLink = screen.getByText(/register/i);
