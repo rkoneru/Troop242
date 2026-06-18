@@ -27,14 +27,13 @@ async function createAdminAccount() {
 
     console.log('✓ Firebase Auth user created:', userRecord.uid);
 
-    // Create Firestore user document
+    // Create Firestore user document (excluding password)
     await db.collection('users').doc(userRecord.uid).set({
       uid: userRecord.uid,
       email: 'admin@troop242.com',
       name: 'Admin User',
       role: 'admin',
       status: 'approved',
-      password: 'Admin@123', // Fallback password for Firestore login
       joinDate: new Date().toISOString(),
       phone: '',
       createdAt: new Date().toISOString()

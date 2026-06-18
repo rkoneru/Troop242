@@ -35,9 +35,8 @@ async function resetPasswords() {
           password: account.password
         });
 
-        // Update Firestore
+        // Update Firestore (excluding password)
         await db.collection('users').doc(user.uid).update({
-          password: account.password,
           name: account.name,
           role: account.role,
           status: 'approved'

@@ -49,14 +49,13 @@ async function createTestAccounts() {
           password: account.password
         });
 
-        // Create Firestore user document
+        // Create Firestore user document (excluding password)
         await db.collection('users').doc(userRecord.uid).set({
           uid: userRecord.uid,
           email: account.email,
           name: account.name,
           role: account.role,
           status: 'approved',
-          password: account.password,
           joinDate: new Date().toISOString(),
           phone: '',
           createdAt: new Date().toISOString()
@@ -75,8 +74,7 @@ async function createTestAccounts() {
               await db.collection('users').doc(docId).update({
                 name: account.name,
                 role: account.role,
-                status: 'approved',
-                password: account.password
+                status: 'approved'
               });
               console.log(`  → Updated Firestore document`);
             }
