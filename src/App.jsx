@@ -147,7 +147,12 @@ function App() {
         <ThemeManager>
           <Router basename="/Troop242/">
             <div className="app">
-              <AppRoutes />
+              <a href="#main-content" className="skip-link">
+                Skip to main content
+              </a>
+              <main id="main-content">
+                <AppRoutes />
+              </main>
               <SearchWidget />
             </div>
           </Router>
