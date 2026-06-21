@@ -5,6 +5,18 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock Firebase Project-level imports
+jest.mock('./firebase/firebase', () => ({
+  auth: {
+    currentUser: null,
+  },
+  db: {},
+}));
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -29,7 +41,8 @@ jest.mock('firebase/firestore', () => ({
   where: jest.fn(),
   orderBy: jest.fn(),
   getDocs: jest.fn(),
-  getDoc: jest.fn(),
+  doc: jest.fn(),
+  getDoc: jest.fn(() => Promise.resolve({ exists: () => false, data: () => ({}) })),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),
@@ -61,6 +74,15 @@ const localStorageMock = {
   clear: jest.fn(),
 };
 global.localStorage = localStorageMock;
+
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  constructor() {}
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+}
+global.IntersectionObserver = MockIntersectionObserver;
 
 // Suppress console errors in tests
 const originalError = console.error;
