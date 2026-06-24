@@ -5,6 +5,18 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+// Add polyfills for modern JS features in JSDOM
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({

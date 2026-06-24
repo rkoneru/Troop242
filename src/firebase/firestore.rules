@@ -53,8 +53,15 @@ service cloud.firestore {
       allow read: if isLeader() &&
                        (isOwnUser(uid) || get(/databases/$(database)/documents/users/$(uid)).data.role == 'scout');
 
-      // Users can only write their own profile
-      allow write: if isOwnUser(uid) && isValidUser(request.resource.data);
+      // Users can create their own profile (Enforce 'scout' role and 'pending' status for initial security)
+      allow create: if isOwnUser(uid) && isValidUser(request.resource.data) &&
+                       request.resource.data.role == 'scout' &&
+                       request.resource.data.status == 'pending';
+
+      // Users can update their own profile, but cannot change role or status (Privilege Escalation Prevention)
+      allow update: if isOwnUser(uid) && isValidUser(request.resource.data) &&
+                       request.resource.data.role == resource.data.role &&
+                       request.resource.data.status == resource.data.status;
 
       // Admins can write any user
       allow write: if isAdmin() && isValidUser(request.resource.data);
@@ -140,7 +147,7 @@ service cloud.firestore {
     // AUDIT LOGS - Read own, admins read all, system writes
     match /auditLogs/{document=**} {
       allow read: if isAdmin() || resource.data.userId == request.auth.uid;
-      allow create: if true; // Cloud Functions write these
+      allow create: if false; // Only Admin SDK or Cloud Functions should write logs
       allow update, delete: if false; // Immutable
     }
 
