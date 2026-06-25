@@ -10,10 +10,16 @@ import { BrowserRouter } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
+// Mock Firebase
+jest.mock('../../firebase/firebase', () => ({
+  auth: { currentUser: null },
+  db: {}
+}));
+
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,13 +27,20 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <MemoryRouter
+      initialEntries={['/Troop242/member-login']}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <AuthProvider>
-        {component}
+        <Routes>
+          <Route path="/Troop242/member-login" element={component} />
+        </Routes>
       </AuthProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
