@@ -1,0 +1,3 @@
+## 2025-05-14 - [Accessible Navigation Dropdowns]
+**Learning:** For navigation dropdowns that trigger on hover, providing explicit `aria-haspopup="true"`, `aria-expanded`, and `aria-controls` attributes on the toggle button is critical for screen reader users. An `onClick` handler (using functional state updates) ensures keyboard users can toggle menus when buttons receive focus, and a matching `id` on the menu container establishes the programmatic relationship.
+**Action:** Always implement ARIA attributes and keyboard-accessible click handlers for hover-based dropdowns to ensure multi-modal accessibility.
