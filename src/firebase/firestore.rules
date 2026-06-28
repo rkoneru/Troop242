@@ -41,7 +41,8 @@ service cloud.firestore {
       return data.email != null && data.email is string
         && data.name != null && data.name is string && data.name.size() >= 2
         && data.role in ['scout', 'leader', 'admin']
-        && data.status in ['pending', 'approved', 'rejected'];
+        && data.status in ['pending', 'approved', 'rejected']
+        && !('password' in data); // Prevent plaintext password storage
     }
 
     // USERS COLLECTION - Strict access control
@@ -53,8 +54,17 @@ service cloud.firestore {
       allow read: if isLeader() &&
                        (isOwnUser(uid) || get(/databases/$(database)/documents/users/$(uid)).data.role == 'scout');
 
-      // Users can only write their own profile
-      allow write: if isOwnUser(uid) && isValidUser(request.resource.data);
+      // Creation: users can only self-register as pending scouts
+      allow create: if isOwnUser(uid) &&
+                       isValidUser(request.resource.data) &&
+                       request.resource.data.role == 'scout' &&
+                       request.resource.data.status == 'pending';
+
+      // Updates: users can only update their own profile, and cannot change role or status
+      allow update: if isOwnUser(uid) &&
+                       isValidUser(request.resource.data) &&
+                       request.resource.data.role == resource.data.role &&
+                       request.resource.data.status == resource.data.status;
 
       // Admins can write any user
       allow write: if isAdmin() && isValidUser(request.resource.data);
