@@ -13,7 +13,7 @@ import { AuthProvider } from '../../contexts/AuthContext';
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,9 +21,20 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+// Mock Firebase Firestore
+const mockGetDoc = jest.fn();
+jest.mock('firebase/firestore', () => ({
+  doc: jest.fn(),
+  getDoc: (...args) => mockGetDoc(...args),
+  getDocs: jest.fn(),
+  collection: jest.fn(),
+  query: jest.fn(),
+  where: jest.fn(),
+}));
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         {component}
       </AuthProvider>
@@ -44,7 +55,7 @@ describe('MemberLogin', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
-  it('should require email', async () => {
+  it('should require email and password', async () => {
     const user = userEvent.setup();
     renderComponent(<MemberLogin />);
 
@@ -53,23 +64,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should require password', async () => {
-    const user = userEvent.setup();
-    renderComponent(<MemberLogin />);
-
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    await user.type(emailInput, 'scout@example.com');
-
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
-    await user.click(submitButton);
-
-    // Form should show validation error
-    await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -77,6 +72,10 @@ describe('MemberLogin', () => {
     const user = userEvent.setup();
     mockSignInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid', email: 'scout@example.com' },
+    });
+    mockGetDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' }),
     });
 
     renderComponent(<MemberLogin />);
@@ -146,6 +145,10 @@ describe('MemberLogin', () => {
     mockSignInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid' },
     });
+    mockGetDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout' }),
+    });
 
     renderComponent(<MemberLogin />);
 
@@ -166,10 +169,10 @@ describe('MemberLogin', () => {
     });
   });
 
-  it('should have link to registration', () => {
+  it('should have Support section', () => {
     renderComponent(<MemberLogin />);
 
-    const registerLink = screen.getByText(/register/i);
-    expect(registerLink).toBeInTheDocument();
+    const supportHeader = screen.getByText(/💬 Support/i);
+    expect(supportHeader).toBeInTheDocument();
   });
 });
