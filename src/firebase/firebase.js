@@ -16,13 +16,24 @@ const fallbackFirebaseConfig = {
   appId: '1:1059763099338:web:7ba32ca6d62bb6cec80633'
 };
 
+const getEnv = (key) => {
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[key];
+  }
+  try {
+    return import.meta.env[key];
+  } catch {
+    return undefined;
+  }
+};
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || fallbackFirebaseConfig.apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || fallbackFirebaseConfig.authDomain,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || fallbackFirebaseConfig.projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || fallbackFirebaseConfig.storageBucket,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || fallbackFirebaseConfig.messagingSenderId,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || fallbackFirebaseConfig.appId
+  apiKey: getEnv('VITE_FIREBASE_API_KEY') || fallbackFirebaseConfig.apiKey,
+  authDomain: getEnv('VITE_FIREBASE_AUTH_DOMAIN') || fallbackFirebaseConfig.authDomain,
+  projectId: getEnv('VITE_FIREBASE_PROJECT_ID') || fallbackFirebaseConfig.projectId,
+  storageBucket: getEnv('VITE_FIREBASE_STORAGE_BUCKET') || fallbackFirebaseConfig.storageBucket,
+  messagingSenderId: getEnv('VITE_FIREBASE_MESSAGING_SENDER_ID') || fallbackFirebaseConfig.messagingSenderId,
+  appId: getEnv('VITE_FIREBASE_APP_ID') || fallbackFirebaseConfig.appId
 };
 
 const requiredConfigKeys = ['apiKey', 'authDomain', 'projectId', 'appId'];
