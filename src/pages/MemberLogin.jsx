@@ -127,6 +127,8 @@ export default function MemberLogin() {
           >
             {error && (
               <motion.div
+                id="login-error"
+                role="alert"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{
@@ -143,13 +145,20 @@ export default function MemberLogin() {
               </motion.div>
             )}
 
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <form noValidate onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <label
+                  htmlFor="email"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
                   Email Address
                 </label>
                 <input
+                  id="email"
                   type="email"
+                  required
+                  aria-invalid={error ? 'true' : 'false'}
+                  aria-describedby={error ? 'login-error' : undefined}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your.email@example.com"
@@ -175,11 +184,18 @@ export default function MemberLogin() {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <label
+                  htmlFor="password"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
                   Password
                 </label>
                 <input
+                  id="password"
                   type="password"
+                  required
+                  aria-invalid={error ? 'true' : 'false'}
+                  aria-describedby={error ? 'login-error' : undefined}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"

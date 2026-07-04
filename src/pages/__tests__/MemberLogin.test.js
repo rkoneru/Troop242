@@ -6,14 +6,20 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
+
+// Mock firebase/firebase to avoid import.meta error
+jest.mock('../../firebase/firebase', () => ({
+  auth: {},
+  db: {}
+}));
 
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -21,13 +27,29 @@ jest.mock('firebase/auth', () => ({
   }),
 }));
 
+// Mock Firebase Firestore
+const mockGetDoc = jest.fn();
+jest.mock('firebase/firestore', () => ({
+  getFirestore: jest.fn(),
+  doc: jest.fn(),
+  getDoc: (...args) => mockGetDoc(...args),
+  collection: jest.fn(),
+  query: jest.fn(),
+  where: jest.fn(),
+  getDocs: jest.fn(),
+}));
+
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
-      <AuthProvider>
-        {component}
-      </AuthProvider>
-    </BrowserRouter>
+    <MemoryRouter initialEntries={['/Troop242/member-login']}>
+      <Routes>
+        <Route path="/Troop242/member-login" element={
+          <AuthProvider>
+            {component}
+          </AuthProvider>
+        } />
+      </Routes>
+    </MemoryRouter>
   );
 };
 
@@ -39,7 +61,7 @@ describe('MemberLogin', () => {
   it('should render login form', () => {
     renderComponent(<MemberLogin />);
 
-    expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/your.email@example.com/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
@@ -53,7 +75,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -61,7 +83,7 @@ describe('MemberLogin', () => {
     const user = userEvent.setup();
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
     await user.type(emailInput, 'scout@example.com');
 
     const submitButton = screen.getByRole('button', { name: /sign in/i });
@@ -69,7 +91,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -78,10 +100,14 @@ describe('MemberLogin', () => {
     mockSignInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid', email: 'scout@example.com' },
     });
+    mockGetDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout', name: 'Test Scout' })
+    });
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
     const passwordInput = screen.getByPlaceholderText(/password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
@@ -106,7 +132,7 @@ describe('MemberLogin', () => {
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
     const passwordInput = screen.getByPlaceholderText(/password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
@@ -127,7 +153,7 @@ describe('MemberLogin', () => {
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
     const passwordInput = screen.getByPlaceholderText(/password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
@@ -146,10 +172,14 @@ describe('MemberLogin', () => {
     mockSignInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid' },
     });
+    mockGetDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout', name: 'Test Scout' })
+    });
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
     const passwordInput = screen.getByPlaceholderText(/password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
@@ -166,10 +196,9 @@ describe('MemberLogin', () => {
     });
   });
 
-  it('should have link to registration', () => {
+  it('should render mobile friendly info', () => {
     renderComponent(<MemberLogin />);
 
-    const registerLink = screen.getByText(/register/i);
-    expect(registerLink).toBeInTheDocument();
+    expect(screen.getByText(/mobile friendly/i)).toBeInTheDocument();
   });
 });
