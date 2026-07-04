@@ -42,13 +42,16 @@ export default function MemberLogin() {
         const profileSnap = await getDoc(doc(db, 'users', user.uid));
         userProfile = profileSnap.data();
       } catch (authError) {
-        // Handle Firebase Auth errors
-        if (authError.code === 'auth/user-not-found') {
-          throw new Error('No account found with this email');
-        } else if (authError.code === 'auth/wrong-password') {
-          throw new Error('Incorrect password');
-        } else if (authError.code === 'auth/invalid-email') {
-          throw new Error('Invalid email address');
+        // Handle Firebase Auth errors with generic messages to prevent email enumeration
+        const genericError = 'Invalid email or password';
+
+        if (
+          authError.code === 'auth/user-not-found' ||
+          authError.code === 'auth/wrong-password' ||
+          authError.code === 'auth/invalid-email' ||
+          authError.code === 'auth/invalid-credential'
+        ) {
+          throw new Error(genericError);
         } else if (authError.code === 'auth/user-disabled') {
           throw new Error('This account has been disabled');
         }
@@ -238,7 +241,7 @@ export default function MemberLogin() {
               </button>
             </form>
 
-            {/* <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 12 }}>
                 Don't have an account?
               </p>
@@ -256,7 +259,7 @@ export default function MemberLogin() {
               >
                 Register as a Scout →
               </a>
-            </div> */}
+            </div>
           </motion.div>
         </div>
       </section>
