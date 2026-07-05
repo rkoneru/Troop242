@@ -97,13 +97,23 @@ export default function Header() {
 
           {/* Guide Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleGuideMouseEnter} onMouseLeave={handleGuideMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              id="guide-menu-button"
+              className="header-dropdown-toggle"
+              aria-haspopup="true"
+              aria-expanded={guideDropdownOpen}
+              aria-controls="guide-menu"
+              onClick={() => setGuideDropdownOpen(prev => !prev)}
+            >
               Guide
               <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {guideDropdownOpen && (
               <motion.div
+                id="guide-menu"
                 className="header-dropdown-menu"
+                role="menu"
+                aria-labelledby="guide-menu-button"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -121,13 +131,23 @@ export default function Header() {
 
           {/* Resources Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleResourcesMouseEnter} onMouseLeave={handleResourcesMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              id="resources-menu-button"
+              className="header-dropdown-toggle"
+              aria-haspopup="true"
+              aria-expanded={resourcesDropdownOpen}
+              aria-controls="resources-menu"
+              onClick={() => setResourcesDropdownOpen(prev => !prev)}
+            >
               Resources
               <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {resourcesDropdownOpen && (
               <motion.div
+                id="resources-menu"
                 className="header-dropdown-menu"
+                role="menu"
+                aria-labelledby="resources-menu-button"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -151,6 +171,10 @@ export default function Header() {
           {user && profile && (
             <div className="header-user-menu" style={{ position: 'relative' }}>
               <button
+                id="user-menu-button"
+                aria-haspopup="true"
+                aria-expanded={userMenuOpen}
+                aria-controls="user-menu"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 style={{
                   display: 'flex',
@@ -177,6 +201,9 @@ export default function Header() {
               <AnimatePresence>
                 {userMenuOpen && (
                   <motion.div
+                    id="user-menu"
+                    role="menu"
+                    aria-labelledby="user-menu-button"
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
