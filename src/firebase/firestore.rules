@@ -53,11 +53,18 @@ service cloud.firestore {
       allow read: if isLeader() &&
                        (isOwnUser(uid) || get(/databases/$(database)/documents/users/$(uid)).data.role == 'scout');
 
-      // Users can only write their own profile
-      allow write: if isOwnUser(uid) && isValidUser(request.resource.data);
-
       // Admins can write any user
       allow write: if isAdmin() && isValidUser(request.resource.data);
+
+      // Self-registration: restricted to scout role and pending status
+      allow create: if isOwnUser(uid) && isValidUser(request.resource.data) &&
+                       request.resource.data.role == 'scout' &&
+                       request.resource.data.status == 'pending';
+
+      // Self-update: role and status are immutable for non-admins
+      allow update: if isOwnUser(uid) && isValidUser(request.resource.data) &&
+                       request.resource.data.role == resource.data.role &&
+                       request.resource.data.status == resource.data.status;
     }
 
     // ACTIVITIES COLLECTION - Role-based access
@@ -140,7 +147,7 @@ service cloud.firestore {
     // AUDIT LOGS - Read own, admins read all, system writes
     match /auditLogs/{document=**} {
       allow read: if isAdmin() || resource.data.userId == request.auth.uid;
-      allow create: if true; // Cloud Functions write these
+      allow create: if false; // Prevent client-side log injection; Cloud Functions use Admin SDK
       allow update, delete: if false; // Immutable
     }
 
