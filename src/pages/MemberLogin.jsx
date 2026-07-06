@@ -35,20 +35,23 @@ export default function MemberLogin() {
       let user = null;
       let userProfile = null;
 
+      const trimmedEmail = email.trim();
+
       // Use Firebase Auth for all authentication (secure, hashed passwords)
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, trimmedEmail, password);
         user = userCredential.user;
         const profileSnap = await getDoc(doc(db, 'users', user.uid));
         userProfile = profileSnap.data();
       } catch (authError) {
         // Handle Firebase Auth errors
-        if (authError.code === 'auth/user-not-found') {
-          throw new Error('No account found with this email');
-        } else if (authError.code === 'auth/wrong-password') {
-          throw new Error('Incorrect password');
-        } else if (authError.code === 'auth/invalid-email') {
-          throw new Error('Invalid email address');
+        if (
+          authError.code === 'auth/user-not-found' ||
+          authError.code === 'auth/wrong-password' ||
+          authError.code === 'auth/invalid-email' ||
+          authError.code === 'auth/invalid-credential'
+        ) {
+          throw new Error('Invalid email or password');
         } else if (authError.code === 'auth/user-disabled') {
           throw new Error('This account has been disabled');
         }
