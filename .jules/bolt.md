@@ -1,0 +1,3 @@
+## 2026-03-21 - [Isolating High-Frequency State Updates]
+**Learning:** In large React pages like `Home.jsx`, managing a 1-second countdown timer at the root component level triggers a full page re-render every second. This includes re-calculating animation variants, re-rendering complex SVG illustrations, and processing memoization checks for dozens of children, which is expensive for CPU and battery life.
+**Action:** Always move high-frequency state (timers, mouse positions, scroll progress) into the smallest possible leaf components. Use `React.memo` on static siblings to ensure they stay skipped during these frequent updates.
