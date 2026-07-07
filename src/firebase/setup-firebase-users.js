@@ -123,7 +123,6 @@ async function setupUsers() {
   console.log('─────────────────────────────────────');
   testUsers.forEach(user => {
     console.log(`📧 ${user.email}`);
-    console.log(`🔐 Password: ${user.password}`);
     console.log(`👤 Role: ${user.profile.role}`);
     console.log('');
   });
