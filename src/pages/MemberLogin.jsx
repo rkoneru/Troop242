@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
@@ -11,8 +12,9 @@ export default function MemberLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -125,34 +127,46 @@ export default function MemberLogin() {
             }}
             className="glass-card"
           >
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{
-                  padding: 12,
-                  background: 'rgba(255, 100, 100, 0.1)',
-                  border: '1px solid rgba(255, 100, 100, 0.3)',
-                  borderRadius: 8,
-                  color: '#ff6464',
-                  fontSize: '0.85rem',
-                  marginBottom: 24
-                }}
-              >
-                ✕ {error}
-              </motion.div>
-            )}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  id="login-error"
+                  role="alert"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  style={{
+                    padding: 12,
+                    background: 'rgba(255, 100, 100, 0.1)',
+                    border: '1px solid rgba(255, 100, 100, 0.3)',
+                    borderRadius: 8,
+                    color: '#ff6464',
+                    fontSize: '0.85rem',
+                    marginBottom: 24
+                  }}
+                >
+                  ✕ {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <form onSubmit={handleLogin} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <label
+                  htmlFor="email"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
                   Email Address
                 </label>
                 <input
+                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your.email@example.com"
+                  aria-invalid={!!error && !email}
+                  aria-describedby={error ? 'login-error' : undefined}
+                  required
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -175,33 +189,67 @@ export default function MemberLogin() {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <label
+                  htmlFor="password"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
                   Password
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'var(--input-bg)',
-                    border: '1px solid var(--input-border)',
-                    borderRadius: 8,
-                    color: 'var(--text-primary)',
-                    fontSize: '0.95rem',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(100, 150, 200, 0.2)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--input-border)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    aria-invalid={!!error && !password}
+                    aria-describedby={error ? 'login-error' : undefined}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 48px 12px 16px',
+                      background: 'var(--input-bg)',
+                      border: '1px solid var(--input-border)',
+                      borderRadius: 8,
+                      color: 'var(--text-primary)',
+                      fontSize: '0.95rem',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = 'var(--accent)';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(100, 150, 200, 0.2)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = 'var(--input-border)';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '4px',
+                      borderRadius: '4px',
+                      transition: 'color 0.2s'
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </div>
 
               <button
@@ -238,7 +286,7 @@ export default function MemberLogin() {
               </button>
             </form>
 
-            {/* <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 12 }}>
                 Don't have an account?
               </p>
@@ -251,12 +299,12 @@ export default function MemberLogin() {
                   fontSize: '0.9rem',
                   transition: 'color 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--accent-bright)'}
-                onMouseLeave={(e) => e.target.style.color = 'var(--accent)'}
+                onMouseEnter={(e) => (e.target.style.color = 'var(--accent-bright)')}
+                onMouseLeave={(e) => (e.target.style.color = 'var(--accent)')}
               >
                 Register as a Scout →
               </a>
-            </div> */}
+            </div>
           </motion.div>
         </div>
       </section>

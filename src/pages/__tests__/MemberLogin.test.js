@@ -10,10 +10,16 @@ import { BrowserRouter } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
+// Mock Firebase config to avoid import.meta errors
+jest.mock('../../firebase/firebase', () => ({
+  auth: {},
+  db: {}
+}));
+
 // Mock Firebase Auth
 const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: (...args) => mockSignInWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -23,7 +29,7 @@ jest.mock('firebase/auth', () => ({
 
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         {component}
       </AuthProvider>
@@ -39,9 +45,26 @@ describe('MemberLogin', () => {
   it('should render login form', () => {
     renderComponent(<MemberLogin />);
 
-    expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/your.email@example.com/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/enter your password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+  });
+
+  it('should toggle password visibility', async () => {
+    const user = userEvent.setup();
+    renderComponent(<MemberLogin />);
+
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
+    const toggleButton = screen.getByLabelText(/show password/i);
+
+    expect(passwordInput).toHaveAttribute('type', 'password');
+
+    await user.click(toggleButton);
+    expect(passwordInput).toHaveAttribute('type', 'text');
+    expect(toggleButton).toHaveAttribute('aria-label', 'Hide password');
+
+    await user.click(toggleButton);
+    expect(passwordInput).toHaveAttribute('type', 'password');
   });
 
   it('should require email', async () => {
@@ -53,7 +76,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -61,7 +84,7 @@ describe('MemberLogin', () => {
     const user = userEvent.setup();
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
     await user.type(emailInput, 'scout@example.com');
 
     const submitButton = screen.getByRole('button', { name: /sign in/i });
@@ -69,7 +92,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -78,11 +101,17 @@ describe('MemberLogin', () => {
     mockSignInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid', email: 'scout@example.com' },
     });
+    // Mock getDoc to return a valid profile
+    const { getDoc } = require('firebase/firestore');
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ role: 'scout', name: 'Test Scout' })
+    });
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await user.type(emailInput, 'scout@example.com');
@@ -106,8 +135,8 @@ describe('MemberLogin', () => {
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await user.type(emailInput, 'scout@example.com');
@@ -127,8 +156,8 @@ describe('MemberLogin', () => {
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await user.type(emailInput, 'scout@example.com');
@@ -149,8 +178,8 @@ describe('MemberLogin', () => {
 
     renderComponent(<MemberLogin />);
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const emailInput = screen.getByPlaceholderText(/your.email@example.com/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     await user.type(emailInput, '  scout@example.com  ');
