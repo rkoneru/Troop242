@@ -11,6 +11,11 @@ import ActivitiesPage from '../ActivitiesPage';
 import { AuthProvider } from '../../contexts/AuthContext';
 
 // Mock Firebase functions
+jest.mock('../../firebase/firebase', () => ({
+  db: jest.fn(),
+  auth: jest.fn(),
+}));
+
 const mockDocs = jest.fn();
 const mockGetDocs = jest.fn();
 const mockUpdateDoc = jest.fn();
@@ -30,11 +35,11 @@ jest.mock('firebase/firestore', () => ({
   collection: jest.fn(),
   query: jest.fn(),
   orderBy: jest.fn(),
-  getDocs: mockGetDocs,
+  getDocs: (...args) => mockGetDocs(...args),
   doc: jest.fn(),
-  updateDoc: mockUpdateDoc,
-  arrayUnion: mockArrayUnion,
-  arrayRemove: mockArrayRemove,
+  updateDoc: (...args) => mockUpdateDoc(...args),
+  arrayUnion: (...args) => mockArrayUnion(...args),
+  arrayRemove: (...args) => mockArrayRemove(...args),
   Timestamp: {
     now: () => new Date(),
   },
@@ -47,7 +52,13 @@ jest.mock('../../utils/adminData', () => ({
 
 const renderComponent = (component) => {
   return render(
-    <BrowserRouter basename="/Troop242/">
+    <BrowserRouter
+      basename="/Troop242/"
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <AuthProvider>
         {component}
       </AuthProvider>
