@@ -34,7 +34,6 @@ async function verifyAccounts() {
       console.log(`Name: ${data.name}`);
       console.log(`Role: ${data.role}`);
       console.log(`Status: ${data.status}`);
-      console.log(`Password: ${data.password || '(not set)'}`);
       console.log('---');
     });
 

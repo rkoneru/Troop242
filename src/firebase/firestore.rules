@@ -41,7 +41,8 @@ service cloud.firestore {
       return data.email != null && data.email is string
         && data.name != null && data.name is string && data.name.size() >= 2
         && data.role in ['scout', 'leader', 'admin']
-        && data.status in ['pending', 'approved', 'rejected'];
+        && data.status in ['pending', 'approved', 'rejected']
+        && !('password' in data); // Remediate plaintext password storage
     }
 
     // USERS COLLECTION - Strict access control
@@ -53,11 +54,19 @@ service cloud.firestore {
       allow read: if isLeader() &&
                        (isOwnUser(uid) || get(/databases/$(database)/documents/users/$(uid)).data.role == 'scout');
 
-      // Users can only write their own profile
-      allow write: if isOwnUser(uid) && isValidUser(request.resource.data);
+      // Creation rules (self-registration)
+      allow create: if (isAdmin() || (isOwnUser(uid) &&
+                      request.resource.data.role == 'scout' &&
+                      request.resource.data.status == 'pending')) &&
+                      isValidUser(request.resource.data);
 
-      // Admins can write any user
-      allow write: if isAdmin() && isValidUser(request.resource.data);
+      // Update rules (prevent privilege escalation)
+      allow update: if (isAdmin() || (isOwnUser(uid) &&
+                      request.resource.data.role == resource.data.role &&
+                      request.resource.data.status == resource.data.status)) &&
+                      isValidUser(request.resource.data);
+
+      allow delete: if isAdmin();
     }
 
     // ACTIVITIES COLLECTION - Role-based access
@@ -140,7 +149,7 @@ service cloud.firestore {
     // AUDIT LOGS - Read own, admins read all, system writes
     match /auditLogs/{document=**} {
       allow read: if isAdmin() || resource.data.userId == request.auth.uid;
-      allow create: if true; // Cloud Functions write these
+      allow create: if false; // Only Cloud Functions (Admin SDK) should write logs
       allow update, delete: if false; // Immutable
     }
 
