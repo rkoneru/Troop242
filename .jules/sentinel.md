@@ -1,0 +1,4 @@
+## 2025-05-21 - Harden Firestore security rules and remediate plaintext password storage
+**Vulnerability:** Plaintext passwords were being stored in Firestore 'users' documents by administrative and setup scripts, and the security rules allowed users to update their own 'role' and 'status' (Privilege Escalation).
+**Learning:** Initial setup scripts often favor simplicity over security, leading to the inclusion of sensitive fields like 'password' in database documents. Without granular 'create' vs 'update' rules, users can often modify sensitive administrative fields.
+**Prevention:** Always enforce a `!('password' in data)` check in Firestore validation helpers. Split 'write' rules into separate 'create' and 'update' blocks to ensure that non-admin users cannot modify their roles or status once established.
