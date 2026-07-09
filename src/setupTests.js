@@ -5,6 +5,18 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+}
+global.IntersectionObserver = MockIntersectionObserver;
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -24,12 +36,16 @@ jest.mock('firebase/auth', () => ({
 
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
+  doc: jest.fn(),
   collection: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
   getDocs: jest.fn(),
-  getDoc: jest.fn(),
+  getDoc: jest.fn(() => Promise.resolve({
+    exists: () => true,
+    data: () => ({ role: 'scout', name: 'Test User' })
+  })),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),
