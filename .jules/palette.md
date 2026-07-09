@@ -1,0 +1,3 @@
+## 2025-07-09 - Framer Motion and Accessible Roles in Tests
+**Learning:** Components using Framer Motion with initial hidden states (e.g., `initial={{ opacity: 0 }}`) can cause React Testing Library or Playwright locators to fail if they filter out non-visible elements. Interactive elements with zero opacity are often omitted from the accessible tree.
+**Action:** When testing components with entry animations, ensure tests wait for animation completion or explicitly allow finding hidden elements (e.g., `{ hidden: true }` in RTL or `page.locator()` in Playwright) to avoid "element not found" errors.
