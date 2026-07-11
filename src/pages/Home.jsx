@@ -45,6 +45,8 @@ function DidYouKnowCarousel() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             style={{ fontSize: '1.3rem', lineHeight: 1.8, color: 'var(--text-muted)', marginBottom: 32, minHeight: 80 }}
+            aria-live="polite"
+            aria-atomic="true"
           >
             {facts[currentFact]}
           </motion.p>
@@ -55,6 +57,7 @@ function DidYouKnowCarousel() {
               onClick={prevFact}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Previous fact"
               style={{
                 background: 'transparent',
                 border: '1px solid var(--accent)',
@@ -75,6 +78,7 @@ function DidYouKnowCarousel() {
               onClick={nextFact}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Next fact"
               style={{
                 background: 'transparent',
                 border: '1px solid var(--accent)',
@@ -125,8 +129,20 @@ function WhyUsCard({ icon: Icon, title, desc }) {
         position: 'relative',
         overflow: 'hidden'
       }}
+      tabIndex={0}
+      role="button"
+      aria-expanded={isFlipped}
+      aria-label={`Why Join Troop 242: ${title}`}
       onMouseEnter={() => setIsFlipped(true)}
       onMouseLeave={() => setIsFlipped(false)}
+      onFocus={() => setIsFlipped(true)}
+      onBlur={() => setIsFlipped(false)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsFlipped(!isFlipped);
+        }
+      }}
     >
       {/* Front of card */}
       <motion.div
@@ -265,13 +281,18 @@ export default function Home() {
             animate="visible"
           >
             {/* Hero Heading with Letter Reveal */}
-            <motion.h1 className="text-shimmer" style={{ fontSize: 'clamp(2rem, 8vw, 5.5rem)', lineHeight: 1.2, wordWrap: 'break-word', maxWidth: '95vw' }}>
+            <motion.h1
+              className="text-shimmer"
+              style={{ fontSize: 'clamp(2rem, 8vw, 5.5rem)', lineHeight: 1.2, wordWrap: 'break-word', maxWidth: '95vw' }}
+              aria-label="Build Tomorrow's Leaders"
+            >
               {Array.from('Build Tomorrow\'s Leaders').map((char, i) => (
                 <motion.span
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03, duration: 0.5 }}
+                  aria-hidden="true"
                 >
                   {char === ' ' ? '\u00A0' : char}
                 </motion.span>
