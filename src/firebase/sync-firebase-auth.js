@@ -49,6 +49,9 @@ async function syncFirebaseAuth() {
             });
 
             console.log(`✓ Created ${account.email} (UID: ${newUser.uid})`);
+
+            // Ensure no password in Firestore if we were to create/update here
+            // (Currently this script only updates Auth, but let's be safe)
           } catch (createError) {
             console.error(`✗ Failed to create ${account.email}:`, createError.message);
           }
