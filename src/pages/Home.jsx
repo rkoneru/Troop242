@@ -127,6 +127,17 @@ function WhyUsCard({ icon: Icon, title, desc }) {
       }}
       onMouseEnter={() => setIsFlipped(true)}
       onMouseLeave={() => setIsFlipped(false)}
+      onFocus={() => setIsFlipped(true)}
+      onBlur={() => setIsFlipped(false)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsFlipped(!isFlipped);
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-label={`Why choose us: ${title}. ${desc}`}
     >
       {/* Front of card */}
       <motion.div
