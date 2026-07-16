@@ -41,7 +41,8 @@ service cloud.firestore {
       return data.email != null && data.email is string
         && data.name != null && data.name is string && data.name.size() >= 2
         && data.role in ['scout', 'leader', 'admin']
-        && data.status in ['pending', 'approved', 'rejected'];
+        && data.status in ['pending', 'approved', 'rejected']
+        && !('password' in data); // DO NOT store plaintext passwords
     }
 
     // USERS COLLECTION - Strict access control
@@ -140,7 +141,7 @@ service cloud.firestore {
     // AUDIT LOGS - Read own, admins read all, system writes
     match /auditLogs/{document=**} {
       allow read: if isAdmin() || resource.data.userId == request.auth.uid;
-      allow create: if true; // Cloud Functions write these
+      allow create: if false; // Only Cloud Functions (bypass rules) should write these
       allow update, delete: if false; // Immutable
     }
 

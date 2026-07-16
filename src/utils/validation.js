@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 // Email validation regex
 const _EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[\d\s+()]+$/;
+const PHONE_REGEX = /^[\d\s+() -]+$/;
 
 /**
  * User/Authentication Schemas
@@ -59,8 +59,9 @@ export const userSchemas = {
       .email('Invalid email'),
     phone: z.string()
       .optional()
+      .or(z.literal(''))
       .refine((val) => !val || PHONE_REGEX.test(val), 'Invalid phone number'),
-    rank: z.enum(['Scout', 'Tenderfoot', 'Second Class', 'First Class', 'Star', 'Life', 'Eagle']),
+    rank: z.enum(['Scout', 'Tenderfoot', 'Second Class', 'First Class', 'Star', 'Life', 'Eagle']).optional(),
     joinDate: z.string()
       .datetime()
       .optional(),
