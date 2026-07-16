@@ -1,0 +1,4 @@
+## 2025-07-16 - Plaintext Password Storage in Firestore
+**Vulnerability:** Widespread storage of plaintext passwords in Firestore `users` collection documents.
+**Learning:** Multiple administrative and setup scripts (`add-leader.js`, `create-admin-account.js`, etc.) were explicitly writing a `password` field to user profile documents in addition to creating the user in Firebase Auth. This is a severe security risk as anyone with read access to the Firestore collection could view user credentials.
+**Prevention:** Enforce security rules that explicitly prohibit the `password` field in the `users` collection using `!('password' in data)`. Ensure that administrative scripts only pass necessary profile data (name, role, etc.) to Firestore and rely solely on Firebase Auth for credential management.

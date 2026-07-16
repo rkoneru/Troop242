@@ -5,6 +5,34 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  observe = jest.fn();
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+}
+
+global.IntersectionObserver = MockIntersectionObserver;
+
+// Mock Framer Motion to avoid animation-related issues in tests
+jest.mock('framer-motion', () => ({
+  motion: {
+    div: ({ children, ...props }) => <div {...props}>{children}</div>,
+    h1: ({ children, ...props }) => <h1 {...props}>{children}</h1>,
+    p: ({ children, ...props }) => <p {...props}>{children}</p>,
+    section: ({ children, ...props }) => <section {...props}>{children}</section>,
+    button: ({ children, ...props }) => <button {...props}>{children}</button>,
+  },
+  AnimatePresence: ({ children }) => <>{children}</>,
+}));
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -24,12 +52,16 @@ jest.mock('firebase/auth', () => ({
 
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
+  doc: jest.fn(),
   collection: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
   getDocs: jest.fn(),
-  getDoc: jest.fn(),
+  getDoc: jest.fn(() => Promise.resolve({
+    exists: () => true,
+    data: () => ({ role: 'scout' })
+  })),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),
