@@ -16,7 +16,7 @@ const mockVerifyInvitation = jest.fn();
 const mockMarkInvitationUsed = jest.fn();
 
 jest.mock('firebase/auth', () => ({
-  createUserWithEmailAndPassword: mockCreateUserWithEmailAndPassword,
+  createUserWithEmailAndPassword: (...args) => mockCreateUserWithEmailAndPassword(...args),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -25,8 +25,8 @@ jest.mock('firebase/auth', () => ({
 }));
 
 jest.mock('../../utils/invitations', () => ({
-  verifyInvitation: mockVerifyInvitation,
-  markInvitationUsed: mockMarkInvitationUsed,
+  verifyInvitation: (...args) => mockVerifyInvitation(...args),
+  markInvitationUsed: (...args) => mockMarkInvitationUsed(...args),
 }));
 
 const renderComponent = (component) => {

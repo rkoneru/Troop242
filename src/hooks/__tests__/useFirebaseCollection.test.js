@@ -11,9 +11,9 @@ const mockQuery = jest.fn();
 
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
-  collection: mockCollection,
-  getDocs: mockGetDocs,
-  query: mockQuery,
+  collection: (...args) => mockCollection(...args),
+  getDocs: (...args) => mockGetDocs(...args),
+  query: (...args) => mockQuery(...args),
 }));
 
 describe('useFirebaseCollection', () => {

@@ -17,24 +17,28 @@ const mockUpdateDoc = jest.fn();
 const mockArrayUnion = jest.fn(val => val);
 const mockArrayRemove = jest.fn(val => val);
 
-jest.mock('firebase/auth', () => ({
-  getAuth: jest.fn(),
-  onAuthStateChanged: jest.fn((auth, callback) => {
-    callback({ uid: 'scout-uid', email: 'scout@example.com' });
-    return jest.fn();
-  }),
-}));
+jest.mock('firebase/auth', () => {
+  const mockAuthObj = { currentUser: null };
+  return {
+    getAuth: jest.fn(() => mockAuthObj),
+    onAuthStateChanged: jest.fn((auth, callback) => {
+      callback({ uid: 'scout-uid', email: 'scout@example.com' });
+      return jest.fn();
+    }),
+  };
+});
 
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
   query: jest.fn(),
   orderBy: jest.fn(),
-  getDocs: mockGetDocs,
+  getDocs: (...args) => mockGetDocs(...args),
+  getDoc: jest.fn(),
   doc: jest.fn(),
-  updateDoc: mockUpdateDoc,
-  arrayUnion: mockArrayUnion,
-  arrayRemove: mockArrayRemove,
+  updateDoc: (...args) => mockUpdateDoc(...args),
+  arrayUnion: (...args) => mockArrayUnion(...args),
+  arrayRemove: (...args) => mockArrayRemove(...args),
   Timestamp: {
     now: () => new Date(),
   },
@@ -58,6 +62,11 @@ const renderComponent = (component) => {
 describe('ActivitiesPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    const { getDoc } = require('firebase/firestore');
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ name: 'John Scout', role: 'scout' }),
+    });
   });
 
   it('should render activities page header', () => {
