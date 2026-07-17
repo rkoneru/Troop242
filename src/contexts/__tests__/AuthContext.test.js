@@ -13,8 +13,8 @@ const mockSignOut = jest.fn();
 
 jest.mock('firebase/auth', () => ({
   getAuth: jest.fn(),
-  onAuthStateChanged: mockOnAuthStateChanged,
-  signOut: mockSignOut,
+  onAuthStateChanged: (...args) => mockOnAuthStateChanged(...args),
+  signOut: (...args) => mockSignOut(...args),
 }));
 
 // Mock Firebase Firestore
