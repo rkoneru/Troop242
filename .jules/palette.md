@@ -1,0 +1,3 @@
+## 2026-07-17 - Keyboard Accessible Flip Cards & Icon Buttons
+**Learning:** Cards that flip or reveal their content only on mouse hover (e.g. `WhyUsCard`) exclude keyboard and screen reader users. Adding `role="button"` and `tabIndex={0}` allows focus, while `onFocus`/`onBlur` handles content flipping on tab navigation, and `onKeyDown` handles standard triggers like Space and Enter. Descriptive `aria-label`s on icon-only buttons prevent screen readers from reading raw icon names or nothing.
+**Action:** Always pair hover state transitions with focus/blur triggers and keydown handlers when implementing flip cards or interactive panels. Avoid leaving icon-only buttons without explicit `aria-label` values.

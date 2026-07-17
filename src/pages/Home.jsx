@@ -55,6 +55,7 @@ function DidYouKnowCarousel() {
               onClick={prevFact}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Previous fact"
               style={{
                 background: 'transparent',
                 border: '1px solid var(--accent)',
@@ -75,6 +76,7 @@ function DidYouKnowCarousel() {
               onClick={nextFact}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Next fact"
               style={{
                 background: 'transparent',
                 border: '1px solid var(--accent)',
@@ -113,6 +115,9 @@ function WhyUsCard({ icon: Icon, title, desc }) {
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
       }}
       className="glass-card"
+      role="button"
+      tabIndex={0}
+      aria-label={`${title}: ${desc}`}
       style={{
         padding: 32,
         textAlign: 'center',
@@ -127,6 +132,14 @@ function WhyUsCard({ icon: Icon, title, desc }) {
       }}
       onMouseEnter={() => setIsFlipped(true)}
       onMouseLeave={() => setIsFlipped(false)}
+      onFocus={() => setIsFlipped(true)}
+      onBlur={() => setIsFlipped(false)}
+      onKeyDown={(e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          setIsFlipped((prev) => !prev);
+        }
+      }}
     >
       {/* Front of card */}
       <motion.div
