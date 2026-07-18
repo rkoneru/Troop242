@@ -1,0 +1,3 @@
+## 2025-07-18 - [Form Native Validation vs Custom Validation Testing]
+**Learning:** When implementing React forms with custom JS-based submit/validation handlers, adding browser-native `required` attributes to inputs will trigger native validation in JSDOM environments, blocking form submission and bypassing custom JS handlers. This prevents tests from verifying the custom JS error state displays.
+**Action:** Use custom JS state-based error checks and labels with `*` indicators instead of native browser `required` attributes when the test suite relies on verifying custom validation state errors on form submit.
