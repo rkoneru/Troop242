@@ -145,10 +145,14 @@ export default function MemberLogin() {
 
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                  Email Address
+                <label
+                  htmlFor="email-input"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
+                  Email Address <span style={{ color: '#ff6464' }}>*</span>
                 </label>
                 <input
+                  id="email-input"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -175,10 +179,14 @@ export default function MemberLogin() {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                  Password
+                <label
+                  htmlFor="password-input"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
+                  Password <span style={{ color: '#ff6464' }}>*</span>
                 </label>
                 <input
+                  id="password-input"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -207,6 +215,8 @@ export default function MemberLogin() {
               <button
                 type="submit"
                 disabled={loading}
+                aria-busy={loading}
+                aria-live="polite"
                 style={{
                   padding: '12px 24px',
                   background: 'linear-gradient(135deg, var(--bg-secondary), var(--accent))',
@@ -238,12 +248,12 @@ export default function MemberLogin() {
               </button>
             </form>
 
-            {/* <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 12 }}>
                 Don't have an account?
               </p>
               <a
-                href="/register?code=SCOUT01"
+                href="/Troop242/register?code=SCOUT01"
                 style={{
                   color: 'var(--accent)',
                   textDecoration: 'none',
@@ -256,7 +266,7 @@ export default function MemberLogin() {
               >
                 Register as a Scout →
               </a>
-            </div> */}
+            </div>
           </motion.div>
         </div>
       </section>
