@@ -1,0 +1,4 @@
+## 2026-02-27 - Firestore Client-Side Log Injection Vulnerability
+**Vulnerability:** The Firestore security rules for the `/auditLogs` collection allowed arbitrary client-side document creation (`allow create: if true;`). This allowed any client (authenticated or unauthenticated) to write arbitrary data to the audit logs, presenting log injection and database pollution/denial of service risks.
+**Learning:** Developers often confuse Cloud Functions/Admin SDK backend writes with client-side permissions, incorrectly thinking that an `allow create` rule must be set to `true` for backend system writes to succeed. However, the Admin SDK bypasses security rules entirely.
+**Prevention:** Set `allow create: if false;` (or omit the allow create rule) for collections that should only be written to by backend services/Admin SDK.
