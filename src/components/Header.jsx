@@ -50,7 +50,12 @@ export default function Header() {
 
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape') setMobileMenuOpen(false);
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+        setGuideDropdownOpen(false);
+        setResourcesDropdownOpen(false);
+        setUserMenuOpen(false);
+      }
     };
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
@@ -97,12 +102,19 @@ export default function Header() {
 
           {/* Guide Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleGuideMouseEnter} onMouseLeave={handleGuideMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              className="header-dropdown-toggle"
+              aria-haspopup="true"
+              aria-expanded={guideDropdownOpen}
+              aria-controls="guide-dropdown-menu"
+              onClick={() => setGuideDropdownOpen(prev => !prev)}
+            >
               Guide
               <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {guideDropdownOpen && (
               <motion.div
+                id="guide-dropdown-menu"
                 className="header-dropdown-menu"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -121,12 +133,19 @@ export default function Header() {
 
           {/* Resources Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleResourcesMouseEnter} onMouseLeave={handleResourcesMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              className="header-dropdown-toggle"
+              aria-haspopup="true"
+              aria-expanded={resourcesDropdownOpen}
+              aria-controls="resources-dropdown-menu"
+              onClick={() => setResourcesDropdownOpen(prev => !prev)}
+            >
               Resources
               <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {resourcesDropdownOpen && (
               <motion.div
+                id="resources-dropdown-menu"
                 className="header-dropdown-menu"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -152,6 +171,9 @@ export default function Header() {
             <div className="header-user-menu" style={{ position: 'relative' }}>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-haspopup="true"
+                aria-expanded={userMenuOpen}
+                aria-controls="user-dropdown-menu"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -177,6 +199,7 @@ export default function Header() {
               <AnimatePresence>
                 {userMenuOpen && (
                   <motion.div
+                    id="user-dropdown-menu"
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
@@ -415,7 +438,8 @@ export default function Header() {
           <button
             className="btn-mobile-menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>

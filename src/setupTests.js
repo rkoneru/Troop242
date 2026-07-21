@@ -3,6 +3,10 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
@@ -37,6 +41,16 @@ jest.mock('firebase/firestore', () => ({
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
 }));
+
+// Mock project-level firebase config to bypass import.meta constraints
+jest.mock('./firebase/firebase', () => {
+  const mockAuth = {};
+  const mockDb = {};
+  return {
+    get auth() { return mockAuth; },
+    get db() { return mockDb; },
+  };
+});
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
