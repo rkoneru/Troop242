@@ -53,6 +53,7 @@ function DidYouKnowCarousel() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginBottom: 24 }}>
             <motion.button
               onClick={prevFact}
+              aria-label="Previous fact"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               style={{
@@ -73,6 +74,7 @@ function DidYouKnowCarousel() {
 
             <motion.button
               onClick={nextFact}
+              aria-label="Next fact"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               style={{
