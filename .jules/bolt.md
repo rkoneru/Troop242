@@ -1,0 +1,3 @@
+## 2026-07-23 - Isolate High-Frequency Countdown Re-renders
+**Learning:** High-frequency (1-second) state updates at the top-level page component causes the entire page (31KB, dozens of child components, complex animation/canvas logic) to re-render every second, heavily blocking the main thread. Isolating the timer interval to small leaf components (like `<EventCard />`) keeps the rest of the application completely stable and quiet.
+**Action:** Always find high-frequency state updates (like timers or animations) and encapsulate them in memoized child components, synchronously initializing the state from props to prevent redundant double-renders on mount.
