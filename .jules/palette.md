@@ -1,0 +1,3 @@
+## 2026-07-24 - Dropdown Navigation Accessibility Verification in Playwright
+**Learning:** When testing hybrid hover+click menu controls (like navigation dropdown toggles in `Header.jsx`), standard Playwright pointer clicks can trigger `mouseenter` first followed immediately by `click`, causing the menu to double-toggle and close. Testing with keyboard focus (`focus()`) and simulated keyboard presses (`page.keyboard.press("Enter")`) provides a clean, conflict-free way to test pure keyboard accessibility and verify correct ARIA state transformations.
+**Action:** When verifying interactive dropdown accessibility in test automation scripts, use `locator.focus()` and `page.keyboard.press('Enter')` rather than mouse clicks to isolate keyboard interaction and state updates.
