@@ -3,8 +3,44 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+
+// Mock framer-motion to render plain DOM elements during tests
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const dummy = React.forwardRef(({ children, whileHover, whileTap, initial, animate, exit, variants, transition, ...props }, ref) =>
+    React.createElement('div', { ...props, ref }, children)
+  );
+  dummy.displayName = 'MockMotion';
+  return {
+    motion: {
+      div: dummy,
+      button: dummy,
+      span: dummy,
+      section: dummy,
+      h1: dummy,
+      h2: dummy,
+      h3: dummy,
+      h4: dummy,
+      p: dummy,
+      a: dummy,
+      ul: dummy,
+      li: dummy,
+      svg: dummy,
+      nav: dummy,
+    },
+    AnimatePresence: ({ children }) => children,
+    useAnimation: () => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+    }),
+  };
+});
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({

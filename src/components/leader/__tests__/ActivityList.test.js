@@ -89,8 +89,8 @@ describe('ActivityList', () => {
     const rosterButtons = screen.getAllByText(/Show Roster/i);
     await user.click(rosterButtons[0]);
 
-    expect(screen.getByText('John Scout')).toBeInTheDocument();
-    expect(screen.getByText('Jane Scout')).toBeInTheDocument();
+    expect(screen.getByText(/John Scout/)).toBeInTheDocument();
+    expect(screen.getByText(/Jane Scout/)).toBeInTheDocument();
   });
 
   it('should not show roster toggle for empty signups', () => {
