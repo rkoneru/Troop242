@@ -1,0 +1,3 @@
+## 2026-07-26 - Presentational Toggle Component Accessibility & Robustness
+**Learning:** Shared interactive components that expand or collapse sections (like roster details) must support both a controlled and uncontrolled mode (with local state fallback) to ensure flexibility and prevent test suites from failing when parent state callbacks are not passed. Additionally, pairing `aria-expanded` and `aria-controls` with descriptive, dynamic `aria-label` attributes on neighboring icon-only action buttons ensures complete screen reader and keyboard accessibility.
+**Action:** Always implement a local state fallback in presenters and expose ARIA attributes properly whenever interactive elements toggle visibility.
