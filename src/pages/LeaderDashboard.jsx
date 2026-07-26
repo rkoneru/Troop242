@@ -169,7 +169,11 @@ export default function LeaderDashboard() {
 
   // Handler functions
   const generateTempPassword = useCallback(() => {
-    return Math.random().toString(36).slice(2, 10).toUpperCase();
+    const array = new Uint8Array(4);
+    (window.crypto || crypto).getRandomValues(array);
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0'))
+      .join('')
+      .toUpperCase();
   }, []);
 
   const showError = useCallback((field, message) => {
