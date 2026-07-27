@@ -1,0 +1,5 @@
+# Bolt's Journal - Performance Optimization Learnings
+
+## 2026-07-27 - Memoizing Categories & Hoisting Animation Variants in Badges.jsx
+**Learning:** In React components rendering lists or categories of elements (like 140+ merit badges), operations like array filtering/mapping can be highly expensive. When unrelated state updates occur (e.g., expanding/toggling a specific category), these heavy filtering computations are triggered again, leading to dropped frames and slower UI responsiveness. Furthermore, defining animation variant objects (like Framer Motion's variants) directly inside components causes object re-creation and unstable references on every render cycle, which impairs render optimizations.
+**Action:** Always hoist static animation variant configurations to the module scope (outside of components) to maintain stable object references. Additionally, leverage `useMemo` with minimal dependencies (such as the raw search input string) to prevent redundant computation of filter/map routines when toggle/expand states change.

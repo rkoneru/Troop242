@@ -6,6 +6,11 @@
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
+// TextEncoder / TextDecoder polyfills for JSDOM/React Router 7
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Mock Firebase
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
