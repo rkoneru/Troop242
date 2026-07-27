@@ -1,0 +1,4 @@
+## 2026-03-24 - [Restricting Public Firestore Write Permissions on Audit Logs]
+**Vulnerability:** The `/auditLogs` collection allowed public creation of documents (`allow create: if true;`), which would allow any client-side user (even unauthenticated ones) to write arbitrary, spoofed, or malicious logs, or launch a denial of service (DoS) database-flooding attack.
+**Learning:** Security rules with comments suggesting "system writes these via Cloud Functions" can easily have mistakenly permissive write rules like `allow create: if true;` due to misunderstanding that backend SDK writes do not need rule allowances (the Admin SDK and Cloud Functions bypass Security Rules).
+**Prevention:** Always restrict client-side creation of system-only/audit collections by setting `allow create: if false;`, as Admin SDK and Cloud Functions automatically bypass Firestore Security Rules.

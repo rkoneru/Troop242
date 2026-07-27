@@ -238,7 +238,7 @@ export default function MemberLogin() {
               </button>
             </form>
 
-            {/* <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 12 }}>
                 Don't have an account?
               </p>
@@ -256,7 +256,7 @@ export default function MemberLogin() {
               >
                 Register as a Scout →
               </a>
-            </div> */}
+            </div>
           </motion.div>
         </div>
       </section>
