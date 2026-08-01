@@ -3,8 +3,27 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+
+// Mock Firebase config to prevent import.meta error during Jest runs
+jest.mock('./firebase/firebase', () => ({
+  auth: {},
+  db: {},
+  firebaseError: null,
+}));
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -61,6 +80,30 @@ const localStorageMock = {
   clear: jest.fn(),
 };
 global.localStorage = localStorageMock;
+
+// Mock framer-motion to bypass animation delays and errors
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const dummy = ({ children }) => children;
+  const motion = new Proxy(
+    {},
+    {
+      get: (target, key) => {
+        return React.forwardRef((props, ref) => {
+          return React.createElement(key, { ...props, ref });
+        });
+      },
+    }
+  );
+  return {
+    motion,
+    AnimatePresence: dummy,
+    useAnimation: () => ({
+      start: () => Promise.resolve(),
+      stop: () => {},
+    }),
+  };
+});
 
 // Suppress console errors in tests
 const originalError = console.error;

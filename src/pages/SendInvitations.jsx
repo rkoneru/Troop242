@@ -45,7 +45,12 @@ export default function SendInvitations() {
     loadInvitations();
   }, [user]);
 
-  const generateCode = () => Math.random().toString(36).substring(2, 10).toUpperCase();
+  const generateCode = () => {
+    // Generate exactly an 8-character secure uppercase hexadecimal string using Web Crypto API
+    const array = new Uint8Array(4);
+    (window.crypto || crypto).getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase();
+  };
 
   const handleSendInvitation = async (e) => {
     e.preventDefault();
