@@ -3,6 +3,10 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
@@ -10,6 +14,19 @@ import '@testing-library/jest-dom';
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
 }));
+
+jest.mock('./firebase/firebase', () => {
+  const { getAuth } = require('firebase/auth');
+  const { getFirestore } = require('firebase/firestore');
+  return {
+    get auth() {
+      return getAuth();
+    },
+    get db() {
+      return getFirestore();
+    },
+  };
+});
 
 jest.mock('firebase/auth', () => ({
   getAuth: jest.fn(),
