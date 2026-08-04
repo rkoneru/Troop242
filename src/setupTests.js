@@ -3,6 +3,18 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+class MockIntersectionObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.IntersectionObserver = MockIntersectionObserver;
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
@@ -37,6 +49,9 @@ jest.mock('firebase/firestore', () => ({
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
 }));
+
+// Mock window.scrollTo
+window.scrollTo = jest.fn();
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
