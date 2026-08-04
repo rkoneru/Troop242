@@ -155,10 +155,11 @@ export default function Contact() {
                 <div className="glass-card" style={{ padding: 32 }}>
                   {/* Name Field */}
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
+                    <label htmlFor="name" style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
                       Full Name
                     </label>
                     <input
+                      id="name"
                       type="text"
                       name="name"
                       value={formData.name}
@@ -189,10 +190,11 @@ export default function Contact() {
 
                   {/* Email Field */}
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
+                    <label htmlFor="email" style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
                       Email Address
                     </label>
                     <input
+                      id="email"
                       type="email"
                       name="email"
                       value={formData.email}
@@ -223,10 +225,11 @@ export default function Contact() {
 
                   {/* Subject Field */}
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
+                    <label htmlFor="subject" style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
                       Subject
                     </label>
                     <input
+                      id="subject"
                       type="text"
                       name="subject"
                       value={formData.subject}
@@ -257,10 +260,11 @@ export default function Contact() {
 
                   {/* Message Field */}
                   <div style={{ marginBottom: 28 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
+                    <label htmlFor="message" style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
                       Message
                     </label>
                     <textarea
+                      id="message"
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
@@ -340,7 +344,10 @@ export default function Contact() {
                 style={{ overflow: 'hidden' }}
               >
                 <button
+                  id={`faq-btn-${i}`}
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  aria-expanded={openFaq === i}
+                  aria-controls={`faq-panel-${i}`}
                   style={{
                     width: '100%', padding: '20px 24px', background: 'transparent', border: 'none',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -352,6 +359,9 @@ export default function Contact() {
                   <ChevronDown size={18} style={{ color: 'var(--accent)', flexShrink: 0, transition: 'transform 0.3s', transform: openFaq === i ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </button>
                 <motion.div
+                  id={`faq-panel-${i}`}
+                  role="region"
+                  aria-labelledby={`faq-btn-${i}`}
                   initial={false}
                   animate={{ height: openFaq === i ? 'auto' : 0, opacity: openFaq === i ? 1 : 0 }}
                   transition={{ duration: 0.3 }}
