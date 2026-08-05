@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 
 const GLOSSARY_TERMS = [
@@ -51,24 +51,48 @@ const GLOSSARY_TERMS = [
   { term: 'Youth Protection Training (YPT)', def: 'Mandatory online training all adult leaders must complete before working with Scouts. Teaches how to recognize and prevent abuse.' },
 ];
 
+// Hoist static Framer Motion variants to the module scope to preserve stable references across renders
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 }
+};
+
 export default function Glossary() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filtered = GLOSSARY_TERMS.filter(item =>
-    item.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.def.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Performance Optimization: Memoize search results and grouping calculations.
+  // Performs filtering, letter extraction, sorting, and grouping in a single $O(N)$ pass,
+  // completely avoiding nested $O(L \cdot N)$ filters during the render cycle.
+  const { filtered, letters, grouped } = useMemo(() => {
+    const termLower = searchTerm.toLowerCase();
 
-  const letters = [...new Set(filtered.map(item => item.term[0].toUpperCase()))].sort();
+    const filteredItems = GLOSSARY_TERMS.filter(item =>
+      item.term.toLowerCase().includes(termLower) ||
+      item.def.toLowerCase().includes(termLower)
+    );
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
-  };
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 }
-  };
+    const groupMap = {};
+    filteredItems.forEach(item => {
+      const letter = item.term[0].toUpperCase();
+      if (!groupMap[letter]) {
+        groupMap[letter] = [];
+      }
+      groupMap[letter].push(item);
+    });
+
+    const sortedLetters = Object.keys(groupMap).sort();
+
+    return {
+      filtered: filteredItems,
+      letters: sortedLetters,
+      grouped: groupMap
+    };
+  }, [searchTerm]);
 
   return (
     <>
@@ -161,14 +185,12 @@ export default function Glossary() {
                   {letter}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {filtered
-                    .filter(item => item.term[0].toUpperCase() === letter)
-                    .map((item, i) => (
-                      <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: '20px 24px' }}>
-                        <h4 style={{ color: 'var(--accent)', marginBottom: 8, fontSize: '1rem' }}>{item.term}</h4>
-                        <p style={{ color: 'var(--text-muted)', margin: 0, lineHeight: 1.7, fontSize: '0.95rem' }}>{item.def}</p>
-                      </motion.div>
-                    ))}
+                  {(grouped[letter] || []).map(item => (
+                    <motion.div key={item.term} variants={itemVariants} className="glass-card" style={{ padding: '20px 24px' }}>
+                      <h4 style={{ color: 'var(--accent)', marginBottom: 8, fontSize: '1rem' }}>{item.term}</h4>
+                      <p style={{ color: 'var(--text-muted)', margin: 0, lineHeight: 1.7, fontSize: '0.95rem' }}>{item.def}</p>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
             ))
