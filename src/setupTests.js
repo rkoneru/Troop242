@@ -3,6 +3,52 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Polyfill IntersectionObserver
+class MockIntersectionObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  observe = jest.fn();
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+}
+global.IntersectionObserver = MockIntersectionObserver;
+
+// Mock scrollTo
+window.scrollTo = jest.fn();
+
+// Mock framer-motion to avoid heavy animation libraries rendering issues in JSDOM
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const dummyComponent = React.forwardRef(({ children, ...props }, ref) => {
+    const cleanProps = {};
+    for (const key in props) {
+      if (
+        !['animate', 'initial', 'variants', 'transition', 'exit', 'whileHover', 'whileTap', 'viewport', 'whileInView'].includes(key)
+      ) {
+        cleanProps[key] = props[key];
+      }
+    }
+    return React.createElement('div', { ref, ...cleanProps }, children);
+  });
+
+  return {
+    motion: new Proxy(
+      {},
+      {
+        get: (_target, _key) => {
+          return dummyComponent;
+        },
+      }
+    ),
+    AnimatePresence: ({ children }) => children,
+  };
+});
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
