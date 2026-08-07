@@ -1,0 +1,3 @@
+## 2026-08-07 - Accessible Forms and Accordions
+**Learning:** Collapsible accordion and form fields need semantic connections for assistive technology to be accessible. Adding explicit label pairings via htmlFor/id, along with WAI-ARIA roles, state controls, and relationships (aria-expanded, aria-controls, role="region", and aria-labelledby) enables a clear navigational context for screen reader users.
+**Action:** Always verify that accordion trigger buttons and content regions are explicitly linked, and contact form inputs are labeled properly with clear visual indicators and semantic associations.
