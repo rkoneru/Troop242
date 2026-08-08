@@ -1,0 +1,3 @@
+## 2026-08-08 - Accessible Focus States on Custom Styled Buttons
+**Learning:** For buttons or interactive links that use custom inline styling or gradients where native browser outlines are disabled (due to `border: none` or custom resets), custom `onFocus`/`onBlur` JavaScript handlers provide a robust, cross-browser mechanism to apply accessible focus indicators (e.g. `outline` and enhanced `boxShadow`) dynamically, ensuring full accessibility for keyboard and screen reader users.
+**Action:** Always verify that interactive custom elements (like buttons or cards with hover effects) also have clear keyboard focus styles, and implement `onFocus`/`onBlur` handlers alongside `onMouseEnter`/`onMouseLeave` when using inline React styles.
