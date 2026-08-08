@@ -5,14 +5,44 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.IntersectionObserver = MockIntersectionObserver;
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
 }));
 
+jest.mock('./firebase/firebase', () => {
+  const { getAuth } = require('firebase/auth');
+  const { getFirestore } = require('firebase/firestore');
+  return {
+    get auth() {
+      return getAuth();
+    },
+    get db() {
+      return getFirestore();
+    },
+    firebaseError: null,
+    default: {},
+  };
+});
+
 jest.mock('firebase/auth', () => ({
-  getAuth: jest.fn(),
+  getAuth: jest.fn(() => ({})),
   createUserWithEmailAndPassword: jest.fn(),
   signInWithEmailAndPassword: jest.fn(),
   signOut: jest.fn(),
@@ -23,13 +53,17 @@ jest.mock('firebase/auth', () => ({
 }));
 
 jest.mock('firebase/firestore', () => ({
-  getFirestore: jest.fn(),
+  getFirestore: jest.fn(() => ({})),
   collection: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
   getDocs: jest.fn(),
-  getDoc: jest.fn(),
+  getDoc: jest.fn(() => Promise.resolve({
+    exists: () => true,
+    data: () => ({ name: 'Test User', role: 'scout' }),
+  })),
+  doc: jest.fn(),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),

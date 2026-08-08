@@ -233,12 +233,23 @@ export default function MemberLogin() {
                     e.target.style.transform = 'translateY(0)';
                   }
                 }}
+                onFocus={(e) => {
+                  if (!loading) {
+                    e.target.style.outline = '2px solid var(--accent)';
+                    e.target.style.outlineOffset = '2px';
+                    e.target.style.boxShadow = '0 6px 24px rgba(100, 150, 200, 0.3)';
+                  }
+                }}
+                onBlur={(e) => {
+                  e.target.style.outline = 'none';
+                  e.target.style.boxShadow = '0 4px 16px rgba(100, 150, 200, 0.2)';
+                }}
               >
                 {loading ? '⏳ Signing in...' : 'Sign In'}
               </button>
             </form>
 
-            {/* <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 12 }}>
                 Don't have an account?
               </p>
@@ -253,10 +264,20 @@ export default function MemberLogin() {
                 }}
                 onMouseEnter={(e) => e.target.style.color = 'var(--accent-bright)'}
                 onMouseLeave={(e) => e.target.style.color = 'var(--accent)'}
+                onFocus={(e) => {
+                  e.target.style.color = 'var(--accent-bright)';
+                  e.target.style.outline = '2px solid var(--accent)';
+                  e.target.style.outlineOffset = '4px';
+                  e.target.style.borderRadius = '4px';
+                }}
+                onBlur={(e) => {
+                  e.target.style.color = 'var(--accent)';
+                  e.target.style.outline = 'none';
+                }}
               >
                 Register as a Scout →
               </a>
-            </div> */}
+            </div>
           </motion.div>
         </div>
       </section>
