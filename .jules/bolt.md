@@ -1,0 +1,3 @@
+## 2026-03-30 - Expensive Inline List Filtering in Accordion Components
+**Learning:** In components with collapsible sections or list views (such as `Badges.jsx`), computing search filters directly inside the render loop causes $O(C \cdot B)$ nested mapping and filtering of over 140+ list items to execute on every single state change (such as toggling category accordions), causing visible stuttering on low-end devices.
+**Action:** Always wrap heavy list transformations, search, and categorization logic in a `useMemo` hook with stable dependencies, and hoist static animation variants (like Framer Motion's `variants`) out of the component scope to avoid redundant memory allocations.
