@@ -1,6 +1,16 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 }
+};
 
 const GLOSSARY_TERMS = [
   { term: 'Advancement', def: 'The process of earning rank badges and merit badges in Scouting. Each rank has specific requirements you must complete.' },
@@ -54,21 +64,34 @@ const GLOSSARY_TERMS = [
 export default function Glossary() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filtered = GLOSSARY_TERMS.filter(item =>
-    item.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.def.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const { filteredCount, groupedTerms, sortedLetters } = useMemo(() => {
+    const query = searchTerm.toLowerCase().trim();
+    const grouped = {};
+    let count = 0;
 
-  const letters = [...new Set(filtered.map(item => item.term[0].toUpperCase()))].sort();
+    for (let i = 0; i < GLOSSARY_TERMS.length; i++) {
+      const item = GLOSSARY_TERMS[i];
+      if (
+        query === '' ||
+        item.term.toLowerCase().includes(query) ||
+        item.def.toLowerCase().includes(query)
+      ) {
+        count++;
+        const firstLetter = item.term[0].toUpperCase();
+        if (!grouped[firstLetter]) {
+          grouped[firstLetter] = [];
+        }
+        grouped[firstLetter].push(item);
+      }
+    }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
-  };
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 }
-  };
+    const letters = Object.keys(grouped).sort();
+    return {
+      filteredCount: count,
+      groupedTerms: grouped,
+      sortedLetters: letters
+    };
+  }, [searchTerm]);
 
   return (
     <>
@@ -125,7 +148,7 @@ export default function Glossary() {
               />
               {searchTerm && (
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+                  {filteredCount} result{filteredCount !== 1 ? 's' : ''}
                 </span>
               )}
             </div>
@@ -136,12 +159,12 @@ export default function Glossary() {
       {/* TERMS */}
       <section className="section section--dark">
         <div className="container" style={{ maxWidth: 900 }}>
-          {filtered.length === 0 ? (
+          {filteredCount === 0 ? (
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', color: 'var(--text-muted)', paddingTop: 40 }}>
               No terms found for "{searchTerm}".
             </motion.p>
           ) : (
-            letters.map(letter => (
+            sortedLetters.map(letter => (
               <motion.div
                 key={letter}
                 variants={containerVariants}
@@ -161,14 +184,12 @@ export default function Glossary() {
                   {letter}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {filtered
-                    .filter(item => item.term[0].toUpperCase() === letter)
-                    .map((item, i) => (
-                      <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: '20px 24px' }}>
-                        <h4 style={{ color: 'var(--accent)', marginBottom: 8, fontSize: '1rem' }}>{item.term}</h4>
-                        <p style={{ color: 'var(--text-muted)', margin: 0, lineHeight: 1.7, fontSize: '0.95rem' }}>{item.def}</p>
-                      </motion.div>
-                    ))}
+                  {(groupedTerms[letter] || []).map(item => (
+                    <motion.div key={item.term} variants={itemVariants} className="glass-card" style={{ padding: '20px 24px' }}>
+                      <h4 style={{ color: 'var(--accent)', marginBottom: 8, fontSize: '1rem' }}>{item.term}</h4>
+                      <p style={{ color: 'var(--text-muted)', margin: 0, lineHeight: 1.7, fontSize: '0.95rem' }}>{item.def}</p>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
             ))
