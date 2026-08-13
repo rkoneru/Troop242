@@ -1,0 +1,4 @@
+## 2026-08-13 - Cryptographically Secure Invitation Codes and Temporary Passwords
+**Vulnerability:** Use of predictable random tokens for account invitations (`src/pages/SendInvitations.jsx`) and temporary leader password generation (`src/pages/LeaderDashboard.jsx`).
+**Learning:** `Math.random().toString(36)` was utilized to generate registration codes and passwords. `Math.random()` is not cryptographically secure and produces predictable pseudo-random sequences. An attacker could exploit this predictability to guess valid invitation codes or temporary passwords and bypass authorization controls.
+**Prevention:** Always use the Web Crypto API (`window.crypto.getRandomValues`) to generate random tokens, security codes, or temporary credentials. This ensures high-entropy, cryptographically strong randomness which cannot be predicted or brute-forced.
