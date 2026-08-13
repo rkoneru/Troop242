@@ -3,8 +3,35 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Polyfill window.crypto if needed for tests
+if (!global.crypto) {
+  global.crypto = {
+    getRandomValues: (arr) => {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Math.floor(Math.random() * 256);
+      }
+      return arr;
+    }
+  };
+}
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+
+// Mock local Firebase to avoid import.meta errors
+jest.mock('./firebase/firebase', () => ({
+  __esModule: true,
+  default: {},
+  auth: {
+    currentUser: null,
+  },
+  db: {},
+  firebaseError: null,
+}));
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
