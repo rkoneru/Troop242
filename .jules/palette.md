@@ -1,0 +1,3 @@
+## 2026-03-21 - [Support Alt+S Keyboard Shortcut in Search]
+**Learning:** Adding alternate key combinations for critical features (like search) ensures seamless user interaction and fulfills the requirements documented in Accessibility Guides. Indicating all shortcuts clearly via `aria-label` provides a significantly clearer and more helpful experience for screen readers and keyboard users alike.
+**Action:** When adding or updating interactive overlays or modal shortcuts, also ensure that alternative shortcuts documented in guidelines (like `Alt+S`) are fully supported via the keyboard listener and clearly reflected in interactive element `aria-label` definitions.
