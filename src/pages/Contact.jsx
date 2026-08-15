@@ -155,10 +155,11 @@ export default function Contact() {
                 <div className="glass-card" style={{ padding: 32 }}>
                   {/* Name Field */}
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
+                    <label htmlFor="contact-name" style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
                       Full Name
                     </label>
                     <input
+                      id="contact-name"
                       type="text"
                       name="name"
                       value={formData.name}
@@ -189,10 +190,11 @@ export default function Contact() {
 
                   {/* Email Field */}
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
+                    <label htmlFor="contact-email" style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
                       Email Address
                     </label>
                     <input
+                      id="contact-email"
                       type="email"
                       name="email"
                       value={formData.email}
@@ -223,10 +225,11 @@ export default function Contact() {
 
                   {/* Subject Field */}
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
+                    <label htmlFor="contact-subject" style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
                       Subject
                     </label>
                     <input
+                      id="contact-subject"
                       type="text"
                       name="subject"
                       value={formData.subject}
@@ -257,15 +260,22 @@ export default function Contact() {
 
                   {/* Message Field */}
                   <div style={{ marginBottom: 28 }}>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.95rem', fontWeight: 600 }}>
-                      Message
-                    </label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <label htmlFor="contact-message" style={{ display: 'block', fontSize: '0.95rem', fontWeight: 600 }}>
+                        Message
+                      </label>
+                      <span style={{ fontSize: '0.8rem', color: formData.message.length > 900 ? '#ef4444' : 'var(--text-muted)' }}>
+                        {formData.message.length} / 1000
+                      </span>
+                    </div>
                     <textarea
+                      id="contact-message"
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
                       placeholder="Your message here..."
                       required
+                      maxLength={1000}
                       rows="5"
                       style={{
                         width: '100%',
