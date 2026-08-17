@@ -22,7 +22,7 @@ export default function SearchWidget() {
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') || (e.altKey && e.key.toLowerCase() === 's')) {
         e.preventDefault();
         setOpen(true);
       }
@@ -76,7 +76,7 @@ export default function SearchWidget() {
         onClick={() => setOpen(true)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        aria-label="Open search (Ctrl+K)"
+        aria-label="Open search (Alt+S or Ctrl+K)"
       >
         <Search size={18} />
         <span>Search</span>
