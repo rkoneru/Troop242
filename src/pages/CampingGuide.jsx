@@ -1,136 +1,138 @@
 import { useState } from 'react';
 import '../styles/CampingGuide.css';
 
+// Performance Optimization (Bolt ⚡): Hoist static data structures out of component scope
+// to eliminate unnecessary object allocations and GC overhead on state changes/re-renders.
+const CAMPING_CHECKLIST = [
+  {
+    category: 'Shelter & Sleep',
+    items: [
+      '✓ Tent with rainfly and stakes',
+      '✓ Sleeping bag (appropriate for season)',
+      '✓ Sleeping pad or mattress',
+      '✓ Pillow or camp pillow',
+      '✓ Ground tarp',
+    ]
+  },
+  {
+    category: 'Clothing & Personal',
+    items: [
+      '✓ Weather-appropriate clothing layers',
+      '✓ Rain jacket & rain pants',
+      '✓ Sturdy hiking boots/shoes',
+      '✓ Warm hat and gloves (if cold)',
+      '✓ Extra socks and underwear',
+      '✓ Toiletries & medications',
+      '✓ Sunscreen & insect repellent',
+      '✓ Headlamp or flashlight with batteries',
+    ]
+  },
+  {
+    category: 'Cooking & Food',
+    items: [
+      '✓ Camp stove or grill',
+      '✓ Cookware (pots, pans, utensils)',
+      '✓ Dishes, cups, and cutlery',
+      '✓ Cooler with ice/ice packs',
+      '✓ Food storage containers',
+      '✓ Water bottles or hydration system',
+      '✓ Lighter or waterproof matches',
+      '✓ Cooktop fuel or firewood',
+    ]
+  },
+  {
+    category: 'Safety & Navigation',
+    items: [
+      '✓ First aid kit',
+      '✓ Map and compass',
+      '✓ Emergency whistle',
+      '✓ Multi-tool or knife',
+      '✓ Rope or paracord',
+      '✓ Emergency contact information',
+      '✓ Identification documents',
+    ]
+  },
+  {
+    category: 'Recreation',
+    items: [
+      '✓ Binoculars for bird watching',
+      '✓ Camera or smartphone',
+      '✓ Playing cards or board games',
+      '✓ Books or journal',
+      '✓ Fishing gear (if applicable)',
+    ]
+  }
+];
+
+const BEST_PRACTICES = [
+  {
+    title: 'Leave No Trace',
+    tips: [
+      'Pack out all trash - leave the campsite cleaner than you found it',
+      'Use biodegradable soap and wash dishes away from water sources',
+      'Stay on designated trails to prevent vegetation damage',
+      'Never feed wildlife - keep food secure in bear canisters or hung properly',
+      'Use established fire rings or camp stoves instead of making new fires',
+    ]
+  },
+  {
+    title: 'Fire Safety',
+    tips: [
+      'Never leave a fire unattended',
+      'Keep fires at least 15 feet from tents and vegetation',
+      'Completely extinguish fires with water before sleeping',
+      'Check fire bans and regulations in your area',
+      'Stir ashes to ensure no hot spots remain',
+    ]
+  },
+  {
+    title: 'Water Safety',
+    tips: [
+      'Always treat water before drinking - boil, filter, or use purification tablets',
+      'Never drink directly from streams or lakes',
+      'Set up camp at least 200 feet away from water sources',
+      'Maintain proper hygiene to prevent waterborne illnesses',
+      'Carry sufficient water for all needs',
+    ]
+  },
+  {
+    title: 'Wildlife Awareness',
+    tips: [
+      'Make noise while hiking to avoid surprising animals',
+      'Store food in bear canisters or hang it properly',
+      'Never approach or feed wildlife',
+      'Identify dangerous animals in your area and know what to do',
+      'Keep a safe distance from all animals (50+ yards)',
+    ]
+  },
+  {
+    title: 'Weather Preparedness',
+    tips: [
+      'Check weather forecasts before departing',
+      'Bring weather-appropriate gear and extra layers',
+      'Know how to set up your tent for high winds and rain',
+      'Monitor weather conditions and be ready to move if necessary',
+      'Know the signs of hypothermia and heat exhaustion',
+    ]
+  },
+  {
+    title: 'Navigation & Security',
+    tips: [
+      'Tell someone where you\'re going and when you\'ll return',
+      'Carry a map, compass, and GPS device',
+      'Mark your campsite so you can find your way back',
+      'Establish a buddy system - never camp alone',
+      'Know the emergency procedures for your campground',
+    ]
+  }
+];
+
 export default function CampingGuide() {
   const [expandedSection, setExpandedSection] = useState(null);
 
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
-
-  const campingChecklist = [
-    {
-      category: 'Shelter & Sleep',
-      items: [
-        '✓ Tent with rainfly and stakes',
-        '✓ Sleeping bag (appropriate for season)',
-        '✓ Sleeping pad or mattress',
-        '✓ Pillow or camp pillow',
-        '✓ Ground tarp',
-      ]
-    },
-    {
-      category: 'Clothing & Personal',
-      items: [
-        '✓ Weather-appropriate clothing layers',
-        '✓ Rain jacket & rain pants',
-        '✓ Sturdy hiking boots/shoes',
-        '✓ Warm hat and gloves (if cold)',
-        '✓ Extra socks and underwear',
-        '✓ Toiletries & medications',
-        '✓ Sunscreen & insect repellent',
-        '✓ Headlamp or flashlight with batteries',
-      ]
-    },
-    {
-      category: 'Cooking & Food',
-      items: [
-        '✓ Camp stove or grill',
-        '✓ Cookware (pots, pans, utensils)',
-        '✓ Dishes, cups, and cutlery',
-        '✓ Cooler with ice/ice packs',
-        '✓ Food storage containers',
-        '✓ Water bottles or hydration system',
-        '✓ Lighter or waterproof matches',
-        '✓ Cooktop fuel or firewood',
-      ]
-    },
-    {
-      category: 'Safety & Navigation',
-      items: [
-        '✓ First aid kit',
-        '✓ Map and compass',
-        '✓ Emergency whistle',
-        '✓ Multi-tool or knife',
-        '✓ Rope or paracord',
-        '✓ Emergency contact information',
-        '✓ Identification documents',
-      ]
-    },
-    {
-      category: 'Recreation',
-      items: [
-        '✓ Binoculars for bird watching',
-        '✓ Camera or smartphone',
-        '✓ Playing cards or board games',
-        '✓ Books or journal',
-        '✓ Fishing gear (if applicable)',
-      ]
-    }
-  ];
-
-  const bestPractices = [
-    {
-      title: 'Leave No Trace',
-      tips: [
-        'Pack out all trash - leave the campsite cleaner than you found it',
-        'Use biodegradable soap and wash dishes away from water sources',
-        'Stay on designated trails to prevent vegetation damage',
-        'Never feed wildlife - keep food secure in bear canisters or hung properly',
-        'Use established fire rings or camp stoves instead of making new fires',
-      ]
-    },
-    {
-      title: 'Fire Safety',
-      tips: [
-        'Never leave a fire unattended',
-        'Keep fires at least 15 feet from tents and vegetation',
-        'Completely extinguish fires with water before sleeping',
-        'Check fire bans and regulations in your area',
-        'Stir ashes to ensure no hot spots remain',
-      ]
-    },
-    {
-      title: 'Water Safety',
-      tips: [
-        'Always treat water before drinking - boil, filter, or use purification tablets',
-        'Never drink directly from streams or lakes',
-        'Set up camp at least 200 feet away from water sources',
-        'Maintain proper hygiene to prevent waterborne illnesses',
-        'Carry sufficient water for all needs',
-      ]
-    },
-    {
-      title: 'Wildlife Awareness',
-      tips: [
-        'Make noise while hiking to avoid surprising animals',
-        'Store food in bear canisters or hang it properly',
-        'Never approach or feed wildlife',
-        'Identify dangerous animals in your area and know what to do',
-        'Keep a safe distance from all animals (50+ yards)',
-      ]
-    },
-    {
-      title: 'Weather Preparedness',
-      tips: [
-        'Check weather forecasts before departing',
-        'Bring weather-appropriate gear and extra layers',
-        'Know how to set up your tent for high winds and rain',
-        'Monitor weather conditions and be ready to move if necessary',
-        'Know the signs of hypothermia and heat exhaustion',
-      ]
-    },
-    {
-      title: 'Navigation & Security',
-      tips: [
-        'Tell someone where you\'re going and when you\'ll return',
-        'Carry a map, compass, and GPS device',
-        'Mark your campsite so you can find your way back',
-        'Establish a buddy system - never camp alone',
-        'Know the emergency procedures for your campground',
-      ]
-    }
-  ];
 
   return (
     <div className="camping-guide">
@@ -182,7 +184,7 @@ export default function CampingGuide() {
           </div>
 
           <div className="checklist-container">
-            {campingChecklist.map((section, idx) => (
+            {CAMPING_CHECKLIST.map((section, idx) => (
               <div key={idx} className="checklist-item">
                 <button
                   className="checklist-header"
@@ -214,7 +216,7 @@ export default function CampingGuide() {
           <p className="section-intro">Follow these guidelines to ensure a safe and responsible camping experience.</p>
 
           <div className="practices-grid">
-            {bestPractices.map((practice, idx) => (
+            {BEST_PRACTICES.map((practice, idx) => (
               <div key={idx} className="practice-card">
                 <h3>{practice.title}</h3>
                 <ul>
