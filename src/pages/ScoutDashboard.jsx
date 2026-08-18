@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
@@ -90,23 +90,6 @@ export default function ScoutDashboard() {
     loadActivities();
   }, [loading]);
 
-  // Show pending approval message if scout hasn't been approved
-  if (!loading && profile?.status === 'pending') {
-    return (
-      <section className="scout-dashboard" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', maxWidth: '500px', padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>⏳ Awaiting Approval</h2>
-          <p style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '2rem' }}>
-            Your scout profile is pending approval by a troop leader.
-          </p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-            Once approved, you'll have full access to the scout dashboard and can start tracking your advancement.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
   const badgeWishlist = (() => {
     try {
       return JSON.parse(localStorage.getItem('badgeWishlist') || '[]');
@@ -126,10 +109,15 @@ export default function ScoutDashboard() {
     navigate('/scout-signup');
   };
 
-  const mySignupCount = activities.filter(act => isSignedUp(act)).length;
+  // Bolt Optimization: Memoize user activity signup count to avoid array filtering on every render
+  const mySignupCount = useMemo(
+    () => activities.filter(act => act.signedUp?.some(s => s.uid === user?.uid)).length,
+    [activities, user?.uid]
+  );
 
-  // Compute progress percentages
-  const getRankProgress = () => {
+  // Bolt Optimization: Memoize progress metrics and rank calculations to prevent O(N) array traversals
+  // and badge tree processing on unrelated component re-renders
+  const rankProgress = useMemo(() => {
     let totalReqs = 0;
     let completedReqs = 0;
     RANKS.forEach((rank, rankIdx) => {
@@ -139,10 +127,10 @@ export default function ScoutDashboard() {
         if (rankChecks[`${rankIdx}-${j}`]) completedReqs++;
       }
     });
-    return { completed: completedReqs, total: totalReqs, percentage: Math.round((completedReqs / totalReqs) * 100) };
-  };
+    return { completed: completedReqs, total: totalReqs, percentage: totalReqs > 0 ? Math.round((completedReqs / totalReqs) * 100) : 0 };
+  }, [rankChecks]);
 
-  const getMeritProgress = () => {
+  const meritProgress = useMemo(() => {
     const completed = Object.values(meritProgressData).filter((v) => v === 'completed').length;
     const working = Object.values(meritProgressData).filter((v) => v === 'working').length;
 
@@ -157,47 +145,58 @@ export default function ScoutDashboard() {
     }, 0);
 
     return { completed, working, total: totalBadges, eagleRequired: eagleRequiredCompleted };
-  };
+  }, [meritProgressData]);
 
-  const getSkillsProgress = () => {
+  const skillsProgress = useMemo(() => {
     const TOTAL_SKILLS = 80;
     const tracked = Object.values(trackedSkillsData).filter(Boolean).length;
     return { tracked, total: TOTAL_SKILLS, percentage: Math.round((tracked / TOTAL_SKILLS) * 100) };
-  };
+  }, [trackedSkillsData]);
 
-  const getActivityProgress = () => {
+  const activityProgress = useMemo(() => {
     const total = Math.max(activities.length, 1);
     return { signedUp: mySignupCount, total };
-  };
+  }, [activities.length, mySignupCount]);
 
-  const getMiscAwardsCount = () => Object.values(miscAwardsData).filter(Boolean).length;
-
-  const getMiscAwardsProgress = () => {
+  const miscAwardsProgress = useMemo(() => {
     const tracked = Object.values(miscAwardsData).filter(Boolean).length;
     const total = 89; // Total awards across all 15 categories
     return { tracked, total, percentage: total > 0 ? Math.round((tracked / total) * 100) : 0 };
-  };
+  }, [miscAwardsData]);
 
-  const rankProgress = getRankProgress();
-  const meritProgress = getMeritProgress();
-  const skillsProgress = getSkillsProgress();
-  const activityProgress = getActivityProgress();
-  const miscAwardsProgress = getMiscAwardsProgress();
+  // Bolt Optimization: Memoize current rank computation to avoid redundant requirement scanning
+  const currentRank = useMemo(() => {
+    let currentRankIdx = 0;
+    for (let i = 0; i < RANKS.length; i++) {
+      const reqCount = [3, 4, 4, 4, 4, 4, 4][i];
+      let completed = 0;
+      for (let j = 0; j < reqCount; j++) {
+        if (rankChecks[`${i}-${j}`]) completed++;
+      }
+      if (completed < reqCount) {
+        currentRankIdx = i;
+        break;
+      }
+    }
+    return RANKS[currentRankIdx];
+  }, [rankChecks]);
 
-  // Find current rank (first incomplete)
-  let currentRankIdx = 0;
-  for (let i = 0; i < RANKS.length; i++) {
-    const reqCount = [3, 4, 4, 4, 4, 4, 4][i];
-    let completed = 0;
-    for (let j = 0; j < reqCount; j++) {
-      if (rankChecks[`${i}-${j}`]) completed++;
-    }
-    if (completed < reqCount) {
-      currentRankIdx = i;
-      break;
-    }
+  // Show pending approval message if scout hasn't been approved
+  if (!loading && profile?.status === 'pending') {
+    return (
+      <section className="scout-dashboard" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: '500px', padding: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>⏳ Awaiting Approval</h2>
+          <p style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '2rem' }}>
+            Your scout profile is pending approval by a troop leader.
+          </p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+            Once approved, you'll have full access to the scout dashboard and can start tracking your advancement.
+          </p>
+        </div>
+      </section>
+    );
   }
-  const currentRank = RANKS[currentRankIdx];
 
   const handleLogout = async () => {
     try {
