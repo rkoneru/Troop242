@@ -3,6 +3,15 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder;
+}
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = TextDecoder;
+}
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
@@ -37,6 +46,16 @@ jest.mock('firebase/firestore', () => ({
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
 }));
+
+// Mock Framer Motion AnimatePresence for immediate unmounting in tests
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const actual = jest.requireActual('framer-motion');
+  return {
+    ...actual,
+    AnimatePresence: ({ children }) => React.createElement(React.Fragment, null, children),
+  };
+});
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

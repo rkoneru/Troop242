@@ -94,6 +94,9 @@ export default function SearchWidget() {
           >
             <motion.div
               className="search-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Search site"
               initial={{ opacity: 0, y: -40, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -102,10 +105,12 @@ export default function SearchWidget() {
             >
               {/* Search Input */}
               <div className="search-input-wrapper">
-                <Search size={20} style={{ color: 'var(--accent)' }} />
+                <Search size={20} style={{ color: 'var(--accent)' }} aria-hidden="true" />
                 <input
                   ref={inputRef}
+                  type="search"
                   className="search-input"
+                  aria-label="Search ranks, badges, events, skills"
                   placeholder="Search ranks, badges, events, skills..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -121,28 +126,36 @@ export default function SearchWidget() {
 
               {/* Search Results */}
               {results.length > 0 && (
-                <div className="search-results">
-                  {results.map((result, i) => (
-                    <button
-                      key={i}
-                      className="search-result-item"
-                      onClick={() => handleResultClick(result)}
-                    >
-                      <span className="search-result-icon">{result.icon}</span>
-                      <div className="search-result-content">
-                        <div className="search-result-title">{result.title}</div>
-                        <div className="search-result-excerpt">{result.excerpt.slice(0, 80)}...</div>
-                      </div>
-                      <span className="search-result-category">{result.category}</span>
-                      <ArrowRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                    </button>
-                  ))}
+                <div className="search-results" role="region" aria-label="Search results">
+                  {results.map((result, i) => {
+                    const isExternal = result.url.startsWith('http');
+                    return (
+                      <button
+                        key={i}
+                        className="search-result-item"
+                        onClick={() => handleResultClick(result)}
+                        aria-label={`${result.title} - ${result.category}${isExternal ? ' (opens external site)' : ''}`}
+                      >
+                        <span className="search-result-icon">{result.icon}</span>
+                        <div className="search-result-content">
+                          <div className="search-result-title">{result.title}</div>
+                          <div className="search-result-excerpt">{result.excerpt.slice(0, 80)}...</div>
+                        </div>
+                        <span className="search-result-category">{result.category}</span>
+                        {isExternal ? (
+                          <ExternalLink size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} aria-hidden="true" />
+                        ) : (
+                          <ArrowRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} aria-hidden="true" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
               {/* Empty State */}
               {query.length >= 2 && results.length === 0 && (
-                <div className="search-empty">
+                <div className="search-empty" role="status">
                   No results for "{query}" — try "Eagle", "camping", or "merit badge"
                 </div>
               )}
@@ -157,6 +170,7 @@ export default function SearchWidget() {
                         key={i}
                         className="search-suggestion-btn"
                         onClick={() => setQuery(suggestion)}
+                        aria-label={`Search for ${suggestion}`}
                       >
                         {suggestion}
                       </button>
