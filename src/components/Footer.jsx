@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { ExternalLink, Mail, MapPin, Phone } from 'lucide-react';
 import CampfireIllustration from '../pages/troop242-campfire';
 import '../styles/footer.css';
 
@@ -80,8 +80,24 @@ export default function Footer() {
           <div className="footer-section">
             <h4 style={{ marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Resources</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <a href="https://www.scouting.org" target="_blank" rel="noopener noreferrer">Scouting America</a>
-              <a href="https://scoutbook.scouting.org/" target="_blank" rel="noopener noreferrer">Scoutbook</a>
+              <a
+                href="https://www.scouting.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Scouting America (opens in a new tab)"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+              >
+                Scouting America <ExternalLink size={14} aria-hidden="true" />
+              </a>
+              <a
+                href="https://scoutbook.scouting.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Scoutbook (opens in a new tab)"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+              >
+                Scoutbook <ExternalLink size={14} aria-hidden="true" />
+              </a>
               <FooterLink to="/calendar">Troop Calendar</FooterLink>
               <FooterLink to="/member-login">Member Login</FooterLink>
               {canViewScoutPortal && (
@@ -101,15 +117,14 @@ export default function Footer() {
               <div className="footer-contact-item">
                 <MapPin size={16} style={{ color: 'var(--accent)' }} />
                 <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const encoded = encodeURIComponent('3512 S Orlando Dr, Sanford, FL 32773');
-                    window.open(`https://www.google.com/maps/search/${encoded}`, '_blank');
-                  }}
+                  href="https://www.google.com/maps/search/3512%20S%20Orlando%20Dr%2C%20Sanford%2C%20FL%2032773"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Sanford, FL location on Google Maps (opens in a new tab)"
                   title="3512 S Orlando Dr, Sanford, FL 32773"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                 >
-                  Sanford, FL
+                  Sanford, FL <ExternalLink size={14} aria-hidden="true" />
                 </a>
               </div>
               <div className="footer-contact-item">
