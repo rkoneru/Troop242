@@ -6,6 +6,13 @@
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
+// Mock Firebase local config to bypass import.meta
+jest.mock('./firebase/firebase', () => ({
+  auth: {},
+  db: {},
+  firebaseError: null,
+}));
+
 // Mock Firebase
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
@@ -23,6 +30,7 @@ jest.mock('firebase/auth', () => ({
 }));
 
 jest.mock('firebase/firestore', () => ({
+  doc: jest.fn(),
   getFirestore: jest.fn(),
   collection: jest.fn(),
   query: jest.fn(),
