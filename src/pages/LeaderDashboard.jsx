@@ -994,6 +994,8 @@ export default function LeaderDashboard() {
                   </button>
                   <button
                     onClick={handleExportScouts}
+                    aria-label="Export scouts to CSV"
+                    title="Export scouts to CSV"
                     style={{
                       padding: '12px 24px',
                       background: 'rgba(100, 150, 200, 0.2)',
