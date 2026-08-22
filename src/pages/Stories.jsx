@@ -104,12 +104,26 @@ export default function Stories() {
             viewport={{ once: true, margin: '-100px' }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}
           >
-            {SCOUT_STORIES.map((scout, idx) => (
+            {SCOUT_STORIES.map((scout, idx) => {
+              const isExpanded = expandedStory === idx;
+              const storyId = `scout-story-detail-${scout.name.toLowerCase().replace(/\s+/g, '-')}`;
+              return (
               <motion.div
-                key={idx}
+                key={scout.name}
                 variants={itemVariants}
                 className="glass-card"
-                onClick={() => setExpandedStory(expandedStory === idx ? null : idx)}
+                role="button"
+                tabIndex={0}
+                aria-expanded={isExpanded}
+                aria-controls={storyId}
+                aria-label={`${scout.name}, ${scout.rank} story. ${isExpanded ? 'Click or press enter to collapse' : 'Click or press enter to read full story'}`}
+                onClick={() => setExpandedStory(isExpanded ? null : idx)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setExpandedStory(isExpanded ? null : idx);
+                  }
+                }}
                 style={{
                   padding: 24,
                   cursor: 'pointer',
@@ -188,11 +202,12 @@ export default function Stories() {
 
                 {/* Expanded Story */}
                 <motion.div
+                  id={storyId}
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: expandedStory === idx ? 1 : 0 }}
+                  animate={{ opacity: isExpanded ? 1 : 0 }}
                   transition={{ duration: 0.2 }}
                   style={{
-                    display: expandedStory === idx ? 'block' : 'none'
+                    display: isExpanded ? 'block' : 'none'
                   }}
                 >
                   <p style={{
@@ -214,7 +229,8 @@ export default function Stories() {
                   </p>
                 </motion.div>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         </div>
       </section>
@@ -235,12 +251,12 @@ export default function Stories() {
                 { icon: '🏕️', title: 'Adventures', description: 'Regular campouts, hikes, and outdoor experiences' },
                 { icon: '👥', title: 'Community', description: 'Strong brotherhood and lasting friendships' },
                 { icon: '🎖️', title: 'Achievement', description: '145+ merit badges and progression path to Eagle' }
-              ].map((item, i) => (
+              ].map((item, idx) => (
                 <motion.div
-                  key={i}
+                  key={item.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
+                  transition={{ delay: idx * 0.1 }}
                   viewport={{ once: true }}
                   className="glass-card"
                   style={{ padding: 24, textAlign: 'center' }}
