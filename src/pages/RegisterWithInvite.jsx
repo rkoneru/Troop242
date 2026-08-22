@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 import { verifyInvitation, markInvitationUsed } from '../utils/invitations';
+import { authSchemas } from '../utils/validation';
 
 export default function RegisterWithInvite() {
   const navigate = useNavigate();
@@ -52,18 +53,16 @@ export default function RegisterWithInvite() {
     e.preventDefault();
     setError('');
 
-    if (!email || !name || !password || !confirmPassword) {
-      setError('Please fill in all fields');
-      return;
-    }
+    const validationResult = authSchemas.register.safeParse({
+      email,
+      name,
+      password,
+      confirmPassword
+    });
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (!validationResult.success) {
+      const firstIssue = validationResult.error.issues[0];
+      setError(firstIssue ? firstIssue.message : 'Invalid input');
       return;
     }
 
