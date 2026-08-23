@@ -185,17 +185,26 @@ export default function CampingGuide() {
             {campingChecklist.map((section, idx) => (
               <div key={idx} className="checklist-item">
                 <button
+                  type="button"
+                  id={`checklist-header-${idx}`}
                   className="checklist-header"
                   onClick={() => toggleSection(idx)}
+                  aria-expanded={expandedSection === idx}
+                  aria-controls={`checklist-content-${idx}`}
                 >
-                  <span className="toggle-icon">
+                  <span className="toggle-icon" aria-hidden="true">
                     {expandedSection === idx ? '▼' : '▶'}
                   </span>
                   <h3>{section.category}</h3>
                 </button>
 
                 {expandedSection === idx && (
-                  <div className="checklist-content">
+                  <div
+                    id={`checklist-content-${idx}`}
+                    className="checklist-content"
+                    role="region"
+                    aria-labelledby={`checklist-header-${idx}`}
+                  >
                     <ul>
                       {section.items.map((item, itemIdx) => (
                         <li key={itemIdx}>{item}</li>
