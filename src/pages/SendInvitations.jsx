@@ -45,7 +45,11 @@ export default function SendInvitations() {
     loadInvitations();
   }, [user]);
 
-  const generateCode = () => Math.random().toString(36).substring(2, 10).toUpperCase();
+  const generateCode = () => {
+    const arr = new Uint8Array(4);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+  };
 
   const handleSendInvitation = async (e) => {
     e.preventDefault();
