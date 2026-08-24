@@ -287,14 +287,14 @@ Next Steps:
                         alignItems: 'flex-start',
                         gap: 12,
                       }}
-                      onClick={() => setExpandedReq(isExpanded ? null : idx)}
                     >
                       {/* Checkbox */}
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleRequirement(selectedRank, idx);
-                        }}
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={isChecked}
+                        aria-label={`Mark requirement ${req.code} as ${isChecked ? 'incomplete' : 'complete'}`}
+                        onClick={() => toggleRequirement(selectedRank, idx)}
                         style={{
                           width: 24,
                           height: 24,
@@ -307,56 +307,82 @@ Next Steps:
                           cursor: 'pointer',
                           flexShrink: 0,
                           marginTop: '2px',
+                          padding: 0,
                         }}
                       >
                         {isChecked && <Check size={16} color="white" />}
-                      </div>
+                      </button>
 
-                      {/* Content */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              background: 'var(--accent)',
-                              color: 'white',
-                              padding: '2px 8px',
-                              borderRadius: 4,
-                              fontSize: '0.75rem',
-                              fontWeight: 700,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {req.code}
-                          </span>
-                          <span
-                            style={{
-                              textDecoration: isChecked ? 'line-through' : 'none',
-                              color: isChecked ? 'var(--text-muted)' : 'inherit',
-                              fontSize: '0.95rem',
-                            }}
-                          >
-                            {req.text}
-                          </span>
+                      {/* Content / Expand Trigger */}
+                      <button
+                        type="button"
+                        aria-expanded={isExpanded}
+                        aria-controls={`req-notes-${selectedRank}-${idx}`}
+                        onClick={() => setExpandedReq(isExpanded ? null : idx)}
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          justifyContent: 'space-between',
+                          gap: 12,
+                          background: 'transparent',
+                          border: 'none',
+                          padding: 0,
+                          textAlign: 'left',
+                          font: 'inherit',
+                          color: 'inherit',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                background: 'var(--accent)',
+                                color: 'white',
+                                padding: '2px 8px',
+                                borderRadius: 4,
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                flexShrink: 0,
+                              }}
+                            >
+                              {req.code}
+                            </span>
+                            <span
+                              style={{
+                                textDecoration: isChecked ? 'line-through' : 'none',
+                                color: isChecked ? 'var(--text-muted)' : 'inherit',
+                                fontSize: '0.95rem',
+                              }}
+                            >
+                              {req.text}
+                            </span>
+                          </div>
+
+                          {/* Notes Preview */}
+                          {reqNotes && !isExpanded && (
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '4px 0 0 0', fontStyle: 'italic' }}>
+                              {reqNotes.substring(0, 60)}{reqNotes.length > 60 ? '...' : ''}
+                            </p>
+                          )}
                         </div>
 
-                        {/* Notes Preview */}
-                        {reqNotes && !isExpanded && (
-                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '4px 0 0 0', fontStyle: 'italic' }}>
-                            {reqNotes.substring(0, 60)}{reqNotes.length > 60 ? '...' : ''}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Expand Icon */}
-                      <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
-                        {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                      </div>
+                        {/* Expand Icon */}
+                        <div style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+                          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        </div>
+                      </button>
                     </div>
 
                     {/* Expanded Notes Section */}
                     {isExpanded && (
-                      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
+                      <div
+                        id={`req-notes-${selectedRank}-${idx}`}
+                        style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--divider)' }}
+                      >
                         <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: '0.9rem' }}>
                           Notes & Evidence
                         </label>
