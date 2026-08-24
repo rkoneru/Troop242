@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Check, X } from 'lucide-react';
@@ -25,7 +25,7 @@ export default function SkillsTrackerWizard() {
   // Load progress from Firestore with localStorage fallback (migration)
   useEffect(() => {
     if (!user) {
-      setIsLoading(false);
+      queueMicrotask(() => setIsLoading(false));
       return;
     }
 
@@ -125,28 +125,32 @@ export default function SkillsTrackerWizard() {
     }
   };
 
-  // Compute progress
-  const getCategoryProgress = (catIdx) => {
-    const total = SKILL_CATEGORIES[catIdx].skills.length;
-    const completed = SKILL_CATEGORIES[catIdx].skills.reduce((count, _, skillIdx) => {
-      return trackedSkills[`${catIdx}-${skillIdx}`] ? count + 1 : count;
-    }, 0);
-    return { completed, total };
-  };
+  // Memoize category progress calculations to eliminate O(C * S) re-reductions on unrelated state changes
+  const categoryProgressMap = useMemo(() => {
+    return SKILL_CATEGORIES.map((cat, catIdx) => {
+      const total = cat.skills.length;
+      const completed = cat.skills.reduce((count, _, skillIdx) => {
+        return trackedSkills[`${catIdx}-${skillIdx}`] ? count + 1 : count;
+      }, 0);
+      return { completed, total };
+    });
+  }, [trackedSkills]);
 
-  // Search functionality
-  const searchAllSkills = () => {
+  // Memoize search results to avoid repeated O(N) array traversals (previously called 3+ times per render frame in JSX)
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
     const results = [];
     SKILL_CATEGORIES.forEach((cat, catIdx) => {
       cat.skills.forEach((skill, skillIdx) => {
         const skillName = typeof skill === 'string' ? skill : skill.name;
-        if (skillName.toLowerCase().includes(searchQuery.toLowerCase())) {
+        if (skillName.toLowerCase().includes(query)) {
           results.push({ name: skillName, categoryIdx: catIdx, skillIdx, categoryName: cat.category });
         }
       });
     });
     return results;
-  };
+  }, [searchQuery]);
 
   // Guard against loading state
   if (isLoading) {
@@ -183,7 +187,7 @@ export default function SkillsTrackerWizard() {
     );
   }
 
-  const categoryProgress = getCategoryProgress(selectedCategoryIdx);
+  const categoryProgress = categoryProgressMap[selectedCategoryIdx] || { completed: 0, total: 0 };
   const allComplete = categoryProgress.completed === categoryProgress.total && categoryProgress.total > 0;
 
   return (
@@ -254,7 +258,7 @@ export default function SkillsTrackerWizard() {
 
           {/* Search Results */}
           <AnimatePresence>
-            {showSearchResults && searchAllSkills().length > 0 && (
+            {showSearchResults && searchResults.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -273,7 +277,7 @@ export default function SkillsTrackerWizard() {
                   zIndex: 50,
                 }}
               >
-                {searchAllSkills().map((skill, idx) => (
+                {searchResults.map((skill, idx) => (
                   <motion.button
                     key={idx}
                     onClick={() => {
@@ -317,7 +321,7 @@ export default function SkillsTrackerWizard() {
                 ))}
               </motion.div>
             )}
-            {showSearchResults && searchAllSkills().length === 0 && searchQuery && (
+            {showSearchResults && searchResults.length === 0 && searchQuery && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -349,7 +353,7 @@ export default function SkillsTrackerWizard() {
             <h2 style={{ fontSize: '1rem', fontWeight: 600, marginTop: 0, marginBottom: 16, color: 'var(--text-muted)' }}>SELECT CATEGORY</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 48 }}>
               {SKILL_CATEGORIES.map((cat, idx) => {
-                const prog = getCategoryProgress(idx);
+                const prog = categoryProgressMap[idx] || { completed: 0, total: 0 };
                 const isSelected = idx === selectedCategoryIdx;
                 return (
                   <motion.button
