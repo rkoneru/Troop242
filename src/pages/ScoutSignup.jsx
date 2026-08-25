@@ -1,11 +1,25 @@
 
 import { CheckCircle, MapPin, Calendar, Users } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+
+// Hoist Framer Motion animation variants to module scope to avoid re-allocation on every render
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function ScoutSignup() {
   const navigate = useNavigate();
@@ -40,10 +54,22 @@ export default function ScoutSignup() {
     loadActivities();
   }, [loading]);
 
+  const userId = user?.uid;
+
+  // ⚡ Bolt Optimization: Memoize signed-up activity IDs into a Set for O(1) lookups instead of O(N^2) nested array searches
+  const signedUpSet = useMemo(() => {
+    if (!userId) return new Set();
+    const set = new Set();
+    for (const a of activities) {
+      if (a.signedUp?.some(s => s.uid === userId)) {
+        set.add(a.id);
+      }
+    }
+    return set;
+  }, [activities, userId]);
+
   const isSignedUp = (activityId) => {
-    return activities
-      .find(a => a.id === activityId)
-      ?.signedUp?.some(s => s.uid === user?.uid) || false;
+    return signedUpSet.has(activityId);
   };
 
   const handleSignup = async (activityId) => {
@@ -110,19 +136,6 @@ export default function ScoutSignup() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
   if (isLoading) {
     return (
       <section style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -133,7 +146,8 @@ export default function ScoutSignup() {
     );
   }
 
-  const userSignups = activities.filter(a => isSignedUp(a.id));
+  const signedUpCount = signedUpSet.size;
+  const availableCount = activities.length - signedUpCount;
 
   return (
     <>
@@ -194,12 +208,12 @@ export default function ScoutSignup() {
             <div style={{ padding: 20, background: 'var(--accent-dim)', borderRadius: 12, border: '1px solid var(--accent-border)' }}>
               <div style={{ fontSize: '2rem', marginBottom: 8 }}>✓</div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 4 }}>Events Signed Up</p>
-              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{userSignups.length}</p>
+              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{signedUpCount}</p>
             </div>
             <div style={{ padding: 20, background: 'var(--accent-dim)', borderRadius: 12, border: '1px solid var(--accent-border)' }}>
               <div style={{ fontSize: '2rem', marginBottom: 8 }}>📅</div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 4 }}>Upcoming Events</p>
-              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{activities.filter(a => !isSignedUp(a.id)).length}</p>
+              <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)' }}>{availableCount}</p>
             </div>
           </motion.div>
 
