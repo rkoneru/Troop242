@@ -155,7 +155,7 @@ export default function MeritTrackerWizard() {
 
   const getWorkbookUrl = (name) => {
     const cleanName = trimBadgeName(name);
-    return `http://usscouts.org/usscouts/mb/worksheets/${cleanName.replace(/ /g, '-')}.pdf`;
+    return `https://usscouts.org/usscouts/mb/worksheets/${cleanName.replace(/ /g, '-')}.pdf`;
   };
 
   const generateScoutbookSummary = () => {
