@@ -1,5 +1,5 @@
 import { DollarSign, TrendingUp, Users, AlertCircle, Plus, Edit2, Trash2, ArrowLeft } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { saveData, loadData, generateId } from '../utils/adminData';
@@ -43,18 +43,49 @@ export default function TroopFinances() {
   const [newPaymentForm, setNewPaymentForm] = useState({ scoutId: '', amount: '', paymentDate: '', method: 'cash', notes: '' });
   const [editingDue, setEditingDue] = useState(null);
 
-  // Calculate statistics
-  const totalDues = dues.reduce((sum, due) => sum + parseFloat(due.amount || 0), 0);
-  const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
+  // Memoize statistics to prevent recalculation on unrelated state changes (e.g. form inputs)
+  const totalDues = useMemo(() => dues.reduce((sum, due) => sum + parseFloat(due.amount || 0), 0), [dues]);
+  const totalPaid = useMemo(() => payments.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0), [payments]);
   const outstandingDues = totalDues - totalPaid;
-  const scoutsWithDues = new Set(dues.map(d => d.scoutId)).size;
-  const paidScouts = new Set(payments.map(p => p.scoutId)).size;
+  const scoutsWithDues = useMemo(() => new Set(dues.map(d => String(d.scoutId))).size, [dues]);
+  const paidScouts = useMemo(() => new Set(payments.map(p => String(p.scoutId))).size, [payments]);
 
-  // Get scout name by ID
+  // Fast O(1) scout lookup map
+  const scoutMap = useMemo(() => {
+    const map = new Map();
+    scouts.forEach(s => map.set(String(s.id), s));
+    return map;
+  }, [scouts]);
+
+  // Get scout name by ID with O(1) map lookup
   const getScoutName = (scoutId) => {
-    const scout = scouts.find(s => s.id == scoutId);
+    const scout = scoutMap.get(String(scoutId));
     return scout ? scout.name : 'Unknown';
   };
+
+  // Pre-calculate dues, payments, and balances per scout in a single O(S + D + P) linear pass
+  const scoutFinancials = useMemo(() => {
+    const map = new Map();
+    scouts.forEach(s => {
+      map.set(String(s.id), { duesAmount: 0, paidAmount: 0, balance: 0 });
+    });
+    dues.forEach(d => {
+      const id = String(d.scoutId);
+      const entry = map.get(id) || { duesAmount: 0, paidAmount: 0, balance: 0 };
+      entry.duesAmount += parseFloat(d.amount || 0);
+      map.set(id, entry);
+    });
+    payments.forEach(p => {
+      const id = String(p.scoutId);
+      const entry = map.get(id) || { duesAmount: 0, paidAmount: 0, balance: 0 };
+      entry.paidAmount += parseFloat(p.amount || 0);
+      map.set(id, entry);
+    });
+    map.forEach(entry => {
+      entry.balance = entry.duesAmount - entry.paidAmount;
+    });
+    return map;
+  }, [scouts, dues, payments]);
 
   // Handlers
   const handleAddDue = () => {
@@ -698,8 +729,9 @@ export default function TroopFinances() {
             <h3 style={{ color: 'var(--text-primary)', marginBottom: 20 }}>Scout Balances</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 20 }}>
               {scouts.map((scout) => {
-                const scoutBalance = getScoutBalance(scout.id);
-                const scoutDuesAmount = getScoutDues(scout.id).reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
+                const financials = scoutFinancials.get(String(scout.id)) || { duesAmount: 0, paidAmount: 0, balance: 0 };
+                const scoutBalance = financials.balance;
+                const scoutDuesAmount = financials.duesAmount;
                 const isPaid = scoutBalance <= 0;
 
                 return (
