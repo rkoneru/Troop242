@@ -106,10 +106,21 @@ export default function Stories() {
           >
             {SCOUT_STORIES.map((scout, idx) => (
               <motion.div
-                key={idx}
+                key={scout.name}
                 variants={itemVariants}
                 className="glass-card"
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedStory === idx}
+                aria-controls={`story-detail-${idx}`}
+                aria-label={`${expandedStory === idx ? 'Collapse' : 'Read'} story for ${scout.name}`}
                 onClick={() => setExpandedStory(expandedStory === idx ? null : idx)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setExpandedStory(expandedStory === idx ? null : idx);
+                  }
+                }}
                 style={{
                   padding: 24,
                   cursor: 'pointer',
@@ -188,6 +199,7 @@ export default function Stories() {
 
                 {/* Expanded Story */}
                 <motion.div
+                  id={`story-detail-${idx}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: expandedStory === idx ? 1 : 0 }}
                   transition={{ duration: 0.2 }}
