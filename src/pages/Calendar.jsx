@@ -1,25 +1,62 @@
-
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase/firebase';
-import { Heart } from 'lucide-react';
-import { getEvents } from '../utils/adminData';
-import '../styles/calendar.css';
+import { motion } from "framer-motion";
+import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../firebase/firebase";
+import { Heart } from "lucide-react";
+import { getEvents } from "../utils/adminData";
+import "../styles/calendar.css";
 
 const PACKING_LISTS = {
-  meetings: ['Uniform (shirt, neckerchief, slide)', 'Scout Handbook', 'Pencil & notebook', 'Water bottle', 'Any merit badge materials'],
-  campouts: ['Tent & sleeping bag', 'Change of clothes', 'Toiletries & medications', 'Headlamp or flashlight', 'Warm jacket', 'Sturdy shoes', 'Backpack', 'Water bottle'],
-  hikes: ['Comfortable hiking shoes', 'Backpack (20-30L)', 'Water bottle', 'Snacks & lunch', 'Sunscreen', 'Insect repellent', 'Lightweight jacket', 'First aid kit', 'Map or trail info']
+  meetings: [
+    "Uniform (shirt, neckerchief, slide)",
+    "Scout Handbook",
+    "Pencil & notebook",
+    "Water bottle",
+    "Any merit badge materials",
+  ],
+  campouts: [
+    "Tent & sleeping bag",
+    "Change of clothes",
+    "Toiletries & medications",
+    "Headlamp or flashlight",
+    "Warm jacket",
+    "Sturdy shoes",
+    "Backpack",
+    "Water bottle",
+  ],
+  hikes: [
+    "Comfortable hiking shoes",
+    "Backpack (20-30L)",
+    "Water bottle",
+    "Snacks & lunch",
+    "Sunscreen",
+    "Insect repellent",
+    "Lightweight jacket",
+    "First aid kit",
+    "Map or trail info",
+  ],
+};
+
+// Static Framer Motion animation variants hoisted to module scope to prevent re-allocation on re-renders
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
 export default function Calendar() {
   const { user, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState('meetings');
+  const [activeTab, setActiveTab] = useState("meetings");
   const [events, setEvents] = useState([]);
   const [myRsvps, setMyRsvps] = useState({});
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadEventsData = async () => {
@@ -27,7 +64,7 @@ export default function Calendar() {
         const loaded = await getEvents();
         setEvents(loaded);
       } catch (error) {
-        console.error('Failed to load events from Firestore:', error);
+        console.error("Failed to load events from Firestore:", error);
       }
     };
     loadEventsData();
@@ -35,21 +72,16 @@ export default function Calendar() {
 
   // Load user's RSVPs from Firestore
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    if (!user) return;
 
     const loadRsvps = async () => {
       try {
-        const snap = await getDoc(doc(db, 'eventRsvps', user.uid));
+        const snap = await getDoc(doc(db, "eventRsvps", user.uid));
         if (snap.exists()) {
           setMyRsvps(snap.data());
         }
       } catch (error) {
-        console.error('Error loading RSVPs:', error);
-      } finally {
-        setLoading(false);
+        console.error("Error loading RSVPs:", error);
       }
     };
 
@@ -67,24 +99,16 @@ export default function Calendar() {
     setMyRsvps(updated);
 
     try {
-      await setDoc(doc(db, 'eventRsvps', user.uid), updated, { merge: true });
+      await setDoc(doc(db, "eventRsvps", user.uid), updated, { merge: true });
     } catch (error) {
-      console.error('Error saving RSVP:', error);
+      console.error("Error saving RSVP:", error);
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
+  // Memoize sorted events to avoid mutating state array and redundant date parsing on re-renders
+  const sortedEvents = useMemo(() => {
+    return [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [events]);
 
   return (
     <div className="calendar-page">
@@ -93,17 +117,30 @@ export default function Calendar() {
         <div className="container">
           <motion.div
             className="flex flex--col"
-            style={{ gap: 16, textAlign: 'center' }}
+            style={{ gap: 16, textAlign: "center" }}
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
             <motion.h1 variants={itemVariants}>📅 Troop 242 Calendar</motion.h1>
-            <motion.p variants={itemVariants} style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: 600, margin: '0 auto' }}>
-              Stay updated with all Troop 242 events, meetings, campouts, and activities. Subscribe to get notifications!
+            <motion.p
+              variants={itemVariants}
+              style={{
+                fontSize: "1.1rem",
+                color: "var(--text-muted)",
+                maxWidth: 600,
+                margin: "0 auto",
+              }}
+            >
+              Stay updated with all Troop 242 events, meetings, campouts, and
+              activities. Subscribe to get notifications!
             </motion.p>
 
-            <motion.div variants={itemVariants} className="flex flex--center flex--wrap" style={{ gap: 16, marginTop: 24 }}>
+            <motion.div
+              variants={itemVariants}
+              className="flex flex--center flex--wrap"
+              style={{ gap: 16, marginTop: 24 }}
+            >
               <a
                 href="https://calendar.google.com/calendar/r?cid=k11l4b9od26qdlquf6fth7stbg%40group.calendar.google.com"
                 target="_blank"
@@ -129,7 +166,7 @@ export default function Calendar() {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.7 }}
           >
             <div className="calendar-embed-wrapper">
@@ -152,11 +189,17 @@ export default function Calendar() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
+              viewport={{ once: true, margin: "-100px" }}
               style={{ marginBottom: 40 }}
             >
-              <h2 style={{ textAlign: 'center' }}>📌 Upcoming Troop Events</h2>
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 12 }}>
+              <h2 style={{ textAlign: "center" }}>📌 Upcoming Troop Events</h2>
+              <p
+                style={{
+                  textAlign: "center",
+                  color: "var(--text-muted)",
+                  marginTop: 12,
+                }}
+              >
                 Events created by troop leaders and admins
               </p>
             </motion.div>
@@ -166,99 +209,160 @@ export default function Calendar() {
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: '-100px' }}
+              viewport={{ once: true, margin: "-100px" }}
             >
-              {events
-                .sort((a, b) => new Date(a.date) - new Date(b.date))
-                .map(event => (
-                  <motion.div
-                    key={event.id}
-                    variants={itemVariants}
-                    className="glass-card"
-                    style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}
+              {sortedEvents.map((event) => (
+                <motion.div
+                  key={event.id}
+                  variants={itemVariants}
+                  className="glass-card"
+                  style={{
+                    padding: 24,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 16,
+                  }}
+                >
+                  <div>
+                    <h3 style={{ marginBottom: 8, fontSize: "1.1rem" }}>
+                      {event.title}
+                    </h3>
+                    <p
+                      style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}
+                    >
+                      👤 By {event.createdBy || "Leader"}
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gap: 8,
+                      fontSize: "0.95rem",
+                      color: "var(--text-muted)",
+                    }}
                   >
-                    <div>
-                      <h3 style={{ marginBottom: 8, fontSize: '1.1rem' }}>{event.title}</h3>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                        👤 By {event.createdBy || 'Leader'}
-                      </p>
-                    </div>
-
-                    <div style={{ display: 'grid', gap: 8, fontSize: '0.95rem', color: 'var(--text-muted)' }}>
-                      {event.date && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span>📅</span>
-                          <span>{new Date(event.date).toLocaleDateString()}</span>
-                        </div>
-                      )}
-                      {event.time && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span>🕐</span>
-                          <span>{event.time}</span>
-                        </div>
-                      )}
-                      {event.location && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span>📍</span>
-                          <span>{event.location}</span>
-                        </div>
-                      )}
-                      {event.signups && event.spots && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span>✓</span>
-                          <span>{event.signups.length} scout(s) interested</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {event.description && (
-                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--divider)' }}>
-                        {event.description}
-                      </p>
-                    )}
-
-                    {user && profile?.role === 'scout' && (
-                      <button
-                        onClick={() => toggleRsvp(event.id)}
+                    {event.date && (
+                      <div
                         style={{
-                          marginTop: 'auto',
-                          padding: '10px 16px',
-                          background: myRsvps[event.id] ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-                          border: `2px solid ${myRsvps[event.id] ? '#ef4444' : 'var(--divider)'}`,
-                          color: myRsvps[event.id] ? '#ef4444' : 'var(--text-muted)',
-                          borderRadius: 6,
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          fontWeight: 500,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
+                          display: "flex",
+                          alignItems: "center",
                           gap: 8,
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = myRsvps[event.id] ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = myRsvps[event.id] ? 'rgba(239, 68, 68, 0.2)' : 'transparent';
                         }}
                       >
-                        <Heart
-                          size={18}
-                          fill={myRsvps[event.id] ? '#ef4444' : 'none'}
-                          stroke="currentColor"
-                        />
-                        {myRsvps[event.id] ? 'Interested' : 'Mark Interested'}
-                      </button>
+                        <span>📅</span>
+                        <span>{new Date(event.date).toLocaleDateString()}</span>
+                      </div>
                     )}
+                    {event.time && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <span>🕐</span>
+                        <span>{event.time}</span>
+                      </div>
+                    )}
+                    {event.location && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <span>📍</span>
+                        <span>{event.location}</span>
+                      </div>
+                    )}
+                    {event.signups && event.spots && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <span>✓</span>
+                        <span>{event.signups.length} scout(s) interested</span>
+                      </div>
+                    )}
+                  </div>
 
-                    {!user && (
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 'auto', textAlign: 'center' }}>
-                        Sign in to RSVP to events
-                      </p>
-                    )}
-                  </motion.div>
-                ))}
+                  {event.description && (
+                    <p
+                      style={{
+                        fontSize: "0.9rem",
+                        color: "var(--text-muted)",
+                        marginTop: 8,
+                        paddingTop: 8,
+                        borderTop: "1px solid var(--divider)",
+                      }}
+                    >
+                      {event.description}
+                    </p>
+                  )}
+
+                  {user && profile?.role === "scout" && (
+                    <button
+                      onClick={() => toggleRsvp(event.id)}
+                      style={{
+                        marginTop: "auto",
+                        padding: "10px 16px",
+                        background: myRsvps[event.id]
+                          ? "rgba(239, 68, 68, 0.2)"
+                          : "transparent",
+                        border: `2px solid ${myRsvps[event.id] ? "#ef4444" : "var(--divider)"}`,
+                        color: myRsvps[event.id]
+                          ? "#ef4444"
+                          : "var(--text-muted)",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = myRsvps[event.id]
+                          ? "rgba(239, 68, 68, 0.1)"
+                          : "rgba(255, 255, 255, 0.05)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = myRsvps[event.id]
+                          ? "rgba(239, 68, 68, 0.2)"
+                          : "transparent";
+                      }}
+                    >
+                      <Heart
+                        size={18}
+                        fill={myRsvps[event.id] ? "#ef4444" : "none"}
+                        stroke="currentColor"
+                      />
+                      {myRsvps[event.id] ? "Interested" : "Mark Interested"}
+                    </button>
+                  )}
+
+                  {!user && (
+                    <p
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "var(--text-muted)",
+                        marginTop: "auto",
+                        textAlign: "center",
+                      }}
+                    >
+                      Sign in to RSVP to events
+                    </p>
+                  )}
+                </motion.div>
+              ))}
             </motion.div>
           </div>
         </section>
@@ -270,9 +374,11 @@ export default function Calendar() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
           >
-            <h2 style={{ textAlign: 'center', marginBottom: 60 }}>Calendar Information</h2>
+            <h2 style={{ textAlign: "center", marginBottom: 60 }}>
+              Calendar Information
+            </h2>
           </motion.div>
 
           <motion.div
@@ -280,29 +386,38 @@ export default function Calendar() {
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
           >
             {[
               {
-                title: 'Weekly Meetings',
-                icon: '📍',
-                desc: 'Every Tuesday at 7:00 PM. Regular troop meetings with skills, games, and planning.'
+                title: "Weekly Meetings",
+                icon: "📍",
+                desc: "Every Tuesday at 7:00 PM. Regular troop meetings with skills, games, and planning.",
               },
               {
-                title: 'Monthly Campouts',
-                icon: '⛺',
-                desc: 'Outdoor camping adventures throughout the year. Sign-ups on calendar.'
+                title: "Monthly Campouts",
+                icon: "⛺",
+                desc: "Outdoor camping adventures throughout the year. Sign-ups on calendar.",
               },
               {
-                title: 'Special Events',
-                icon: '🎉',
-                desc: 'Campfire programs, merit badge classes, trips, and special activities.'
-              }
+                title: "Special Events",
+                icon: "🎉",
+                desc: "Campfire programs, merit badge classes, trips, and special activities.",
+              },
             ].map((item, i) => (
-              <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: 32, textAlign: 'center' }}>
-                <div style={{ fontSize: '3rem', marginBottom: 16 }}>{item.icon}</div>
+              <motion.div
+                key={i}
+                variants={itemVariants}
+                className="glass-card"
+                style={{ padding: 32, textAlign: "center" }}
+              >
+                <div style={{ fontSize: "3rem", marginBottom: 16 }}>
+                  {item.icon}
+                </div>
                 <h3 style={{ marginBottom: 12 }}>{item.title}</h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>{item.desc}</p>
+                <p style={{ color: "var(--text-muted)", lineHeight: 1.6 }}>
+                  {item.desc}
+                </p>
               </motion.div>
             ))}
           </motion.div>
@@ -315,28 +430,39 @@ export default function Calendar() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            style={{ maxWidth: 800, margin: '0 auto' }}
+            viewport={{ once: true, margin: "-100px" }}
+            style={{ maxWidth: 800, margin: "0 auto" }}
           >
-            <h2 style={{ textAlign: 'center', marginBottom: 40 }}>What to Bring</h2>
+            <h2 style={{ textAlign: "center", marginBottom: 40 }}>
+              What to Bring
+            </h2>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
-              {['meetings', 'campouts', 'hikes'].map(tab => (
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                marginBottom: 32,
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              {["meetings", "campouts", "hikes"].map((tab) => (
                 <motion.button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   style={{
-                    padding: '10px 20px',
-                    background: activeTab === tab ? 'var(--accent)' : 'transparent',
-                    color: activeTab === tab ? 'white' : 'var(--text-muted)',
-                    border: `2px solid ${activeTab === tab ? 'var(--accent)' : 'var(--divider)'}`,
+                    padding: "10px 20px",
+                    background:
+                      activeTab === tab ? "var(--accent)" : "transparent",
+                    color: activeTab === tab ? "white" : "var(--text-muted)",
+                    border: `2px solid ${activeTab === tab ? "var(--accent)" : "var(--divider)"}`,
                     borderRadius: 8,
-                    cursor: 'pointer',
-                    fontSize: '0.95rem',
+                    cursor: "pointer",
+                    fontSize: "0.95rem",
                     fontWeight: 600,
-                    textTransform: 'capitalize',
-                    transition: 'all 0.3s ease'
+                    textTransform: "capitalize",
+                    transition: "all 0.3s ease",
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -355,7 +481,13 @@ export default function Calendar() {
               className="glass-card"
               style={{ padding: 32 }}
             >
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                  gap: 16,
+                }}
+              >
                 {PACKING_LISTS[activeTab].map((item, i) => (
                   <motion.div
                     key={i}
@@ -363,16 +495,18 @@ export default function Calendar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
+                      display: "flex",
+                      alignItems: "center",
                       gap: 12,
-                      padding: '12px 16px',
-                      background: 'var(--accent-dim)',
+                      padding: "12px 16px",
+                      background: "var(--accent-dim)",
                       borderRadius: 8,
-                      fontSize: '0.95rem'
+                      fontSize: "0.95rem",
                     }}
                   >
-                    <span style={{ color: 'var(--accent)', fontWeight: 700 }}>✓</span>
+                    <span style={{ color: "var(--accent)", fontWeight: 700 }}>
+                      ✓
+                    </span>
                     <span>{item}</span>
                   </motion.div>
                 ))}
@@ -387,21 +521,30 @@ export default function Calendar() {
         <div className="container">
           <motion.div
             className="glass-card"
-            style={{ padding: 60, textAlign: 'center' }}
+            style={{ padding: 60, textAlign: "center" }}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={{ once: true, margin: "-100px" }}
           >
             <h2 style={{ marginBottom: 16 }}>Never Miss an Event</h2>
-            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', marginBottom: 32, maxWidth: 600, margin: '0 auto 32px' }}>
-              Subscribe to the Troop 242 calendar to get notifications for all meetings, campouts, and events.
+            <p
+              style={{
+                fontSize: "1.1rem",
+                color: "var(--text-muted)",
+                marginBottom: 32,
+                maxWidth: 600,
+                margin: "0 auto 32px",
+              }}
+            >
+              Subscribe to the Troop 242 calendar to get notifications for all
+              meetings, campouts, and events.
             </p>
             <a
               href="https://calendar.google.com/calendar/r?cid=k11l4b9od26qdlquf6fth7stbg%40group.calendar.google.com"
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary"
-              style={{ fontSize: '1.1rem', padding: '16px 32px' }}
+              style={{ fontSize: "1.1rem", padding: "16px 32px" }}
             >
               Add to Your Calendar
             </a>
