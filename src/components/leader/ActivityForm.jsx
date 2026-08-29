@@ -56,11 +56,14 @@ export default function ActivityForm({ onSubmit, initialValues = null, isEditing
           <div className="flex justify-between items-center mb-4">
             <h3>{isEditing ? 'Edit Activity' : 'Create New Activity'}</h3>
             <button
+              type="button"
               onClick={() => {
                 setShowForm(false);
                 form.resetForm();
               }}
               className="btn-icon"
+              aria-label="Close form"
+              title="Close form"
             >
               <X size={20} />
             </button>
