@@ -4,25 +4,17 @@ import { getFirestore } from 'firebase/firestore';
 
 /**
  * Firebase Configuration
- * Public config - security is enforced by Firestore rules
+ * SECURITY NOTICE: Sensitive configuration (API keys, project IDs) must be
+ * provided exclusively via environment variables (VITE_FIREBASE_*) and never hardcoded.
  */
 
-const fallbackFirebaseConfig = {
-  apiKey: 'AIzaSyCNJks9cgCJ_08Bcg4mrYrXOc4Jg9vyp7s',
-  authDomain: 'troop242-54e6a.firebaseapp.com',
-  projectId: 'troop242-54e6a',
-  storageBucket: 'troop242-54e6a.firebasestorage.app',
-  messagingSenderId: '1059763099338',
-  appId: '1:1059763099338:web:7ba32ca6d62bb6cec80633'
-};
-
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || fallbackFirebaseConfig.apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || fallbackFirebaseConfig.authDomain,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || fallbackFirebaseConfig.projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || fallbackFirebaseConfig.storageBucket,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || fallbackFirebaseConfig.messagingSenderId,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || fallbackFirebaseConfig.appId
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const requiredConfigKeys = ['apiKey', 'authDomain', 'projectId', 'appId'];
