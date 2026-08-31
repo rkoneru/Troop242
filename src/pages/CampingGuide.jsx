@@ -175,6 +175,7 @@ export default function CampingGuide() {
               <a href="https://www.scouting.org/programs/scouts-bsa/advancement-and-awards/camping/"
                  target="_blank"
                  rel="noopener noreferrer"
+                 aria-label="Scouting.org Camping Resources (opens in a new tab)"
                  className="resource-link">
                 Scouting.org Camping Resources
               </a>
@@ -185,17 +186,26 @@ export default function CampingGuide() {
             {campingChecklist.map((section, idx) => (
               <div key={idx} className="checklist-item">
                 <button
+                  type="button"
                   className="checklist-header"
                   onClick={() => toggleSection(idx)}
+                  aria-expanded={expandedSection === idx}
+                  aria-controls={`checklist-content-${idx}`}
+                  id={`checklist-header-${idx}`}
                 >
-                  <span className="toggle-icon">
+                  <span className="toggle-icon" aria-hidden="true">
                     {expandedSection === idx ? '▼' : '▶'}
                   </span>
                   <h3>{section.category}</h3>
                 </button>
 
                 {expandedSection === idx && (
-                  <div className="checklist-content">
+                  <div
+                    id={`checklist-content-${idx}`}
+                    role="region"
+                    aria-labelledby={`checklist-header-${idx}`}
+                    className="checklist-content"
+                  >
                     <ul>
                       {section.items.map((item, itemIdx) => (
                         <li key={itemIdx}>{item}</li>
@@ -296,7 +306,12 @@ export default function CampingGuide() {
             <a href="mailto:troop242sanford@gmail.com" className="btn btn-primary">
               📧 Contact Scoutmaster
             </a>
-            <button className="btn btn-secondary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              aria-label="Back to top of page"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
               Back to Top
             </button>
           </div>
