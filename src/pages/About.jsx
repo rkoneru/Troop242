@@ -336,6 +336,7 @@ export default function About() {
             </p>
             <motion.button
               className="btn btn-primary"
+              aria-label="Join Troop 242 Today - Navigate to contact form"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => { navigate('/contact'); scrollToTop(); }}
