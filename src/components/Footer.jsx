@@ -101,12 +101,10 @@ export default function Footer() {
               <div className="footer-contact-item">
                 <MapPin size={16} style={{ color: 'var(--accent)' }} />
                 <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const encoded = encodeURIComponent('3512 S Orlando Dr, Sanford, FL 32773');
-                    window.open(`https://www.google.com/maps/search/${encoded}`, '_blank');
-                  }}
+                  href="https://www.google.com/maps/search/3512%20S%20Orlando%20Dr%2C%20Sanford%2C%20FL%2032773"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Sanford, FL (opens Google Maps in a new tab)"
                   title="3512 S Orlando Dr, Sanford, FL 32773"
                 >
                   Sanford, FL
