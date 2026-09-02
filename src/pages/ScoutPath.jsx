@@ -62,6 +62,58 @@ const THRESHOLDS = [0.03, 0.18, 0.32, 0.47, 0.61, 0.76, 0.93];
 const TOTAL_DURATION = 16000;
 const PAUSE_DURATION = 3500;
 
+const SVG_STARS = [
+  [90, 25], [195, 15], [310, 38], [425, 12], [540, 28],
+  [655, 10], [775, 34], [890, 18], [1005, 40], [1065, 22]
+];
+
+// Curved path coordinates (simplified cubic bezier)
+const PATH_POINTS = [
+  { x: 50, y: 460 },
+  { x: 220, y: 400 },
+  { x: 440, y: 325 },
+  { x: 680, y: 250 },
+  { x: 920, y: 190 },
+  { x: 1150, y: 160 }
+];
+
+// SVG path calculation (hoisted to module scope to avoid re-allocation on 60fps frame renders)
+const calculatePathPoint = (progress) => {
+  const t = progress;
+
+  if (t < 0.2) {
+    const s = t / 0.2;
+    return {
+      x: PATH_POINTS[0].x + (PATH_POINTS[1].x - PATH_POINTS[0].x) * s,
+      y: PATH_POINTS[0].y + (PATH_POINTS[1].y - PATH_POINTS[0].y) * s
+    };
+  } else if (t < 0.4) {
+    const s = (t - 0.2) / 0.2;
+    return {
+      x: PATH_POINTS[1].x + (PATH_POINTS[2].x - PATH_POINTS[1].x) * s,
+      y: PATH_POINTS[1].y + (PATH_POINTS[2].y - PATH_POINTS[1].y) * s
+    };
+  } else if (t < 0.6) {
+    const s = (t - 0.4) / 0.2;
+    return {
+      x: PATH_POINTS[2].x + (PATH_POINTS[3].x - PATH_POINTS[2].x) * s,
+      y: PATH_POINTS[2].y + (PATH_POINTS[3].y - PATH_POINTS[2].y) * s
+    };
+  } else if (t < 0.8) {
+    const s = (t - 0.6) / 0.2;
+    return {
+      x: PATH_POINTS[3].x + (PATH_POINTS[4].x - PATH_POINTS[3].x) * s,
+      y: PATH_POINTS[3].y + (PATH_POINTS[4].y - PATH_POINTS[3].y) * s
+    };
+  } else {
+    const s = (t - 0.8) / 0.2;
+    return {
+      x: PATH_POINTS[4].x + (PATH_POINTS[5].x - PATH_POINTS[4].x) * s,
+      y: PATH_POINTS[4].y + (PATH_POINTS[5].y - PATH_POINTS[4].y) * s
+    };
+  }
+};
+
 export default function ScoutPath() {
   const [progress, setProgress] = useState(0);
   const [revealed, setRevealed] = useState(Array(7).fill(false));
@@ -73,53 +125,6 @@ export default function ScoutPath() {
   const pausedOffsetRef = useRef(0);
   const resetTimeRef = useRef(null);
   const svgRef = useRef(null);
-
-  // SVG path calculation
-  const calculatePathPoint = (progress) => {
-    // Curved path coordinates (simplified cubic bezier)
-    const t = progress;
-    const points = [
-      { x: 50, y: 460 },
-      { x: 220, y: 400 },
-      { x: 440, y: 325 },
-      { x: 680, y: 250 },
-      { x: 920, y: 190 },
-      { x: 1150, y: 160 }
-    ];
-
-    // Approximate path using parametric curve
-    if (t < 0.2) {
-      const s = t / 0.2;
-      return {
-        x: points[0].x + (points[1].x - points[0].x) * s,
-        y: points[0].y + (points[1].y - points[0].y) * s
-      };
-    } else if (t < 0.4) {
-      const s = (t - 0.2) / 0.2;
-      return {
-        x: points[1].x + (points[2].x - points[1].x) * s,
-        y: points[1].y + (points[2].y - points[1].y) * s
-      };
-    } else if (t < 0.6) {
-      const s = (t - 0.4) / 0.2;
-      return {
-        x: points[2].x + (points[3].x - points[2].x) * s,
-        y: points[2].y + (points[3].y - points[2].y) * s
-      };
-    } else if (t < 0.8) {
-      const s = (t - 0.6) / 0.2;
-      return {
-        x: points[3].x + (points[4].x - points[3].x) * s,
-        y: points[3].y + (points[4].y - points[3].y) * s
-      };
-    } else {
-      const s = (t - 0.8) / 0.2;
-      return {
-        x: points[4].x + (points[5].x - points[4].x) * s,
-        y: points[4].y + (points[5].y - points[4].y) * s
-      };
-    }
-  };
 
   // Animation loop
   useEffect(() => {
@@ -157,15 +162,22 @@ export default function ScoutPath() {
       const pos = calculatePathPoint(prog);
       setScoutPos({ x: pos.x, y: pos.y - 8 });
 
-      // Badge reveals
-      const newRevealed = [...revealed];
-      THRESHOLDS.forEach((threshold, i) => {
-        if (!newRevealed[i] && prog >= threshold) {
-          newRevealed[i] = true;
-          setCurrentRank(i);
-        }
+      // Badge reveals - only update state when a new threshold is newly crossed to avoid redundant re-renders on every 60fps tick
+      setRevealed((prevRevealed) => {
+        let changed = false;
+        let newRevealed = null;
+        THRESHOLDS.forEach((threshold, i) => {
+          if (!prevRevealed[i] && prog >= threshold) {
+            if (!changed) {
+              changed = true;
+              newRevealed = [...prevRevealed];
+            }
+            newRevealed[i] = true;
+            setCurrentRank(i);
+          }
+        });
+        return changed ? newRevealed : prevRevealed;
       });
-      setRevealed(newRevealed);
     };
 
     frameId = requestAnimationFrame(animate);
@@ -236,7 +248,7 @@ export default function ScoutPath() {
 
           {/* Stars */}
           <g id="svgStars">
-            {[[90,25],[195,15],[310,38],[425,12],[540,28],[655,10],[775,34],[890,18],[1005,40],[1065,22]].map((pos, i) => (
+            {SVG_STARS.map((pos, i) => (
               <circle key={i} cx={pos[0]} cy={pos[1]} r={0.6} fill="#f0e8c8" opacity="0.5" />
             ))}
           </g>

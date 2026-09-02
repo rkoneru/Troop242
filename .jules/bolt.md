@@ -1,0 +1,3 @@
+## 2026-03-21 - Guard State Dispatches in Continuous requestAnimationFrame Animation Loops
+**Learning:** In continuous 60fps animation loops (like `requestAnimationFrame`), calling state updater functions (e.g., `setRevealed([...revealed])`) unconditionally with a newly allocated array or object on every tick forces React to re-render the component 60 times per second even when the visual state values haven't changed.
+**Action:** Always use functional state updaters (e.g., `setRevealed(prev => ...)`), check if state values actually changed before creating new array/object references, and return `prev` unchanged when no state transition occurred.

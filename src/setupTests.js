@@ -3,10 +3,34 @@
  * Runs before each test suite
  */
 
-// Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'node:util';
+import webcrypto from 'node:crypto';
 
-// Mock Firebase
+// Polyfill TextEncoder/TextDecoder for React Router 7 / JSDOM
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Polyfill web crypto
+if (!global.crypto) {
+  global.crypto = webcrypto.webcrypto || webcrypto;
+}
+
+// Set initial pathname for basename matching
+if (typeof window !== 'undefined') {
+  window.history.pushState({}, '', '/Troop242/');
+  window.scrollTo = jest.fn();
+}
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Mock Firebase App and Auth/Firestore
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
 }));
@@ -17,7 +41,9 @@ jest.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: jest.fn(),
   signOut: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
-    callback(null);
+    if (typeof callback === 'function') {
+      callback(null);
+    }
     return jest.fn();
   }),
 }));
@@ -25,6 +51,7 @@ jest.mock('firebase/auth', () => ({
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
+  doc: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
@@ -36,6 +63,20 @@ jest.mock('firebase/firestore', () => ({
   serverTimestamp: jest.fn(() => new Date()),
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
+  Timestamp: {
+    now: jest.fn(() => new Date()),
+    fromDate: jest.fn(date => date),
+  },
+}));
+
+// Mock local firebase config module to avoid import.meta syntax error in Jest
+jest.mock('./firebase/firebase', () => ({
+  get auth() {
+    return require('firebase/auth').getAuth();
+  },
+  get db() {
+    return require('firebase/firestore').getFirestore();
+  },
 }));
 
 // Mock window.matchMedia
@@ -68,7 +109,9 @@ beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render')
+      (args[0].includes('Warning: ReactDOM.render') ||
+       args[0].includes('React Router') ||
+       args[0].includes('not wrapped in act'))
     ) {
       return;
     }
