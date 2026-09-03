@@ -1,0 +1,3 @@
+## 2025-05-18 - Guarding State Updates in 60 FPS RequestAnimationFrame Animation Loops
+**Learning:** Continuous 60 FPS animation loops in React components (such as interactive SVG paths or character walk cycles) can cause heavy re-rendering overhead if state setters (e.g. `setRevealed([...revealed])`) are called unconditionally on every frame, even when data hasn't changed.
+**Action:** Use a mutable ref (`revealedRef`) to hold animation progress states and only dispatch React state setters when milestone thresholds are newly crossed (e.g., 7 times total during an animation run instead of ~960 times). Also hoist static SVG coordinate arrays (`PATH_POINTS`) to module scope to eliminate per-frame garbage collection allocations.
