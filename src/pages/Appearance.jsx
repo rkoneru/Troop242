@@ -1,31 +1,54 @@
-
 import { Palette } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { THEMES, FRAMEWORKS } from '../utils/themes';
 
 export default function Appearance() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    const userTheme = localStorage.getItem('troopTheme');
-    const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
-    return userTheme || adminDefault;
+    try {
+      const userTheme = localStorage.getItem('troopTheme');
+      const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
+      return userTheme || adminDefault;
+    } catch {
+      return 'current';
+    }
   });
 
   const [currentFramework, setCurrentFramework] = useState(() => {
-    return localStorage.getItem('troopFramework') || 'glass';
+    try {
+      return localStorage.getItem('troopFramework') || 'glass';
+    } catch {
+      return 'glass';
+    }
   });
 
   const applyTheme = (themeName) => {
-    const theme = THEMES[themeName];
-    Object.entries(theme.tokens).forEach(([prop, val]) => {
-      document.documentElement.style.setProperty(prop, val);
-    });
-    localStorage.setItem('troopTheme', themeName);
+    try {
+      const theme = THEMES[themeName];
+      if (theme?.tokens && typeof document !== 'undefined' && document.documentElement?.style) {
+        Object.entries(theme.tokens).forEach(([prop, val]) => {
+          try {
+            document.documentElement.style.setProperty(prop, val);
+          } catch {
+            // Ignore CSS property errors in test environments
+          }
+        });
+      }
+      localStorage.setItem('troopTheme', themeName);
+    } catch {
+      // Ignore storage errors
+    }
   };
 
   const applyFramework = (frameworkName) => {
-    document.body.setAttribute('data-framework', frameworkName);
-    localStorage.setItem('troopFramework', frameworkName);
+    try {
+      if (typeof document !== 'undefined' && document.body) {
+        document.body.setAttribute('data-framework', frameworkName);
+      }
+      localStorage.setItem('troopFramework', frameworkName);
+    } catch {
+      // Ignore storage errors
+    }
   };
 
   const handleThemeChange = (themeName) => {
@@ -98,7 +121,17 @@ export default function Appearance() {
                   key={key}
                   variants={itemVariants}
                   className="glass-card"
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={currentTheme === key}
+                  aria-label={`Select ${theme.name} theme`}
                   onClick={() => handleThemeChange(key)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleThemeChange(key);
+                    }
+                  }}
                   style={{
                     padding: 24,
                     cursor: 'pointer',
@@ -202,7 +235,17 @@ export default function Appearance() {
                   key={key}
                   variants={itemVariants}
                   className="glass-card"
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={currentTheme === key}
+                  aria-label={`Select ${theme.name} theme`}
                   onClick={() => handleThemeChange(key)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleThemeChange(key);
+                    }
+                  }}
                   style={{
                     padding: 24,
                     cursor: 'pointer',
@@ -306,7 +349,17 @@ export default function Appearance() {
                   key={key}
                   variants={itemVariants}
                   className="glass-card"
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={currentFramework === key}
+                  aria-label={`Select ${framework.name} framework`}
                   onClick={() => handleFrameworkChange(key)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleFrameworkChange(key);
+                    }
+                  }}
                   style={{
                     padding: 24,
                     cursor: 'pointer',
