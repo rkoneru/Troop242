@@ -1,0 +1,3 @@
+## 2026-03-21 - Accessible Custom Selection Cards for Theme & Framework Pickers
+**Learning:** Interactive selection cards implemented with `<div>` or `<motion.div>` elements often lack native focusability, keyboard triggers (`Enter` and `Space`), and toggle semantics (`aria-pressed`), rendering theme controls inaccessible to screen reader and keyboard-only users.
+**Action:** When converting interactive cards into custom buttons, always add `role="button"`, `tabIndex={0}`, `aria-pressed={isSelected}`, dynamic `aria-label`, and an `onKeyDown` handler that intercepts `Enter` and `Space` key presses.

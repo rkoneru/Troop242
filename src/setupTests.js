@@ -1,10 +1,36 @@
+/* eslint-disable no-unused-vars */
 /**
  * Test setup and configuration
  * Runs before each test suite
  */
 
-// Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+if (typeof window !== 'undefined') {
+  window.scrollTo = jest.fn();
+}
+
+// Polyfill window.crypto for tests
+if (typeof window !== 'undefined' && !window.crypto) {
+  window.crypto = {
+    getRandomValues: (buffer) => {
+      const crypto = require('crypto');
+      return crypto.randomFillSync(buffer);
+    },
+  };
+}
+
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.IntersectionObserver = MockIntersectionObserver;
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
@@ -36,6 +62,18 @@ jest.mock('firebase/firestore', () => ({
   serverTimestamp: jest.fn(() => new Date()),
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
+}));
+
+// Mock local firebase config
+jest.mock('./firebase/firebase', () => ({
+  get auth() {
+    const { getAuth } = require('firebase/auth');
+    return getAuth();
+  },
+  get db() {
+    const { getFirestore } = require('firebase/firestore');
+    return getFirestore();
+  },
 }));
 
 // Mock window.matchMedia
@@ -78,4 +116,45 @@ beforeAll(() => {
 
 afterAll(() => {
   console.error = originalError;
+});
+
+// Mock framer-motion for tests with stable component references
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const actual = jest.requireActual('framer-motion');
+  const componentCache = new Map();
+  const customMotion = new Proxy(
+    {},
+    {
+      get: (target, prop) => {
+        if (!componentCache.has(prop)) {
+          componentCache.set(
+            prop,
+            React.forwardRef(({ children, ...props }, ref) => {
+              const {
+                initial,
+                animate,
+                exit,
+                variants,
+                transition,
+                whileHover,
+                whileTap,
+                whileFocus,
+                whileInView,
+                viewport,
+                ...validProps
+              } = props;
+              return React.createElement(prop, { ...validProps, ref }, children);
+            })
+          );
+        }
+        return componentCache.get(prop);
+      },
+    }
+  );
+  return {
+    ...actual,
+    motion: customMotion,
+    AnimatePresence: ({ children }) => children,
+  };
 });
