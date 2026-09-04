@@ -260,10 +260,13 @@ export function saveData(key, value) {
 }
 
 /**
- * Generate unique ID for new items
+ * Generate unique ID for new items using Web Crypto API
  */
 export function generateId() {
-  return `item-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  const array = new Uint8Array(4);
+  crypto.getRandomValues(array);
+  const randomHex = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  return `item-${Date.now()}-${randomHex}`;
 }
 
 /**
