@@ -489,7 +489,7 @@ export default function ScoutToolsPortal() {
           <div key={i} className="scout-row">
             <span className="scout-name">{s.name}</span>
             <div className="scout-status"><span className="pill">{s.present===null?'—':s.present?'✅':'❌'}</span></div>
-            <button className="scout-del" onClick={()=>setScouts(scouts.filter((_,j)=>j!==i))}>🗑</button>
+            <button className="scout-del" aria-label={`Delete ${s.name || 'scout'}`} onClick={()=>setScouts(scouts.filter((_,j)=>j!==i))}>🗑</button>
           </div>
         ))}
       </div>
@@ -630,7 +630,7 @@ export default function ScoutToolsPortal() {
       {selectedGuideCard && (
         <div className="modal-overlay" onClick={()=>setSelectedGuideCard(null)}>
           <div className="modal-content" onClick={e=>e.stopPropagation()}>
-            <button className="modal-close" onClick={()=>setSelectedGuideCard(null)}>✕</button>
+            <button className="modal-close" aria-label="Close modal" onClick={()=>setSelectedGuideCard(null)}>✕</button>
             <div className="modal-image-section">
               <div className="modal-emoji">{selectedGuideCard.emoji}</div>
             </div>
@@ -779,7 +779,7 @@ export default function ScoutToolsPortal() {
               <button className="score-btn plus" onClick={()=>{}}>+10</button>
               <button className="score-btn plus" onClick={()=>{}}>+5</button>
               <button className="score-btn minus" onClick={()=>{}}>−5</button>
-              <button className="score-btn del" onClick={()=>{}}>🗑</button>
+              <button className="score-btn del" aria-label={`Delete ${p.name || 'patrol'}`} onClick={()=>{}}>🗑</button>
             </div>
           </div>
         ))}
@@ -1007,7 +1007,7 @@ export default function ScoutToolsPortal() {
       {/* HEADER */}
       <header className="scout-portal-header">
         <div className="header-content">
-          <button className="menu-btn" onClick={()=>setSidebarOpen(!sidebarOpen)}>☰</button>
+          <button className="menu-btn" aria-label="Toggle navigation menu" aria-expanded={sidebarOpen} onClick={()=>setSidebarOpen(!sidebarOpen)}>☰</button>
           <a href="#" className="home-link" onClick={(e)=>{e.preventDefault();navigate('/');}}>
           <div className="header-brand">
             <span className="brand-icon">⚜️</span>
@@ -1026,6 +1026,8 @@ export default function ScoutToolsPortal() {
             <div style={{ position: 'relative' }}>
               <button
                 className="btn-menu"
+                aria-label="Scout account options"
+                aria-expanded={scoutMenuOpen}
                 onClick={() => setScoutMenuOpen(!scoutMenuOpen)}
                 style={{
                   padding: '8px 16px',
