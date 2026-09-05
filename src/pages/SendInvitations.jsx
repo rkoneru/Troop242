@@ -208,11 +208,12 @@ export default function SendInvitations() {
                 </p>
 
                 <div style={{ marginBottom: 12 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  <label htmlFor="invite-registration-url" style={{ display: 'block', marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     Registration Link:
                   </label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input
+                      id="invite-registration-url"
                       type="text"
                       readOnly
                       value={generatedInvite.registrationUrl}
@@ -228,6 +229,8 @@ export default function SendInvitations() {
                       }}
                     />
                     <button
+                      type="button"
+                      aria-label={copiedId === 'link' ? 'Registration link copied to clipboard' : 'Copy registration link'}
                       onClick={() => copyToClipboard(generatedInvite.registrationUrl, 'link')}
                       style={{
                         padding: '8px 12px',
@@ -251,11 +254,12 @@ export default function SendInvitations() {
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  <label htmlFor="invite-code" style={{ display: 'block', marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     Invitation Code:
                   </label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input
+                      id="invite-code"
                       type="text"
                       readOnly
                       value={generatedInvite.code}
@@ -274,6 +278,8 @@ export default function SendInvitations() {
                       }}
                     />
                     <button
+                      type="button"
+                      aria-label={copiedId === 'code' ? 'Invitation code copied to clipboard' : 'Copy invitation code'}
                       onClick={() => copyToClipboard(generatedInvite.code, 'code')}
                       style={{
                         padding: '8px 12px',
@@ -372,10 +378,11 @@ export default function SendInvitations() {
             {!generatedInvite && (
               <form onSubmit={handleSendInvitation} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                  <label htmlFor="invite-email" style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                     Email Address
                   </label>
                   <input
+                    id="invite-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -394,10 +401,11 @@ export default function SendInvitations() {
 
                 {profile?.role === 'admin' && (
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    <label htmlFor="invite-role" style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                       Invite as
                     </label>
                     <select
+                      id="invite-role"
                       value={inviteType}
                       onChange={(e) => setInviteType(e.target.value)}
                       style={{
@@ -471,6 +479,8 @@ export default function SendInvitations() {
                         </p>
                       </div>
                       <button
+                        type="button"
+                        aria-label={copiedId === inv.code ? `Code ${inv.code} copied to clipboard` : `Copy code ${inv.code}`}
                         onClick={() => copyToClipboard(inv.code)}
                         style={{
                           padding: '6px 12px',

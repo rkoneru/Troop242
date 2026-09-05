@@ -1,0 +1,3 @@
+## 2025-05-18 - Form Labels & Dynamic Clipboard Button Accessibility
+**Learning:** Copy-to-clipboard buttons with icon or brief text updates (e.g. changing from "Copy" to "Copied") fail to communicate state changes to screen readers unless paired with dynamic `aria-label` attributes that reflect the updated status (e.g. "Registration link copied to clipboard"). Additionally, explicit `htmlFor` and `id` pairs ensure seamless input focus when clicking form labels.
+**Action:** Always provide dynamic `aria-label`s on clipboard/copy buttons that update when copied, and explicitly link labels to form controls using `htmlFor` and `id`.
