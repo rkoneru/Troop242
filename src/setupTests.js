@@ -6,6 +6,16 @@
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 
+// Mock Firebase local config to bypass import.meta.env in tests
+jest.mock('./firebase/firebase', () => ({
+  auth: {
+    currentUser: null,
+  },
+  db: {},
+  firebaseError: null,
+  default: {},
+}));
+
 // Mock Firebase
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
@@ -25,6 +35,8 @@ jest.mock('firebase/auth', () => ({
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
+  doc: jest.fn(),
+  addDoc: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
@@ -36,6 +48,10 @@ jest.mock('firebase/firestore', () => ({
   serverTimestamp: jest.fn(() => new Date()),
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
+  Timestamp: {
+    now: jest.fn(() => new Date()),
+    fromDate: jest.fn(d => d),
+  },
 }));
 
 // Mock window.matchMedia
