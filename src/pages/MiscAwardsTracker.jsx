@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Check } from 'lucide-react';
@@ -83,24 +83,23 @@ export default function MiscAwardsTracker() {
     }
   };
 
-  // Compute progress
-  const getCompletedCountForCategory = (catIdx) => {
-    return MISC_AWARD_CATEGORIES[catIdx].awards.filter(
-      (award) => miscAwards[award]
-    ).length;
-  };
-
-  const getTotalForCategory = (catIdx) => {
-    return MISC_AWARD_CATEGORIES[catIdx].awards.length;
-  };
-
-  const getTotalEarned = () => {
-    return Object.values(miscAwards).filter(Boolean).length;
-  };
-
-  const getTotalAwards = () => {
+  // Memoize static total awards count across all categories
+  const totalAwards = useMemo(() => {
     return MISC_AWARD_CATEGORIES.reduce((sum, cat) => sum + cat.awards.length, 0);
-  };
+  }, []);
+
+  // Memoize total earned awards count from user state
+  const totalEarned = useMemo(() => {
+    return Object.values(miscAwards).filter(Boolean).length;
+  }, [miscAwards]);
+
+  // Memoize per-category completed and total counts to eliminate O(C * A) filtering on every render
+  const categoryCounts = useMemo(() => {
+    return MISC_AWARD_CATEGORIES.map((cat) => ({
+      completed: cat.awards.filter((award) => miscAwards[award]).length,
+      total: cat.awards.length,
+    }));
+  }, [miscAwards]);
 
   // Render state
   if (isLoading) {
@@ -108,8 +107,8 @@ export default function MiscAwardsTracker() {
   }
 
   const currentCategory = MISC_AWARD_CATEGORIES[selectedCategoryIdx];
-  const completedCount = getCompletedCountForCategory(selectedCategoryIdx);
-  const totalCount = getTotalForCategory(selectedCategoryIdx);
+  const completedCount = categoryCounts[selectedCategoryIdx]?.completed || 0;
+  const totalCount = categoryCounts[selectedCategoryIdx]?.total || 0;
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: 80, paddingBottom: 40 }}>
@@ -148,13 +147,13 @@ export default function MiscAwardsTracker() {
         >
           <div>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Total Earned</p>
-            <p style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0 0 4px 0' }}>{getTotalEarned()}</p>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>of {getTotalAwards()} awards</p>
+            <p style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0 0 4px 0' }}>{totalEarned}</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>of {totalAwards} awards</p>
           </div>
           <div>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>Progress</p>
             <p style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0 0 4px 0' }}>
-              {Math.round((getTotalEarned() / getTotalAwards()) * 100)}%
+              {totalAwards > 0 ? Math.round((totalEarned / totalAwards) * 100) : 0}%
             </p>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>completion rate</p>
           </div>
@@ -205,7 +204,7 @@ export default function MiscAwardsTracker() {
                     borderRadius: 4,
                   }}
                 >
-                  {getCompletedCountForCategory(idx)}/{getTotalForCategory(idx)}
+                  {categoryCounts[idx]?.completed || 0}/{categoryCounts[idx]?.total || 0}
                 </div>
               </motion.button>
             ))}
