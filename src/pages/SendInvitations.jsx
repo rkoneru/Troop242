@@ -5,6 +5,7 @@ import { Mail, Copy, Check, Share2, ExternalLink } from 'lucide-react';
 import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { generateSecureInviteCode } from '../utils/invitations';
 
 export default function SendInvitations() {
   const navigate = useNavigate();
@@ -45,7 +46,8 @@ export default function SendInvitations() {
     loadInvitations();
   }, [user]);
 
-  const generateCode = () => Math.random().toString(36).substring(2, 10).toUpperCase();
+  // Security: Use cryptographically secure RNG via Web Crypto API instead of Math.random() to prevent predictable token generation
+  const generateCode = () => generateSecureInviteCode();
 
   const handleSendInvitation = async (e) => {
     e.preventDefault();
