@@ -1,0 +1,3 @@
+## 2026-03-31 - Accessible Password Toggle & Live Form Error Announcements
+**Learning:** Password input fields often lack programmatic label associations (`htmlFor`/`id`), autocomplete attributes, and password visibility toggles. Additionally, dynamic form error messages rendered on submit are missed by screen readers unless wrapped in live regions (`role="alert"` and `aria-live="polite"`).
+**Action:** Always link form labels to inputs using explicit `id` and `htmlFor`, add an accessible toggle button (`type="button"`, `aria-label`, `aria-pressed`) for password fields, and wrap error message containers in `role="alert"` and `aria-live="polite"`.
