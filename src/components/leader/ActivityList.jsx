@@ -4,6 +4,7 @@
  * Extracted from LeaderDashboard for reusability
  */
 
+import { useState } from 'react';
 import { MapPin, Users, Calendar, Trash2, Edit2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -15,6 +16,7 @@ export default function ActivityList({
   onShowRoster,
   expandedRosters = {},
 }) {
+  const [localExpanded, setLocalExpanded] = useState({});
   if (items.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -87,18 +89,23 @@ export default function ActivityList({
           {(item.signedUp?.length || 0) > 0 && (
             <div className="mt-3 border-t pt-3">
               <button
-                onClick={() => onShowRoster?.(item.id)}
+                onClick={() => {
+                  onShowRoster?.(item.id);
+                  setLocalExpanded((prev) => ({ ...prev, [item.id]: !prev[item.id] }));
+                }}
                 className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                aria-expanded={Boolean(expandedRosters[item.id] ?? localExpanded[item.id])}
+                aria-label={expandedRosters[item.id] ?? localExpanded[item.id] ? `Hide roster for ${item.title}` : `Show roster for ${item.title}`}
               >
-                {expandedRosters[item.id] ? '▼ Hide Roster' : '▶ Show Roster'}
+                {expandedRosters[item.id] ?? localExpanded[item.id] ? '▼ Hide Roster' : '▶ Show Roster'}
               </button>
 
-              {expandedRosters[item.id] && (
+              {(expandedRosters[item.id] ?? localExpanded[item.id]) && (
                 <div className="mt-2 bg-gray-50 p-3 rounded">
                   <ul className="text-sm space-y-1">
                     {item.signedUp?.map((scout, idx) => (
                       <li key={idx} className="text-gray-700">
-                        • {scout.name || 'Unknown'}
+                        <span aria-hidden="true">• </span>{scout.name || 'Unknown'}
                       </li>
                     ))}
                   </ul>

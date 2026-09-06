@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 import '../styles/member-login.css';
 
@@ -11,6 +12,7 @@ export default function MemberLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); 
 
@@ -40,7 +42,7 @@ export default function MemberLogin() {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         user = userCredential.user;
         const profileSnap = await getDoc(doc(db, 'users', user.uid));
-        userProfile = profileSnap.data();
+        userProfile = profileSnap?.data ? profileSnap.data() : null;
       } catch (authError) {
         // Handle Firebase Auth errors
         if (authError.code === 'auth/user-not-found') {
@@ -62,7 +64,7 @@ export default function MemberLogin() {
       // Get user profile from Firestore if not already loaded
       if (!userProfile) {
         const profileSnap = await getDoc(doc(db, 'users', user.uid));
-        userProfile = profileSnap.data();
+        userProfile = profileSnap?.data ? profileSnap.data() : null;
       }
 
       if (!userProfile) {
@@ -127,6 +129,8 @@ export default function MemberLogin() {
           >
             {error && (
               <motion.div
+                role="alert"
+                aria-live="polite"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{
@@ -145,11 +149,16 @@ export default function MemberLogin() {
 
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <label
+                  htmlFor="member-email"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
                   Email Address
                 </label>
                 <input
+                  id="member-email"
                   type="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your.email@example.com"
@@ -175,33 +184,63 @@ export default function MemberLogin() {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <label
+                  htmlFor="member-password"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
                   Password
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'var(--input-bg)',
-                    border: '1px solid var(--input-border)',
-                    borderRadius: 8,
-                    color: 'var(--text-primary)',
-                    fontSize: '0.95rem',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = 'var(--accent)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(100, 150, 200, 0.2)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'var(--input-border)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    id="member-password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    style={{
+                      width: '100%',
+                      padding: '12px 48px 12px 16px',
+                      background: 'var(--input-bg)',
+                      border: '1px solid var(--input-border)',
+                      borderRadius: 8,
+                      color: 'var(--text-primary)',
+                      fontSize: '0.95rem',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = 'var(--accent)';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(100, 150, 200, 0.2)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = 'var(--input-border)';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '4px'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <button
@@ -238,12 +277,12 @@ export default function MemberLogin() {
               </button>
             </form>
 
-            {/* <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--divider)', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 12 }}>
                 Don't have an account?
               </p>
-              <a
-                href="/register?code=SCOUT01"
+              <Link
+                to="/register?code=SCOUT01"
                 style={{
                   color: 'var(--accent)',
                   textDecoration: 'none',
@@ -255,8 +294,8 @@ export default function MemberLogin() {
                 onMouseLeave={(e) => e.target.style.color = 'var(--accent)'}
               >
                 Register as a Scout →
-              </a>
-            </div> */}
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>

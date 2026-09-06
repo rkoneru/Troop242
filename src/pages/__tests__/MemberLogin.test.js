@@ -3,17 +3,17 @@
  * Tests authentication flow and Firebase Auth integration
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import MemberLogin from '../MemberLogin';
 import { AuthProvider } from '../../contexts/AuthContext';
 
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
 // Mock Firebase Auth
-const mockSignInWithEmailAndPassword = jest.fn();
 jest.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+  signInWithEmailAndPassword: jest.fn(),
   getAuth: jest.fn(),
   onAuthStateChanged: jest.fn((auth, callback) => {
     callback(null);
@@ -53,7 +53,7 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/email/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter email and password/i)).toBeInTheDocument();
     });
   });
 
@@ -69,13 +69,13 @@ describe('MemberLogin', () => {
 
     // Form should show validation error
     await waitFor(() => {
-      expect(screen.getByText(/password/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter email and password/i)).toBeInTheDocument();
     });
   });
 
   it('should call signInWithEmailAndPassword on valid form submit', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockResolvedValue({
+    signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid', email: 'scout@example.com' },
     });
 
@@ -90,7 +90,7 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         'scout@example.com',
         'Password123'
@@ -100,7 +100,7 @@ describe('MemberLogin', () => {
 
   it('should handle authentication errors', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockRejectedValue(
+    signInWithEmailAndPassword.mockRejectedValue(
       new Error('Invalid credentials')
     );
 
@@ -121,7 +121,7 @@ describe('MemberLogin', () => {
 
   it('should show loading state during sign in', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockImplementation(
+    signInWithEmailAndPassword.mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve({ user: {} }), 100))
     );
 
@@ -143,7 +143,7 @@ describe('MemberLogin', () => {
 
   it('should trim email input', async () => {
     const user = userEvent.setup();
-    mockSignInWithEmailAndPassword.mockResolvedValue({
+    signInWithEmailAndPassword.mockResolvedValue({
       user: { uid: 'test-uid' },
     });
 
@@ -158,7 +158,7 @@ describe('MemberLogin', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         'scout@example.com',
         'Password123'
@@ -171,5 +171,21 @@ describe('MemberLogin', () => {
 
     const registerLink = screen.getByText(/register/i);
     expect(registerLink).toBeInTheDocument();
+  });
+
+  it('should toggle password visibility when show/hide button is clicked', async () => {
+    const user = userEvent.setup();
+    renderComponent(<MemberLogin />);
+
+    const passwordInput = screen.getByPlaceholderText(/password/i);
+    const toggleButton = screen.getByRole('button', { name: /show password/i });
+
+    expect(passwordInput).toHaveAttribute('type', 'password');
+    expect(toggleButton).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(toggleButton);
+
+    expect(passwordInput).toHaveAttribute('type', 'text');
+    expect(screen.getByRole('button', { name: /hide password/i })).toHaveAttribute('aria-pressed', 'true');
   });
 });
