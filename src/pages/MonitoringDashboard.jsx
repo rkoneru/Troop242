@@ -206,30 +206,32 @@ function PerformanceMetrics({ metricsData }) {
 }
 
 function HistogramChart({ metricsData }) {
+  // Bolt Optimization: Perform a single linear pass over the values array
+  // instead of 4 separate .filter() passes, avoiding O(4N) traversals and array allocations per render.
+  const values = metricsData.http_request_duration_ms?.values || [];
+  let lt100 = 0;
+  let b100to500 = 0;
+  let b500to1000 = 0;
+  let gt1000 = 0;
+
+  for (let i = 0; i < values.length; i++) {
+    const v = values[i];
+    if (v < 100) lt100++;
+    else if (v < 500) b100to500++;
+    else if (v < 1000) b500to1000++;
+    else gt1000++;
+  }
+
+  const total = metricsData.http_request_duration_ms?.count || 1;
+
   return (
     <div className="card p-4">
       <h3 className="font-bold mb-4">📈 Request Distribution</h3>
       <div className="space-y-3">
-        <HistogramBar
-          label="<100ms"
-          count={metricsData.http_request_duration_ms?.values?.filter(v => v < 100).length || 0}
-          total={metricsData.http_request_duration_ms?.count || 1}
-        />
-        <HistogramBar
-          label="100-500ms"
-          count={metricsData.http_request_duration_ms?.values?.filter(v => v >= 100 && v < 500).length || 0}
-          total={metricsData.http_request_duration_ms?.count || 1}
-        />
-        <HistogramBar
-          label="500-1000ms"
-          count={metricsData.http_request_duration_ms?.values?.filter(v => v >= 500 && v < 1000).length || 0}
-          total={metricsData.http_request_duration_ms?.count || 1}
-        />
-        <HistogramBar
-          label=">1000ms"
-          count={metricsData.http_request_duration_ms?.values?.filter(v => v >= 1000).length || 0}
-          total={metricsData.http_request_duration_ms?.count || 1}
-        />
+        <HistogramBar label="<100ms" count={lt100} total={total} />
+        <HistogramBar label="100-500ms" count={b100to500} total={total} />
+        <HistogramBar label="500-1000ms" count={b500to1000} total={total} />
+        <HistogramBar label=">1000ms" count={gt1000} total={total} />
       </div>
     </div>
   );
