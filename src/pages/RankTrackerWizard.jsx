@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Copy, ExternalLink, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
@@ -125,6 +125,17 @@ Next Steps:
     });
   };
 
+  // Memoize requirement completion counts across all ranks
+  const rankCompletionCounts = useMemo(() => {
+    return RANKS.map((rank, rankIdx) => {
+      let count = 0;
+      rank.requirements.forEach((_, reqIdx) => {
+        if (rankChecks[`${rankIdx}-${reqIdx}`]) count++;
+      });
+      return count;
+    });
+  }, [rankChecks]);
+
   if (isLoading) {
     return (
       <section style={{ minHeight: '10vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -139,11 +150,7 @@ Next Steps:
 
   const currentRank = RANKS[selectedRank];
 
-  // Count completed requirements in current rank
-  let completedCount = 0;
-  currentRank.requirements.forEach((_, idx) => {
-    if (rankChecks[`${selectedRank}-${idx}`]) completedCount++;
-  });
+  const completedCount = rankCompletionCounts[selectedRank] || 0;
   const allComplete = completedCount === currentRank.requirements.length;
 
   return (
@@ -198,10 +205,7 @@ Next Steps:
             }}
           >
             {RANKS.map((rank, idx) => {
-              let rankComplete = 0;
-              rank.requirements.forEach((_, reqIdx) => {
-                if (rankChecks[`${idx}-${reqIdx}`]) rankComplete++;
-              });
+              const rankComplete = rankCompletionCounts[idx] || 0;
               const isSelected = selectedRank === idx;
 
               return (
