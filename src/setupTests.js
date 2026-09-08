@@ -3,8 +3,30 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+if (typeof window !== 'undefined') {
+  if (!window.crypto) {
+    window.crypto = {
+      getRandomValues: (arr) => require('crypto').randomFillSync(arr),
+    };
+  }
+  if (!window.scrollTo) {
+    window.scrollTo = jest.fn();
+  }
+}
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+
+// Mock local firebase module to prevent import.meta issues
+jest.mock('./firebase/firebase', () => ({
+  auth: {},
+  db: {},
+}));
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
