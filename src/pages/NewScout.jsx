@@ -192,6 +192,10 @@ export default function NewScout() {
                 key={i}
                 variants={itemVariants}
                 className="glass-card"
+                role="checkbox"
+                tabIndex={0}
+                aria-checked={Boolean(checkedDays[i])}
+                aria-label={`Toggle completion for ${step.title}`}
                 style={{
                   padding: '20px 24px',
                   display: 'flex',
@@ -202,10 +206,17 @@ export default function NewScout() {
                   transition: 'opacity 0.3s'
                 }}
                 onClick={() => toggleCheck(i)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleCheck(i);
+                  }
+                }}
               >
                 <div style={{ flexShrink: 0, marginTop: 2 }}>
                   <CheckCircle2
                     size={24}
+                    aria-hidden="true"
                     style={{ color: checkedDays[i] ? 'var(--accent)' : 'var(--accent-dim)', transition: 'color 0.3s' }}
                   />
                 </div>
@@ -231,10 +242,15 @@ export default function NewScout() {
 
           <div style={{ maxWidth: 800, margin: '0 auto' }}>
             {/* Event Tabs */}
-            <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
+            <div role="tablist" aria-label="Packing list event selection" style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
               {WHAT_TO_BRING.map((item, i) => (
                 <button
                   key={i}
+                  type="button"
+                  role="tab"
+                  id={`bring-tab-${i}`}
+                  aria-selected={selectedEvent === i}
+                  aria-controls={`bring-tabpanel-${i}`}
                   onClick={() => setSelectedEvent(i)}
                   style={{
                     padding: '10px 20px',
@@ -257,6 +273,9 @@ export default function NewScout() {
 
             <motion.div
               key={selectedEvent}
+              role="tabpanel"
+              id={`bring-tabpanel-${selectedEvent}`}
+              aria-labelledby={`bring-tab-${selectedEvent}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
@@ -391,6 +410,10 @@ export default function NewScout() {
                 style={{ overflow: 'hidden' }}
               >
                 <button
+                  type="button"
+                  id={`faq-header-${i}`}
+                  aria-expanded={openFaq === i}
+                  aria-controls={`faq-panel-${i}`}
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   style={{
                     width: '100%',
@@ -412,6 +435,7 @@ export default function NewScout() {
                   {item.q}
                   <ChevronRight
                     size={18}
+                    aria-hidden="true"
                     style={{
                       color: 'var(--accent)',
                       flexShrink: 0,
@@ -421,6 +445,9 @@ export default function NewScout() {
                   />
                 </button>
                 <motion.div
+                  id={`faq-panel-${i}`}
+                  role="region"
+                  aria-labelledby={`faq-header-${i}`}
                   initial={false}
                   animate={{ height: openFaq === i ? 'auto' : 0, opacity: openFaq === i ? 1 : 0 }}
                   transition={{ duration: 0.3 }}
