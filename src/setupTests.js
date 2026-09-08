@@ -38,6 +38,18 @@ jest.mock('firebase/firestore', () => ({
   arrayRemove: jest.fn(val => val),
 }));
 
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+  takeRecords() { return []; }
+};
+
+// Mock window.scrollTo
+window.scrollTo = jest.fn();
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
