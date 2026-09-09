@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
+import { authSchemas, validate } from '../utils/validation';
 import '../styles/member-login.css';
 
 export default function MemberLogin() {
@@ -18,8 +19,11 @@ export default function MemberLogin() {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
-      setError('Please enter email and password');
+    // Input validation using authSchemas
+    const validation = validate({ email, password }, authSchemas.login);
+    if (!validation.valid) {
+      const firstError = Object.values(validation.errors)[0] || 'Please check your email and password';
+      setError(firstError);
       return;
     }
 
