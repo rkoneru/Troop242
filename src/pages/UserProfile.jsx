@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,6 +29,7 @@ export default function UserProfile() {
   useEffect(() => {
     if (!user || !profile) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData({
       name: profile.name || '',
       email: profile.email || '',
@@ -126,6 +127,8 @@ export default function UserProfile() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              role="alert"
+              aria-live="polite"
               className="alert alert-error"
             >
               ✕ {error}
@@ -136,6 +139,8 @@ export default function UserProfile() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              role="alert"
+              aria-live="polite"
               className="alert alert-success"
             >
               ✓ {success}
@@ -144,36 +149,42 @@ export default function UserProfile() {
 
           <div className="profile-info">
             <div className="profile-field">
-              <label>Full Name</label>
+              <label htmlFor="profile-name">Full Name</label>
               <input
+                id="profile-name"
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 disabled={!isEditing}
+                autoComplete="name"
                 className="profile-input"
               />
             </div>
 
             <div className="profile-field">
-              <label>Email Address</label>
+              <label htmlFor="profile-email">Email Address</label>
               <input
+                id="profile-email"
                 type="email"
                 value={formData.email}
                 disabled
+                autoComplete="email"
                 className="profile-input profile-input--disabled"
               />
               <small style={{ color: 'var(--text-muted)' }}>Email cannot be changed</small>
             </div>
 
             <div className="profile-field">
-              <label>Phone Number</label>
+              <label htmlFor="profile-phone">Phone Number</label>
               <input
+                id="profile-phone"
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
                 disabled={!isEditing}
+                autoComplete="tel"
                 className="profile-input"
                 placeholder="(XXX) XXX-XXXX"
               />
@@ -181,8 +192,9 @@ export default function UserProfile() {
 
             {isEditing && formData.role === 'scout' && (
               <div className="profile-field">
-                <label>Scout Rank</label>
+                <label htmlFor="profile-rank">Scout Rank</label>
                 <select
+                  id="profile-rank"
                   name="rank"
                   value={formData.rank}
                   onChange={handleInputChange}
@@ -236,6 +248,7 @@ export default function UserProfile() {
           <div className="profile-actions">
             {!isEditing ? (
               <button
+                type="button"
                 className="btn btn-primary"
                 onClick={() => setIsEditing(true)}
               >
@@ -244,6 +257,7 @@ export default function UserProfile() {
             ) : (
               <>
                 <button
+                  type="button"
                   className="btn btn-primary"
                   onClick={handleSave}
                   disabled={isSaving}
@@ -251,6 +265,7 @@ export default function UserProfile() {
                   {isSaving ? '💾 Saving...' : '💾 Save Changes'}
                 </button>
                 <button
+                  type="button"
                   className="btn btn-secondary"
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
@@ -264,6 +279,7 @@ export default function UserProfile() {
           <div className="profile-danger-zone">
             <h3>Danger Zone</h3>
             <button
+              type="button"
               className="btn btn-danger"
               onClick={handleLogout}
             >
