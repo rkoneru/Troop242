@@ -7,6 +7,15 @@
 import '@testing-library/jest-dom';
 
 // Mock Firebase
+jest.mock('./firebase/firebase', () => ({
+  auth: {
+    currentUser: null,
+  },
+  db: {},
+  firebaseError: null,
+  default: {},
+}));
+
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
 }));
