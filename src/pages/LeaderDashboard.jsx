@@ -42,6 +42,33 @@ export default function LeaderDashboard() {
   const troopActivities = useMemo(() => allItems.filter(i => i.type === 'activity'), [allItems]);
   const events = useMemo(() => allItems.filter(i => i.type === 'event'), [allItems]);
 
+  // Performance Optimization: Memoize sorted troop activities to avoid inline sorting & date parsing on renders
+  const sortedTroopActivities = useMemo(() => {
+    return troopActivities.slice().sort((a, b) => {
+      const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
+      const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
+      if (slotsB !== slotsA) return slotsB - slotsA;
+      return new Date(a.date) - new Date(b.date);
+    });
+  }, [troopActivities]);
+
+  // Performance Optimization: Memoize sorted events to avoid inline sorting & date parsing on renders
+  const sortedEvents = useMemo(() => {
+    return events.slice().sort((a, b) => {
+      const slotsA = (a.spots || 9999) - (a.signedUp?.length || 0);
+      const slotsB = (b.spots || 9999) - (b.signedUp?.length || 0);
+      if (slotsB !== slotsA) return slotsB - slotsA;
+      return new Date(a.date) - new Date(b.date);
+    });
+  }, [events]);
+
+  // Performance Optimization: Memoize approved scouts to eliminate redundant filter & sort operations
+  const approvedScouts = useMemo(() => {
+    return scoutsData
+      .filter(s => s.status === 'approved')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }, [scoutsData]);
+
   // Form states
   const [newScoutForm, setNewScoutForm] = useState({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
   const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
@@ -101,12 +128,7 @@ export default function LeaderDashboard() {
   // Load progress data when progress tab is selected
   useEffect(() => {
     // Only set up listeners when progress tab is active
-    if (selectedTab !== 'progress' || scoutsData.length === 0) {
-      return;
-    }
-
-    const approvedScouts = scoutsData.filter(s => s.status === 'approved');
-    if (approvedScouts.length === 0) {
+    if (selectedTab !== 'progress' || approvedScouts.length === 0) {
       return;
     }
 
@@ -126,7 +148,7 @@ export default function LeaderDashboard() {
 
     // Cleanup all listeners when effect cleanup runs
     return () => unsubscribers.forEach(unsub => unsub());
-  }, [selectedTab, scoutsData]);
+  }, [selectedTab, approvedScouts]);
 
   // Clear messages after 3 seconds
   useEffect(() => {
@@ -1222,23 +1244,14 @@ export default function LeaderDashboard() {
                 <h3 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '1.1rem' }}>
                   Activities ({troopActivities.length})
                 </h3>
-                {troopActivities.length === 0 ? (
+                {sortedTroopActivities.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
                     No activities yet. Create one above!
                   </div>
                 ) : (
-                  troopActivities
-                    .slice()
-                    .sort((a, b) => {
-                      // Sort by available slots (more slots first), then by date
-                      const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
-                      const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
-                      if (slotsB !== slotsA) return slotsB - slotsA;
-                      return new Date(a.date) - new Date(b.date);
-                    })
-                    .map(activity => (
-                      <ActivityCard key={activity.id} activity={activity} />
-                    ))
+                  sortedTroopActivities.map(activity => (
+                    <ActivityCard key={activity.id} activity={activity} />
+                  ))
                 )}
               </div>
             </motion.div>
@@ -1368,21 +1381,12 @@ export default function LeaderDashboard() {
                 <h3 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '1.1rem' }}>
                   Events ({events.length})
                 </h3>
-                {events.length === 0 ? (
+                {sortedEvents.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
                     No events scheduled yet.
                   </div>
                 ) : (
-                  events
-                    .slice()
-                    .sort((a, b) => {
-                      // Sort by available slots (more slots first), then by date
-                      const slotsA = (a.spots || 9999) - (a.signedUp?.length || 0);
-                      const slotsB = (b.spots || 9999) - (b.signedUp?.length || 0);
-                      if (slotsB !== slotsA) return slotsB - slotsA;
-                      return new Date(a.date) - new Date(b.date);
-                    })
-                    .map(event => (
+                  sortedEvents.map(event => (
                     <motion.div
                       key={event.id}
                       initial={{ opacity: 0, y: 10 }}
@@ -1598,15 +1602,7 @@ export default function LeaderDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {(troopActivities || [])
-                          .sort((a, b) => {
-                            // Sort by available slots (more slots first), then by date
-                            const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
-                            const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
-                            if (slotsB !== slotsA) return slotsB - slotsA;
-                            return new Date(a.date) - new Date(b.date);
-                          })
-                          .map((activity) => {
+                        {sortedTroopActivities.map((activity) => {
                             const full = (activity.signedUp?.length || 0) >= activity.spots;
                             return (
                             <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
@@ -1668,10 +1664,7 @@ export default function LeaderDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {scoutsData
-                        .filter(s => s.status === 'approved')
-                        .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-                        .map(scout => (
+                      {approvedScouts.map(scout => (
                           <tr key={scout.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                             <td style={{ padding: '12px', color: '#fff', fontWeight: 500 }}>{scout.name}</td>
                             {RANKS.map((rank, rankIdx) => {
@@ -1713,7 +1706,7 @@ export default function LeaderDashboard() {
                         ))}
                     </tbody>
                   </table>
-                  {scoutsData.filter(s => s.status === 'approved').length === 0 && (
+                  {approvedScouts.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
                       <p>No approved scouts yet.</p>
                     </div>
