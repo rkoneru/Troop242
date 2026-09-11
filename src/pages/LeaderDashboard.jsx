@@ -42,6 +42,35 @@ export default function LeaderDashboard() {
   const troopActivities = useMemo(() => allItems.filter(i => i.type === 'activity'), [allItems]);
   const events = useMemo(() => allItems.filter(i => i.type === 'event'), [allItems]);
 
+  // Memoized sorted lists to eliminate inline array copying, sorting, and date parsing on renders
+  const sortedTroopActivities = useMemo(() => {
+    return troopActivities
+      .slice()
+      .sort((a, b) => {
+        const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
+        const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
+        if (slotsB !== slotsA) return slotsB - slotsA;
+        return new Date(a.date) - new Date(b.date);
+      });
+  }, [troopActivities]);
+
+  const sortedEvents = useMemo(() => {
+    return events
+      .slice()
+      .sort((a, b) => {
+        const slotsA = (a.spots || 9999) - (a.signedUp?.length || 0);
+        const slotsB = (b.spots || 9999) - (b.signedUp?.length || 0);
+        if (slotsB !== slotsA) return slotsB - slotsA;
+        return new Date(a.date) - new Date(b.date);
+      });
+  }, [events]);
+
+  const sortedApprovedScouts = useMemo(() => {
+    return scoutsData
+      .filter(s => s.status === 'approved')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }, [scoutsData]);
+
   // Form states
   const [newScoutForm, setNewScoutForm] = useState({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
   const [newEventForm, setNewEventForm] = useState({ title: '', date: '', time: '', location: '', description: '' });
@@ -1227,18 +1256,9 @@ export default function LeaderDashboard() {
                     No activities yet. Create one above!
                   </div>
                 ) : (
-                  troopActivities
-                    .slice()
-                    .sort((a, b) => {
-                      // Sort by available slots (more slots first), then by date
-                      const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
-                      const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
-                      if (slotsB !== slotsA) return slotsB - slotsA;
-                      return new Date(a.date) - new Date(b.date);
-                    })
-                    .map(activity => (
-                      <ActivityCard key={activity.id} activity={activity} />
-                    ))
+                  sortedTroopActivities.map(activity => (
+                    <ActivityCard key={activity.id} activity={activity} />
+                  ))
                 )}
               </div>
             </motion.div>
@@ -1373,16 +1393,7 @@ export default function LeaderDashboard() {
                     No events scheduled yet.
                   </div>
                 ) : (
-                  events
-                    .slice()
-                    .sort((a, b) => {
-                      // Sort by available slots (more slots first), then by date
-                      const slotsA = (a.spots || 9999) - (a.signedUp?.length || 0);
-                      const slotsB = (b.spots || 9999) - (b.signedUp?.length || 0);
-                      if (slotsB !== slotsA) return slotsB - slotsA;
-                      return new Date(a.date) - new Date(b.date);
-                    })
-                    .map(event => (
+                  sortedEvents.map(event => (
                     <motion.div
                       key={event.id}
                       initial={{ opacity: 0, y: 10 }}
@@ -1598,15 +1609,7 @@ export default function LeaderDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {(troopActivities || [])
-                          .sort((a, b) => {
-                            // Sort by available slots (more slots first), then by date
-                            const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
-                            const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
-                            if (slotsB !== slotsA) return slotsB - slotsA;
-                            return new Date(a.date) - new Date(b.date);
-                          })
-                          .map((activity) => {
+                        {sortedTroopActivities.map((activity) => {
                             const full = (activity.signedUp?.length || 0) >= activity.spots;
                             return (
                             <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
@@ -1668,10 +1671,7 @@ export default function LeaderDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {scoutsData
-                        .filter(s => s.status === 'approved')
-                        .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-                        .map(scout => (
+                      {sortedApprovedScouts.map(scout => (
                           <tr key={scout.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                             <td style={{ padding: '12px', color: '#fff', fontWeight: 500 }}>{scout.name}</td>
                             {RANKS.map((rank, rankIdx) => {
