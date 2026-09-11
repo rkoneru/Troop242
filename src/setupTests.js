@@ -24,6 +24,7 @@ jest.mock('firebase/auth', () => ({
 
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
+  doc: jest.fn(),
   collection: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
@@ -36,6 +37,14 @@ jest.mock('firebase/firestore', () => ({
   serverTimestamp: jest.fn(() => new Date()),
   arrayUnion: jest.fn(val => val),
   arrayRemove: jest.fn(val => val),
+}));
+
+// Mock local Firebase config module to prevent import.meta.env syntax errors during Jest runs
+jest.mock('./firebase/firebase', () => ({
+  auth: {},
+  db: {},
+  firebaseError: null,
+  default: {},
 }));
 
 // Mock window.matchMedia

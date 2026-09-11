@@ -168,8 +168,12 @@ export default function LeaderDashboard() {
   );
 
   // Handler functions
+  // Security (CWE-330): Use Web Crypto API for cryptographically secure random password generation instead of Math.random()
   const generateTempPassword = useCallback(() => {
-    return Math.random().toString(36).slice(2, 10).toUpperCase();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const array = new Uint8Array(8);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => chars[byte % chars.length]).join('');
   }, []);
 
   const showError = useCallback((field, message) => {
