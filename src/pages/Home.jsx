@@ -55,6 +55,7 @@ function DidYouKnowCarousel() {
               onClick={prevFact}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Previous fact"
               style={{
                 background: 'transparent',
                 border: '1px solid var(--accent)',
@@ -75,6 +76,7 @@ function DidYouKnowCarousel() {
               onClick={nextFact}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Next fact"
               style={{
                 background: 'transparent',
                 border: '1px solid var(--accent)',
