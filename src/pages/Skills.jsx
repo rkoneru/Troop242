@@ -1,7 +1,21 @@
 
 import { Search, CheckCircle2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Hoisted animation variants to preserve stable references across renders
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export const SKILL_CATEGORIES = [
   {
@@ -147,27 +161,18 @@ export default function Skills() {
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedSkill, setSelectedSkill] = useState(null);
 
-  const filteredCategories = SKILL_CATEGORIES.map(cat => ({
-    ...cat,
-    skills: cat.skills.filter(skill => {
-      const skillName = typeof skill === 'string' ? skill : skill.name;
-      return skillName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             cat.category.toLowerCase().includes(searchTerm.toLowerCase());
-    })
-  })).filter(cat => cat.skills.length > 0);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
+  // Memoize search filtering to avoid re-running nested filters/string matching and allocating array/object copies on unrelated state updates
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+    return SKILL_CATEGORIES.map(cat => ({
+      ...cat,
+      skills: cat.skills.filter(skill => {
+        const skillName = typeof skill === 'string' ? skill : skill.name;
+        return skillName.toLowerCase().includes(term) ||
+               cat.category.toLowerCase().includes(term);
+      })
+    })).filter(cat => cat.skills.length > 0);
+  }, [searchTerm]);
 
   return (
     <>
@@ -240,7 +245,7 @@ export default function Skills() {
           >
             {filteredCategories.map((category, idx) => (
               <motion.div
-                key={idx}
+                key={category.category}
                 variants={itemVariants}
                 className="glass-card"
                 onClick={() => setExpandedCategory(expandedCategory === idx ? null : idx)}
@@ -279,7 +284,7 @@ export default function Skills() {
                       const skillDesc = typeof skill === 'string' ? null : skill.description;
                       return (
                         <motion.div
-                          key={i}
+                          key={skillName}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.05 }}
