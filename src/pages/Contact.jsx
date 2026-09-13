@@ -15,6 +15,20 @@ const FAQ_ITEMS = [
   { q: 'How do I officially sign up?', a: 'Send us an email using the form on this page, or just show up to a Tuesday meeting. We will walk you through the BSA membership paperwork on the spot.' },
 ];
 
+// Hoisted static motion animation variants to module scope to avoid re-creation on every state change/render
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -40,19 +54,6 @@ export default function Contact() {
     setSubmitted(true);
     setFormData({ name: '', email: '', subject: '', message: '' });
     setTimeout(() => setSubmitted(false), 3000);
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
   return (
