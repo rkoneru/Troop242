@@ -31,8 +31,8 @@ export default function MeritTrackerWizard() {
   // Load progress from Firestore with localStorage fallback (migration)
   useEffect(() => {
     if (!user) {
-      setIsLoading(false);
-      return;
+      const timer = setTimeout(() => setIsLoading(false), 0);
+      return () => clearTimeout(timer);
     }
 
     const loadProgress = async () => {
@@ -602,6 +602,7 @@ export default function MeritTrackerWizard() {
                         href={badge.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label={`View ${badge.name} details on Scouting.org`}
                         onClick={(e) => e.stopPropagation()}
                         whileHover={{ scale: 1.2 }}
                         whileTap={{ scale: 0.9 }}
@@ -618,6 +619,7 @@ export default function MeritTrackerWizard() {
                           href={BADGE_PDF_URLS[trimBadgeName(badge.name)]}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={`Download ${badge.name} PDF pamphlet`}
                           onClick={(e) => e.stopPropagation()}
                           whileHover={{ scale: 1.2 }}
                           whileTap={{ scale: 0.9 }}
@@ -637,6 +639,7 @@ export default function MeritTrackerWizard() {
                         href={getWorkbookUrl(badge.name)}
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label={`Download ${badge.name} fillable workbook`}
                         onClick={(e) => e.stopPropagation()}
                         whileHover={{ scale: 1.2 }}
                         whileTap={{ scale: 0.9 }}
@@ -648,16 +651,27 @@ export default function MeritTrackerWizard() {
                     </div>
 
                     {/* Expand/Collapse Notes Indicator */}
-                    <div
-                      onClick={() => setExpandedBadge(isExpanded ? null : badge.name)}
-                      style={{
-                        textAlign: 'center',
-                        fontSize: '0.9rem',
-                        color: note ? 'var(--accent)' : 'var(--text-muted)',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {note ? '📝' : '○'}
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <button
+                        type="button"
+                        aria-label={`${note ? 'Edit' : 'Add'} notes for ${badge.name}`}
+                        aria-expanded={isExpanded}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedBadge(isExpanded ? null : badge.name);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          textAlign: 'center',
+                          fontSize: '0.9rem',
+                          color: note ? 'var(--accent)' : 'var(--text-muted)',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {note ? '📝' : '○'}
+                      </button>
                     </div>
                   </div>
 

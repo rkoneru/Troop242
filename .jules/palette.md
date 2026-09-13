@@ -1,0 +1,3 @@
+## 2025-05-20 - Interactive Table Action Accessibility
+**Learning:** Table rows or grid cells that trigger expandable sections or open external links (like notes indicators `📝` / `○` or icon links) are often implemented using non-semantic `<div>` elements or missing `aria-label`s. Screen reader users miss context on what badge or row the action applies to.
+**Action:** Replace interactive `<div>`s with semantic `<button type="button">` controls featuring descriptive `aria-label`s (e.g. `aria-label="Add notes for Swimming"`) and `aria-expanded` attributes, and add explicit `aria-label`s to icon-only links.
