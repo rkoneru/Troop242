@@ -4,6 +4,7 @@
  * Extracted from LeaderDashboard for reusability
  */
 
+import { useState } from 'react';
 import { MapPin, Users, Calendar, Trash2, Edit2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -15,6 +16,15 @@ export default function ActivityList({
   onShowRoster,
   expandedRosters = {},
 }) {
+  const [localExpanded, setLocalExpanded] = useState({});
+
+  const handleToggleRoster = (itemId) => {
+    if (onShowRoster) {
+      onShowRoster(itemId);
+    } else {
+      setLocalExpanded((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
+    }
+  };
   if (items.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -64,18 +74,22 @@ export default function ActivityList({
             <div className="flex gap-2">
               {onEdit && (
                 <button
+                  type="button"
                   onClick={() => onEdit(item)}
                   className="btn-icon text-blue-600 hover:text-blue-700"
                   title="Edit"
+                  aria-label={`Edit ${item.title}`}
                 >
                   <Edit2 size={18} />
                 </button>
               )}
               {onDelete && (
                 <button
+                  type="button"
                   onClick={() => onDelete(item.id)}
                   className="btn-icon text-red-600 hover:text-red-700"
                   title="Delete"
+                  aria-label={`Delete ${item.title}`}
                 >
                   <Trash2 size={18} />
                 </button>
@@ -84,28 +98,37 @@ export default function ActivityList({
           </div>
 
           {/* Roster Toggle */}
-          {(item.signedUp?.length || 0) > 0 && (
-            <div className="mt-3 border-t pt-3">
-              <button
-                onClick={() => onShowRoster?.(item.id)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
-              >
-                {expandedRosters[item.id] ? '▼ Hide Roster' : '▶ Show Roster'}
-              </button>
+          {(item.signedUp?.length || 0) > 0 && (() => {
+            const isExpanded = Boolean(
+              expandedRosters[item.id] ?? localExpanded[item.id]
+            );
+            return (
+              <div className="mt-3 border-t pt-3">
+                <button
+                  type="button"
+                  onClick={() => handleToggleRoster(item.id)}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                  aria-expanded={isExpanded}
+                  aria-label={`${isExpanded ? 'Hide' : 'Show'} roster for ${item.title}`}
+                >
+                  {isExpanded ? '▼ Hide Roster' : '▶ Show Roster'}
+                </button>
 
-              {expandedRosters[item.id] && (
-                <div className="mt-2 bg-gray-50 p-3 rounded">
-                  <ul className="text-sm space-y-1">
-                    {item.signedUp?.map((scout, idx) => (
-                      <li key={idx} className="text-gray-700">
-                        • {scout.name || 'Unknown'}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
+                {isExpanded && (
+                  <div className="mt-2 bg-gray-50 p-3 rounded">
+                    <ul className="text-sm space-y-1">
+                      {item.signedUp?.map((scout, idx) => (
+                        <li key={idx} className="text-gray-700">
+                          <span aria-hidden="true">• </span>
+                          {scout.name || 'Unknown'}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </motion.div>
       ))}
     </div>
