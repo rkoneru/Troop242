@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Copy, ExternalLink, FileText, BookOpen, Search, X } from 'lucide-react';
@@ -31,8 +31,8 @@ export default function MeritTrackerWizard() {
   // Load progress from Firestore with localStorage fallback (migration)
   useEffect(() => {
     if (!user) {
-      setIsLoading(false);
-      return;
+      const timer = setTimeout(() => setIsLoading(false), 0);
+      return () => clearTimeout(timer);
     }
 
     const loadProgress = async () => {
@@ -133,17 +133,26 @@ export default function MeritTrackerWizard() {
     }
   };
 
-  // Compute progress
+  // Compute progress - memoized to prevent redundant array traversals on re-renders
+  const categoryCounts = useMemo(() => {
+    return VISIBLE_CATEGORIES.map((cat) => {
+      let completed = 0;
+      let working = 0;
+      cat.badges.forEach((b) => {
+        const status = meritProgress[b.name];
+        if (status === 'completed') completed++;
+        else if (status === 'working') working++;
+      });
+      return { completed, working };
+    });
+  }, [meritProgress]);
+
   const getCompletedCountForCategory = (catIdx) => {
-    return VISIBLE_CATEGORIES[catIdx].badges.filter(
-      (b) => meritProgress[b.name] === 'completed'
-    ).length;
+    return categoryCounts[catIdx]?.completed || 0;
   };
 
   const getWorkingCountForCategory = (catIdx) => {
-    return VISIBLE_CATEGORIES[catIdx].badges.filter(
-      (b) => meritProgress[b.name] === 'working'
-    ).length;
+    return categoryCounts[catIdx]?.working || 0;
   };
 
   const hasCompletedInCategory = () => {
