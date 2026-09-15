@@ -1,25 +1,31 @@
 
+import { useMemo } from 'react';
 import { Users, Zap, Award, Heart, Target, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { loadData, DEFAULT_STATS, DEFAULT_LEADERS } from '../utils/adminData';
 import { scrollToTop } from '../utils/scrollToTop';
 
+// Hoist static animation variants to module scope to eliminate object re-allocations on re-renders
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
 export default function About() {
   const navigate = useNavigate();
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
+  // Memoize data loaded from localStorage / defaults to prevent repeated JSON parsing and allocations
+  const leaders = useMemo(() => loadData('troop_leaders', DEFAULT_LEADERS), []);
+  const stats = useMemo(() => loadData('troop_stats', DEFAULT_STATS), []);
 
   return (
     <>
@@ -134,11 +140,9 @@ export default function About() {
             <h2 style={{ textAlign: 'center', marginBottom: 40 }}>Troop Leadership</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
-              {(() => {
-                const leaders = loadData('troop_leaders', DEFAULT_LEADERS);
-                return leaders.map((leader, i) => (
+              {leaders.map((leader, i) => (
                 <motion.div
-                  key={i}
+                  key={leader.id || i}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
@@ -171,8 +175,7 @@ export default function About() {
                     {leader.bio}
                   </p>
                 </motion.div>
-              ));
-              })()}
+              ))}
             </div>
           </motion.div>
         </div>
@@ -189,29 +192,26 @@ export default function About() {
             <h2 style={{ textAlign: 'center', marginBottom: 48 }}>Troop 242 by the Numbers</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
-              {(() => {
-                const stats = loadData('troop_stats', DEFAULT_STATS);
-                return [
-                  { number: stats.eagleScouts, label: 'Eagle Scout Alumni', icon: '🦅' },
-                  { number: stats.activeScouts, label: 'Active Scouts', icon: '👥' },
-                  { number: '145+', label: 'Merit Badges Offered', icon: '🎖️' },
-                  { number: stats.yearsServing, label: 'Years of Service', icon: '📅' }
-                ].map((stat, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.1 }}
-                    viewport={{ once: true }}
-                    className="glass-card"
-                    style={{ padding: 32, textAlign: 'center' }}
-                  >
-                    <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{stat.icon}</div>
-                    <h3 style={{ color: 'var(--accent)', marginBottom: 8 }}>{stat.number}</h3>
-                    <p style={{ color: 'var(--text-muted)' }}>{stat.label}</p>
-                  </motion.div>
-                ));
-              })()}
+              {[
+                { number: stats.eagleScouts, label: 'Eagle Scout Alumni', icon: '🦅' },
+                { number: stats.activeScouts, label: 'Active Scouts', icon: '👥' },
+                { number: '145+', label: 'Merit Badges Offered', icon: '🎖️' },
+                { number: stats.yearsServing, label: 'Years of Service', icon: '📅' }
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="glass-card"
+                  style={{ padding: 32, textAlign: 'center' }}
+                >
+                  <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{stat.icon}</div>
+                  <h3 style={{ color: 'var(--accent)', marginBottom: 8 }}>{stat.number}</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>{stat.label}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
