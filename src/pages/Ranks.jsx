@@ -90,6 +90,7 @@ export default function Ranks() {
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary"
+              aria-label="Official Ranks Guide (PDF) (opens in a new tab)"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
@@ -156,6 +157,7 @@ export default function Ranks() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-primary"
+                  aria-label={`Learn more about ${rank.name} rank (opens in a new tab)`}
                   style={{ width: '100%', marginTop: 24, display: 'inline-flex', justifyContent: 'center' }}
                   whileHover={{ scale: 1.05, gap: 12 }}
                   whileTap={{ scale: 0.95 }}
@@ -205,6 +207,7 @@ export default function Ranks() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-outline"
+                aria-label="Learn about all Scout ranks (opens in a new tab)"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
