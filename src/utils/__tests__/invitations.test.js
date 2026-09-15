@@ -15,6 +15,7 @@ import {
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   collection: jest.fn(),
+  doc: jest.fn(),
   addDoc: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
@@ -27,6 +28,9 @@ jest.mock('firebase/firestore', () => ({
   })),
   Timestamp: {
     now: () => ({
+      toDate: () => new Date(),
+    }),
+    fromDate: () => ({
       toDate: () => new Date(),
     }),
   },
@@ -77,8 +81,8 @@ describe('Invitations Utility', () => {
     });
 
     it('should set expiration correctly', async () => {
-      const { addDoc } = require('firebase/firestore');
-      addDoc.mockResolvedValue({ id: 'doc-id' });
+      const { setDoc } = require('firebase/firestore');
+      setDoc.mockResolvedValue(undefined);
 
       try {
         await createInvitation('leader', 14, 'admin-uid');
@@ -86,8 +90,7 @@ describe('Invitations Utility', () => {
         // Expected due to mocked Firestore
       }
 
-      // Verify addDoc was called (it would include expiresAt calculation)
-      expect(addDoc).toHaveBeenCalled();
+      expect(setDoc).toHaveBeenCalled();
     });
   });
 
@@ -182,17 +185,8 @@ describe('Invitations Utility', () => {
     });
 
     it('should update invitation status to used', async () => {
-      const { getDoc, updateDoc } = require('firebase/firestore');
-      getDoc.mockResolvedValue({
-        exists: () => true,
-        data: () => ({
-          status: 'pending',
-          role: 'scout',
-        }),
-        ref: 'mock-ref',
-      });
-
-      updateDoc.mockResolvedValue(undefined);
+      const { setDoc } = require('firebase/firestore');
+      setDoc.mockResolvedValue(undefined);
 
       try {
         await markInvitationUsed('code', 'scout-uid', 'scout@example.com');
@@ -200,7 +194,7 @@ describe('Invitations Utility', () => {
         // Expected due to mocked Firestore
       }
 
-      expect(updateDoc).toHaveBeenCalled();
+      expect(setDoc).toHaveBeenCalled();
     });
   });
 
@@ -210,16 +204,8 @@ describe('Invitations Utility', () => {
     });
 
     it('should update invitation status to revoked', async () => {
-      const { getDoc, updateDoc } = require('firebase/firestore');
-      getDoc.mockResolvedValue({
-        exists: () => true,
-        data: () => ({
-          status: 'pending',
-        }),
-        ref: 'mock-ref',
-      });
-
-      updateDoc.mockResolvedValue(undefined);
+      const { setDoc } = require('firebase/firestore');
+      setDoc.mockResolvedValue(undefined);
 
       try {
         await revokeInvitation('code');
@@ -227,7 +213,7 @@ describe('Invitations Utility', () => {
         // Expected due to mocked Firestore
       }
 
-      expect(updateDoc).toHaveBeenCalled();
+      expect(setDoc).toHaveBeenCalled();
     });
   });
 });

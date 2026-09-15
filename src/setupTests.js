@@ -5,8 +5,26 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+import { webcrypto } from 'crypto';
+
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder;
+}
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = TextDecoder;
+}
+if (typeof global.crypto === 'undefined' || !global.crypto.getRandomValues) {
+  global.crypto = webcrypto;
+}
 
 // Mock Firebase
+jest.mock('./firebase/firebase', () => ({
+  auth: {},
+  db: {},
+  firebaseError: null,
+}));
+
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
 }));
@@ -24,6 +42,7 @@ jest.mock('firebase/auth', () => ({
 
 jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
+  doc: jest.fn(),
   collection: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
