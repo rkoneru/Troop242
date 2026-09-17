@@ -1,0 +1,4 @@
+## 2026-03-31 - Validating URL Schemes for External Navigation
+**Vulnerability:** External URLs opened via `window.open` from search indices or user inputs without protocol scheme validation can expose the app to open redirect or protocol handler injection risks if non-HTTP(S) schemes (e.g. `javascript:`) are present.
+**Learning:** Using simple string checks like `startsWith('http')` can match unexpected patterns or fail on malformed strings. Validating with `new URL()` and explicitly checking `parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:'` ensures only standard web protocols are opened in new browser windows.
+**Prevention:** Always parse external URLs with `new URL()` and check `protocol` against an allowlist (`http:`, `https:`) before passing them to `window.open` or navigation functions.

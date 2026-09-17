@@ -59,11 +59,21 @@ export default function SearchWidget() {
     setOpen(false);
     setQuery('');
 
-    // External links (http/https) open in new tab
-    if (result.url.startsWith('http')) {
-      window.open(result.url, '_blank', 'noopener,noreferrer');
-    } else {
-      // Internal routes use React Router navigate
+    // Security: Validate external links to prevent protocol handler injection or invalid URLs
+    if (typeof result?.url === 'string' && (result.url.startsWith('http://') || result.url.startsWith('https://'))) {
+      try {
+        const parsedUrl = new URL(result.url, window.location.origin);
+        if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+          window.open(parsedUrl.href, '_blank', 'noopener,noreferrer');
+          return;
+        }
+      } catch (err) {
+        console.error('Invalid search result URL:', err);
+      }
+    }
+
+    // Internal routes use React Router navigate
+    if (typeof result?.url === 'string') {
       navigate(result.url);
     }
   };
