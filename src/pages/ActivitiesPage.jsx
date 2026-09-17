@@ -1,10 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MapPin, Calendar, Clock, Heart, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Calendar, Clock } from 'lucide-react';
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+
+// Static Framer Motion variants hoisted to module scope to prevent re-creation on every render
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+};
 
 export default function ActivitiesPage() {
   const navigate = useNavigate();
@@ -15,28 +29,27 @@ export default function ActivitiesPage() {
   const [loading, setLoading] = useState(true);
   const [signupConfirmed, setSignupConfirmed] = useState({});
 
-  // Derive activities and events from allItems, filter out past dates
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const activities = allItems.filter(i => i.type === 'activity' && new Date(i.date) >= today);
-  const events = allItems.filter(i => i.type === 'event' && new Date(i.date) >= today);
-
-  // Calculate signup count for upcoming activities only (not completed)
-  const mySignupCount = activities.filter(a => a.signedUp?.some(s => s.uid === user?.uid)).length;
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
+  // Derive activities and events from allItems, filter out past dates (memoized to eliminate per-render allocations and date calculations)
+  const { activities, events } = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const act = [];
+    const evt = [];
+    for (let i = 0; i < allItems.length; i++) {
+      const item = allItems[i];
+      if (new Date(item.date) >= today) {
+        if (item.type === 'activity') act.push(item);
+        else if (item.type === 'event') evt.push(item);
+      }
     }
-  };
+    return { activities: act, events: evt };
+  }, [allItems]);
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-  };
+  // Calculate signup count for upcoming activities only (memoized)
+  const mySignupCount = useMemo(() => {
+    if (!user?.uid) return 0;
+    return activities.filter(a => a.signedUp?.some(s => s.uid === user.uid)).length;
+  }, [activities, user?.uid]);
 
   // Load all activities and events from Firestore
   useEffect(() => {
@@ -145,187 +158,215 @@ export default function ActivitiesPage() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
         <h2 className="text-xl font-bold mb-5">Troop Activities</h2>
 
-       {/* MY SIGNUPS TABLE */}
-        {mySignupCount > 0 && (
-          <div style={{ marginTop: 64, marginBottom: 64 }}>
-            <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>📋 My Signups</h2>
-            <div style={{ overflowX: 'auto', background: 'var(--bg-secondary)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Activity</th>
-                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Date</th>
-                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Location</th>
-                    <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Spots</th>
-                    <th style={{ padding: '16px', textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>Loading activities...</div>
+        ) : (
+          <>
+            {/* MY SIGNUPS TABLE */}
+            {mySignupCount > 0 && (
+              <div style={{ marginTop: 64, marginBottom: 64 }}>
+                <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>📋 My Signups</h2>
+                <div style={{ overflowX: 'auto', background: 'var(--bg-secondary)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                        <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Activity</th>
+                        <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Date</th>
+                        <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Location</th>
+                        <th style={{ padding: '16px', textAlign: 'left', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Spots</th>
+                        <th style={{ padding: '16px', textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem', fontWeight: 600 }}>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(activities || [])
+                        .filter(a => isSignedUp(a))
+                        .sort((a, b) => new Date(a.date) - new Date(b.date))
+                        .map((activity) => {
+                          const full = isFull(activity);
+                          return (
+                          <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                            <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>{activity.title}</td>
+                            <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>
+                              {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </td>
+                            <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>{activity.location || '—'}</td>
+                            <td style={{ padding: '16px', textAlign: 'center' }}>{/* Spots bar */}
+                          <div style={{ marginBottom: 16 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : 'var(--text-muted)', marginBottom: 6 }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Users size={13} /> {activity.signedUp?.length ?? 0}/{activity.spots} spots
+                              </span>
+                              <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length ?? 0)} remaining`}</span>
+                            </div>
+                            <div style={{ background: 'var(--divider)', borderRadius: 99, height: 6 }}>
+                              <div style={{
+                                width: `${Math.min(((activity.signedUp?.length ?? 0) / activity.spots) * 100, 100)}%`,
+                                background: full ? '#ff6464' : 'var(--accent)',
+                                height: '100%',
+                                borderRadius: 99,
+                                transition: 'width 0.4s ease',
+                              }} />
+                            </div>
+                          </div></td>
+                            <td style={{ padding: '16px', textAlign: 'center' }}>
+                              <span style={{ background: 'rgba(82, 183, 136, 0.2)', color: '#52b788', padding: '4px 12px', borderRadius: 20, fontSize: '0.85rem', fontWeight: 600 }}>
+                                ✓ Signed Up
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* AVAILABLE ACTIVITIES GRID */}
+            {activities.length > 0 && (
+              <div style={{ marginTop: 64 }}>
+                <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>🔓 Available Activities</h2>
+                <motion.div
+                  variants={CONTAINER_VARIANTS}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '-50px' }}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                    gap: 20,
+                    padding: '0 20px'
+                  }}
+                >
                   {(activities || [])
-                    .filter(a => isSignedUp(a))
+                    .filter(a => !isSignedUp(a))
+                    .slice()
                     .sort((a, b) => new Date(a.date) - new Date(b.date))
                     .map((activity) => {
                       const full = isFull(activity);
+
                       return (
-                      <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                        <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>{activity.title}</td>
-                        <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>
-                          {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </td>
-                        <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>{activity.location || '—'}</td>
-                        <td style={{ padding: '16px', textAlign: 'center' }}>{/* Spots bar */}
-                      <div style={{ marginBottom: 16 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : 'var(--text-muted)', marginBottom: 6 }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Users size={13} /> {activity.signedUp?.length ?? 0}/{activity.spots} spots
-                          </span>
-                          <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length ?? 0)} remaining`}</span>
-                        </div>
-                        <div style={{ background: 'var(--divider)', borderRadius: 99, height: 6 }}>
-                          <div style={{
-                            width: `${Math.min(((activity.signedUp?.length ?? 0) / activity.spots) * 100, 100)}%`,
-                            background: full ? '#ff6464' : 'var(--accent)',
-                            height: '100%',
-                            borderRadius: 99,
-                            transition: 'width 0.4s ease',
-                          }} />
-                        </div>
-                      </div></td>
-                        <td style={{ padding: '16px', textAlign: 'center' }}>
-                          <span style={{ background: 'rgba(82, 183, 136, 0.2)', color: '#52b788', padding: '4px 12px', borderRadius: 20, fontSize: '0.85rem', fontWeight: 600 }}>
-                            ✓ Signed Up
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                    })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                        <motion.div
+                          key={activity.id}
+                          variants={ITEM_VARIANTS}
+                          style={{
+                            background: 'var(--bg-secondary)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: 12,
+                            padding: 24,
+                            display: 'flex',
+                            flexDirection: 'column'
+                          }}
+                        >
+                          <h3 style={{ margin: '0 0 12px 0', color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}>{activity.title}</h3>
 
-        {/* AVAILABLE ACTIVITIES GRID */}
-        {activities.length > 0 && (
-          <div style={{ marginTop: 64 }}>
-            <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>🔓 Available Activities</h2>
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-50px' }}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: 20,
-                padding: '0 20px'
-              }}
-            >
-              {(activities || [])
-                .filter(a => !isSignedUp(a))
-                .slice()
-                .sort((a, b) => new Date(a.date) - new Date(b.date))
-                .map((activity) => {
-                  const full = isFull(activity);
-
-                  return (
-                    <motion.div
-                      key={activity.id}
-                      variants={itemVariants}
-                      style={{
-                        background: 'var(--bg-secondary)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: 12,
-                        padding: 24,
-                        display: 'flex',
-                        flexDirection: 'column'
-                      }}
-                    >
-                      <h3 style={{ margin: '0 0 12px 0', color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}>{activity.title}</h3>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: '0.9rem', color: '#9ca3af' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <Calendar size={14} />
-                          {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                          {activity.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {activity.time}</>}
-                        </span>
-                        {activity.location && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <MapPin size={14} /> {activity.location}
-                          </span>
-                        )}
-                      </div>
-
-                      {activity.description && (
-                        <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginBottom: 16, lineHeight: 1.5 }}>
-                          {activity.description}
-                        </p>
-                      )}
-
-                      <div style={{ marginBottom: 16 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : '#9ca3af', marginBottom: 6 }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Users size={13} /> {activity.signedUp?.length || 0}/{activity.spots} spots
-                          </span>
-                          <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length || 0)} remaining`}</span>
-                        </div>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: 99, height: 6 }}>
-                          <div style={{
-                            width: `${Math.min(((activity.signedUp?.length || 0) / activity.spots) * 100, 100)}%`,
-                            background: full ? '#ff6464' : 'var(--accent)',
-                            height: '100%',
-                            borderRadius: 99,
-                            transition: 'width 0.4s ease'
-                          }} />
-                        </div>
-                      </div>
-
-                      <div style={{ marginTop: 'auto' }}>
-                        {!full ? (
-                          <motion.button
-                            onClick={() => handleSignup(activity.id)}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              background: 'rgba(0, 214, 143, 0.2)',
-                              border: '1px solid rgba(0, 214, 143, 0.3)',
-                              color: '#00d68f',
-                              borderRadius: 8,
-                              cursor: 'pointer',
-                              fontWeight: 600,
-                              transition: 'all 0.2s'
-                            }}
-                            whileHover={{ background: 'rgba(0, 214, 143, 0.3)' }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            Sign Up
-                          </motion.button>
-                        ) : (
-                          <div style={{
-                            width: '100%',
-                            padding: '12px 16px',
-                            background: 'rgba(255, 100, 100, 0.1)',
-                            border: '1px solid rgba(255, 100, 100, 0.3)',
-                            borderRadius: 8,
-                            color: '#ff6464',
-                            fontWeight: 600,
-                            textAlign: 'center'
-                          }}>
-                            Activity Full
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: '0.9rem', color: '#9ca3af' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <Calendar size={14} />
+                              {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                              {activity.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {activity.time}</>}
+                            </span>
+                            {activity.location && (
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <MapPin size={14} /> {activity.location}
+                              </span>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-            </motion.div>
-          </div>
-        )}
 
-        {activities.length === 0 && events.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9ca3af' }}>
-            <p>No activities or events yet. Check back soon!</p>
-          </div>
+                          {activity.description && (
+                            <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginBottom: 16, lineHeight: 1.5 }}>
+                              {activity.description}
+                            </p>
+                          )}
+
+                          <div style={{ marginBottom: 16 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : '#9ca3af', marginBottom: 6 }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Users size={13} /> {activity.signedUp?.length || 0}/{activity.spots} spots
+                              </span>
+                              <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length || 0)} remaining`}</span>
+                            </div>
+                            <div style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: 99, height: 6 }}>
+                              <div style={{
+                                width: `${Math.min(((activity.signedUp?.length || 0) / activity.spots) * 100, 100)}%`,
+                                background: full ? '#ff6464' : 'var(--accent)',
+                                height: '100%',
+                                borderRadius: 99,
+                                transition: 'width 0.4s ease'
+                              }} />
+                            </div>
+                          </div>
+
+                          <div style={{ marginTop: 'auto' }}>
+                            {!full ? (
+                              <motion.button
+                                onClick={() => handleSignup(activity.id)}
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  background: 'rgba(0, 214, 143, 0.2)',
+                                  border: '1px solid rgba(0, 214, 143, 0.3)',
+                                  color: '#00d68f',
+                                  borderRadius: 8,
+                                  cursor: 'pointer',
+                                  fontWeight: 600,
+                                  transition: 'all 0.2s'
+                                }}
+                                whileHover={{ background: 'rgba(0, 214, 143, 0.3)' }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                {signupConfirmed[activity.id] ? '✓ Signed Up!' : 'Sign Up'}
+                              </motion.button>
+                            ) : (
+                              <div style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                background: 'rgba(255, 100, 100, 0.1)',
+                                border: '1px solid rgba(255, 100, 100, 0.3)',
+                                borderRadius: 8,
+                                color: '#ff6464',
+                                fontWeight: 600,
+                                textAlign: 'center'
+                              }}>
+                                Activity Full
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                </motion.div>
+              </div>
+            )}
+
+            {/* EVENTS SECTION */}
+            {events.length > 0 && (
+              <div style={{ marginTop: 64 }}>
+                <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>📅 Troop Events</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+                  {events.map((evt) => (
+                    <div key={evt.id} style={{ background: 'var(--bg-secondary)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.1)', padding: 24 }}>
+                      <h3 style={{ margin: '0 0 12px 0', fontSize: '1.1rem', color: '#fff' }}>{evt.title}</h3>
+                      <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginBottom: 16 }}>{evt.description}</p>
+                      <button
+                        onClick={() => toggleRsvp(evt.id)}
+                        className="btn btn-primary"
+                        style={{ width: '100%' }}
+                      >
+                        {isSignedUp(evt) ? 'Cancel RSVP' : 'RSVP for Event'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activities.length === 0 && events.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9ca3af' }}>
+                <p>No activities or events yet. Check back soon!</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
