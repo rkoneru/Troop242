@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Badge, LogOut, ChevronRight, Zap, Users, Calendar, MapPin, CheckCircle, Clock } from 'lucide-react';
@@ -90,6 +90,75 @@ export default function ScoutDashboard() {
     loadActivities();
   }, [loading]);
 
+  const mySignupCount = useMemo(() =>
+    activities.filter(act => act.signedUp?.some(s => s.uid === user?.uid)).length,
+  [activities, user]);
+
+  // Memoized progress calculations to prevent redundant array iterations on re-renders
+  const rankProgress = useMemo(() => {
+    let totalReqs = 0;
+    let completedReqs = 0;
+    RANKS.forEach((rank, rankIdx) => {
+      const reqCount = rank.requirements.length;
+      totalReqs += reqCount;
+      for (let j = 0; j < reqCount; j++) {
+        if (rankChecks[`${rankIdx}-${j}`]) completedReqs++;
+      }
+    });
+    return { completed: completedReqs, total: totalReqs, percentage: totalReqs > 0 ? Math.round((completedReqs / totalReqs) * 100) : 0 };
+  }, [rankChecks]);
+
+  const meritProgress = useMemo(() => {
+    const completed = Object.values(meritProgressData).filter((v) => v === 'completed').length;
+    const working = Object.values(meritProgressData).filter((v) => v === 'working').length;
+
+    // Count Eagle Required badges
+    const eagleRequiredCat = BADGE_CATEGORIES.find(cat => cat.category === 'Eagle Required');
+    const eagleRequiredBadges = eagleRequiredCat ? eagleRequiredCat.badges.filter(badge => !badge.isHeader) : [];
+    const eagleRequiredCompleted = eagleRequiredBadges.filter(badge => meritProgressData[badge.name] === 'completed').length;
+
+    const totalBadges = BADGE_CATEGORIES.reduce((sum, cat) => {
+      const validBadges = cat.badges.filter(badge => !badge.isHeader).length;
+      return sum + validBadges;
+    }, 0);
+
+    return { completed, working, total: totalBadges, eagleRequired: eagleRequiredCompleted };
+  }, [meritProgressData]);
+
+  const skillsProgress = useMemo(() => {
+    const TOTAL_SKILLS = 80;
+    const tracked = Object.values(trackedSkillsData).filter(Boolean).length;
+    return { tracked, total: TOTAL_SKILLS, percentage: Math.round((tracked / TOTAL_SKILLS) * 100) };
+  }, [trackedSkillsData]);
+
+  const activityProgress = useMemo(() => {
+    const total = Math.max(activities.length, 1);
+    return { signedUp: mySignupCount, total };
+  }, [activities.length, mySignupCount]);
+
+  const miscAwardsProgress = useMemo(() => {
+    const tracked = Object.values(miscAwardsData).filter(Boolean).length;
+    const total = 89; // Total awards across all 15 categories
+    return { tracked, total, percentage: total > 0 ? Math.round((tracked / total) * 100) : 0 };
+  }, [miscAwardsData]);
+
+  // Memoize current rank calculation (first incomplete rank)
+  const currentRank = useMemo(() => {
+    let currentRankIdx = 0;
+    for (let i = 0; i < RANKS.length; i++) {
+      const reqCount = RANKS[i].requirements.length;
+      let completed = 0;
+      for (let j = 0; j < reqCount; j++) {
+        if (rankChecks[`${i}-${j}`]) completed++;
+      }
+      if (completed < reqCount) {
+        currentRankIdx = i;
+        break;
+      }
+    }
+    return RANKS[currentRankIdx];
+  }, [rankChecks]);
+
   // Show pending approval message if scout hasn't been approved
   if (!loading && profile?.status === 'pending') {
     return (
@@ -125,79 +194,6 @@ export default function ScoutDashboard() {
     // Signup functionality moved to /scout-signup page with Firestore
     navigate('/scout-signup');
   };
-
-  const mySignupCount = activities.filter(act => isSignedUp(act)).length;
-
-  // Compute progress percentages
-  const getRankProgress = () => {
-    let totalReqs = 0;
-    let completedReqs = 0;
-    RANKS.forEach((rank, rankIdx) => {
-      const reqCount = rank.requirements.length;
-      totalReqs += reqCount;
-      for (let j = 0; j < reqCount; j++) {
-        if (rankChecks[`${rankIdx}-${j}`]) completedReqs++;
-      }
-    });
-    return { completed: completedReqs, total: totalReqs, percentage: Math.round((completedReqs / totalReqs) * 100) };
-  };
-
-  const getMeritProgress = () => {
-    const completed = Object.values(meritProgressData).filter((v) => v === 'completed').length;
-    const working = Object.values(meritProgressData).filter((v) => v === 'working').length;
-
-    // Count Eagle Required badges
-    const eagleRequiredCat = BADGE_CATEGORIES.find(cat => cat.category === 'Eagle Required');
-    const eagleRequiredBadges = eagleRequiredCat ? eagleRequiredCat.badges.filter(badge => !badge.isHeader) : [];
-    const eagleRequiredCompleted = eagleRequiredBadges.filter(badge => meritProgressData[badge.name] === 'completed').length;
-
-    const totalBadges = BADGE_CATEGORIES.reduce((sum, cat) => {
-      const validBadges = cat.badges.filter(badge => !badge.isHeader).length;
-      return sum + validBadges;
-    }, 0);
-
-    return { completed, working, total: totalBadges, eagleRequired: eagleRequiredCompleted };
-  };
-
-  const getSkillsProgress = () => {
-    const TOTAL_SKILLS = 80;
-    const tracked = Object.values(trackedSkillsData).filter(Boolean).length;
-    return { tracked, total: TOTAL_SKILLS, percentage: Math.round((tracked / TOTAL_SKILLS) * 100) };
-  };
-
-  const getActivityProgress = () => {
-    const total = Math.max(activities.length, 1);
-    return { signedUp: mySignupCount, total };
-  };
-
-  const getMiscAwardsCount = () => Object.values(miscAwardsData).filter(Boolean).length;
-
-  const getMiscAwardsProgress = () => {
-    const tracked = Object.values(miscAwardsData).filter(Boolean).length;
-    const total = 89; // Total awards across all 15 categories
-    return { tracked, total, percentage: total > 0 ? Math.round((tracked / total) * 100) : 0 };
-  };
-
-  const rankProgress = getRankProgress();
-  const meritProgress = getMeritProgress();
-  const skillsProgress = getSkillsProgress();
-  const activityProgress = getActivityProgress();
-  const miscAwardsProgress = getMiscAwardsProgress();
-
-  // Find current rank (first incomplete)
-  let currentRankIdx = 0;
-  for (let i = 0; i < RANKS.length; i++) {
-    const reqCount = [3, 4, 4, 4, 4, 4, 4][i];
-    let completed = 0;
-    for (let j = 0; j < reqCount; j++) {
-      if (rankChecks[`${i}-${j}`]) completed++;
-    }
-    if (completed < reqCount) {
-      currentRankIdx = i;
-      break;
-    }
-  }
-  const currentRank = RANKS[currentRankIdx];
 
   const handleLogout = async () => {
     try {
