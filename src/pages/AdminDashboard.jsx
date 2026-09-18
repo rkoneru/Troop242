@@ -566,6 +566,7 @@ export default function AdminDashboard() {
                           </div>
                           <motion.button
                             onClick={() => handleDeleteAnnouncement(ann.id)}
+                            aria-label={`Delete announcement ${ann.title}`}
                             style={{
                               background: 'transparent',
                               border: 'none',
@@ -735,6 +736,7 @@ export default function AdminDashboard() {
                           </div>
                           <motion.button
                             onClick={() => handleDeleteEvent(evt.id)}
+                            aria-label={`Delete event ${evt.title}`}
                             style={{
                               background: 'transparent',
                               border: 'none',
@@ -957,6 +959,7 @@ export default function AdminDashboard() {
                           </motion.button>
                           <motion.button
                             onClick={() => handleDeleteLeader(leader.id)}
+                            aria-label={`Delete leader ${leader.name}`}
                             style={{
                               background: 'transparent',
                               border: 'none',
