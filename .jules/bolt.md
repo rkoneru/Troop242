@@ -1,0 +1,3 @@
+## 2026-03-21 - Hoist Static Objects, Animations, and Lookup Maps in Interactive Pages
+**Learning:** React page components that contain interactive local state toggles (such as expanded cards) re-render the entire component tree on every interaction. Defining animation variant objects, static data lists, or lookup dictionaries inside the component body creates redundant heap object allocations and breaks reference stability on every render frame.
+**Action:** Always hoist static animation variants (`CONTAINER_VARIANTS`, `ITEM_VARIANTS`), data lookup dictionaries, and static array lists to module scope outside React component definitions.
