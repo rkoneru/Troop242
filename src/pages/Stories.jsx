@@ -48,32 +48,41 @@ const SCOUT_STORIES = [
   }
 ];
 
-const getRankColor = (rank) => {
-  const colors = {
-    'Eagle Scout': '#FFD700',
-    'Life Scout': '#C0C0C0',
-    'Star Scout': '#FF6B6B',
-    'First Class Scout': '#4ECDC4',
-    'Tenderfoot Scout': '#95E1D3'
-  };
-  return colors[rank] || '#00d68f';
+// Hoist static rank color lookup table to module scope to avoid re-allocating object on every call
+const RANK_COLORS = {
+  'Eagle Scout': '#FFD700',
+  'Life Scout': '#C0C0C0',
+  'Star Scout': '#FF6B6B',
+  'First Class Scout': '#4ECDC4',
+  'Tenderfoot Scout': '#95E1D3'
 };
+
+const getRankColor = (rank) => RANK_COLORS[rank] || '#00d68f';
+
+// Hoist Framer Motion animation variants to module scope to prevent object re-allocations on re-render
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
+// Hoist static stats list to module scope to eliminate inline array and object allocations in render
+const WHY_CHOOSE_ITEMS = [
+  { icon: '🌟', title: 'Mentorship', description: 'Experienced scoutmasters dedicated to your growth' },
+  { icon: '🏕️', title: 'Adventures', description: 'Regular campouts, hikes, and outdoor experiences' },
+  { icon: '👥', title: 'Community', description: 'Strong brotherhood and lasting friendships' },
+  { icon: '🎖️', title: 'Achievement', description: '145+ merit badges and progression path to Eagle' }
+];
 
 export default function Stories() {
   const [expandedStory, setExpandedStory] = useState(null);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
 
   return (
     <>
@@ -98,7 +107,7 @@ export default function Stories() {
       <section className="section section--dark">
         <div className="container">
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
@@ -106,8 +115,8 @@ export default function Stories() {
           >
             {SCOUT_STORIES.map((scout, idx) => (
               <motion.div
-                key={idx}
-                variants={itemVariants}
+                key={scout.name}
+                variants={ITEM_VARIANTS}
                 className="glass-card"
                 onClick={() => setExpandedStory(expandedStory === idx ? null : idx)}
                 style={{
@@ -230,14 +239,9 @@ export default function Stories() {
             <h2 style={{ textAlign: 'center', marginBottom: 48 }}>Why Scouts Choose Troop 242</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}>
-              {[
-                { icon: '🌟', title: 'Mentorship', description: 'Experienced scoutmasters dedicated to your growth' },
-                { icon: '🏕️', title: 'Adventures', description: 'Regular campouts, hikes, and outdoor experiences' },
-                { icon: '👥', title: 'Community', description: 'Strong brotherhood and lasting friendships' },
-                { icon: '🎖️', title: 'Achievement', description: '145+ merit badges and progression path to Eagle' }
-              ].map((item, i) => (
+              {WHY_CHOOSE_ITEMS.map((item, i) => (
                 <motion.div
-                  key={i}
+                  key={item.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
