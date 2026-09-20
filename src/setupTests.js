@@ -3,8 +3,52 @@
  * Runs before each test suite
  */
 
-// Jest DOM matchers (e.g., toBeInTheDocument)
+import { TextEncoder, TextDecoder } from 'util';
 import '@testing-library/jest-dom';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+if (!global.crypto) {
+  global.crypto = {
+    getRandomValues: (arr) => require('crypto').randomFillSync(arr),
+  };
+}
+
+// Mock window.scrollTo
+window.scrollTo = jest.fn();
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+};
+
+// Mock framer-motion to prevent animation/proxy issues in tests
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const componentCache = new Map();
+
+  const createMotionComponent = (tag) => {
+    if (!componentCache.has(tag)) {
+      const Component = React.forwardRef(({ children, initial, animate, exit, transition, whileHover, whileTap, whileInView, viewport, variants, ...props }, ref) => {
+        return React.createElement(tag, { ...props, ref }, children);
+      });
+      Component.displayName = `motion.${tag}`;
+      componentCache.set(tag, Component);
+    }
+    return componentCache.get(tag);
+  };
+
+  return {
+    motion: new Proxy({}, {
+      get: (target, prop) => createMotionComponent(prop),
+    }),
+    AnimatePresence: ({ children }) => children,
+  };
+});
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
