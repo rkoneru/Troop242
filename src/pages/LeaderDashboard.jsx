@@ -168,8 +168,12 @@ export default function LeaderDashboard() {
   );
 
   // Handler functions
+  // Generate cryptographically secure temporary passwords using Web Crypto API
   const generateTempPassword = useCallback(() => {
-    return Math.random().toString(36).slice(2, 10).toUpperCase();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const array = new Uint8Array(8);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => chars[byte % chars.length]).join('');
   }, []);
 
   const showError = useCallback((field, message) => {
