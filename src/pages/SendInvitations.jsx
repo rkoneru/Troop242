@@ -5,6 +5,7 @@ import { Mail, Copy, Check, Share2, ExternalLink } from 'lucide-react';
 import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { generateSecureInviteCode } from '../utils/invitations';
 
 export default function SendInvitations() {
   const navigate = useNavigate();
@@ -45,8 +46,6 @@ export default function SendInvitations() {
     loadInvitations();
   }, [user]);
 
-  const generateCode = () => Math.random().toString(36).substring(2, 10).toUpperCase();
-
   const handleSendInvitation = async (e) => {
     e.preventDefault();
     setError('');
@@ -62,7 +61,7 @@ export default function SendInvitations() {
     const typeToUse = profile?.role === 'admin' ? inviteType : 'scout';
 
     try {
-      const code = generateCode();
+      const code = generateSecureInviteCode();
       const createdAt = new Date().toISOString();
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
       const registrationUrl = `${window.location.origin}/register?code=${code}`;
