@@ -6,6 +6,7 @@ import { collection, query, updateDoc, doc, onSnapshot } from 'firebase/firestor
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
+import { sanitizeCsvCell } from '../utils/csvSanitization';
 import { RANKS } from '../data/rankRequirements';
 import { searchScouts, generateScoutId } from '../utils/leaderData';
 import {
@@ -448,7 +449,7 @@ export default function LeaderDashboard() {
       ['Name', 'Email', 'Rank', 'Status', 'Join Date', 'Phone', 'Notes'],
       ...scoutsData.map(s => [s.name, s.email, s.rank, s.status, s.joinDate, s.phone, s.notes])
     ]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .map(row => row.map(cell => sanitizeCsvCell(cell)).join(','))
       .join('\n');
 
     const element = document.createElement('a');
