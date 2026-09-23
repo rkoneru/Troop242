@@ -98,8 +98,10 @@ export default function ReferralLinks() {
             <h2 style={{ marginBottom: 16 }}>Generate Invitation Codes</h2>
             <div style={{ display: 'flex', gap: 12 }}>
               <button
+                type="button"
                 onClick={() => handleGenerateCode('leader')}
                 disabled={generatingFor === 'leader'}
+                aria-label="Generate new leader invitation code"
                 style={{
                   flex: 1,
                   padding: '12px 20px',
@@ -121,8 +123,10 @@ export default function ReferralLinks() {
                 <Plus size={18} /> {generatingFor === 'leader' ? 'Generating...' : 'New Leader Code'}
               </button>
               <button
+                type="button"
                 onClick={() => handleGenerateCode('scout')}
                 disabled={generatingFor === 'scout'}
+                aria-label="Generate new scout invitation code"
                 style={{
                   flex: 1,
                   padding: '12px 20px',
@@ -178,7 +182,9 @@ export default function ReferralLinks() {
                           </p>
                         </div>
                         <button
+                          type="button"
                           onClick={() => handleRevokeCode(link.code)}
+                          aria-label={`Revoke ${link.role} invitation code ${link.code}`}
                           style={{
                             padding: '8px 12px',
                             background: 'rgba(239, 68, 68, 0.2)',
@@ -198,11 +204,12 @@ export default function ReferralLinks() {
 
                       {/* URL Display */}
                       <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        <label htmlFor={`invite-url-${link.code}`} style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                           Registration Link
                         </label>
                         <div style={{ display: 'flex', gap: 8 }}>
                           <input
+                            id={`invite-url-${link.code}`}
                             type="text"
                             readOnly
                             value={link.url}
@@ -218,7 +225,9 @@ export default function ReferralLinks() {
                             }}
                           />
                           <button
+                            type="button"
                             onClick={() => copyToClipboard(link.url, `url-${link.code}`)}
+                            aria-label={copiedId === `url-${link.code}` ? `Copied registration link for ${link.role} invitation to clipboard` : `Copy registration link for ${link.role} invitation`}
                             style={{
                               padding: '12px 16px',
                               background: copiedId === `url-${link.code}` ? colors.color : colors.borderColor,
@@ -242,11 +251,12 @@ export default function ReferralLinks() {
 
                       {/* Code Display */}
                       <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        <label htmlFor={`invite-code-${link.code}`} style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                           Code (if sharing manually)
                         </label>
                         <div style={{ display: 'flex', gap: 8 }}>
                           <input
+                            id={`invite-code-${link.code}`}
                             type="text"
                             readOnly
                             value={link.code}
@@ -265,7 +275,9 @@ export default function ReferralLinks() {
                             }}
                           />
                           <button
+                            type="button"
                             onClick={() => copyToClipboard(link.code, `code-${link.code}`)}
+                            aria-label={copiedId === `code-${link.code}` ? `Copied code ${link.code} to clipboard` : `Copy invitation code ${link.code}`}
                             style={{
                               padding: '12px 16px',
                               background: copiedId === `code-${link.code}` ? colors.color : colors.borderColor,
@@ -287,10 +299,19 @@ export default function ReferralLinks() {
                         </div>
                       </div>
 
+                      {/* Live Region for Screen Reader Feedback */}
+                      <div className="sr-only" role="status" aria-live="polite">
+                        {copiedId && (copiedId.startsWith('url-') || copiedId.startsWith('code-') || copiedId.startsWith('share-'))
+                          ? 'Item copied to clipboard'
+                          : ''}
+                      </div>
+
                       {/* Action Buttons */}
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button
+                          type="button"
                           onClick={() => sendViaEmail(link.role, link.code, link.url)}
+                          aria-label={`Send ${link.role} invitation via email`}
                           style={{
                             flex: 1,
                             padding: '10px 16px',
@@ -311,6 +332,7 @@ export default function ReferralLinks() {
                           <Mail size={16} /> Send via Email
                         </button>
                         <button
+                          type="button"
                           onClick={() => {
                             const message = `Join Troop 242 as a ${link.role}!\n\n${link.url}`;
                             if (navigator.share) {
@@ -322,6 +344,7 @@ export default function ReferralLinks() {
                               copyToClipboard(message, `share-${link.code}`);
                             }
                           }}
+                          aria-label={`Share ${link.role} invitation link`}
                           style={{
                             flex: 1,
                             padding: '10px 16px',
