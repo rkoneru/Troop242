@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import SearchWidget from './components/SearchWidget';
@@ -7,39 +7,49 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { THEMES } from './utils/themes';
 import { initializeTroopSettings } from './utils/adminData';
-import Home from './pages/Home';
-import Ranks from './pages/Ranks';
-import Badges from './pages/Badges';
-import Skills from './pages/Skills';
-import Stories from './pages/Stories';
-import About from './pages/About';
-import Appearance from './pages/Appearance';
-import Contact from './pages/Contact';
-import Calendar from './pages/Calendar';
-import MemberLogin from './pages/MemberLogin';
-import ScoutSignup from './pages/ScoutSignup';
-import LeaderDashboard from './pages/LeaderDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import ScoutPrinciples from './pages/ScoutPrinciples';
-import NewScout from './pages/NewScout';
-import Glossary from './pages/Glossary';
-import ScoutDashboard from './pages/ScoutDashboard';
-import TroopFinances from './pages/TroopFinances';
-import RankTrackerWizard from './pages/RankTrackerWizard';
-import MeritTrackerWizard from './pages/MeritTrackerWizard';
-import SkillsTrackerWizard from './pages/SkillsTrackerWizard';
-import ActivitiesPage from './pages/ActivitiesPage';
-import GamesLanding from './pages/GamesLanding';
-import ScoutToolsPortal from './pages/ScoutToolsPortal';
-import UserProfile from './pages/UserProfile';
-import SendInvitations from './pages/SendInvitations';
-import RegisterWithInvite from './pages/RegisterWithInvite';
-import ReferralLinks from './pages/ReferralLinks';
-import Camping from './pages/camping-animation';
-import CampingGuide from './pages/CampingGuide';
-import ScoutsBSA from './pages/ScoutsBSA';
-import MiscAwardsTracker from './pages/MiscAwardsTracker';
 import './App.css';
+
+// Lazy load route page components for code splitting and faster initial page load
+const Home = lazy(() => import('./pages/Home'));
+const Ranks = lazy(() => import('./pages/Ranks'));
+const Badges = lazy(() => import('./pages/Badges'));
+const Skills = lazy(() => import('./pages/Skills'));
+const Stories = lazy(() => import('./pages/Stories'));
+const About = lazy(() => import('./pages/About'));
+const Appearance = lazy(() => import('./pages/Appearance'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Calendar = lazy(() => import('./pages/Calendar'));
+const MemberLogin = lazy(() => import('./pages/MemberLogin'));
+const ScoutSignup = lazy(() => import('./pages/ScoutSignup'));
+const LeaderDashboard = lazy(() => import('./pages/LeaderDashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const ScoutPrinciples = lazy(() => import('./pages/ScoutPrinciples'));
+const NewScout = lazy(() => import('./pages/NewScout'));
+const Glossary = lazy(() => import('./pages/Glossary'));
+const ScoutDashboard = lazy(() => import('./pages/ScoutDashboard'));
+const TroopFinances = lazy(() => import('./pages/TroopFinances'));
+const RankTrackerWizard = lazy(() => import('./pages/RankTrackerWizard'));
+const MeritTrackerWizard = lazy(() => import('./pages/MeritTrackerWizard'));
+const SkillsTrackerWizard = lazy(() => import('./pages/SkillsTrackerWizard'));
+const ActivitiesPage = lazy(() => import('./pages/ActivitiesPage'));
+const GamesLanding = lazy(() => import('./pages/GamesLanding'));
+const ScoutToolsPortal = lazy(() => import('./pages/ScoutToolsPortal'));
+const UserProfile = lazy(() => import('./pages/UserProfile'));
+const SendInvitations = lazy(() => import('./pages/SendInvitations'));
+const RegisterWithInvite = lazy(() => import('./pages/RegisterWithInvite'));
+const ReferralLinks = lazy(() => import('./pages/ReferralLinks'));
+const Camping = lazy(() => import('./pages/camping-animation'));
+const CampingGuide = lazy(() => import('./pages/CampingGuide'));
+const ScoutsBSA = lazy(() => import('./pages/ScoutsBSA'));
+const MiscAwardsTracker = lazy(() => import('./pages/MiscAwardsTracker'));
+
+function PageLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-[50vh] p-8" role="status" aria-label="Loading page">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+    </div>
+  );
+}
 
 /**
  * Theme manager that applies auth-state-driven theme switching
@@ -53,8 +63,6 @@ function ThemeManager({ children }) {
   }, []);
 
   useEffect(() => {
-    const isScout = profile?.role === 'scout';
-
     // Color theme: user override > admin default > fallback to 'current'
     const userTheme = localStorage.getItem('troopTheme');
     const adminDefault = localStorage.getItem('troopThemeDefault') || 'current';
@@ -99,7 +107,8 @@ function ProtectedRoute({ children, allowedRoles = null }) {
 
 function AppRoutes() {
   return (
-    <Routes>
+    <Suspense fallback={<PageLoading />}>
+      <Routes>
         {/* Pages with global header/footer */}
         <Route path="/" element={<><Header /><Home /><Footer /></>} />
         <Route path="/ranks" element={<><Header /><Ranks /><Footer /></>} />
@@ -137,6 +146,7 @@ function AppRoutes() {
         <Route path="/scout-portal" element={<ScoutToolsPortal />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </Suspense>
   );
 }
 
