@@ -131,6 +131,8 @@ export default function RegisterWithInvite() {
           >
             {error && (
               <motion.div
+                role="alert"
+                aria-live="polite"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 style={{
@@ -156,6 +158,8 @@ export default function RegisterWithInvite() {
                 <h2 style={{ marginBottom: 24, textAlign: 'center' }}>Enter Invitation Code</h2>
                 <input
                   type="text"
+                  id="invite-code-input"
+                  aria-label="Invitation Code"
                   placeholder="XXXXXXXX"
                   defaultValue={inviteCode || ''}
                   onChange={(e) => {
@@ -212,11 +216,13 @@ export default function RegisterWithInvite() {
 
                 <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    <label htmlFor="register-email" style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                       Email Address
                     </label>
                     <input
+                      id="register-email"
                       type="email"
+                      autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your.email@example.com"
@@ -233,11 +239,13 @@ export default function RegisterWithInvite() {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    <label htmlFor="register-name" style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                       Full Name
                     </label>
                     <input
+                      id="register-name"
                       type="text"
+                      autoComplete="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Your name"
@@ -254,11 +262,13 @@ export default function RegisterWithInvite() {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    <label htmlFor="register-password" style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                       Password
                     </label>
                     <input
+                      id="register-password"
                       type="password"
+                      autoComplete="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="At least 6 characters"
@@ -275,11 +285,13 @@ export default function RegisterWithInvite() {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    <label htmlFor="register-confirm-password" style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                       Confirm Password
                     </label>
                     <input
+                      id="register-confirm-password"
                       type="password"
+                      autoComplete="new-password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Repeat password"
