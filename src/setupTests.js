@@ -3,6 +3,19 @@
  * Runs before each test suite
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+if (typeof window !== 'undefined' && !window.crypto) {
+  const { webcrypto } = require('crypto');
+  Object.defineProperty(window, 'crypto', {
+    value: webcrypto,
+    writable: true,
+  });
+}
+
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
 

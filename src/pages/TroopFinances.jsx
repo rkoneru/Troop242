@@ -1,5 +1,5 @@
-import { DollarSign, TrendingUp, Users, AlertCircle, Plus, Edit2, Trash2, ArrowLeft } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { DollarSign, TrendingUp, Users, AlertCircle, Trash2, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { saveData, loadData, generateId } from '../utils/adminData';
@@ -8,30 +8,28 @@ export default function TroopFinances() {
   const navigate = useNavigate();
 
   // Auth guard
-  const [user, setUser] = useState(null);
-  useEffect(() => {
+  const [user] = useState(() => {
     const stored = sessionStorage.getItem('loggedInUser');
-    if (!stored) {
-      navigate('/member-login');
-      return;
-    }
+    if (!stored) return null;
     try {
       const parsed = JSON.parse(stored);
-      if (parsed.profile !== 'leader') {
-        navigate('/member-login');
-        return;
-      }
+      return parsed.profile === 'leader' ? parsed : null;
     } catch {
-      navigate('/member-login');
-      return;
+      return null;
     }
-  }, [navigate]);
+  });
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/member-login');
+    }
+  }, [user, navigate]);
 
   // State
   const [selectedTab, setSelectedTab] = useState('dashboard');
   const [dues, setDues] = useState(() => loadData('troopDues', []));
   const [payments, setPayments] = useState(() => loadData('troopPayments', []));
-  const [scouts, setScouts] = useState(() => loadData('troopScouts', [
+  const [scouts] = useState(() => loadData('troopScouts', [
     { id: 1, name: 'John Smith', rank: 'Star Scout', email: 'john@example.com' },
     { id: 2, name: 'Mike Johnson', rank: 'Life Scout', email: 'mike@example.com' },
     { id: 3, name: 'Sarah Davis', rank: 'First Class', email: 'sarah@example.com' },
@@ -41,19 +39,59 @@ export default function TroopFinances() {
 
   const [newDueForm, setNewDueForm] = useState({ scoutId: '', amount: '', dueDate: '', description: '' });
   const [newPaymentForm, setNewPaymentForm] = useState({ scoutId: '', amount: '', paymentDate: '', method: 'cash', notes: '' });
-  const [editingDue, setEditingDue] = useState(null);
 
-  // Calculate statistics
-  const totalDues = dues.reduce((sum, due) => sum + parseFloat(due.amount || 0), 0);
-  const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
-  const outstandingDues = totalDues - totalPaid;
-  const scoutsWithDues = new Set(dues.map(d => d.scoutId)).size;
-  const paidScouts = new Set(payments.map(p => p.scoutId)).size;
+  // Memoized financial statistics to prevent redundant array reductions on form input keystrokes
+  const stats = useMemo(() => {
+    let totalDues = 0;
+    const scoutsWithDuesSet = new Set();
+    for (let i = 0; i < dues.length; i++) {
+      totalDues += parseFloat(dues[i].amount || 0);
+      if (dues[i].scoutId) scoutsWithDuesSet.add(dues[i].scoutId);
+    }
 
-  // Get scout name by ID
+    let totalPaid = 0;
+    const paidScoutsSet = new Set();
+    for (let i = 0; i < payments.length; i++) {
+      totalPaid += parseFloat(payments[i].amount || 0);
+      if (payments[i].scoutId) paidScoutsSet.add(payments[i].scoutId);
+    }
+
+    return {
+      totalDues,
+      totalPaid,
+      outstandingDues: totalDues - totalPaid,
+      scoutsWithDues: scoutsWithDuesSet.size,
+      paidScouts: paidScoutsSet.size,
+    };
+  }, [dues, payments]);
+
+  // Memoized scout financial summary map O(D + P) to eliminate nested O(S * (D + P)) filter/reductions per render
+  const scoutFinancials = useMemo(() => {
+    const summary = {};
+    for (let i = 0; i < dues.length; i++) {
+      const d = dues[i];
+      if (!summary[d.scoutId]) summary[d.scoutId] = { duesAmount: 0, paidAmount: 0 };
+      summary[d.scoutId].duesAmount += parseFloat(d.amount || 0);
+    }
+    for (let i = 0; i < payments.length; i++) {
+      const p = payments[i];
+      if (!summary[p.scoutId]) summary[p.scoutId] = { duesAmount: 0, paidAmount: 0 };
+      summary[p.scoutId].paidAmount += parseFloat(p.amount || 0);
+    }
+    return summary;
+  }, [dues, payments]);
+
+  // Scout name lookup map
+  const scoutNameMap = useMemo(() => {
+    const map = new Map();
+    for (let i = 0; i < scouts.length; i++) {
+      map.set(String(scouts[i].id), scouts[i].name);
+    }
+    return map;
+  }, [scouts]);
+
   const getScoutName = (scoutId) => {
-    const scout = scouts.find(s => s.id == scoutId);
-    return scout ? scout.name : 'Unknown';
+    return scoutNameMap.get(String(scoutId)) || 'Unknown';
   };
 
   // Handlers
@@ -101,24 +139,6 @@ export default function TroopFinances() {
     saveData('troopPayments', updated);
   };
 
-  // Get dues for a scout
-  const getScoutDues = (scoutId) => {
-    return dues.filter(d => d.scoutId == scoutId);
-  };
-
-  // Get payments for a scout
-  const getScoutPayments = (scoutId) => {
-    return payments.filter(p => p.scoutId == scoutId);
-  };
-
-  // Calculate scout balance
-  const getScoutBalance = (scoutId) => {
-    const scoutDues = getScoutDues(scoutId);
-    const scoutPayments = getScoutPayments(scoutId);
-    const dueAmount = scoutDues.reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
-    const paidAmount = scoutPayments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
-    return dueAmount - paidAmount;
-  };
 
   if (!user) return null;
 
@@ -183,7 +203,7 @@ export default function TroopFinances() {
               <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total Dues</span>
             </div>
             <p style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--accent)', margin: 0 }}>
-              ${totalDues.toFixed(2)}
+              ${stats.totalDues.toFixed(2)}
             </p>
           </div>
 
@@ -193,7 +213,7 @@ export default function TroopFinances() {
               <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total Paid</span>
             </div>
             <p style={{ fontSize: '2rem', fontWeight: 700, color: '#52b788', margin: 0 }}>
-              ${totalPaid.toFixed(2)}
+              ${stats.totalPaid.toFixed(2)}
             </p>
           </div>
 
@@ -203,7 +223,7 @@ export default function TroopFinances() {
               <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Outstanding</span>
             </div>
             <p style={{ fontSize: '2rem', fontWeight: 700, color: '#d4a853', margin: 0 }}>
-              ${outstandingDues.toFixed(2)}
+              ${stats.outstandingDues.toFixed(2)}
             </p>
           </div>
 
@@ -213,7 +233,7 @@ export default function TroopFinances() {
               <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Scouts with Dues</span>
             </div>
             <p style={{ fontSize: '2rem', fontWeight: 700, color: '#6496c8', margin: 0 }}>
-              {scoutsWithDues}
+              {stats.scoutsWithDues}
             </p>
           </div>
         </motion.div>
@@ -296,15 +316,15 @@ export default function TroopFinances() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 12, borderBottom: '1px solid var(--divider)' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Total Dues Owed:</span>
-                    <span style={{ color: 'var(--accent)', fontWeight: 600, fontSize: '1.1rem' }}>${totalDues.toFixed(2)}</span>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600, fontSize: '1.1rem' }}>${stats.totalDues.toFixed(2)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 12, borderBottom: '1px solid var(--divider)' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Total Payments:</span>
-                    <span style={{ color: '#52b788', fontWeight: 600, fontSize: '1.1rem' }}>${totalPaid.toFixed(2)}</span>
+                    <span style={{ color: '#52b788', fontWeight: 600, fontSize: '1.1rem' }}>${stats.totalPaid.toFixed(2)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Outstanding Balance:</span>
-                    <span style={{ color: outstandingDues > 0 ? '#d4a853' : '#52b788', fontWeight: 600, fontSize: '1.1rem' }}>${outstandingDues.toFixed(2)}</span>
+                    <span style={{ color: stats.outstandingDues > 0 ? '#d4a853' : '#52b788', fontWeight: 600, fontSize: '1.1rem' }}>${stats.outstandingDues.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -317,7 +337,7 @@ export default function TroopFinances() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                       <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Collection Rate</span>
                       <span style={{ color: 'var(--accent)', fontWeight: 600 }}>
-                        {totalDues > 0 ? ((totalPaid / totalDues) * 100).toFixed(1) : 0}%
+                        {stats.totalDues > 0 ? ((stats.totalPaid / stats.totalDues) * 100).toFixed(1) : 0}%
                       </span>
                     </div>
                     <div style={{
@@ -328,7 +348,7 @@ export default function TroopFinances() {
                     }}>
                       <div style={{
                         height: '100%',
-                        width: `${totalDues > 0 ? (totalPaid / totalDues) * 100 : 0}%`,
+                        width: `${stats.totalDues > 0 ? (stats.totalPaid / stats.totalDues) * 100 : 0}%`,
                         background: 'linear-gradient(90deg, var(--accent), #52b788)',
                         transition: 'width 0.3s ease'
                       }} />
@@ -336,7 +356,7 @@ export default function TroopFinances() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, borderTop: '1px solid var(--divider)' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Scouts Paid:</span>
-                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{paidScouts}/{scoutsWithDues}</span>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{stats.paidScouts}/{stats.scoutsWithDues}</span>
                   </div>
                 </div>
               </div>
@@ -698,8 +718,9 @@ export default function TroopFinances() {
             <h3 style={{ color: 'var(--text-primary)', marginBottom: 20 }}>Scout Balances</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 20 }}>
               {scouts.map((scout) => {
-                const scoutBalance = getScoutBalance(scout.id);
-                const scoutDuesAmount = getScoutDues(scout.id).reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
+                const fin = scoutFinancials[scout.id] || { duesAmount: 0, paidAmount: 0 };
+                const scoutDuesAmount = fin.duesAmount;
+                const scoutBalance = fin.duesAmount - fin.paidAmount;
                 const isPaid = scoutBalance <= 0;
 
                 return (
