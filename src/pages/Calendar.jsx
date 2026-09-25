@@ -219,6 +219,9 @@ export default function Calendar() {
 
                     {user && profile?.role === 'scout' && (
                       <button
+                        type="button"
+                        aria-pressed={Boolean(myRsvps[event.id])}
+                        aria-label={`${myRsvps[event.id] ? 'Remove interest from' : 'Mark interested in'} ${event.title}`}
                         onClick={() => toggleRsvp(event.id)}
                         style={{
                           marginTop: 'auto',
