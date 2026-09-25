@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Copy, ExternalLink, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
@@ -83,7 +83,19 @@ export default function RankTrackerWizard() {
     setSelectedRank(rankIdx);
   };
 
-  const generateScoutbookSummary = () => {
+  // Memoize requirement completion counts across all ranks to avoid nested array iteration per render frame
+  const rankCompletionCounts = useMemo(() => {
+    return RANKS.map((rank, rankIdx) => {
+      let completed = 0;
+      rank.requirements.forEach((_, reqIdx) => {
+        if (rankChecks[`${rankIdx}-${reqIdx}`]) completed++;
+      });
+      return completed;
+    });
+  }, [rankChecks]);
+
+  // Memoize Scoutbook summary generator to prevent string building on every render frame
+  const generateScoutbookSummary = useCallback(() => {
     const rank = RANKS[selectedRank];
     const completedReqs = [];
     const notesText = [];
@@ -98,7 +110,7 @@ export default function RankTrackerWizard() {
       }
     });
 
-    const summary = `RANK ADVANCEMENT SUMMARY - ${rank.name.toUpperCase()}
+    return `RANK ADVANCEMENT SUMMARY - ${rank.name.toUpperCase()}
 
 Completed Requirements:
 ${completedReqs.join('\n')}
@@ -113,9 +125,7 @@ Next Steps:
 2. Log into Scoutbook.org
 3. Enter requirements in your Scout profile
 4. Schedule Board of Review with your Scoutmaster`;
-
-    return summary;
-  };
+  }, [selectedRank, rankChecks, notes]);
 
   const copyToClipboard = () => {
     const summary = generateScoutbookSummary();
@@ -139,11 +149,7 @@ Next Steps:
 
   const currentRank = RANKS[selectedRank];
 
-  // Count completed requirements in current rank
-  let completedCount = 0;
-  currentRank.requirements.forEach((_, idx) => {
-    if (rankChecks[`${selectedRank}-${idx}`]) completedCount++;
-  });
+  const completedCount = rankCompletionCounts[selectedRank] || 0;
   const allComplete = completedCount === currentRank.requirements.length;
 
   return (
@@ -198,10 +204,7 @@ Next Steps:
             }}
           >
             {RANKS.map((rank, idx) => {
-              let rankComplete = 0;
-              rank.requirements.forEach((_, reqIdx) => {
-                if (rankChecks[`${idx}-${reqIdx}`]) rankComplete++;
-              });
+              const rankComplete = rankCompletionCounts[idx] || 0;
               const isSelected = selectedRank === idx;
 
               return (
