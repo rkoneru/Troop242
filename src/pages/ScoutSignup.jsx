@@ -1,11 +1,25 @@
 
 import { CheckCircle, MapPin, Calendar, Users } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+
+// Hoist static Framer Motion animation variants outside component to avoid re-allocating on renders
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function ScoutSignup() {
   const navigate = useNavigate();
@@ -40,11 +54,26 @@ export default function ScoutSignup() {
     loadActivities();
   }, [loading]);
 
-  const isSignedUp = (activityId) => {
-    return activities
-      .find(a => a.id === activityId)
-      ?.signedUp?.some(s => s.uid === user?.uid) || false;
-  };
+  // Memoize set of activity IDs the user is signed up for O(1) status check
+  const signedUpSet = useMemo(() => {
+    if (!user?.uid) return new Set();
+    const set = new Set();
+    activities.forEach(activity => {
+      if (activity.signedUp?.some(s => s.uid === user.uid)) {
+        set.add(activity.id);
+      }
+    });
+    return set;
+  }, [activities, user?.uid]);
+
+  const isSignedUp = useCallback((activityId) => {
+    return signedUpSet.has(activityId);
+  }, [signedUpSet]);
+
+  // Memoize user signups list to prevent O(N^2) filtering on every render frame
+  const userSignups = useMemo(() => {
+    return activities.filter(a => signedUpSet.has(a.id));
+  }, [activities, signedUpSet]);
 
   const handleSignup = async (activityId) => {
     if (!user || !profile) {
@@ -110,19 +139,6 @@ export default function ScoutSignup() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
   if (isLoading) {
     return (
       <section style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -132,8 +148,6 @@ export default function ScoutSignup() {
       </section>
     );
   }
-
-  const userSignups = activities.filter(a => isSignedUp(a.id));
 
   return (
     <>
@@ -205,7 +219,7 @@ export default function ScoutSignup() {
 
           {/* Activities Grid */}
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
@@ -220,7 +234,7 @@ export default function ScoutSignup() {
               return (
                 <motion.div
                   key={activity.id}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className="glass-card"
                   style={{
                     padding: 24,
