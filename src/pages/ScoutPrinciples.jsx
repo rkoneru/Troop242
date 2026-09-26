@@ -304,6 +304,14 @@ export default function ScoutPrinciples() {
 
             {/* Flashcard */}
             <motion.div
+              role="button"
+              tabIndex={0}
+              aria-pressed={isFlipped}
+              aria-label={
+                isFlipped
+                  ? `Flashcard for ${SCOUT_LAW_TERMS[currentCardIndex].term}: ${SCOUT_LAW_TERMS[currentCardIndex].definition}. Press Enter or Space to flip back.`
+                  : `Flashcard for ${SCOUT_LAW_TERMS[currentCardIndex].term}. Press Enter or Space to reveal definition.`
+              }
               style={{
                 width: '100%',
                 height: '280px',
@@ -312,6 +320,12 @@ export default function ScoutPrinciples() {
                 marginBottom: 32
               }}
               onClick={() => setIsFlipped(!isFlipped)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsFlipped(!isFlipped);
+                }
+              }}
             >
               <motion.div
                 initial={false}
@@ -381,7 +395,12 @@ export default function ScoutPrinciples() {
             {/* Navigation */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
               <motion.button
-                onClick={() => setCurrentCardIndex((currentCardIndex - 1 + SCOUT_LAW_TERMS.length) % SCOUT_LAW_TERMS.length)}
+                type="button"
+                aria-label="Previous flashcard"
+                onClick={() => {
+                  setIsFlipped(false);
+                  setCurrentCardIndex((currentCardIndex - 1 + SCOUT_LAW_TERMS.length) % SCOUT_LAW_TERMS.length);
+                }}
                 style={{
                   background: 'var(--accent)',
                   color: 'white',
@@ -406,7 +425,12 @@ export default function ScoutPrinciples() {
               </div>
 
               <motion.button
-                onClick={() => setCurrentCardIndex((currentCardIndex + 1) % SCOUT_LAW_TERMS.length)}
+                type="button"
+                aria-label="Next flashcard"
+                onClick={() => {
+                  setIsFlipped(false);
+                  setCurrentCardIndex((currentCardIndex + 1) % SCOUT_LAW_TERMS.length);
+                }}
                 style={{
                   background: 'var(--accent)',
                   color: 'white',
