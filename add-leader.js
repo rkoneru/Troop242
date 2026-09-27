@@ -28,14 +28,13 @@ async function addLeader(name, email, password) {
       displayName: name
     });
 
-    // Create Firestore document
+    // Create Firestore document (do not store plaintext password in database)
     await db.collection('users').doc(userRecord.uid).set({
       uid: userRecord.uid,
       email: email,
       name: name,
       role: 'leader',
       status: 'approved',
-      password: password,
       joinDate: new Date().toISOString(),
       phone: '',
       createdAt: new Date().toISOString()
