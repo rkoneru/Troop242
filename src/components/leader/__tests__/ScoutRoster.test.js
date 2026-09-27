@@ -114,6 +114,32 @@ describe('ScoutRoster', () => {
     expect(mockOnSelectScout).toHaveBeenCalledWith(mockScouts[0]);
   });
 
+  it('should handle keyboard navigation (Enter key) on scout cards', async () => {
+    const user = userEvent.setup();
+    const mockOnSelectScout = jest.fn();
+
+    render(<ScoutRoster onSelectScout={mockOnSelectScout} />);
+
+    const scoutCard = screen.getByRole('button', { name: /Select scout John Scout/i });
+    scoutCard.focus();
+    await user.keyboard('{Enter}');
+
+    expect(mockOnSelectScout).toHaveBeenCalledWith(mockScouts[0]);
+  });
+
+  it('should handle keyboard navigation (Space key) on scout cards', async () => {
+    const user = userEvent.setup();
+    const mockOnSelectScout = jest.fn();
+
+    render(<ScoutRoster onSelectScout={mockOnSelectScout} />);
+
+    const scoutCard = screen.getByRole('button', { name: /Select scout Jane Scout/i });
+    scoutCard.focus();
+    await user.keyboard(' ');
+
+    expect(mockOnSelectScout).toHaveBeenCalledWith(mockScouts[1]);
+  });
+
   it('should show empty state when no scouts match search', async () => {
     const user = userEvent.setup();
     render(<ScoutRoster />);
@@ -139,9 +165,10 @@ describe('ScoutRoster', () => {
 
     render(<ScoutRoster />);
 
-    const scoutNames = screen.getAllByText(/Scout/).map(el => el.textContent);
-    expect(scoutNames[0]).toContain('Alice');
-    expect(scoutNames[1]).toContain('Bob');
-    expect(scoutNames[2]).toContain('Zeke');
+    const headings = screen.getAllByRole('heading', { level: 4 });
+    const scoutNames = headings.map(el => el.textContent);
+    expect(scoutNames[0]).toBe('Alice Scout');
+    expect(scoutNames[1]).toBe('Bob Scout');
+    expect(scoutNames[2]).toBe('Zeke Scout');
   });
 });

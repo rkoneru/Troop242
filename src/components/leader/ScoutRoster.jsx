@@ -27,11 +27,11 @@ export default function ScoutRoster({ onAddScout, onSelectScout }) {
   }, [scouts, searchQuery]);
 
   if (loading) {
-    return <div className="text-center py-4">Loading scouts...</div>;
+    return <div className="text-center py-4" role="status">Loading scouts...</div>;
   }
 
   if (error) {
-    return <div className="text-red-600">Error loading scouts</div>;
+    return <div className="text-red-600" role="alert">Error loading scouts</div>;
   }
 
   return (
@@ -40,8 +40,12 @@ export default function ScoutRoster({ onAddScout, onSelectScout }) {
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-bold">Troop Scouts</h3>
         {onAddScout && (
-          <button onClick={onAddScout} className="btn-primary flex items-center gap-2">
-            <Plus size={18} />
+          <button
+            type="button"
+            onClick={onAddScout}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Plus size={18} aria-hidden="true" />
             Add Scout
           </button>
         )}
@@ -49,9 +53,11 @@ export default function ScoutRoster({ onAddScout, onSelectScout }) {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+        <Search className="absolute left-3 top-3 text-gray-400 pointer-events-none" size={18} aria-hidden="true" />
         <input
-          type="text"
+          id="scout-search"
+          type="search"
+          aria-label="Search scouts"
           placeholder="Search scouts..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -62,30 +68,44 @@ export default function ScoutRoster({ onAddScout, onSelectScout }) {
       {/* Scout List */}
       <div className="space-y-2">
         {filteredScouts.length === 0 ? (
-          <div className="text-center py-4 text-gray-500">No scouts found</div>
+          <div className="text-center py-4 text-gray-500" role="status">No scouts found</div>
         ) : (
-          filteredScouts.map((scout) => (
-            <motion.div
-              key={scout.id}
-              onClick={() => onSelectScout?.(scout)}
-              className="card p-4 cursor-pointer hover:shadow-md transition-shadow"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <h4 className="font-semibold">{scout.name || 'Unknown'}</h4>
-                  <div className="text-sm text-gray-600">
-                    <div>{scout.email}</div>
-                    <div className="text-blue-600">Rank: {scout.rank || 'Scout'}</div>
+          filteredScouts.map((scout) => {
+            const isSelectable = Boolean(onSelectScout);
+            return (
+              <motion.div
+                key={scout.id}
+                role={isSelectable ? 'button' : undefined}
+                tabIndex={isSelectable ? 0 : undefined}
+                aria-label={isSelectable ? `Select scout ${scout.name || 'Unknown'}` : undefined}
+                onClick={() => onSelectScout?.(scout)}
+                onKeyDown={(e) => {
+                  if (isSelectable && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    onSelectScout(scout);
+                  }
+                }}
+                className={`card p-4 transition-shadow ${
+                  isSelectable ? 'cursor-pointer hover:shadow-md focus-visible:outline-2 focus-visible:outline-blue-600' : ''
+                }`}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-semibold">{scout.name || 'Unknown'}</h4>
+                    <div className="text-sm text-gray-600">
+                      <div>{scout.email}</div>
+                      <div className="text-blue-600">Rank: {scout.rank || 'Scout'}</div>
+                    </div>
                   </div>
+                  {scout.phone && (
+                    <div className="text-sm text-gray-600">{scout.phone}</div>
+                  )}
                 </div>
-                {scout.phone && (
-                  <div className="text-sm text-gray-600">{scout.phone}</div>
-                )}
-              </div>
-            </motion.div>
-          ))
+              </motion.div>
+            );
+          })
         )}
       </div>
     </div>
