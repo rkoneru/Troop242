@@ -198,22 +198,30 @@ const TRIVIA = [
 
 export const SEARCH_CORPUS = [...PAGES, ...RANKS, ...MERIT_BADGES, ...EVENTS, ...TRIVIA];
 
+// Performance Optimization (⚡ Bolt):
+// Pre-compute lowercased title and excerpt fields once at module initialization time.
+// This avoids calling `.toLowerCase()` on doc fields repeatedly for every document on every user search keystroke,
+// eliminating redundant string allocations and lowering GC overhead during search interactions.
+const PREPARED_CORPUS = SEARCH_CORPUS.map((doc) => ({
+  ...doc,
+  _titleLower: doc.title.toLowerCase(),
+  _excerptLower: doc.excerpt.toLowerCase(),
+}));
+
 // Simple scoring: exact title match=100, title contains=60, excerpt contains=30
 export function search(query) {
   if (!query || query.trim().length < 2) return [];
   const q = query.toLowerCase().trim();
   const terms = q.split(/\s+/);
 
-  return SEARCH_CORPUS.map((doc) => {
-    const titleLower = doc.title.toLowerCase();
-    const excerptLower = doc.excerpt.toLowerCase();
+  return PREPARED_CORPUS.map((doc) => {
     let score = 0;
 
     for (const term of terms) {
-      if (titleLower === term) score += 100;
-      else if (titleLower.startsWith(term)) score += 70;
-      else if (titleLower.includes(term)) score += 50;
-      if (excerptLower.includes(term)) score += 20;
+      if (doc._titleLower === term) score += 100;
+      else if (doc._titleLower.startsWith(term)) score += 70;
+      else if (doc._titleLower.includes(term)) score += 50;
+      if (doc._excerptLower.includes(term)) score += 20;
     }
 
     return { ...doc, score };
