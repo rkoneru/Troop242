@@ -5,6 +5,62 @@
 
 // Jest DOM matchers (e.g., toBeInTheDocument)
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+import webcrypto from 'crypto';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+if (!global.crypto) {
+  global.crypto = webcrypto.webcrypto || webcrypto;
+}
+
+if (!window.crypto) {
+  window.crypto = global.crypto;
+}
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+  takeRecords() { return []; }
+};
+
+// Mock window.scrollTo
+window.scrollTo = jest.fn();
+
+// Mock framer-motion using cached Map
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const componentCache = new Map();
+  return {
+    motion: new Proxy(
+      {},
+      {
+        get: (_, prop) => {
+          if (!componentCache.has(prop)) {
+            const Component = React.forwardRef(({ children, ...props }, ref) => {
+              const filteredProps = { ...props };
+              const motionProps = [
+                'initial', 'animate', 'exit', 'transition', 'variants',
+                'whileHover', 'whileTap', 'whileFocus', 'whileDrag', 'whileInView',
+                'viewport', 'layout', 'layoutId', 'onAnimationStart', 'onAnimationComplete'
+              ];
+              motionProps.forEach((p) => delete filteredProps[p]);
+              return React.createElement(prop, { ...filteredProps, ref }, children);
+            });
+            Component.displayName = `motion.${prop}`;
+            componentCache.set(prop, Component);
+          }
+          return componentCache.get(prop);
+        },
+      }
+    ),
+    AnimatePresence: ({ children }) => children,
+  };
+});
 
 // Mock Firebase
 jest.mock('firebase/app', () => ({
