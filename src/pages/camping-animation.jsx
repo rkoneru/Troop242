@@ -1,6 +1,4 @@
 
-import { useEffect, useRef, useState } from "react";
-
 /* ══════════════════════════════════════════════════════════
    TROOP 242 · CAMPING TENT ANIMATION
    Style: 3D clay/low-poly cartoon — matching uploaded manual
@@ -219,12 +217,8 @@ function Tent({ x=0, y=0, s=1, c1="#D4660A", c2="#A84808", c3="#E8880A" }) {
 
 /* ══ MAIN COMPONENT ══ */
 export default function CampingAnimation() {
-  const [tick, setTick] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 50);
-    return () => clearInterval(id);
-  }, []);
+  // Optimization: Removed unused 50ms tick interval that was triggering 20 full
+  // component re-renders per second. CSS keyframe animations handle visual motion natively.
 
   return (
     <div style={{
