@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
 import { searchScouts, generateScoutId } from '../utils/leaderData';
+import { sanitizeCsvCell } from '../utils/csvSanitization';
 import {
   validateActivityForm,
   validateEventForm,
@@ -446,7 +447,15 @@ export default function LeaderDashboard() {
   const handleExportScouts = useCallback(() => {
     const csv = [
       ['Name', 'Email', 'Rank', 'Status', 'Join Date', 'Phone', 'Notes'],
-      ...scoutsData.map(s => [s.name, s.email, s.rank, s.status, s.joinDate, s.phone, s.notes])
+      ...scoutsData.map(s => [
+        sanitizeCsvCell(s.name),
+        sanitizeCsvCell(s.email),
+        sanitizeCsvCell(s.rank),
+        sanitizeCsvCell(s.status),
+        sanitizeCsvCell(s.joinDate),
+        sanitizeCsvCell(s.phone),
+        sanitizeCsvCell(s.notes)
+      ])
     ]
       .map(row => row.map(cell => `"${cell}"`).join(','))
       .join('\n');
