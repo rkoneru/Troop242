@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import '../styles/ScoutToolsPortal.css';
 
@@ -431,7 +431,18 @@ export default function ScoutToolsPortal() {
     setSidebarOpen(false);
   };
 
-  const visibleCards = dashFilter === 'all' ? DASHBOARD_CARDS : DASHBOARD_CARDS.filter(c => c.cat === dashFilter);
+  // Performance memoizations to prevent redundant array traversals on re-renders
+  const visibleCards = useMemo(() => {
+    return dashFilter === 'all' ? DASHBOARD_CARDS : DASHBOARD_CARDS.filter(c => c.cat === dashFilter);
+  }, [dashFilter]);
+
+  const filteredFieldGuide = useMemo(() => {
+    return fieldGuideFilter === 'all' ? FIELD_GUIDE : FIELD_GUIDE.filter(c => c.cat === fieldGuideFilter);
+  }, [fieldGuideFilter]);
+
+  const requiredCompletedCount = useMemo(() => {
+    return Object.values(meritChecked).filter(Boolean).length;
+  }, [meritChecked]);
 
   // Render functions for each panel
   const renderPanel = () => {
@@ -504,10 +515,10 @@ export default function ScoutToolsPortal() {
       <div className="badge-progress-wrap">
         <div className="bp-label">
           <span>Eagle Required Badges</span>
-          <span className="bp-pct">{Object.values(meritChecked).filter(v=>v).length}/{MB_REQUIRED.length}</span>
+          <span className="bp-pct">{requiredCompletedCount}/{MB_REQUIRED.length}</span>
         </div>
         <div className="progress-bar">
-          <div className="progress-fill" style={{width:`${(Object.values(meritChecked).filter(v=>v).length/MB_REQUIRED.length)*100}%`}}></div>
+          <div className="progress-fill" style={{width:`${(requiredCompletedCount/MB_REQUIRED.length)*100}%`}}></div>
         </div>
       </div>
       <div className="badge-section">
@@ -618,7 +629,7 @@ export default function ScoutToolsPortal() {
         ))}
       </div>
       <div className="guide-grid">
-        {FIELD_GUIDE.filter(c=>fieldGuideFilter==='all'||c.cat===fieldGuideFilter).map((card,i)=>(
+        {filteredFieldGuide.map((card,i)=>(
           <div key={i} className="guide-card" onClick={()=>setSelectedGuideCard(card)} style={{cursor:'pointer'}}>
             <div className="guide-emoji">{card.emoji}</div>
             <div className="guide-name">{card.name}</div>
