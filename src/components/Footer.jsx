@@ -80,8 +80,22 @@ export default function Footer() {
           <div className="footer-section">
             <h4 style={{ marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Resources</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <a href="https://www.scouting.org" target="_blank" rel="noopener noreferrer">Scouting America</a>
-              <a href="https://scoutbook.scouting.org/" target="_blank" rel="noopener noreferrer">Scoutbook</a>
+              <a
+                href="https://www.scouting.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Scouting America (opens in a new tab)"
+              >
+                Scouting America
+              </a>
+              <a
+                href="https://scoutbook.scouting.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Scoutbook (opens in a new tab)"
+              >
+                Scoutbook
+              </a>
               <FooterLink to="/calendar">Troop Calendar</FooterLink>
               <FooterLink to="/member-login">Member Login</FooterLink>
               {canViewScoutPortal && (
@@ -95,25 +109,23 @@ export default function Footer() {
             <h4 style={{ marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Contact</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div className="footer-contact-item">
-                <Mail size={16} style={{ color: 'var(--accent)' }} />
+                <Mail size={16} style={{ color: 'var(--accent)' }} aria-hidden="true" />
                 <a href="mailto:troop242sanford@gmail.com">troop242sanford@gmail.com</a>
               </div>
               <div className="footer-contact-item">
-                <MapPin size={16} style={{ color: 'var(--accent)' }} />
+                <MapPin size={16} style={{ color: 'var(--accent)' }} aria-hidden="true" />
                 <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const encoded = encodeURIComponent('3512 S Orlando Dr, Sanford, FL 32773');
-                    window.open(`https://www.google.com/maps/search/${encoded}`, '_blank');
-                  }}
+                  href="https://www.google.com/maps/search/3512%20S%20Orlando%20Dr%2C%20Sanford%2C%20FL%2032773"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   title="3512 S Orlando Dr, Sanford, FL 32773"
+                  aria-label="Location: Sanford, FL (opens Google Maps in a new tab)"
                 >
                   Sanford, FL
                 </a>
               </div>
               <div className="footer-contact-item">
-                <Phone size={16} style={{ color: 'var(--accent)' }} />
+                <Phone size={16} style={{ color: 'var(--accent)' }} aria-hidden="true" />
                 <span>Tuesdays 7:00 PM</span>
               </div>
             </div>
