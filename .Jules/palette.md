@@ -1,0 +1,3 @@
+## 2026-03-30 - Semantic External Link Navigation in Footer
+**Learning:** External links and map links using `href="#"` with imperative `onClick` handlers prevent standard screen reader navigation, keyboard context menus, and proper link announcements. Replacing them with semantic `a` elements featuring `target="_blank"`, `rel="noopener noreferrer"`, and explicit `aria-label` attributes informing users that the link opens in a new tab provides a smoother accessibility experience across visual and screen-reader contexts.
+**Action:** Always replace `href="#"` event triggers on navigation links with standard semantic `a` elements and explicit `aria-label`s detailing external target behavior.
