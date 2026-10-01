@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
 import { searchScouts, generateScoutId } from '../utils/leaderData';
+import { sanitizeCsvCell } from '../utils/csvSanitization';
 import {
   validateActivityForm,
   validateEventForm,
@@ -444,12 +445,15 @@ export default function LeaderDashboard() {
   }, []);
 
   const handleExportScouts = useCallback(() => {
+    const headers = ['Name', 'Email', 'Rank', 'Status', 'Join Date', 'Phone', 'Notes'];
     const csv = [
-      ['Name', 'Email', 'Rank', 'Status', 'Join Date', 'Phone', 'Notes'],
-      ...scoutsData.map(s => [s.name, s.email, s.rank, s.status, s.joinDate, s.phone, s.notes])
-    ]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n');
+      headers.map(sanitizeCsvCell).join(','),
+      ...scoutsData.map(s =>
+        [s.name, s.email, s.rank, s.status, s.joinDate, s.phone, s.notes]
+          .map(sanitizeCsvCell)
+          .join(',')
+      )
+    ].join('\n');
 
     const element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv));
