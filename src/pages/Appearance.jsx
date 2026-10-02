@@ -1,8 +1,35 @@
 
 import { Palette } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { THEMES, FRAMEWORKS } from '../utils/themes';
+
+// Hoist static Framer Motion animation variants to module scope to preserve stable references across renders
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
+// Hoist static pre-filtered theme and framework arrays to module scope to eliminate redundant array/object allocations per render
+const GENERAL_THEMES = Object.entries(THEMES).filter(([key]) =>
+  ['current', 'white'].includes(key)
+);
+
+const SCOUT_THEMES = Object.entries(THEMES).filter(([key]) =>
+  ['green', 'tan', 'blue', 'brown', 'gold', 'red'].includes(key)
+);
+
+const VISIBLE_FRAMEWORKS = Object.entries(FRAMEWORKS).filter(
+  ([key]) => !['clay', 'skeu', 'brutal'].includes(key)
+);
 
 export default function Appearance() {
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -36,19 +63,6 @@ export default function Appearance() {
   const handleFrameworkChange = (frameworkName) => {
     setCurrentFramework(frameworkName);
     applyFramework(frameworkName);
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
   };
 
   return (
@@ -85,18 +99,16 @@ export default function Appearance() {
             </p>
 
             <motion.div
-              variants={containerVariants}
+              variants={CONTAINER_VARIANTS}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
             >
-              {Object.entries(THEMES)
-                .filter(([key]) => ['current', 'white'].includes(key))
-                .map(([key, theme]) => (
+              {GENERAL_THEMES.map(([key, theme]) => (
                 <motion.div
                   key={key}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className="glass-card"
                   onClick={() => handleThemeChange(key)}
                   style={{
@@ -189,18 +201,16 @@ export default function Appearance() {
             </p>
 
             <motion.div
-              variants={containerVariants}
+              variants={CONTAINER_VARIANTS}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
             >
-              {Object.entries(THEMES)
-                .filter(([key]) => ['green', 'tan', 'blue', 'brown', 'gold', 'red'].includes(key))
-                .map(([key, theme]) => (
+              {SCOUT_THEMES.map(([key, theme]) => (
                 <motion.div
                   key={key}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className="glass-card"
                   onClick={() => handleThemeChange(key)}
                   style={{
@@ -293,18 +303,16 @@ export default function Appearance() {
             </p>
 
             <motion.div
-              variants={containerVariants}
+              variants={CONTAINER_VARIANTS}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
             >
-              {Object.entries(FRAMEWORKS)
-                .filter(([key]) => !['clay', 'skeu', 'brutal'].includes(key))
-                .map(([key, framework]) => (
+              {VISIBLE_FRAMEWORKS.map(([key, framework]) => (
                 <motion.div
                   key={key}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className="glass-card"
                   onClick={() => handleFrameworkChange(key)}
                   style={{
