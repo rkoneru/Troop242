@@ -117,13 +117,15 @@ export default function MiscAwardsTracker() {
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'var(--bg-secondary)', borderBottom: `1px solid var(--divider)`, zIndex: 100, padding: '16px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <motion.button
+            type="button"
             className="btn btn-outline"
             onClick={() => navigate('/scout-dashboard')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            aria-label="Back to Scout Dashboard"
           >
-            <ArrowLeft size={18} /> Back
+            <ArrowLeft size={18} aria-hidden="true" /> Back
           </motion.button>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Misc Awards Tracker</h1>
           <div style={{ width: 120 }} />
@@ -176,8 +178,11 @@ export default function MiscAwardsTracker() {
             {MISC_AWARD_CATEGORIES.map((cat, idx) => (
               <motion.button
                 key={idx}
+                type="button"
                 onClick={() => setSelectedCategoryIdx(idx)}
                 whileHover={{ backgroundColor: 'rgba(var(--accent-rgb, 0, 214, 143), 0.1)' }}
+                aria-pressed={selectedCategoryIdx === idx}
+                aria-label={`${cat.category} category, ${getCompletedCountForCategory(idx)} of ${getTotalForCategory(idx)} earned`}
                 style={{
                   width: '100%',
                   padding: '16px',
@@ -229,16 +234,23 @@ export default function MiscAwardsTracker() {
               {currentCategory.awards.map((award, awardIdx) => {
                 const isEarned = miscAwards[award];
                 return (
-                  <motion.div
+                  <motion.button
                     key={awardIdx}
+                    type="button"
                     onClick={() => toggleAward(award)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    aria-pressed={Boolean(isEarned)}
+                    aria-label={`${award}, ${isEarned ? 'earned' : 'not earned'}. Click to toggle.`}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
                       padding: '16px',
+                      width: '100%',
+                      textAlign: 'left',
+                      fontFamily: 'inherit',
+                      fontSize: '1rem',
                       border: isEarned ? '1px solid #10b981' : '1px solid var(--divider)',
                       borderRadius: 8,
                       background: isEarned ? 'rgba(16,185,129,0.05)' : 'var(--bg-secondary)',
@@ -248,6 +260,7 @@ export default function MiscAwardsTracker() {
                   >
                     {/* Checkbox */}
                     <div
+                      aria-hidden="true"
                       style={{
                         width: 24,
                         height: 24,
@@ -278,7 +291,7 @@ export default function MiscAwardsTracker() {
                     {isEarned && (
                       <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>Earned</span>
                     )}
-                  </motion.div>
+                  </motion.button>
                 );
               })}
             </div>
