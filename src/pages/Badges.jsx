@@ -560,7 +560,7 @@ export default function Badges() {
             style={{ maxWidth: 600, margin: '0 auto' }}
           >
             <div style={{ position: 'relative' }}>
-              <Search size={20} style={{ position: 'absolute', left: 19, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <Search size={20} aria-hidden="true" style={{ position: 'absolute', left: 19, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="text"
                 placeholder="Search categories..."
@@ -601,7 +601,7 @@ export default function Badges() {
                 >
                   {/* Category Header */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-                    <div style={{ fontSize: '3rem' }}>{catItem.emoji}</div>
+                    <div style={{ fontSize: '3rem' }} aria-hidden="true">{catItem.emoji}</div>
                     <div>
                       <h3 style={{ fontSize: '1.3rem', marginBottom: 4 }}>{catItem.category}</h3>
                       <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{catItem.badges.length} badges</p>
@@ -614,6 +614,7 @@ export default function Badges() {
 
                   {/* Badges Grid */}
                   <motion.div
+                    id={`category-badges-${i}`}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: selectedCategory === i ? 1 : 0, height: selectedCategory === i ? 'auto' : 0 }}
                     transition={{ duration: 0.3 }}
@@ -658,6 +659,7 @@ export default function Badges() {
                                 href={badge.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                aria-label={`${badge.name} details on Scouting.org (opens in new tab)`}
                                 style={{
                                   flex: 1,
                                   padding: '8px 12px',
@@ -688,6 +690,7 @@ export default function Badges() {
                                   href={pdfUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
+                                  aria-label={`Download ${cleanBadgeName} PDF pamphlet (opens in new tab)`}
                                   style={{
                                     padding: '8px 10px',
                                     background: PDF_BUTTON_COLORS.bgDefault,
@@ -707,9 +710,9 @@ export default function Badges() {
                                     scale: 1.05
                                   }}
                                   whileTap={{ scale: 0.95 }}
-                                  title="Download PDF pamphlet"
+                                  title={`Download ${cleanBadgeName} PDF pamphlet`}
                                 >
-                                  <ExternalLink size={14} />
+                                  <ExternalLink size={14} aria-hidden="true" />
                                 </motion.a>
                               )}
                             </motion.div>
@@ -737,13 +740,25 @@ export default function Badges() {
 
                   {/* Expand Button */}
                   <div style={{ marginTop: 16, textAlign: 'center' }}>
-                    <motion.div
-                      animate={{ rotate: selectedCategory === i ? 180 : 0 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ display: 'inline-block' }}
+                    <button
+                      type="button"
+                      aria-expanded={selectedCategory === i}
+                      aria-controls={`category-badges-${i}`}
+                      aria-label={`${selectedCategory === i ? 'Collapse' : 'Expand'} ${catItem.category} category`}
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCategory(selectedCategory === i ? null : i);
+                      }}
                     >
-                      <ArrowRight size={18} style={{ color: 'var(--accent)' }} />
-                    </motion.div>
+                      <motion.div
+                        animate={{ rotate: selectedCategory === i ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ display: 'inline-block' }}
+                      >
+                        <ArrowRight size={18} aria-hidden="true" style={{ color: 'var(--accent)' }} />
+                      </motion.div>
+                    </button>
                   </div>
                 </motion.div>
               ))}
@@ -793,6 +808,7 @@ export default function Badges() {
                 href="https://www.scouting.org/skills/merit-badges/"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Explore Merit Badges on Scouting.org (opens in new tab)"
                 className="btn btn-primary"
                 style={{ marginTop: 32, width: '100%', display: 'block', textAlign: 'center' }}
                 whileHover={{ scale: 1.05 }}
@@ -828,12 +844,13 @@ export default function Badges() {
               href="https://www.scouting.org/wp-content/uploads/2026/02/3321625-Scouts-BSA-Requirements.pdf"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Download PDF - Official Scouts BSA Requirements (opens in new tab)"
               className="btn btn-primary"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
             >
-              <ExternalLink size={18} /> Download PDF (Scouts BSA Requirements)
+              <ExternalLink size={18} aria-hidden="true" /> Download PDF (Scouts BSA Requirements)
             </motion.a>
           </motion.div>
         </div>
