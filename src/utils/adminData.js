@@ -260,10 +260,17 @@ export function saveData(key, value) {
 }
 
 /**
- * Generate unique ID for new items
+ * Generate unique ID for new items using cryptographically secure random values
  */
 export function generateId() {
-  return `item-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  const array = new Uint32Array(1);
+  const cryptoObj = typeof window !== 'undefined' && window.crypto ? window.crypto : (typeof crypto !== 'undefined' ? crypto : null);
+  if (cryptoObj && typeof cryptoObj.getRandomValues === 'function') {
+    cryptoObj.getRandomValues(array);
+  } else {
+    array[0] = Math.floor(Math.random() * 4294967296);
+  }
+  return `item-${Date.now()}-${array[0].toString(36)}`;
 }
 
 /**
