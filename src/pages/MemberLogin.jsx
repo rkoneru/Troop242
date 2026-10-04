@@ -127,6 +127,8 @@ export default function MemberLogin() {
           >
             {error && (
               <motion.div
+                role="alert"
+                aria-live="polite"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{
@@ -145,14 +147,20 @@ export default function MemberLogin() {
 
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <label
+                  htmlFor="login-email"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
                   Email Address
                 </label>
                 <input
+                  id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your.email@example.com"
+                  autoComplete="email"
+                  required
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -175,14 +183,20 @@ export default function MemberLogin() {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <label
+                  htmlFor="login-password"
+                  style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                >
                   Password
                 </label>
                 <input
+                  id="login-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
+                  autoComplete="current-password"
+                  required
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -207,6 +221,7 @@ export default function MemberLogin() {
               <button
                 type="submit"
                 disabled={loading}
+                aria-busy={loading}
                 style={{
                   padding: '12px 24px',
                   background: 'linear-gradient(135deg, var(--bg-secondary), var(--accent))',
