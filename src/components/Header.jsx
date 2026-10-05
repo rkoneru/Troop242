@@ -97,12 +97,20 @@ export default function Header() {
 
           {/* Guide Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleGuideMouseEnter} onMouseLeave={handleGuideMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              type="button"
+              className="header-dropdown-toggle"
+              onClick={() => setGuideDropdownOpen(!guideDropdownOpen)}
+              aria-expanded={guideDropdownOpen}
+              aria-haspopup="true"
+              aria-controls="guide-menu-desktop"
+            >
               Guide
               <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {guideDropdownOpen && (
               <motion.div
+                id="guide-menu-desktop"
                 className="header-dropdown-menu"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -121,12 +129,20 @@ export default function Header() {
 
           {/* Resources Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleResourcesMouseEnter} onMouseLeave={handleResourcesMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              type="button"
+              className="header-dropdown-toggle"
+              onClick={() => setResourcesDropdownOpen(!resourcesDropdownOpen)}
+              aria-expanded={resourcesDropdownOpen}
+              aria-haspopup="true"
+              aria-controls="resources-menu-desktop"
+            >
               Resources
               <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {resourcesDropdownOpen && (
               <motion.div
+                id="resources-menu-desktop"
                 className="header-dropdown-menu"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -151,7 +167,12 @@ export default function Header() {
           {user && profile && (
             <div className="header-user-menu" style={{ position: 'relative' }}>
               <button
+                type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
+                aria-controls="user-menu-desktop"
+                aria-label="User menu"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -177,6 +198,7 @@ export default function Header() {
               <AnimatePresence>
                 {userMenuOpen && (
                   <motion.div
+                    id="user-menu-desktop"
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
@@ -408,13 +430,16 @@ export default function Header() {
             </div>
           )}
 
-          <button className="btn-search" onClick={handleSearchClick} aria-label="Search (Ctrl+K)">
+          <button type="button" className="btn-search" onClick={handleSearchClick} aria-label="Search (Ctrl+K)">
             <Search size={18} />
           </button>
 
           <button
+            type="button"
             className="btn-mobile-menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-menu"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -426,6 +451,7 @@ export default function Header() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.nav
+            id="mobile-nav-menu"
             className="header-mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -437,14 +463,18 @@ export default function Header() {
             {/* Mobile Guide Dropdown */}
             <div className="header-mobile-dropdown">
               <button
+                type="button"
                 className="header-mobile-dropdown-toggle"
                 onClick={() => setGuideDropdownOpen(!guideDropdownOpen)}
+                aria-expanded={guideDropdownOpen}
+                aria-controls="guide-menu-mobile"
               >
                 Guide
                 <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </button>
               {guideDropdownOpen && (
                 <motion.div
+                  id="guide-menu-mobile"
                   className="header-mobile-dropdown-menu"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -464,14 +494,18 @@ export default function Header() {
             {/* Mobile Resources Dropdown */}
             <div className="header-mobile-dropdown">
               <button
+                type="button"
                 className="header-mobile-dropdown-toggle"
                 onClick={() => setResourcesDropdownOpen(!resourcesDropdownOpen)}
+                aria-expanded={resourcesDropdownOpen}
+                aria-controls="resources-menu-mobile"
               >
                 Resources
                 <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </button>
               {resourcesDropdownOpen && (
                 <motion.div
+                  id="resources-menu-mobile"
                   className="header-mobile-dropdown-menu"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -490,6 +524,7 @@ export default function Header() {
             <Link to="/stories" onClick={handleNavClick(() => setMobileMenuOpen(false))}>Stories</Link>
             <Link to="/contact" onClick={handleNavClick(() => setMobileMenuOpen(false))}>Contact</Link>
             <button
+              type="button"
               className="btn btn-primary"
               style={{ width: '100%' }}
               onClick={() => {
@@ -518,6 +553,7 @@ export default function Header() {
                 )}
 
                 <button
+                  type="button"
                   onClick={() => {
                     handleLogout();
                     setMobileMenuOpen(false);
