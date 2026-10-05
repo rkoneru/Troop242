@@ -4,7 +4,7 @@
  * Prometheus metrics, performance tracking, alerts
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { TrendingUp, AlertCircle, Activity, Zap } from 'lucide-react';
 import { metrics, alerts } from '../utils/monitoring';
 
@@ -22,6 +22,12 @@ export default function MonitoringDashboard() {
 
     return () => clearInterval(interval);
   }, [refreshInterval]);
+
+  // Memoize Prometheus preview text to avoid redundant full metric string export & formatting on re-renders
+  const prometheusPreview = useMemo(() => {
+    if (!metricsData) return '';
+    return metrics.exportPrometheus().split('\n').slice(0, 20).join('\n');
+  }, [metricsData]);
 
   if (!metricsData) {
     return <div className="p-4">Loading metrics...</div>;
@@ -130,7 +136,7 @@ export default function MonitoringDashboard() {
           Download Prometheus Format
         </button>
         <pre className="bg-gray-800 text-green-400 p-4 rounded text-sm overflow-auto max-h-64">
-          {metrics.exportPrometheus().split('\n').slice(0, 20).join('\n')}...
+          {prometheusPreview}...
         </pre>
       </div>
 
@@ -206,30 +212,31 @@ function PerformanceMetrics({ metricsData }) {
 }
 
 function HistogramChart({ metricsData }) {
+  const durations = metricsData.http_request_duration_ms?.values || [];
+  const total = metricsData.http_request_duration_ms?.count || 1;
+
+  // Single-pass calculation to eliminate 4 separate intermediate filter array allocations and passes
+  let lt100 = 0;
+  let b100_500 = 0;
+  let b500_1000 = 0;
+  let gt1000 = 0;
+
+  for (let i = 0; i < durations.length; i++) {
+    const v = durations[i];
+    if (v < 100) lt100++;
+    else if (v < 500) b100_500++;
+    else if (v < 1000) b500_1000++;
+    else gt1000++;
+  }
+
   return (
     <div className="card p-4">
       <h3 className="font-bold mb-4">📈 Request Distribution</h3>
       <div className="space-y-3">
-        <HistogramBar
-          label="<100ms"
-          count={metricsData.http_request_duration_ms?.values?.filter(v => v < 100).length || 0}
-          total={metricsData.http_request_duration_ms?.count || 1}
-        />
-        <HistogramBar
-          label="100-500ms"
-          count={metricsData.http_request_duration_ms?.values?.filter(v => v >= 100 && v < 500).length || 0}
-          total={metricsData.http_request_duration_ms?.count || 1}
-        />
-        <HistogramBar
-          label="500-1000ms"
-          count={metricsData.http_request_duration_ms?.values?.filter(v => v >= 500 && v < 1000).length || 0}
-          total={metricsData.http_request_duration_ms?.count || 1}
-        />
-        <HistogramBar
-          label=">1000ms"
-          count={metricsData.http_request_duration_ms?.values?.filter(v => v >= 1000).length || 0}
-          total={metricsData.http_request_duration_ms?.count || 1}
-        />
+        <HistogramBar label="<100ms" count={lt100} total={total} />
+        <HistogramBar label="100-500ms" count={b100_500} total={total} />
+        <HistogramBar label="500-1000ms" count={b500_1000} total={total} />
+        <HistogramBar label=">1000ms" count={gt1000} total={total} />
       </div>
     </div>
   );
