@@ -113,9 +113,20 @@ export class MetricsCollector {
         const count = metric.values.length;
         const avg = count > 0 ? sum / count : 0;
 
-        for (const bucket of metric.buckets) {
-          const bucketCount = metric.values.filter(v => v <= bucket).length;
-          output += `${name}_bucket{le="${bucket}"} ${bucketCount}\n`;
+        // Optimization: Calculate bucket counts in a single pass over metric.values
+        // instead of creating B separate intermediate arrays via filter()
+        const bucketCounts = new Array(metric.buckets.length).fill(0);
+        for (let i = 0; i < metric.values.length; i++) {
+          const val = metric.values[i];
+          for (let j = 0; j < metric.buckets.length; j++) {
+            if (val <= metric.buckets[j]) {
+              bucketCounts[j]++;
+            }
+          }
+        }
+
+        for (let j = 0; j < metric.buckets.length; j++) {
+          output += `${name}_bucket{le="${metric.buckets[j]}"} ${bucketCounts[j]}\n`;
         }
         output += `${name}_bucket{le="+Inf"} ${count}\n`;
         output += `${name}_sum ${sum}\n`;
@@ -142,11 +153,13 @@ export class MetricsCollector {
           } else if (metric.type === 'gauge') {
             return { value: metric.value };
           } else if (metric.type === 'histogram') {
+            const sum = metric.values.reduce((a, b) => a + b, 0);
+            const count = metric.values.length;
             return {
               values: metric.values,
-              sum: metric.values.reduce((a, b) => a + b, 0),
-              count: metric.values.length,
-              avg: metric.values.length > 0 ? metric.values.reduce((a, b) => a + b, 0) / metric.values.length : 0,
+              sum,
+              count,
+              avg: count > 0 ? sum / count : 0,
             };
           }
         })(),
