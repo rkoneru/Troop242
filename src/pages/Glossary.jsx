@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 
 const GLOSSARY_TERMS = [
   { term: 'Advancement', def: 'The process of earning rank badges and merit badges in Scouting. Each rank has specific requirements you must complete.' },
@@ -107,9 +107,11 @@ export default function Glossary() {
               borderRadius: 12,
               padding: '12px 16px'
             }}>
-              <Search size={20} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+              <Search size={20} aria-hidden="true" style={{ color: 'var(--accent)', flexShrink: 0 }} />
               <input
+                id="glossary-search"
                 type="text"
+                aria-label="Search glossary terms"
                 placeholder="Search terms..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
@@ -124,9 +126,27 @@ export default function Glossary() {
                 }}
               />
               {searchTerm && (
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {filtered.length} result{filtered.length !== 1 ? 's' : ''}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => setSearchTerm('')}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: 2
+                    }}
+                  >
+                    <X size={16} aria-hidden="true" />
+                  </button>
+                  <span role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
               )}
             </div>
           </motion.div>
@@ -137,7 +157,7 @@ export default function Glossary() {
       <section className="section section--dark">
         <div className="container" style={{ maxWidth: 900 }}>
           {filtered.length === 0 ? (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', color: 'var(--text-muted)', paddingTop: 40 }}>
+            <motion.p role="status" aria-live="polite" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', color: 'var(--text-muted)', paddingTop: 40 }}>
               No terms found for "{searchTerm}".
             </motion.p>
           ) : (
