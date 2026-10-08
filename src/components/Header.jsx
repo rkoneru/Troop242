@@ -97,9 +97,15 @@ export default function Header() {
 
           {/* Guide Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleGuideMouseEnter} onMouseLeave={handleGuideMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              type="button"
+              className="header-dropdown-toggle"
+              onClick={() => setGuideDropdownOpen(!guideDropdownOpen)}
+              aria-expanded={guideDropdownOpen}
+              aria-haspopup="true"
+            >
               Guide
-              <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {guideDropdownOpen && (
               <motion.div
@@ -121,9 +127,15 @@ export default function Header() {
 
           {/* Resources Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleResourcesMouseEnter} onMouseLeave={handleResourcesMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button
+              type="button"
+              className="header-dropdown-toggle"
+              onClick={() => setResourcesDropdownOpen(!resourcesDropdownOpen)}
+              aria-expanded={resourcesDropdownOpen}
+              aria-haspopup="true"
+            >
               Resources
-              <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {resourcesDropdownOpen && (
               <motion.div
@@ -151,7 +163,11 @@ export default function Header() {
           {user && profile && (
             <div className="header-user-menu" style={{ position: 'relative' }}>
               <button
+                type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
+                aria-label={`User menu for ${profile.name}`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -170,7 +186,7 @@ export default function Header() {
                   {profile.name?.[0]?.toUpperCase() || '?'}
                 </div>
                 <span className="header-user-name">{profile.name}</span>
-                <ChevronDown size={16} style={{ transition: 'transform 0.2s', transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.2s', transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </button>
 
               {/* Dropdown Menu */}
@@ -379,6 +395,7 @@ export default function Header() {
                     )}
 
                     <button
+                      type="button"
                       onClick={() => {
                         handleLogout();
                         setUserMenuOpen(false);
@@ -408,16 +425,18 @@ export default function Header() {
             </div>
           )}
 
-          <button className="btn-search" onClick={handleSearchClick} aria-label="Search (Ctrl+K)">
-            <Search size={18} />
+          <button type="button" className="btn-search" onClick={handleSearchClick} aria-label="Search (Ctrl+K)">
+            <Search size={18} aria-hidden="true" />
           </button>
 
           <button
+            type="button"
             className="btn-mobile-menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -437,11 +456,14 @@ export default function Header() {
             {/* Mobile Guide Dropdown */}
             <div className="header-mobile-dropdown">
               <button
+                type="button"
                 className="header-mobile-dropdown-toggle"
                 onClick={() => setGuideDropdownOpen(!guideDropdownOpen)}
+                aria-expanded={guideDropdownOpen}
+                aria-haspopup="true"
               >
                 Guide
-                <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </button>
               {guideDropdownOpen && (
                 <motion.div
@@ -464,11 +486,14 @@ export default function Header() {
             {/* Mobile Resources Dropdown */}
             <div className="header-mobile-dropdown">
               <button
+                type="button"
                 className="header-mobile-dropdown-toggle"
                 onClick={() => setResourcesDropdownOpen(!resourcesDropdownOpen)}
+                aria-expanded={resourcesDropdownOpen}
+                aria-haspopup="true"
               >
                 Resources
-                <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </button>
               {resourcesDropdownOpen && (
                 <motion.div
@@ -490,6 +515,7 @@ export default function Header() {
             <Link to="/stories" onClick={handleNavClick(() => setMobileMenuOpen(false))}>Stories</Link>
             <Link to="/contact" onClick={handleNavClick(() => setMobileMenuOpen(false))}>Contact</Link>
             <button
+              type="button"
               className="btn btn-primary"
               style={{ width: '100%' }}
               onClick={() => {
@@ -497,7 +523,7 @@ export default function Header() {
                 setMobileMenuOpen(false);
               }}
             >
-              <Search size={16} /> Search
+              <Search size={16} aria-hidden="true" /> Search
             </button>
 
             {user && profile && (
@@ -518,6 +544,7 @@ export default function Header() {
                 )}
 
                 <button
+                  type="button"
                   onClick={() => {
                     handleLogout();
                     setMobileMenuOpen(false);
@@ -535,7 +562,7 @@ export default function Header() {
                     marginTop: '0.5rem'
                   }}
                 >
-                  <LogOut size={16} /> Logout
+                  <LogOut size={16} aria-hidden="true" /> Logout
                 </button>
               </div>
             )}
