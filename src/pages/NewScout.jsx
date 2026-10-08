@@ -39,6 +39,37 @@ const PARENT_FAQ = [
   { q: 'How do I officially sign up?', a: 'Visit the Contact page and email us, or just show up to a Tuesday meeting. We will walk you and your parent through the paperwork.' },
 ];
 
+// Performance Optimization: Hoisted static arrays to module scope to eliminate redundant allocations per render.
+const QUICK_LINKS = [
+  { icon: BookOpen, label: 'Scout Principles', sub: 'Oath, Law & Code', path: '/scout-principles' },
+  { icon: Award, label: 'Ranks', sub: 'Scout to Eagle', path: '/ranks' },
+  { icon: Star, label: 'Merit Badges', sub: '140+ badges to earn', path: '/badges' },
+  { icon: Users, label: 'About Troop 242', sub: 'Meet your leaders', path: '/about' },
+  { icon: MapPin, label: 'Calendar', sub: 'Upcoming events', path: '/calendar' },
+];
+
+const SCOUT_RANKS_SUMMARY = [
+  { emoji: '⚜️', name: 'Scout', time: 'Start here' },
+  { emoji: '🎖️', name: 'Tenderfoot', time: '~4 months' },
+  { emoji: '🗝️', name: '2nd Class', time: '~6 months' },
+  { emoji: '🛡️', name: '1st Class', time: '~8 months' },
+  { emoji: '⭐', name: 'Star', time: '~6 months' },
+  { emoji: '✨', name: 'Life', time: '~6 months' },
+  { emoji: '🦅', name: 'Eagle', time: 'The goal!' },
+];
+
+// Performance Optimization: Hoisted static Framer Motion animation variants to module scope
+// to prevent re-allocating object instances on every component re-render frame.
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
 export default function NewScout() {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState(null);
@@ -57,15 +88,6 @@ export default function NewScout() {
       localStorage.setItem('newScoutChecklist', JSON.stringify(updated));
       return updated;
     });
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
-  };
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
   return (
@@ -140,22 +162,16 @@ export default function NewScout() {
           </motion.div>
 
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}
           >
-            {[
-              { icon: BookOpen, label: 'Scout Principles', sub: 'Oath, Law & Code', path: '/scout-principles' },
-              { icon: Award, label: 'Ranks', sub: 'Scout to Eagle', path: '/ranks' },
-              { icon: Star, label: 'Merit Badges', sub: '140+ badges to earn', path: '/badges' },
-              { icon: Users, label: 'About Troop 242', sub: 'Meet your leaders', path: '/about' },
-              { icon: MapPin, label: 'Calendar', sub: 'Upcoming events', path: '/calendar' },
-            ].map((item, i) => (
+            {QUICK_LINKS.map((item, i) => (
               <motion.div
                 key={i}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className="glass-card"
                 style={{ padding: 24, textAlign: 'center', cursor: 'pointer' }}
                 whileHover={{ scale: 1.04 }}
@@ -181,7 +197,7 @@ export default function NewScout() {
           </motion.div>
 
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
@@ -190,7 +206,7 @@ export default function NewScout() {
             {FIRST_30_DAYS.map((step, i) => (
               <motion.div
                 key={i}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className="glass-card"
                 style={{
                   padding: '20px 24px',
@@ -289,15 +305,7 @@ export default function NewScout() {
 
           <div style={{ maxWidth: 900, margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 40 }}>
-              {[
-                { emoji: '⚜️', name: 'Scout', time: 'Start here' },
-                { emoji: '🎖️', name: 'Tenderfoot', time: '~4 months' },
-                { emoji: '🗝️', name: '2nd Class', time: '~6 months' },
-                { emoji: '🛡️', name: '1st Class', time: '~8 months' },
-                { emoji: '⭐', name: 'Star', time: '~6 months' },
-                { emoji: '✨', name: 'Life', time: '~6 months' },
-                { emoji: '🦅', name: 'Eagle', time: 'The goal!' },
-              ].map((rank, i) => (
+              {SCOUT_RANKS_SUMMARY.map((rank, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -342,14 +350,14 @@ export default function NewScout() {
           </motion.div>
 
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, maxWidth: 1000, margin: '0 auto' }}
           >
             {GLOSSARY_PREVIEW.map((item, i) => (
-              <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: 24 }}>
+              <motion.div key={i} variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 24 }}>
                 <h4 style={{ color: 'var(--accent)', marginBottom: 8 }}>{item.term}</h4>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0, lineHeight: 1.6 }}>{item.def}</p>
               </motion.div>
