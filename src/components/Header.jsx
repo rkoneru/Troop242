@@ -97,9 +97,9 @@ export default function Header() {
 
           {/* Guide Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleGuideMouseEnter} onMouseLeave={handleGuideMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button className="header-dropdown-toggle" type="button" aria-expanded={guideDropdownOpen} aria-haspopup="true">
               Guide
-              <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.3s', transform: guideDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {guideDropdownOpen && (
               <motion.div
@@ -121,9 +121,9 @@ export default function Header() {
 
           {/* Resources Dropdown */}
           <div className="header-dropdown" onMouseEnter={handleResourcesMouseEnter} onMouseLeave={handleResourcesMouseLeave}>
-            <button className="header-dropdown-toggle">
+            <button className="header-dropdown-toggle" type="button" aria-expanded={resourcesDropdownOpen} aria-haspopup="true">
               Resources
-              <ChevronDown size={16} style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.3s', transform: resourcesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {resourcesDropdownOpen && (
               <motion.div
@@ -151,6 +151,10 @@ export default function Header() {
           {user && profile && (
             <div className="header-user-menu" style={{ position: 'relative' }}>
               <button
+                type="button"
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
+                aria-label={`User menu for ${profile.name || 'User'}`}
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 style={{
                   display: 'flex',
@@ -170,7 +174,7 @@ export default function Header() {
                   {profile.name?.[0]?.toUpperCase() || '?'}
                 </div>
                 <span className="header-user-name">{profile.name}</span>
-                <ChevronDown size={16} style={{ transition: 'transform 0.2s', transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                <ChevronDown size={16} aria-hidden="true" style={{ transition: 'transform 0.2s', transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </button>
 
               {/* Dropdown Menu */}
@@ -413,11 +417,13 @@ export default function Header() {
           </button>
 
           <button
+            type="button"
             className="btn-mobile-menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
           </button>
         </div>
       </div>
