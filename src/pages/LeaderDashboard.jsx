@@ -608,7 +608,14 @@ export default function LeaderDashboard() {
 
     const body = lines.join('\n');
     const mailtoUrl = `mailto:troop242sanford@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailtoUrl, '_blank');
+    try {
+      const parsedUrl = new URL(mailtoUrl);
+      if (parsedUrl.protocol === 'mailto:') {
+        window.open(mailtoUrl, '_blank', 'noopener,noreferrer');
+      }
+    } catch {
+      // Ignore invalid URL format for mailto link
+    }
   }, [allItems]);
 
   const ActivityCard = ({ activity }) => (
