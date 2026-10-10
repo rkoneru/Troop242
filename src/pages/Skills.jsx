@@ -1,6 +1,6 @@
 
 import { Search, CheckCircle2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const SKILL_CATEGORIES = [
@@ -142,32 +142,41 @@ export const SKILL_CATEGORIES = [
   }
 ];
 
+// Hoist static Framer Motion variants to module scope to avoid re-allocations on re-render
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
 export default function Skills() {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedSkill, setSelectedSkill] = useState(null);
 
-  const filteredCategories = SKILL_CATEGORIES.map(cat => ({
-    ...cat,
-    skills: cat.skills.filter(skill => {
-      const skillName = typeof skill === 'string' ? skill : skill.name;
-      return skillName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             cat.category.toLowerCase().includes(searchTerm.toLowerCase());
-    })
-  })).filter(cat => cat.skills.length > 0);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
+  // Performance optimization: Memoize skill filtering so search filter operations
+  // and string lowercasing are not re-executed when expanding categories or opening skill modal
+  const filteredCategories = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+    return SKILL_CATEGORIES.map(cat => {
+      const categoryMatches = cat.category.toLowerCase().includes(term);
+      const filteredSkills = cat.skills.filter(skill => {
+        const skillName = typeof skill === 'string' ? skill : skill.name;
+        return categoryMatches || skillName.toLowerCase().includes(term);
+      });
+      return {
+        ...cat,
+        skills: filteredSkills
+      };
+    }).filter(cat => cat.skills.length > 0);
+  }, [searchTerm]);
 
   return (
     <>
@@ -232,7 +241,7 @@ export default function Skills() {
       <section className="section section--dark">
         <div className="container">
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
@@ -241,7 +250,7 @@ export default function Skills() {
             {filteredCategories.map((category, idx) => (
               <motion.div
                 key={idx}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className="glass-card"
                 onClick={() => setExpandedCategory(expandedCategory === idx ? null : idx)}
                 style={{
