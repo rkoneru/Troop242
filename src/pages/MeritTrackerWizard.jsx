@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Copy, ExternalLink, FileText, BookOpen, Search, X } from 'lucide-react';
@@ -133,22 +133,26 @@ export default function MeritTrackerWizard() {
     }
   };
 
-  // Compute progress
-  const getCompletedCountForCategory = (catIdx) => {
-    return VISIBLE_CATEGORIES[catIdx].badges.filter(
-      (b) => meritProgress[b.name] === 'completed'
-    ).length;
-  };
+  // Memoize category completion and working counts to avoid redundant array filtering across all categories per render frame
+  const categoryProgressCounts = useMemo(() => {
+    return VISIBLE_CATEGORIES.map((cat) => {
+      let completed = 0;
+      let working = 0;
+      cat.badges.forEach((b) => {
+        const status = meritProgress[b.name];
+        if (status === 'completed') completed++;
+        else if (status === 'working') working++;
+      });
+      return { completed, working };
+    });
+  }, [meritProgress]);
 
-  const getWorkingCountForCategory = (catIdx) => {
-    return VISIBLE_CATEGORIES[catIdx].badges.filter(
-      (b) => meritProgress[b.name] === 'working'
-    ).length;
-  };
+  // Compute progress helpers from pre-aggregated categoryProgressCounts
+  const getCompletedCountForCategory = (catIdx) => categoryProgressCounts[catIdx]?.completed || 0;
+  const getWorkingCountForCategory = (catIdx) => categoryProgressCounts[catIdx]?.working || 0;
 
   const hasCompletedInCategory = () => {
-    const category = VISIBLE_CATEGORIES[selectedCategoryIdx];
-    return category.badges.some((b) => meritProgress[b.name] === 'completed');
+    return (categoryProgressCounts[selectedCategoryIdx]?.completed || 0) > 0;
   };
 
   const trimBadgeName = (name) => name.replace(/^[✓⭐━\s]+/, '').trim();
@@ -158,7 +162,8 @@ export default function MeritTrackerWizard() {
     return `http://usscouts.org/usscouts/mb/worksheets/${cleanName.replace(/ /g, '-')}.pdf`;
   };
 
-  const generateScoutbookSummary = () => {
+  // Memoize summary text generation to avoid re-traversing all categories/badges and string allocations on every render frame
+  const generateScoutbookSummary = useCallback(() => {
     const completed = [];
     const working = [];
 
@@ -189,7 +194,7 @@ export default function MeritTrackerWizard() {
     summary += '---\n\nNext Steps:\n1. Copy this summary\n2. Log into Scoutbook.org\n3. Enter badges in your Scout profile\n4. Work towards Eagle requirements';
 
     return summary;
-  };
+  }, [meritProgress, meritNotes]);
 
   const handleCopyToClipboard = () => {
     const summary = generateScoutbookSummary();
@@ -199,24 +204,25 @@ export default function MeritTrackerWizard() {
     });
   };
 
-  // Search functionality
-  const searchAllBadges = () => {
+  // Memoize search results across all categories to avoid scanning full badge lists on non-search renders
+  const searchResults = useMemo(() => {
+    if (!searchQuery) return [];
+    const query = searchQuery.toLowerCase();
     const results = [];
     VISIBLE_CATEGORIES.forEach((cat, catIdx) => {
       cat.badges.forEach((badge) => {
-        if (badge.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+        if (badge.name.toLowerCase().includes(query)) {
           results.push({ ...badge, categoryIdx: catIdx, categoryName: cat.category });
         }
       });
     });
     return results;
-  };
+  }, [searchQuery]);
 
   // Render state
   const currentCategory = VISIBLE_CATEGORIES[selectedCategoryIdx];
   const completedCount = getCompletedCountForCategory(selectedCategoryIdx);
   const workingCount = getWorkingCountForCategory(selectedCategoryIdx);
-  const searchResults = searchQuery ? searchAllBadges() : [];
 
   const getStatusColor = (badgeName) => {
     const status = meritProgress[badgeName];
