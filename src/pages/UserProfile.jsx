@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -127,6 +127,8 @@ export default function UserProfile() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="alert alert-error"
+              role="alert"
+              aria-live="polite"
             >
               ✕ {error}
             </motion.div>
@@ -137,6 +139,8 @@ export default function UserProfile() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="alert alert-success"
+              role="status"
+              aria-live="polite"
             >
               ✓ {success}
             </motion.div>
@@ -144,10 +148,12 @@ export default function UserProfile() {
 
           <div className="profile-info">
             <div className="profile-field">
-              <label>Full Name</label>
+              <label htmlFor="user-profile-name">Full Name</label>
               <input
+                id="user-profile-name"
                 type="text"
                 name="name"
+                autoComplete="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 disabled={!isEditing}
@@ -156,9 +162,11 @@ export default function UserProfile() {
             </div>
 
             <div className="profile-field">
-              <label>Email Address</label>
+              <label htmlFor="user-profile-email">Email Address</label>
               <input
+                id="user-profile-email"
                 type="email"
+                autoComplete="email"
                 value={formData.email}
                 disabled
                 className="profile-input profile-input--disabled"
@@ -167,10 +175,12 @@ export default function UserProfile() {
             </div>
 
             <div className="profile-field">
-              <label>Phone Number</label>
+              <label htmlFor="user-profile-phone">Phone Number</label>
               <input
+                id="user-profile-phone"
                 type="tel"
                 name="phone"
+                autoComplete="tel"
                 value={formData.phone}
                 onChange={handleInputChange}
                 disabled={!isEditing}
@@ -181,8 +191,9 @@ export default function UserProfile() {
 
             {isEditing && formData.role === 'scout' && (
               <div className="profile-field">
-                <label>Scout Rank</label>
+                <label htmlFor="user-profile-rank">Scout Rank</label>
                 <select
+                  id="user-profile-rank"
                   name="rank"
                   value={formData.rank}
                   onChange={handleInputChange}
@@ -236,6 +247,7 @@ export default function UserProfile() {
           <div className="profile-actions">
             {!isEditing ? (
               <button
+                type="button"
                 className="btn btn-primary"
                 onClick={() => setIsEditing(true)}
               >
@@ -244,13 +256,16 @@ export default function UserProfile() {
             ) : (
               <>
                 <button
+                  type="button"
                   className="btn btn-primary"
                   onClick={handleSave}
                   disabled={isSaving}
+                  aria-busy={isSaving}
                 >
                   {isSaving ? '💾 Saving...' : '💾 Save Changes'}
                 </button>
                 <button
+                  type="button"
                   className="btn btn-secondary"
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
@@ -264,6 +279,7 @@ export default function UserProfile() {
           <div className="profile-danger-zone">
             <h3>Danger Zone</h3>
             <button
+              type="button"
               className="btn btn-danger"
               onClick={handleLogout}
             >
