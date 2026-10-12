@@ -84,6 +84,7 @@ export default function Footer() {
               <a href="https://scoutbook.scouting.org/" target="_blank" rel="noopener noreferrer">Scoutbook</a>
               <FooterLink to="/calendar">Troop Calendar</FooterLink>
               <FooterLink to="/member-login">Member Login</FooterLink>
+              <FooterLink to="/privacy">Privacy Policy</FooterLink>
               {canViewScoutPortal && (
                 <FooterLink to="/scout-portal">Scout Portal</FooterLink>
               )}
