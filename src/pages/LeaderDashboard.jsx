@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { saveData, loadData, getActivities, saveActivity, deleteActivity } from '../utils/adminData';
 import { RANKS } from '../data/rankRequirements';
 import { searchScouts, generateScoutId } from '../utils/leaderData';
+import { sanitizeCsvCell } from '../utils/csvSanitization';
 import {
   validateActivityForm,
   validateEventForm,
@@ -444,20 +445,22 @@ export default function LeaderDashboard() {
   }, []);
 
   const handleExportScouts = useCallback(() => {
-    const csv = [
-      ['Name', 'Email', 'Rank', 'Status', 'Join Date', 'Phone', 'Notes'],
-      ...scoutsData.map(s => [s.name, s.email, s.rank, s.status, s.joinDate, s.phone, s.notes])
-    ]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
+    const headers = ['Name', 'Email', 'Rank', 'Status', 'Join Date', 'Phone', 'Notes'];
+    const rows = scoutsData.map(s => [s.name, s.email, s.rank, s.status, s.joinDate, s.phone, s.notes]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${sanitizeCsvCell(cell)}"`).join(','))
       .join('\n');
 
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv));
+    element.href = url;
     element.setAttribute('download', `scouts-${new Date().toISOString().split('T')[0]}.csv`);
     element.style.display = 'none';
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+    URL.revokeObjectURL(url);
     showSuccess('Scouts exported to CSV!');
   }, [scoutsData, showSuccess]);
 
