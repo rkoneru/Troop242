@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 
 const GLOSSARY_TERMS = [
@@ -51,24 +51,49 @@ const GLOSSARY_TERMS = [
   { term: 'Youth Protection Training (YPT)', def: 'Mandatory online training all adult leaders must complete before working with Scouts. Teaches how to recognize and prevent abuse.' },
 ];
 
+// Hoist Framer Motion animation variants outside component body to avoid per-render allocations
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 }
+};
+
 export default function Glossary() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filtered = GLOSSARY_TERMS.filter(item =>
-    item.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.def.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Memoize search filtering and grouping terms by initial letter in a single pass
+  const { totalCount, groupedTerms } = useMemo(() => {
+    const query = searchTerm.toLowerCase().trim();
+    const filtered = !query
+      ? GLOSSARY_TERMS
+      : GLOSSARY_TERMS.filter(
+          item =>
+            item.term.toLowerCase().includes(query) ||
+            item.def.toLowerCase().includes(query)
+        );
 
-  const letters = [...new Set(filtered.map(item => item.term[0].toUpperCase()))].sort();
+    // Group items by initial letter in a single pass to eliminate redundant render-time array traversals
+    const groupsMap = new Map();
+    for (const item of filtered) {
+      const letter = item.term[0].toUpperCase();
+      if (!groupsMap.has(letter)) {
+        groupsMap.set(letter, []);
+      }
+      groupsMap.get(letter).push(item);
+    }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
-  };
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 }
-  };
+    const sortedLetters = Array.from(groupsMap.keys()).sort();
+    const grouped = sortedLetters.map(letter => ({
+      letter,
+      items: groupsMap.get(letter)
+    }));
+
+    return { totalCount: filtered.length, groupedTerms: grouped };
+  }, [searchTerm]);
 
   return (
     <>
@@ -125,7 +150,7 @@ export default function Glossary() {
               />
               {searchTerm && (
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+                  {totalCount} result{totalCount !== 1 ? 's' : ''}
                 </span>
               )}
             </div>
@@ -136,15 +161,15 @@ export default function Glossary() {
       {/* TERMS */}
       <section className="section section--dark">
         <div className="container" style={{ maxWidth: 900 }}>
-          {filtered.length === 0 ? (
+          {groupedTerms.length === 0 ? (
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', color: 'var(--text-muted)', paddingTop: 40 }}>
               No terms found for "{searchTerm}".
             </motion.p>
           ) : (
-            letters.map(letter => (
+            groupedTerms.map(({ letter, items }) => (
               <motion.div
                 key={letter}
-                variants={containerVariants}
+                variants={CONTAINER_VARIANTS}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-50px' }}
@@ -161,14 +186,12 @@ export default function Glossary() {
                   {letter}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {filtered
-                    .filter(item => item.term[0].toUpperCase() === letter)
-                    .map((item, i) => (
-                      <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: '20px 24px' }}>
-                        <h4 style={{ color: 'var(--accent)', marginBottom: 8, fontSize: '1rem' }}>{item.term}</h4>
-                        <p style={{ color: 'var(--text-muted)', margin: 0, lineHeight: 1.7, fontSize: '0.95rem' }}>{item.def}</p>
-                      </motion.div>
-                    ))}
+                  {items.map((item, i) => (
+                    <motion.div key={i} variants={ITEM_VARIANTS} className="glass-card" style={{ padding: '20px 24px' }}>
+                      <h4 style={{ color: 'var(--accent)', marginBottom: 8, fontSize: '1rem' }}>{item.term}</h4>
+                      <p style={{ color: 'var(--text-muted)', margin: 0, lineHeight: 1.7, fontSize: '0.95rem' }}>{item.def}</p>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
             ))
