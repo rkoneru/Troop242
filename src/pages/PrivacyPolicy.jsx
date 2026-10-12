@@ -90,7 +90,14 @@ export default function PrivacyPolicy() {
             <li><strong>Objection:</strong> Opt out of non-essential communications</li>
           </ul>
           <p className="mt-4">
-            To exercise these rights, contact: <strong>privacy@troop242.org</strong>
+            To exercise these rights, contact:{' '}
+            <a
+              href="mailto:privacy@troop242.org"
+              className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded font-medium"
+              aria-label="Send email to privacy@troop242.org"
+            >
+              privacy@troop242.org
+            </a>
           </p>
         </section>
 
@@ -105,8 +112,16 @@ export default function PrivacyPolicy() {
         <section>
           <h2 className="text-2xl font-bold mb-4">9. Third-Party Services</h2>
           <p>
-            We use Firebase (Google) for hosting and authentication. Firebase's privacy policy is available at
-            <a href="https://firebase.google.com/support/privacy" className="text-blue-600 hover:underline"> firebase.google.com/support/privacy</a>
+            We use Firebase (Google) for hosting and authentication. Firebase's privacy policy is available at{' '}
+            <a
+              href="https://firebase.google.com/support/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+              aria-label="Firebase Privacy Policy (opens in a new tab)"
+            >
+              firebase.google.com/support/privacy
+            </a>
           </p>
         </section>
 
@@ -116,7 +131,16 @@ export default function PrivacyPolicy() {
             For privacy questions or to submit a data request:
           </p>
           <ul className="space-y-2">
-            <li>Email: <strong>privacy@troop242.org</strong></li>
+            <li>
+              Email:{' '}
+              <a
+                href="mailto:privacy@troop242.org"
+                className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded font-medium"
+                aria-label="Send email to privacy@troop242.org"
+              >
+                privacy@troop242.org
+              </a>
+            </li>
             <li>Mail: Troop 242, Sanford, FL 32771</li>
           </ul>
         </section>

@@ -37,6 +37,7 @@ import RegisterWithInvite from './pages/RegisterWithInvite';
 import ReferralLinks from './pages/ReferralLinks';
 import Camping from './pages/camping-animation';
 import CampingGuide from './pages/CampingGuide';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import ScoutsBSA from './pages/ScoutsBSA';
 import MiscAwardsTracker from './pages/MiscAwardsTracker';
 import './App.css';
@@ -127,6 +128,7 @@ function AppRoutes() {
         <Route path="/register" element={<><Header /><RegisterWithInvite /><Footer /></>} />
         <Route path="/camping" element={<><Header /><Camping /><Footer /></>} />
         <Route path="/camping-guide" element={<><Header /><CampingGuide /><Footer /></>} />
+        <Route path="/privacy" element={<><Header /><PrivacyPolicy /><Footer /></>} />
 
         {/* Wizard pages with custom headers - no global header/footer */}
         <Route path="/rank-tracker" element={<ProtectedRoute allowedRoles={['scout']}><RankTrackerWizard /></ProtectedRoute>} />
