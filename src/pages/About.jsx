@@ -1,25 +1,72 @@
 
+import { useMemo } from 'react';
 import { Users, Zap, Award, Heart, Target, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { loadData, DEFAULT_STATS, DEFAULT_LEADERS } from '../utils/adminData';
 import { scrollToTop } from '../utils/scrollToTop';
 
+// Hoisted static animation variants to eliminate re-allocation per render
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
+// Hoisted static data arrays to prevent array and object allocations per render frame
+const WHAT_WE_OFFER = [
+  { icon: Target, title: 'Rank Advancement', description: 'Clear pathway from Scout to Eagle Scout with achievable milestones and mentorship' },
+  { icon: Award, title: '145+ Merit Badges', description: 'Diverse badge programs covering outdoor skills, technology, leadership, and more' },
+  { icon: Zap, title: 'Regular Campouts', description: 'Monthly outdoor adventures with well-planned activities and experienced leadership' },
+  { icon: Users, title: 'Leadership Development', description: 'Hands-on experience in leadership roles through patrol and troop positions' },
+  { icon: Heart, title: 'Community Service', description: 'Meaningful service projects that make a real impact in Central Florida' },
+  { icon: MapPin, title: 'Trip Opportunities', description: 'Annual trips including high-adventure camps, beach outings, and specialized skills training' }
+];
+
+const CORE_PILLARS = [
+  { emoji: '🎓', title: 'Character Development', description: 'Building ethical and moral foundations' },
+  { emoji: '🇺🇸', title: 'Citizenship Training', description: 'Developing responsible community members' },
+  { emoji: '👨‍💼', title: 'Leadership', description: 'Cultivating skilled and confident leaders' },
+  { emoji: '💪', title: 'Mental & Physical Fitness', description: 'Promoting healthy lifestyles and resilience' }
+];
+
+const EXPERIENCES = [
+  { emoji: '🏕️', activity: 'Camping' },
+  { emoji: '🥾', activity: 'Hiking' },
+  { emoji: '🎯', activity: 'Hobbies' },
+  { emoji: '🎒', activity: 'Backpacking' },
+  { emoji: '🛶', activity: 'Canoeing' },
+  { emoji: '💼', activity: 'Career Exploration' },
+  { emoji: '🔥', activity: 'Outdoor Cooking' },
+  { emoji: '🚴', activity: 'Mountain Biking' },
+  { emoji: '🤝', activity: 'Community Service' },
+  { emoji: '🚣', activity: 'Kayaking' },
+  { emoji: '⚙️', activity: 'STEM' },
+  { emoji: '🧗', activity: 'Climbing' },
+  { emoji: '🏊', activity: 'Swimming' },
+  { emoji: '👨‍💼', activity: 'Leadership' },
+  { emoji: '🦅', activity: 'Eagle Scout' }
+];
+
 export default function About() {
   const navigate = useNavigate();
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
+  // Memoize stored data lookups to prevent localStorage reads and JSON parsing on re-renders
+  const leaders = useMemo(() => loadData('troop_leaders', DEFAULT_LEADERS), []);
+  const stats = useMemo(() => loadData('troop_stats', DEFAULT_STATS), []);
+  const statItems = useMemo(() => [
+    { number: stats.eagleScouts, label: 'Eagle Scout Alumni', icon: '🦅' },
+    { number: stats.activeScouts, label: 'Active Scouts', icon: '👥' },
+    { number: '145+', label: 'Merit Badges Offered', icon: '🎖️' },
+    { number: stats.yearsServing, label: 'Years of Service', icon: '📅' }
+  ], [stats]);
 
   return (
     <>
@@ -44,13 +91,13 @@ export default function About() {
       <section className="section section--dark">
         <div className="container">
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32, marginBottom: 48 }}
           >
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 32 }}>
+            <motion.div variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 32 }}>
               <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🎯</div>
               <h3 style={{ marginBottom: 16 }}>Our Mission</h3>
               <p style={{ color: 'var(--text-muted)', lineHeight: 1.8 }}>
@@ -58,7 +105,7 @@ export default function About() {
               </p>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 32 }}>
+            <motion.div variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 32 }}>
               <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>💡</div>
               <h3 style={{ marginBottom: 16 }}>Our Vision</h3>
               <p style={{ color: 'var(--text-muted)', lineHeight: 1.8 }}>
@@ -66,7 +113,7 @@ export default function About() {
               </p>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="glass-card" style={{ padding: 32 }}>
+            <motion.div variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 32 }}>
               <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>💚</div>
               <h3 style={{ marginBottom: 16 }}>Our Values</h3>
               <p style={{ color: 'var(--text-muted)', lineHeight: 1.8 }}>
@@ -92,23 +139,16 @@ export default function About() {
             </p>
 
             <motion.div
-              variants={containerVariants}
+              variants={CONTAINER_VARIANTS}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}
             >
-              {[
-                { icon: Target, title: 'Rank Advancement', description: 'Clear pathway from Scout to Eagle Scout with achievable milestones and mentorship' },
-                { icon: Award, title: '145+ Merit Badges', description: 'Diverse badge programs covering outdoor skills, technology, leadership, and more' },
-                { icon: Zap, title: 'Regular Campouts', description: 'Monthly outdoor adventures with well-planned activities and experienced leadership' },
-                { icon: Users, title: 'Leadership Development', description: 'Hands-on experience in leadership roles through patrol and troop positions' },
-                { icon: Heart, title: 'Community Service', description: 'Meaningful service projects that make a real impact in Central Florida' },
-                { icon: MapPin, title: 'Trip Opportunities', description: 'Annual trips including high-adventure camps, beach outings, and specialized skills training' }
-              ].map((item, i) => (
+              {WHAT_WE_OFFER.map((item, i) => (
                 <motion.div
                   key={i}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className="glass-card"
                   style={{ padding: 24 }}
                 >
@@ -134,11 +174,9 @@ export default function About() {
             <h2 style={{ textAlign: 'center', marginBottom: 40 }}>Troop Leadership</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
-              {(() => {
-                const leaders = loadData('troop_leaders', DEFAULT_LEADERS);
-                return leaders.map((leader, i) => (
+              {leaders.map((leader, i) => (
                 <motion.div
-                  key={i}
+                  key={leader.id || i}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
@@ -171,8 +209,7 @@ export default function About() {
                     {leader.bio}
                   </p>
                 </motion.div>
-              ));
-              })()}
+              ))}
             </div>
           </motion.div>
         </div>
@@ -189,29 +226,21 @@ export default function About() {
             <h2 style={{ textAlign: 'center', marginBottom: 48 }}>Troop 242 by the Numbers</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
-              {(() => {
-                const stats = loadData('troop_stats', DEFAULT_STATS);
-                return [
-                  { number: stats.eagleScouts, label: 'Eagle Scout Alumni', icon: '🦅' },
-                  { number: stats.activeScouts, label: 'Active Scouts', icon: '👥' },
-                  { number: '145+', label: 'Merit Badges Offered', icon: '🎖️' },
-                  { number: stats.yearsServing, label: 'Years of Service', icon: '📅' }
-                ].map((stat, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.1 }}
-                    viewport={{ once: true }}
-                    className="glass-card"
-                    style={{ padding: 32, textAlign: 'center' }}
-                  >
-                    <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{stat.icon}</div>
-                    <h3 style={{ color: 'var(--accent)', marginBottom: 8 }}>{stat.number}</h3>
-                    <p style={{ color: 'var(--text-muted)' }}>{stat.label}</p>
-                  </motion.div>
-                ));
-              })()}
+              {statItems.map((stat, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="glass-card"
+                  style={{ padding: 32, textAlign: 'center' }}
+                >
+                  <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{stat.icon}</div>
+                  <h3 style={{ color: 'var(--accent)', marginBottom: 8 }}>{stat.number}</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>{stat.label}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -242,12 +271,7 @@ export default function About() {
           >
             <h3 style={{ color: 'var(--accent)', marginBottom: 20, fontSize: '1.3rem' }}>Our Core Pillars</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}>
-              {[
-                { emoji: '🎓', title: 'Character Development', description: 'Building ethical and moral foundations' },
-                { emoji: '🇺🇸', title: 'Citizenship Training', description: 'Developing responsible community members' },
-                { emoji: '👨‍💼', title: 'Leadership', description: 'Cultivating skilled and confident leaders' },
-                { emoji: '💪', title: 'Mental & Physical Fitness', description: 'Promoting healthy lifestyles and resilience' }
-              ].map((pillar, i) => (
+              {CORE_PILLARS.map((pillar, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
@@ -272,23 +296,7 @@ export default function About() {
           >
             <h3 style={{ marginBottom: 32, fontSize: '1.3rem' }}>What Scouts Experience</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16 }}>
-              {[
-                { emoji: '🏕️', activity: 'Camping' },
-                { emoji: '🥾', activity: 'Hiking' },
-                { emoji: '🎯', activity: 'Hobbies' },
-                { emoji: '🎒', activity: 'Backpacking' },
-                { emoji: '🛶', activity: 'Canoeing' },
-                { emoji: '💼', activity: 'Career Exploration' },
-                { emoji: '🔥', activity: 'Outdoor Cooking' },
-                { emoji: '🚴', activity: 'Mountain Biking' },
-                { emoji: '🤝', activity: 'Community Service' },
-                { emoji: '🚣', activity: 'Kayaking' },
-                { emoji: '⚙️', activity: 'STEM' },
-                { emoji: '🧗', activity: 'Climbing' },
-                { emoji: '🏊', activity: 'Swimming' },
-                { emoji: '👨‍💼', activity: 'Leadership' },
-                { emoji: '🦅', activity: 'Eagle Scout' }
-              ].map((item, i) => (
+              {EXPERIENCES.map((item, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, scale: 0.8 }}
