@@ -8,6 +8,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { loadData, saveData, generateId, DEFAULT_STATS, DEFAULT_LEADERS, DEFAULT_EVENTS, DEFAULT_ANNOUNCEMENTS, loadTroopData, saveTroopData, getEvents, saveEvent, deleteEvent } from '../utils/adminData';
 import { THEMES } from '../utils/themes';
 
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 }
+};
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { user, profile, loading } = useAuth();
@@ -188,16 +198,6 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error disabling user:', error);
     }
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 }
   };
 
   return (
@@ -534,13 +534,13 @@ export default function AdminDashboard() {
 
               {/* Announcements List */}
               {announcements.length > 0 && (
-                <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                <motion.div variants={CONTAINER_VARIANTS} initial="hidden" animate="visible">
                   <h3 style={{ marginBottom: 16 }}>Current Announcements ({announcements.length})</h3>
                   <div style={{ display: 'grid', gap: 12 }}>
                     {announcements.map(ann => (
                       <motion.div
                         key={ann.id}
-                        variants={itemVariants}
+                        variants={ITEM_VARIANTS}
                         className="glass-card"
                         style={{ padding: 20 }}
                       >
@@ -710,13 +710,13 @@ export default function AdminDashboard() {
 
               {/* Events List */}
               {events.length > 0 && (
-                <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                <motion.div variants={CONTAINER_VARIANTS} initial="hidden" animate="visible">
                   <h3 style={{ marginBottom: 16 }}>Upcoming Events ({events.length})</h3>
                   <div style={{ display: 'grid', gap: 12 }}>
                     {events.map(evt => (
                       <motion.div
                         key={evt.id}
-                        variants={itemVariants}
+                        variants={ITEM_VARIANTS}
                         className="glass-card"
                         style={{ padding: 20 }}
                       >
@@ -911,13 +911,13 @@ export default function AdminDashboard() {
 
               {/* Leaders List */}
               {leaders.length > 0 && (
-                <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                <motion.div variants={CONTAINER_VARIANTS} initial="hidden" animate="visible">
                   <h3 style={{ marginBottom: 16 }}>Troop Leaders ({leaders.length})</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
                     {leaders.map(leader => (
                       <motion.div
                         key={leader.id}
-                        variants={itemVariants}
+                        variants={ITEM_VARIANTS}
                         className="glass-card"
                         style={{ padding: 20 }}
                       >
@@ -994,7 +994,7 @@ export default function AdminDashboard() {
                 <p style={{ color: 'var(--text-muted)', marginBottom: 32 }}>Choose the default theme for all visitors. Users can override this in their Appearance settings.</p>
 
                 <motion.div
-                  variants={containerVariants}
+                  variants={CONTAINER_VARIANTS}
                   initial="hidden"
                   animate="visible"
                   style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}
@@ -1002,7 +1002,7 @@ export default function AdminDashboard() {
                   {Object.entries(THEMES).map(([key, theme]) => (
                     <motion.div
                       key={key}
-                      variants={itemVariants}
+                      variants={ITEM_VARIANTS}
                       onClick={() => {
                         localStorage.setItem('troopThemeDefault', key);
                         setDefaultTheme(key);
