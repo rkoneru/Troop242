@@ -7,6 +7,19 @@ import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayR
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
 
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
 export default function ScoutSignup() {
   const navigate = useNavigate();
   const { user, profile, loading } = useAuth();
@@ -110,19 +123,6 @@ export default function ScoutSignup() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
   if (isLoading) {
     return (
       <section style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -205,7 +205,7 @@ export default function ScoutSignup() {
 
           {/* Activities Grid */}
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
@@ -220,7 +220,7 @@ export default function ScoutSignup() {
               return (
                 <motion.div
                   key={activity.id}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className="glass-card"
                   style={{
                     padding: 24,

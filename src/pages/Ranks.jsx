@@ -3,6 +3,19 @@ import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ScoutPath from './ScoutPath';
 
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
 const RANKS = [
   {
     name: 'Scout',
@@ -56,20 +69,6 @@ const RANKS = [
 ];
 
 export default function Ranks() {
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
   return (
     <>
       {/* HERO SECTION */}
@@ -108,7 +107,7 @@ export default function Ranks() {
         <div className="container">
           <motion.div
             className="grid grid--cols-2"
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
@@ -117,7 +116,7 @@ export default function Ranks() {
             {RANKS.map((rank, i) => (
               <motion.div
                 key={i}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className="glass-card"
                 style={{ padding: 32 }}
               >

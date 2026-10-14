@@ -2,6 +2,19 @@ import { Mail, MapPin, Phone, Clock, Send, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
 const FAQ_ITEMS = [
   { q: 'How much does it cost to join?', a: 'There is a BSA national membership fee (around $80/year) plus troop dues. Financial assistance is available — just ask a leader!' },
   { q: 'What night does the troop meet?', a: 'Troop 242 meets every Tuesday at 7:00 PM at 3512 S Orlando Dr, Sanford, FL 32773.' },
@@ -42,19 +55,6 @@ export default function Contact() {
     setTimeout(() => setSubmitted(false), 3000);
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
   return (
     <>
       {/* HERO SECTION */}
@@ -80,14 +80,14 @@ export default function Contact() {
           <div className="grid grid--cols-2" style={{ gap: 40, maxWidth: 1100, margin: '0 auto' }}>
             {/* Contact Info */}
             <motion.div
-              variants={containerVariants}
+              variants={CONTAINER_VARIANTS}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-100px' }}
             >
               <h2 style={{ marginBottom: 40 }}>Get In Touch</h2>
 
-              <motion.div variants={itemVariants} className="glass-card" style={{ padding: 28, marginBottom: 20 }}>
+              <motion.div variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 28, marginBottom: 20 }}>
                 <div className="flex" style={{ gap: 16, alignItems: 'flex-start' }}>
                   <Mail size={24} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 4 }} />
                   <div>
@@ -102,7 +102,7 @@ export default function Contact() {
                 </div>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="glass-card" style={{ padding: 28, marginBottom: 20 }}>
+              <motion.div variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 28, marginBottom: 20 }}>
                 <div className="flex" style={{ gap: 16, alignItems: 'flex-start' }}>
                   <MapPin size={24} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 4 }} />
                   <div>
@@ -115,7 +115,7 @@ export default function Contact() {
                 </div>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="glass-card" style={{ padding: 28, marginBottom: 20 }}>
+              <motion.div variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 28, marginBottom: 20 }}>
                 <div className="flex" style={{ gap: 16, alignItems: 'flex-start' }}>
                   <Clock size={24} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 4 }} />
                   <div>
@@ -128,7 +128,7 @@ export default function Contact() {
                 </div>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="glass-card" style={{ padding: 28 }}>
+              <motion.div variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 28 }}>
                 <div className="flex" style={{ gap: 16, alignItems: 'flex-start' }}>
                   <Phone size={24} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 4 }} />
                   <div>
