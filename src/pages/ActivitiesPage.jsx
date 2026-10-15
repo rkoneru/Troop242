@@ -1,10 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MapPin, Calendar, Clock, Heart, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Calendar, Clock } from 'lucide-react';
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+
+// Hoist static Framer Motion animation variants to module scope to avoid re-allocations on every render frame
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+};
 
 export default function ActivitiesPage() {
   const navigate = useNavigate();
@@ -13,54 +27,82 @@ export default function ActivitiesPage() {
   // State
   const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [signupConfirmed, setSignupConfirmed] = useState({});
+  const [error, setError] = useState(null);
 
-  // Derive activities and events from allItems, filter out past dates
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const activities = allItems.filter(i => i.type === 'activity' && new Date(i.date) >= today);
-  const events = allItems.filter(i => i.type === 'event' && new Date(i.date) >= today);
+  // Memoize date boundary and filter/sort operations for activities and events
+  // to avoid re-allocating arrays and re-parsing date objects on every component re-render.
+  const { activities, events, mySignupCount } = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  // Calculate signup count for upcoming activities only (not completed)
-  const mySignupCount = activities.filter(a => a.signedUp?.some(s => s.uid === user?.uid)).length;
+    const activeActivities = allItems.filter(i => i.type === 'activity' && new Date(i.date) >= today);
+    const activeEvents = allItems.filter(i => i.type === 'event' && new Date(i.date) >= today);
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
+    const signupCount = activeActivities.filter(a => a.signedUp?.some(s => s.uid === user?.uid)).length;
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-  };
+    return {
+      activities: activeActivities,
+      events: activeEvents,
+      mySignupCount: signupCount
+    };
+  }, [allItems, user?.uid]);
+
+  // Memoize user signup checker helper
+  const isSignedUp = useCallback((item) => {
+    return Boolean(item.signedUp?.some(s => s.uid === user?.uid));
+  }, [user?.uid]);
+
+  // Memoize activity capacity checker helper
+  const isFull = useCallback((activity) => {
+    return activity.type === 'activity' && (activity.signedUp?.length || 0) >= activity.spots;
+  }, []);
+
+  // Memoize my signed up activities list sorted chronologically
+  const mySignedUpActivities = useMemo(() => {
+    return activities
+      .filter(a => isSignedUp(a))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [activities, isSignedUp]);
+
+  // Memoize available activities list sorted chronologically
+  const availableActivities = useMemo(() => {
+    return activities
+      .filter(a => !isSignedUp(a))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [activities, isSignedUp]);
 
   // Load all activities and events from Firestore
   useEffect(() => {
     if (!user) {
-      setLoading(false);
       return;
     }
 
+    let isMounted = true;
     const loadItems = async () => {
       try {
         const snap = await getDocs(query(collection(db, 'activities'), orderBy('date', 'asc')));
-        setAllItems(snap.docs.map(d => ({ id: d.id, ...d.data(), signedUp: d.data().signedUp || [] })));
-      } catch (error) {
-        console.error('Error loading activities:', error);
+        if (isMounted) {
+          setAllItems(snap.docs.map(d => ({ id: d.id, ...d.data(), signedUp: d.data().signedUp || [] })));
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Error loading activities:', err);
+        if (isMounted) {
+          setError(err);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadItems();
+    return () => { isMounted = false; };
   }, [user]);
 
   // Toggle RSVP for an event
-  const toggleRsvp = async (eventId) => {
+  const toggleRsvp = useCallback(async (eventId) => {
     if (!user) return;
     const displayName = profile?.name || user.displayName || user.email;
     const event = allItems.find(i => i.id === eventId);
@@ -87,13 +129,13 @@ export default function ActivitiesPage() {
             : item
         ));
       }
-    } catch (error) {
-      console.error('RSVP error:', error);
+    } catch (err) {
+      console.error('RSVP error:', err);
     }
-  };
+  }, [user, profile, allItems]);
 
   // Sign up for an activity
-  const handleSignup = async (activityId) => {
+  const handleSignup = useCallback(async (activityId) => {
     if (!user) return;
     const displayName = profile?.name || user.displayName || user.email;
 
@@ -108,20 +150,22 @@ export default function ActivitiesPage() {
           ? { ...item, signedUp: [...item.signedUp, entry] }
           : item
       ));
-      setSignupConfirmed(prev => ({ ...prev, [activityId]: true }));
-      setTimeout(() => setSignupConfirmed(prev => ({ ...prev, [activityId]: false })), 2000);
-    } catch (error) {
-      console.error('Signup error:', error);
+    } catch (err) {
+      console.error('Signup error:', err);
     }
-  };
-
-  const isSignedUp = (item) => item.signedUp?.some(s => s.uid === user?.uid) || false;
-
-  const isFull = (activity) => activity.type === 'activity' && (activity.signedUp?.length || 0) >= activity.spots;
+  }, [user, profile]);
 
   const backRoute = profile?.role === 'leader' ? '/leader-dashboard' : '/scout-dashboard';
 
   if (!user) return null;
+
+  if (error) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: 40, color: '#ff6464', textAlign: 'center' }}>
+        <p>Error loading activities. Please try again later.</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: 40 }}>
@@ -145,7 +189,7 @@ export default function ActivitiesPage() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
         <h2 className="text-xl font-bold mb-5">Troop Activities</h2>
 
-       {/* MY SIGNUPS TABLE */}
+        {/* MY SIGNUPS TABLE */}
         {mySignupCount > 0 && (
           <div style={{ marginTop: 64, marginBottom: 64 }}>
             <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>📋 My Signups</h2>
@@ -161,36 +205,34 @@ export default function ActivitiesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(activities || [])
-                    .filter(a => isSignedUp(a))
-                    .sort((a, b) => new Date(a.date) - new Date(b.date))
-                    .map((activity) => {
-                      const full = isFull(activity);
-                      return (
+                  {mySignedUpActivities.map((activity) => {
+                    const full = isFull(activity);
+                    return (
                       <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                         <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>{activity.title}</td>
                         <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>
                           {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </td>
                         <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>{activity.location || '—'}</td>
-                        <td style={{ padding: '16px', textAlign: 'center' }}>{/* Spots bar */}
-                      <div style={{ marginBottom: 16 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : 'var(--text-muted)', marginBottom: 6 }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Users size={13} /> {activity.signedUp?.length ?? 0}/{activity.spots} spots
-                          </span>
-                          <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length ?? 0)} remaining`}</span>
-                        </div>
-                        <div style={{ background: 'var(--divider)', borderRadius: 99, height: 6 }}>
-                          <div style={{
-                            width: `${Math.min(((activity.signedUp?.length ?? 0) / activity.spots) * 100, 100)}%`,
-                            background: full ? '#ff6464' : 'var(--accent)',
-                            height: '100%',
-                            borderRadius: 99,
-                            transition: 'width 0.4s ease',
-                          }} />
-                        </div>
-                      </div></td>
+                        <td style={{ padding: '16px', textAlign: 'center' }}>
+                          <div style={{ marginBottom: 16 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : 'var(--text-muted)', marginBottom: 6 }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Users size={13} /> {activity.signedUp?.length ?? 0}/{activity.spots} spots
+                              </span>
+                              <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length ?? 0)} remaining`}</span>
+                            </div>
+                            <div style={{ background: 'var(--divider)', borderRadius: 99, height: 6 }}>
+                              <div style={{
+                                width: `${Math.min(((activity.signedUp?.length ?? 0) / activity.spots) * 100, 100)}%`,
+                                background: full ? '#ff6464' : 'var(--accent)',
+                                height: '100%',
+                                borderRadius: 99,
+                                transition: 'width 0.4s ease',
+                              }} />
+                            </div>
+                          </div>
+                        </td>
                         <td style={{ padding: '16px', textAlign: 'center' }}>
                           <span style={{ background: 'rgba(82, 183, 136, 0.2)', color: '#52b788', padding: '4px 12px', borderRadius: 20, fontSize: '0.85rem', fontWeight: 600 }}>
                             ✓ Signed Up
@@ -198,9 +240,60 @@ export default function ActivitiesPage() {
                         </td>
                       </tr>
                     );
-                    })}
+                  })}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* EVENTS SECTION */}
+        {events.length > 0 && (
+          <div style={{ marginTop: 64 }}>
+            <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>📅 Troop Events</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+              {events.map((evt) => {
+                const isRsvped = isSignedUp(evt);
+                return (
+                  <div key={evt.id} style={{ background: 'var(--bg-secondary)', borderRadius: 12, border: '1px solid rgba(255, 255, 255, 0.1)', padding: 24 }}>
+                    <h3 style={{ margin: '0 0 12px 0', color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}>{evt.title}</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: '0.9rem', color: '#9ca3af' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Calendar size={14} />
+                        {new Date(evt.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        {evt.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {evt.time}</>}
+                      </span>
+                      {evt.location && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <MapPin size={14} /> {evt.location}
+                        </span>
+                      )}
+                    </div>
+                    {evt.description && (
+                      <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginBottom: 16, lineHeight: 1.5 }}>
+                        {evt.description}
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={isRsvped ? `Mark uninterested in ${evt.title}` : `Mark interested in ${evt.title}`}
+                      onClick={() => toggleRsvp(evt.id)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 16px',
+                        borderRadius: 8,
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: isRsvped ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+                        color: isRsvped ? '#60a5fa' : '#fff',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isRsvped ? '★ Interested' : '☆ RSVP / Interested'}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -210,7 +303,7 @@ export default function ActivitiesPage() {
           <div style={{ marginTop: 64 }}>
             <h2 style={{ margin: '0 0 24px 0', fontSize: '1.5rem', fontWeight: 700 }}>🔓 Available Activities</h2>
             <motion.div
-              variants={containerVariants}
+              variants={CONTAINER_VARIANTS}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
@@ -221,108 +314,104 @@ export default function ActivitiesPage() {
                 padding: '0 20px'
               }}
             >
-              {(activities || [])
-                .filter(a => !isSignedUp(a))
-                .slice()
-                .sort((a, b) => new Date(a.date) - new Date(b.date))
-                .map((activity) => {
-                  const full = isFull(activity);
+              {availableActivities.map((activity) => {
+                const full = isFull(activity);
 
-                  return (
-                    <motion.div
-                      key={activity.id}
-                      variants={itemVariants}
-                      style={{
-                        background: 'var(--bg-secondary)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: 12,
-                        padding: 24,
-                        display: 'flex',
-                        flexDirection: 'column'
-                      }}
-                    >
-                      <h3 style={{ margin: '0 0 12px 0', color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}>{activity.title}</h3>
+                return (
+                  <motion.div
+                    key={activity.id}
+                    variants={ITEM_VARIANTS}
+                    style={{
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: 12,
+                      padding: 24,
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
+                  >
+                    <h3 style={{ margin: '0 0 12px 0', color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}>{activity.title}</h3>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: '0.9rem', color: '#9ca3af' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: '0.9rem', color: '#9ca3af' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Calendar size={14} />
+                        {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        {activity.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {activity.time}</>}
+                      </span>
+                      {activity.location && (
                         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <Calendar size={14} />
-                          {new Date(activity.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                          {activity.time && <><Clock size={14} style={{ marginLeft: 6 }} /> {activity.time}</>}
+                          <MapPin size={14} /> {activity.location}
                         </span>
-                        {activity.location && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <MapPin size={14} /> {activity.location}
-                          </span>
-                        )}
-                      </div>
-
-                      {activity.description && (
-                        <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginBottom: 16, lineHeight: 1.5 }}>
-                          {activity.description}
-                        </p>
                       )}
+                    </div>
 
-                      <div style={{ marginBottom: 16 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : '#9ca3af', marginBottom: 6 }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Users size={13} /> {activity.signedUp?.length || 0}/{activity.spots} spots
-                          </span>
-                          <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length || 0)} remaining`}</span>
-                        </div>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: 99, height: 6 }}>
-                          <div style={{
-                            width: `${Math.min(((activity.signedUp?.length || 0) / activity.spots) * 100, 100)}%`,
-                            background: full ? '#ff6464' : 'var(--accent)',
-                            height: '100%',
-                            borderRadius: 99,
-                            transition: 'width 0.4s ease'
-                          }} />
-                        </div>
+                    {activity.description && (
+                      <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginBottom: 16, lineHeight: 1.5 }}>
+                        {activity.description}
+                      </p>
+                    )}
+
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: full ? '#ff6464' : '#9ca3af', marginBottom: 6 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <Users size={13} /> {activity.signedUp?.length || 0}/{activity.spots} spots
+                        </span>
+                        <span>{full ? 'Full' : `${activity.spots - (activity.signedUp?.length || 0)} remaining`}</span>
                       </div>
+                      <div style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: 99, height: 6 }}>
+                        <div style={{
+                          width: `${Math.min(((activity.signedUp?.length || 0) / activity.spots) * 100, 100)}%`,
+                          background: full ? '#ff6464' : 'var(--accent)',
+                          height: '100%',
+                          borderRadius: 99,
+                          transition: 'width 0.4s ease'
+                        }} />
+                      </div>
+                    </div>
 
-                      <div style={{ marginTop: 'auto' }}>
-                        {!full ? (
-                          <motion.button
-                            onClick={() => handleSignup(activity.id)}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              background: 'rgba(0, 214, 143, 0.2)',
-                              border: '1px solid rgba(0, 214, 143, 0.3)',
-                              color: '#00d68f',
-                              borderRadius: 8,
-                              cursor: 'pointer',
-                              fontWeight: 600,
-                              transition: 'all 0.2s'
-                            }}
-                            whileHover={{ background: 'rgba(0, 214, 143, 0.3)' }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            Sign Up
-                          </motion.button>
-                        ) : (
-                          <div style={{
+                    <div style={{ marginTop: 'auto' }}>
+                      {!full ? (
+                        <motion.button
+                          onClick={() => handleSignup(activity.id)}
+                          style={{
                             width: '100%',
                             padding: '12px 16px',
-                            background: 'rgba(255, 100, 100, 0.1)',
-                            border: '1px solid rgba(255, 100, 100, 0.3)',
+                            background: 'rgba(0, 214, 143, 0.2)',
+                            border: '1px solid rgba(0, 214, 143, 0.3)',
+                            color: '#00d68f',
                             borderRadius: 8,
-                            color: '#ff6464',
+                            cursor: 'pointer',
                             fontWeight: 600,
-                            textAlign: 'center'
-                          }}>
-                            Activity Full
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                            transition: 'all 0.2s'
+                          }}
+                          whileHover={{ background: 'rgba(0, 214, 143, 0.3)' }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Sign Up
+                        </motion.button>
+                      ) : (
+                        <div style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255, 100, 100, 0.1)',
+                          border: '1px solid rgba(255, 100, 100, 0.3)',
+                          borderRadius: 8,
+                          color: '#ff6464',
+                          fontWeight: 600,
+                          textAlign: 'center'
+                        }}>
+                          Activity Full
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
             </motion.div>
           </div>
         )}
 
-        {activities.length === 0 && events.length === 0 && (
+        {!loading && activities.length === 0 && events.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9ca3af' }}>
             <p>No activities or events yet. Check back soon!</p>
           </div>
