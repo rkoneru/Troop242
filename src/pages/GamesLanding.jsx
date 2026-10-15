@@ -180,7 +180,7 @@ export default function GamesLanding() {
             <span className="stat-label">Questions</span>
           </div>
           <div className="stat">
-            <span className="stat-num">∞</span>
+            <span className="stat-num" role="img" aria-label="Unlimited">∞</span>
             <span className="stat-label">Replay</span>
           </div>
         </div>
@@ -188,15 +188,22 @@ export default function GamesLanding() {
 
       <div className="games-grid">
         {GAMES.map(game => (
-          <a key={game.id} href={game.href} className="game-card">
-            <div className="card-top">
-              <div className="game-icon">{game.icon}</div>
+          <a
+            key={game.id}
+            href={game.href}
+            className="game-card"
+            aria-label={`Play ${game.title}: ${game.description}`}
+          >
+            <div className="card-top" aria-hidden="true">
+              <div className="game-icon">
+                {game.icon}
+              </div>
               <div className="card-head">
                 <h2>{game.title}</h2>
                 <p>{game.description}</p>
               </div>
             </div>
-            <div className="card-foot">
+            <div className="card-foot" aria-hidden="true">
               {game.tags.map((tag, idx) => (
                 <span key={idx} className={`tag ${idx === 1 ? 'tag-accent' : ''}`}>
                   {tag}

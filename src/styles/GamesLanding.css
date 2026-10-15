@@ -91,6 +91,12 @@
   border-color: var(--success);
 }
 
+.game-card:focus-visible {
+  outline: 3px solid var(--accent, #52b788);
+  outline-offset: 3px;
+  border-color: var(--success, #2d6a4f);
+}
+
 .card-top {
   display: flex;
   gap: 16px;
