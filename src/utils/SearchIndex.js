@@ -198,27 +198,37 @@ const TRIVIA = [
 
 export const SEARCH_CORPUS = [...PAGES, ...RANKS, ...MERIT_BADGES, ...EVENTS, ...TRIVIA];
 
+// Pre-normalize lowercased titles and excerpts at module load to avoid
+// redundant string lowercasing and allocations on every keystroke/query execution.
+const PREPROCESSED_CORPUS = SEARCH_CORPUS.map((doc) => ({
+  doc,
+  titleLower: doc.title.toLowerCase(),
+  excerptLower: doc.excerpt.toLowerCase(),
+}));
+
 // Simple scoring: exact title match=100, title contains=60, excerpt contains=30
 export function search(query) {
   if (!query || query.trim().length < 2) return [];
   const q = query.toLowerCase().trim();
   const terms = q.split(/\s+/);
 
-  return SEARCH_CORPUS.map((doc) => {
-    const titleLower = doc.title.toLowerCase();
-    const excerptLower = doc.excerpt.toLowerCase();
+  const results = [];
+  for (let i = 0; i < PREPROCESSED_CORPUS.length; i++) {
+    const { doc, titleLower, excerptLower } = PREPROCESSED_CORPUS[i];
     let score = 0;
 
-    for (const term of terms) {
+    for (let j = 0; j < terms.length; j++) {
+      const term = terms[j];
       if (titleLower === term) score += 100;
       else if (titleLower.startsWith(term)) score += 70;
       else if (titleLower.includes(term)) score += 50;
       if (excerptLower.includes(term)) score += 20;
     }
 
-    return { ...doc, score };
-  })
-    .filter((doc) => doc.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 6);
+    if (score > 0) {
+      results.push({ ...doc, score });
+    }
+  }
+
+  return results.sort((a, b) => b.score - a.score).slice(0, 6);
 }
