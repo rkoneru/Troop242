@@ -1,0 +1,3 @@
+## 2026-10-16 - Search Modal Dialog & Listbox Keyboard Navigation
+**Learning:** In search overlay modals (`SearchWidget`), implementing WAI-ARIA combobox/listbox patterns with `aria-activedescendant` and `ArrowDown`/`ArrowUp`/`Enter` keyboard handlers requires restoring focus back to the triggering element on close and guarding DOM methods like `scrollIntoView` for test environments (JSDOM).
+**Action:** Always store `document.activeElement` when triggering search modals, attach `role="dialog"` and `role="listbox"` with dynamic `aria-selected` attributes, and check `typeof el.scrollIntoView === 'function'` before auto-scrolling active list items into view.
