@@ -105,7 +105,7 @@ export default function Footer() {
                   onClick={(e) => {
                     e.preventDefault();
                     const encoded = encodeURIComponent('3512 S Orlando Dr, Sanford, FL 32773');
-                    window.open(`https://www.google.com/maps/search/${encoded}`, '_blank');
+                    window.open(`https://www.google.com/maps/search/${encoded}`, '_blank', 'noopener,noreferrer');
                   }}
                   title="3512 S Orlando Dr, Sanford, FL 32773"
                 >
