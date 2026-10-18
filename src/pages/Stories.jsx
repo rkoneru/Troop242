@@ -105,17 +105,24 @@ export default function Stories() {
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}
           >
             {SCOUT_STORIES.map((scout, idx) => (
-              <motion.div
+              <motion.button
                 key={idx}
+                type="button"
                 variants={itemVariants}
                 className="glass-card"
                 onClick={() => setExpandedStory(expandedStory === idx ? null : idx)}
+                aria-expanded={expandedStory === idx}
+                aria-label={`${expandedStory === idx ? 'Collapse' : 'Read'} story for ${scout.name}, ${scout.rank}`}
                 style={{
                   padding: 24,
                   cursor: 'pointer',
                   overflow: 'hidden',
                   position: 'relative',
-                  borderTop: `3px solid ${getRankColor(scout.rank)}`
+                  borderTop: `3px solid ${getRankColor(scout.rank)}`,
+                  textAlign: 'left',
+                  width: '100%',
+                  color: 'inherit',
+                  fontFamily: 'inherit'
                 }}
               >
                 {/* Rank Badge */}
@@ -181,7 +188,7 @@ export default function Stories() {
                     color: 'var(--text-muted)',
                     fontSize: '0.85rem'
                   }}>
-                    <MessageCircle size={16} />
+                    <MessageCircle size={16} aria-hidden="true" />
                     <span>Click to read full story</span>
                   </div>
                 </motion.div>
@@ -213,7 +220,7 @@ export default function Stories() {
                     "{scout.quote}"
                   </p>
                 </motion.div>
-              </motion.div>
+              </motion.button>
             ))}
           </motion.div>
         </div>
