@@ -1,5 +1,5 @@
 import { CheckCircle, Clock, Users, TrendingUp, Calendar, MapPin, Plus, Trash2, ChevronDown, ChevronUp, Search, Download, Upload, Check, X } from 'lucide-react';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { collection, query, updateDoc, doc, onSnapshot } from 'firebase/firestore';
@@ -19,6 +19,262 @@ import {
   isActivityFull,
   formatValidationErrors
 } from '../utils/leaderValidation';
+
+// Memoized ScoutCard component hoisted outside LeaderDashboard to preserve React component
+// identity across parent re-renders and eliminate unnecessary DOM node re-creations.
+const ScoutCard = memo(function ScoutCard({ scout, onApprove, onReject }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
+        <div>
+          <h4 style={{ margin: '0 0 4px 0', color: '#fff', fontSize: '1rem' }}>{scout.name}</h4>
+          <p style={{ margin: '0 0 8px 0', color: '#9ca3af', fontSize: '0.9rem' }}>
+            {scout.rank} • {scout.email}
+          </p>
+          {scout.phone && (
+            <p style={{ margin: '0 0 4px 0', color: '#9ca3af', fontSize: '0.85rem' }}>📞 {scout.phone}</p>
+          )}
+          {scout.notes && (
+            <p style={{ margin: '0', color: '#9ca3af', fontSize: '0.85rem' }}>📝 {scout.notes}</p>
+          )}
+        </div>
+        <div
+          style={{
+            padding: '4px 12px',
+            background:
+              scout.status === 'approved' ? 'rgba(82, 183, 136, 0.2)' :
+              scout.status === 'rejected' ? 'rgba(239, 68, 68, 0.2)' :
+              'rgba(212, 168, 83, 0.2)',
+            color:
+              scout.status === 'approved' ? '#52b788' :
+              scout.status === 'rejected' ? '#ef4444' :
+              '#d4a853',
+            borderRadius: 6,
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {scout.status.charAt(0).toUpperCase() + scout.status.slice(1)}
+        </div>
+      </div>
+
+      {scout.status === 'pending' && (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => onApprove(scout.id)}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              background: 'rgba(82, 183, 136, 0.2)',
+              color: '#52b788',
+              border: '1px solid rgba(82, 183, 136, 0.3)',
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              transition: 'all 0.2s'
+            }}
+          >
+            ✓ Approve
+          </button>
+          <button
+            onClick={() => onReject(scout.id)}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              background: 'rgba(239, 68, 68, 0.2)',
+              color: '#ef4444',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              transition: 'all 0.2s'
+            }}
+          >
+            ✕ Reject
+          </button>
+        </div>
+      )}
+    </motion.div>
+  );
+});
+
+// Memoized ActivityCard component hoisted outside LeaderDashboard to preserve React component
+// identity across parent re-renders and avoid re-mounting item card subtrees.
+const ActivityCard = memo(function ActivityCard({
+  activity,
+  isExpanded,
+  onEdit,
+  onDelete,
+  onToggleRoster,
+  onMarkDuesPaid
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+            <h4 style={{ margin: 0, color: '#fff', fontSize: '1rem' }}>{activity.title}</h4>
+            {activity.dues > 0 && (
+              <span style={{ background: 'rgba(212, 168, 83, 0.2)', padding: '2px 8px', borderRadius: 4, fontSize: '0.8rem', color: '#d4a853' }}>
+                💰 ${activity.dues}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: 16, fontSize: '0.9rem', color: '#9ca3af', marginBottom: 8, flexWrap: 'wrap' }}>
+            <span>📅 {activity.date}</span>
+            {activity.time && <span>🕐 {activity.time}</span>}
+            {activity.location && <span>📍 {activity.location}</span>}
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            marginBottom: 8,
+            fontSize: '0.9rem'
+          }}>
+            <div style={{
+              flex: 1,
+              height: 8,
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: 4,
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                height: '100%',
+                width: `${Math.min((activity.signedUp?.length || 0) / activity.spots * 100, 100)}%`,
+                background: isActivityFull(activity) ? '#ef4444' : '#52b788',
+                transition: 'width 0.3s'
+              }} />
+            </div>
+            <span style={{ color: '#9ca3af', minWidth: '60px' }}>
+              {activity.signedUp?.length || 0}/{activity.spots}
+            </span>
+          </div>
+          {activity.description && (
+            <p style={{ margin: '0', color: '#9ca3af', fontSize: '0.85rem' }}>{activity.description}</p>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => onEdit(activity)}
+            style={{
+              padding: '6px 10px',
+              background: 'rgba(59, 130, 246, 0.2)',
+              color: '#3b82f6',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: '0.85rem',
+              fontWeight: 600
+            }}
+          >
+            ✎ Edit
+          </button>
+          <button
+            onClick={() => onDelete(activity.id)}
+            style={{
+              padding: '6px 10px',
+              background: 'rgba(239, 68, 68, 0.2)',
+              color: '#ef4444',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer'
+            }}
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </div>
+
+      <button
+        onClick={() => onToggleRoster(activity.id)}
+        style={{
+          width: '100%',
+          padding: '8px 12px',
+          background: 'rgba(100, 150, 200, 0.2)',
+          color: '#6496c8',
+          border: '1px solid rgba(100, 150, 200, 0.3)',
+          borderRadius: 6,
+          cursor: 'pointer',
+          fontWeight: 600,
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          transition: 'all 0.2s'
+        }}
+      >
+        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        {isExpanded ? 'Hide Roster' : 'View Roster'}
+      </button>
+
+      {isExpanded && activity.signedUp && activity.signedUp.length > 0 && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600, color: '#9ca3af' }}>Signups ({activity.signedUp.length}):</p>
+          {activity.signedUp.map((signup, idx) => {
+            const isDuesPaid = activity.duesPaid?.some(p => p.scoutName === signup.name);
+            return (
+              <div key={idx} style={{ padding: '8px', marginBottom: 6, background: 'rgba(255, 255, 255, 0.02)', borderRadius: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>
+                  {signup.name}
+                  {activity.dues > 0 && (
+                    <span style={{ marginLeft: 8, fontSize: '0.75rem', color: isDuesPaid ? '#52b788' : '#d4a853' }}>
+                      {isDuesPaid ? '✓ Paid' : `💰 $${activity.dues} due`}
+                    </span>
+                  )}
+                </span>
+                {activity.dues > 0 && !isDuesPaid && (
+                  <button
+                    onClick={() => onMarkDuesPaid(activity.id, signup)}
+                    style={{
+                      padding: '4px 8px',
+                      background: 'rgba(82, 183, 136, 0.2)',
+                      color: '#52b788',
+                      border: '1px solid rgba(82, 183, 136, 0.3)',
+                      borderRadius: 4,
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      fontWeight: 600
+                    }}
+                  >
+                    Mark Paid
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </motion.div>
+  );
+});
 
 export default function LeaderDashboard() {
   const navigate = useNavigate();
@@ -41,6 +297,35 @@ export default function LeaderDashboard() {
   // Derived state from allItems
   const troopActivities = useMemo(() => allItems.filter(i => i.type === 'activity'), [allItems]);
   const events = useMemo(() => allItems.filter(i => i.type === 'event'), [allItems]);
+
+  // Memoized sorted lists to avoid inline array sorting and Date object allocations on re-renders
+  const sortedActivities = useMemo(() => {
+    return troopActivities
+      .slice()
+      .sort((a, b) => {
+        const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
+        const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
+        if (slotsB !== slotsA) return slotsB - slotsA;
+        return new Date(a.date) - new Date(b.date);
+      });
+  }, [troopActivities]);
+
+  const sortedEvents = useMemo(() => {
+    return events
+      .slice()
+      .sort((a, b) => {
+        const slotsA = (a.spots || 9999) - (a.signedUp?.length || 0);
+        const slotsB = (b.spots || 9999) - (b.signedUp?.length || 0);
+        if (slotsB !== slotsA) return slotsB - slotsA;
+        return new Date(a.date) - new Date(b.date);
+      });
+  }, [events]);
+
+  const approvedScouts = useMemo(() => {
+    return scoutsData
+      .filter(s => s.status === 'approved')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }, [scoutsData]);
 
   // Form states
   const [newScoutForm, setNewScoutForm] = useState({ name: '', email: '', rank: 'Scout', phone: '', notes: '' });
@@ -185,7 +470,7 @@ export default function LeaderDashboard() {
   }, []);
 
   // Scout approval handlers
-  const handleApproveScout = async (scoutId) => {
+  const handleApproveScout = useCallback(async (scoutId) => {
     try {
       await updateDoc(doc(db, 'users', scoutId), { status: 'approved' });
       setScoutsData(prev =>
@@ -196,9 +481,9 @@ export default function LeaderDashboard() {
       console.error('Error approving scout:', error);
       showError('scout', 'Failed to approve scout');
     }
-  };
+  }, [showSuccess, showError]);
 
-  const handleRejectScout = async (scoutId) => {
+  const handleRejectScout = useCallback(async (scoutId) => {
     try {
       await updateDoc(doc(db, 'users', scoutId), { status: 'rejected' });
       setScoutsData(prev =>
@@ -209,7 +494,7 @@ export default function LeaderDashboard() {
       console.error('Error rejecting scout:', error);
       showError('scout', 'Failed to reject scout');
     }
-  };
+  }, [showSuccess, showError]);
 
   // SCOUT HANDLERS
   const handleAddScout = useCallback(() => {
@@ -461,93 +746,6 @@ export default function LeaderDashboard() {
     showSuccess('Scouts exported to CSV!');
   }, [scoutsData, showSuccess]);
 
-  // Render helpers
-  const ScoutCard = ({ scout }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={{
-        background: 'rgba(255, 255, 255, 0.05)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
-        <div>
-          <h4 style={{ margin: '0 0 4px 0', color: '#fff', fontSize: '1rem' }}>{scout.name}</h4>
-          <p style={{ margin: '0 0 8px 0', color: '#9ca3af', fontSize: '0.9rem' }}>
-            {scout.rank} • {scout.email}
-          </p>
-          {scout.phone && (
-            <p style={{ margin: '0 0 4px 0', color: '#9ca3af', fontSize: '0.85rem' }}>📞 {scout.phone}</p>
-          )}
-          {scout.notes && (
-            <p style={{ margin: '0', color: '#9ca3af', fontSize: '0.85rem' }}>📝 {scout.notes}</p>
-          )}
-        </div>
-        <div
-          style={{
-            padding: '4px 12px',
-            background:
-              scout.status === 'approved' ? 'rgba(82, 183, 136, 0.2)' :
-              scout.status === 'rejected' ? 'rgba(239, 68, 68, 0.2)' :
-              'rgba(212, 168, 83, 0.2)',
-            color:
-              scout.status === 'approved' ? '#52b788' :
-              scout.status === 'rejected' ? '#ef4444' :
-              '#d4a853',
-            borderRadius: 6,
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {scout.status.charAt(0).toUpperCase() + scout.status.slice(1)}
-        </div>
-      </div>
-
-      {scout.status === 'pending' && (
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={() => handleApproveScout(scout.id)}
-            style={{
-              flex: 1,
-              padding: '8px 12px',
-              background: 'rgba(82, 183, 136, 0.2)',
-              color: '#52b788',
-              border: '1px solid rgba(82, 183, 136, 0.3)',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              transition: 'all 0.2s'
-            }}
-          >
-            ✓ Approve
-          </button>
-          <button
-            onClick={() => handleRejectScout(scout.id)}
-            style={{
-              flex: 1,
-              padding: '8px 12px',
-              background: 'rgba(239, 68, 68, 0.2)',
-              color: '#ef4444',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              transition: 'all 0.2s'
-            }}
-          >
-            ✕ Reject
-          </button>
-        </div>
-      )}
-    </motion.div>
-  );
 
   // Mark dues as paid
   const handleMarkDuesPaid = useCallback(async (activityId, signup) => {
@@ -611,159 +809,6 @@ export default function LeaderDashboard() {
     window.open(mailtoUrl, '_blank');
   }, [allItems]);
 
-  const ActivityCard = ({ activity }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={{
-        background: 'rgba(255, 255, 255, 0.05)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-            <h4 style={{ margin: 0, color: '#fff', fontSize: '1rem' }}>{activity.title}</h4>
-            {activity.dues > 0 && (
-              <span style={{ background: 'rgba(212, 168, 83, 0.2)', padding: '2px 8px', borderRadius: 4, fontSize: '0.8rem', color: '#d4a853' }}>
-                💰 ${activity.dues}
-              </span>
-            )}
-          </div>
-          <div style={{ display: 'flex', gap: 16, fontSize: '0.9rem', color: '#9ca3af', marginBottom: 8, flexWrap: 'wrap' }}>
-            <span>📅 {activity.date}</span>
-            {activity.time && <span>🕐 {activity.time}</span>}
-            {activity.location && <span>📍 {activity.location}</span>}
-          </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            marginBottom: 8,
-            fontSize: '0.9rem'
-          }}>
-            <div style={{
-              flex: 1,
-              height: 8,
-              background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: 4,
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                height: '100%',
-                width: `${Math.min((activity.signedUp?.length || 0) / activity.spots * 100, 100)}%`,
-                background: isActivityFull(activity) ? '#ef4444' : '#52b788',
-                transition: 'width 0.3s'
-              }} />
-            </div>
-            <span style={{ color: '#9ca3af', minWidth: '60px' }}>
-              {activity.signedUp?.length || 0}/{activity.spots}
-            </span>
-          </div>
-          {activity.description && (
-            <p style={{ margin: '0', color: '#9ca3af', fontSize: '0.85rem' }}>{activity.description}</p>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={() => handleEditActivity(activity)}
-            style={{
-              padding: '6px 10px',
-              background: 'rgba(59, 130, 246, 0.2)',
-              color: '#3b82f6',
-              border: 'none',
-              borderRadius: 6,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              fontSize: '0.85rem',
-              fontWeight: 600
-            }}
-          >
-            ✎ Edit
-          </button>
-          <button
-            onClick={() => handleDeleteActivity(activity.id)}
-            style={{
-              padding: '6px 10px',
-              background: 'rgba(239, 68, 68, 0.2)',
-              color: '#ef4444',
-              border: 'none',
-              borderRadius: 6,
-              cursor: 'pointer'
-            }}
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      </div>
-
-      <button
-        onClick={() => toggleRoster(activity.id)}
-        style={{
-          width: '100%',
-          padding: '8px 12px',
-          background: 'rgba(100, 150, 200, 0.2)',
-          color: '#6496c8',
-          border: '1px solid rgba(100, 150, 200, 0.3)',
-          borderRadius: 6,
-          cursor: 'pointer',
-          fontWeight: 600,
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          transition: 'all 0.2s'
-        }}
-      >
-        {expandedRosters[activity.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        {expandedRosters[activity.id] ? 'Hide Roster' : 'View Roster'}
-      </button>
-
-      {expandedRosters[activity.id] && activity.signedUp && activity.signedUp.length > 0 && (
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 600, color: '#9ca3af' }}>Signups ({activity.signedUp.length}):</p>
-          {activity.signedUp.map((signup, idx) => {
-            const isDuesPaid = activity.duesPaid?.some(p => p.scoutName === signup.name);
-            return (
-              <div key={idx} style={{ padding: '8px', marginBottom: 6, background: 'rgba(255, 255, 255, 0.02)', borderRadius: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>
-                  {signup.name}
-                  {activity.dues > 0 && (
-                    <span style={{ marginLeft: 8, fontSize: '0.75rem', color: isDuesPaid ? '#52b788' : '#d4a853' }}>
-                      {isDuesPaid ? '✓ Paid' : `💰 $${activity.dues} due`}
-                    </span>
-                  )}
-                </span>
-                {activity.dues > 0 && !isDuesPaid && (
-                  <button
-                    onClick={() => handleMarkDuesPaid(activity.id, signup)}
-                    style={{
-                      padding: '4px 8px',
-                      background: 'rgba(82, 183, 136, 0.2)',
-                      color: '#52b788',
-                      border: '1px solid rgba(82, 183, 136, 0.3)',
-                      borderRadius: 4,
-                      cursor: 'pointer',
-                      fontSize: '0.75rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    Mark Paid
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </motion.div>
-  );
 
   return (
     <>
@@ -1060,7 +1105,7 @@ export default function LeaderDashboard() {
                   </div>
                 ) : (
                   filteredScouts.map(scout => (
-                    <ScoutCard key={scout.id} scout={scout} />
+                    <ScoutCard key={scout.id} scout={scout} onApprove={handleApproveScout} onReject={handleRejectScout} />
                   ))
                 )}
               </div>
@@ -1222,23 +1267,22 @@ export default function LeaderDashboard() {
                 <h3 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '1.1rem' }}>
                   Activities ({troopActivities.length})
                 </h3>
-                {troopActivities.length === 0 ? (
+                {sortedActivities.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
                     No activities yet. Create one above!
                   </div>
                 ) : (
-                  troopActivities
-                    .slice()
-                    .sort((a, b) => {
-                      // Sort by available slots (more slots first), then by date
-                      const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
-                      const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
-                      if (slotsB !== slotsA) return slotsB - slotsA;
-                      return new Date(a.date) - new Date(b.date);
-                    })
-                    .map(activity => (
-                      <ActivityCard key={activity.id} activity={activity} />
-                    ))
+                  sortedActivities.map(activity => (
+                    <ActivityCard
+                      key={activity.id}
+                      activity={activity}
+                      isExpanded={Boolean(expandedRosters[activity.id])}
+                      onEdit={handleEditActivity}
+                      onDelete={handleDeleteActivity}
+                      onToggleRoster={toggleRoster}
+                      onMarkDuesPaid={handleMarkDuesPaid}
+                    />
+                  ))
                 )}
               </div>
             </motion.div>
@@ -1368,21 +1412,12 @@ export default function LeaderDashboard() {
                 <h3 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '1.1rem' }}>
                   Events ({events.length})
                 </h3>
-                {events.length === 0 ? (
+                {sortedEvents.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9ca3af' }}>
                     No events scheduled yet.
                   </div>
                 ) : (
-                  events
-                    .slice()
-                    .sort((a, b) => {
-                      // Sort by available slots (more slots first), then by date
-                      const slotsA = (a.spots || 9999) - (a.signedUp?.length || 0);
-                      const slotsB = (b.spots || 9999) - (b.signedUp?.length || 0);
-                      if (slotsB !== slotsA) return slotsB - slotsA;
-                      return new Date(a.date) - new Date(b.date);
-                    })
-                    .map(event => (
+                  sortedEvents.map(event => (
                     <motion.div
                       key={event.id}
                       initial={{ opacity: 0, y: 10 }}
@@ -1598,17 +1633,9 @@ export default function LeaderDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {(troopActivities || [])
-                          .sort((a, b) => {
-                            // Sort by available slots (more slots first), then by date
-                            const slotsA = (a.spots || 0) - (a.signedUp?.length || 0);
-                            const slotsB = (b.spots || 0) - (b.signedUp?.length || 0);
-                            if (slotsB !== slotsA) return slotsB - slotsA;
-                            return new Date(a.date) - new Date(b.date);
-                          })
-                          .map((activity) => {
-                            const full = (activity.signedUp?.length || 0) >= activity.spots;
-                            return (
+                        {sortedActivities.map((activity) => {
+                          const full = (activity.signedUp?.length || 0) >= activity.spots;
+                          return (
                             <tr key={activity.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                               <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>{activity.title}</td>
                               <td style={{ padding: '16px', color: '#9ca3af', fontSize: '0.9rem' }}>
@@ -1640,7 +1667,7 @@ export default function LeaderDashboard() {
                               </td>
                             </tr>
                           );
-                          })}
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -1668,10 +1695,7 @@ export default function LeaderDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {scoutsData
-                        .filter(s => s.status === 'approved')
-                        .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-                        .map(scout => (
+                      {approvedScouts.map(scout => (
                           <tr key={scout.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                             <td style={{ padding: '12px', color: '#fff', fontWeight: 500 }}>{scout.name}</td>
                             {RANKS.map((rank, rankIdx) => {
@@ -1713,7 +1737,7 @@ export default function LeaderDashboard() {
                         ))}
                     </tbody>
                   </table>
-                  {scoutsData.filter(s => s.status === 'approved').length === 0 && (
+                  {approvedScouts.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
                       <p>No approved scouts yet.</p>
                     </div>
