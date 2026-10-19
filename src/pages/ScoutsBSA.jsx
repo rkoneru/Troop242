@@ -3,21 +3,145 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Zap, Users, Award, Target, Heart, MapPin } from 'lucide-react';
 import { scrollToTop } from '../utils/scrollToTop';
 
+// Hoist static Framer Motion animation variants and content arrays outside the component
+// to eliminate per-render memory allocations and prevent unnecessary garbage collection.
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+  },
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
+
+const CORE_PILLARS = [
+  {
+    emoji: '🎓',
+    title: 'Character Development',
+    desc: 'Building ethical and moral foundations. Scouts learn to make good choices and stand up for what is right. Through the Scout Oath and Law, we develop integrity, honesty, and responsibility.',
+  },
+  {
+    emoji: '🇺🇸',
+    title: 'Citizenship Training',
+    desc: 'Becoming responsible community members. Scouts participate in community service projects, learn about civic duty, and understand the importance of giving back to their communities.',
+  },
+  {
+    emoji: '👨‍💼',
+    title: 'Leadership',
+    desc: 'Developing skills to lead others. Every Scout holds leadership positions within their patrol and troop. We teach decision-making, teamwork, and how to inspire others.',
+  },
+  {
+    emoji: '💪',
+    title: 'Mental & Physical Fitness',
+    desc: 'Healthy mind and body. Through outdoor activities, camping, hiking, and sports, Scouts develop physical strength while also building mental resilience and emotional intelligence.',
+  },
+];
+
+const SCOUT_ACTIVITIES = [
+  { emoji: '🏕️', activity: 'Camping', desc: 'Build fires, pitch tents, cook outdoors' },
+  { emoji: '🥾', activity: 'Hiking', desc: 'Explore trails and nature' },
+  { emoji: '🎯', activity: 'Exploring Hobbies', desc: 'Discover new interests and passions' },
+  { emoji: '🎒', activity: 'Backpacking', desc: 'Multi-day wilderness trips' },
+  { emoji: '🛶', activity: 'Canoeing', desc: 'Navigate waters and rapids' },
+  { emoji: '💼', activity: 'Career Exploration', desc: 'Learn about different professions' },
+  { emoji: '🔥', activity: 'Outdoor Cooking', desc: 'Master campfire cuisine' },
+  { emoji: '🚴', activity: 'Mountain Biking', desc: 'Off-road cycling adventures' },
+  { emoji: '🤝', activity: 'Community Service', desc: 'Give back to your community' },
+  { emoji: '🚣', activity: 'Kayaking', desc: 'Paddle and explore water' },
+  { emoji: '⚙️', activity: 'STEM', desc: 'Technology and engineering projects' },
+  { emoji: '🧗', activity: 'Climbing', desc: 'Rock climbing and rappelling' },
+  { emoji: '🏊', activity: 'Swimming', desc: 'Water safety and skills' },
+  { emoji: '👨‍💼', activity: 'Leadership Roles', desc: 'Lead your patrol and troop' },
+  { emoji: '🦅', activity: 'Earning Eagle Scout', desc: 'The highest achievement' },
+];
+
+const ORGANIZED_EVENTS = [
+  {
+    icon: '🏕️',
+    title: 'Summer Camp',
+    desc: 'A week-long adventure with hundreds of Scouts. Learn advanced skills, earn merit badges, and make friends from other troops.',
+  },
+  {
+    icon: '🌍',
+    title: 'National & World Jamborees',
+    desc: 'Attend massive gatherings of thousands of Scouts. Experience international culture and competition at the highest level.',
+  },
+  {
+    icon: '🤝',
+    title: 'Community Service Projects',
+    desc: 'Make a real impact on your community. Clean parks, build trails, help the homeless, and earn Eagle project requirements.',
+  },
+  {
+    icon: '🏆',
+    title: 'Competitions & Awards',
+    desc: 'Compete in merit badge contests, outdoor skills competitions, and earn recognition for your accomplishments.',
+  },
+  {
+    icon: '🎒',
+    title: 'High-Adventure Trips',
+    desc: 'Take on challenging expeditions like backpacking, rock climbing, kayaking, and wilderness survival courses.',
+  },
+  {
+    icon: '📚',
+    title: 'Merit Badge Programs',
+    desc: 'Earn over 140 badges across outdoor skills, STEM, arts, and leadership. Build a well-rounded resume.',
+  },
+];
+
+const SCOUT_LAW_VALUES = [
+  'Trustworthy',
+  'Loyal',
+  'Helpful',
+  'Friendly',
+  'Courteous',
+  'Kind',
+  'Obedient',
+  'Cheerful',
+  'Thrifty',
+  'Brave',
+  'Clean',
+  'Reverent',
+];
+
+const WHY_JOIN_ITEMS = [
+  {
+    icon: Target,
+    title: 'Build Skills for Life',
+    desc: 'Learn practical outdoor, leadership, and technical skills that will serve you for a lifetime.',
+  },
+  {
+    icon: Users,
+    title: 'Make Lifelong Friends',
+    desc: 'Build strong friendships with peers who share your values and interests.',
+  },
+  {
+    icon: Award,
+    title: 'Achieve Your Goals',
+    desc: 'Work toward meaningful achievements like merit badges and the prestigious Eagle Scout rank.',
+  },
+  {
+    icon: Heart,
+    title: 'Serve Your Community',
+    desc: 'Make a real difference through community service and leadership projects.',
+  },
+  {
+    icon: Zap,
+    title: 'Adventure & Excitement',
+    desc: 'Experience thrilling outdoor adventures from camping to rock climbing and kayaking.',
+  },
+  {
+    icon: MapPin,
+    title: 'Explore the World',
+    desc: 'Travel to summer camps, jamborees, and high-adventure destinations.',
+  },
+];
+
 export default function ScoutsBSA() {
   const navigate = useNavigate();
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
 
   return (
     <>
@@ -68,37 +192,16 @@ export default function ScoutsBSA() {
           >
             <h2 style={{ marginBottom: 48 }}>Our Four Core Pillars</h2>
             <motion.div
-              variants={containerVariants}
+              variants={CONTAINER_VARIANTS}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-100px' }}
               style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 32 }}
             >
-              {[
-                {
-                  emoji: '🎓',
-                  title: 'Character Development',
-                  desc: 'Building ethical and moral foundations. Scouts learn to make good choices and stand up for what is right. Through the Scout Oath and Law, we develop integrity, honesty, and responsibility.'
-                },
-                {
-                  emoji: '🇺🇸',
-                  title: 'Citizenship Training',
-                  desc: 'Becoming responsible community members. Scouts participate in community service projects, learn about civic duty, and understand the importance of giving back to their communities.'
-                },
-                {
-                  emoji: '👨‍💼',
-                  title: 'Leadership',
-                  desc: 'Developing skills to lead others. Every Scout holds leadership positions within their patrol and troop. We teach decision-making, teamwork, and how to inspire others.'
-                },
-                {
-                  emoji: '💪',
-                  title: 'Mental & Physical Fitness',
-                  desc: 'Healthy mind and body. Through outdoor activities, camping, hiking, and sports, Scouts develop physical strength while also building mental resilience and emotional intelligence.'
-                }
-              ].map((pillar, i) => (
+              {CORE_PILLARS.map((pillar, i) => (
                 <motion.div
                   key={i}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className="glass-card"
                   style={{ padding: 32, textAlign: 'center' }}
                 >
@@ -128,32 +231,16 @@ export default function ScoutsBSA() {
           </motion.div>
 
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 24 }}
           >
-            {[
-              { emoji: '🏕️', activity: 'Camping', desc: 'Build fires, pitch tents, cook outdoors' },
-              { emoji: '🥾', activity: 'Hiking', desc: 'Explore trails and nature' },
-              { emoji: '🎯', activity: 'Exploring Hobbies', desc: 'Discover new interests and passions' },
-              { emoji: '🎒', activity: 'Backpacking', desc: 'Multi-day wilderness trips' },
-              { emoji: '🛶', activity: 'Canoeing', desc: 'Navigate waters and rapids' },
-              { emoji: '💼', activity: 'Career Exploration', desc: 'Learn about different professions' },
-              { emoji: '🔥', activity: 'Outdoor Cooking', desc: 'Master campfire cuisine' },
-              { emoji: '🚴', activity: 'Mountain Biking', desc: 'Off-road cycling adventures' },
-              { emoji: '🤝', activity: 'Community Service', desc: 'Give back to your community' },
-              { emoji: '🚣', activity: 'Kayaking', desc: 'Paddle and explore water' },
-              { emoji: '⚙️', activity: 'STEM', desc: 'Technology and engineering projects' },
-              { emoji: '🧗', activity: 'Climbing', desc: 'Rock climbing and rappelling' },
-              { emoji: '🏊', activity: 'Swimming', desc: 'Water safety and skills' },
-              { emoji: '👨‍💼', activity: 'Leadership Roles', desc: 'Lead your patrol and troop' },
-              { emoji: '🦅', activity: 'Earning Eagle Scout', desc: 'The highest achievement' }
-            ].map((item, i) => (
+            {SCOUT_ACTIVITIES.map((item, i) => (
               <motion.div
                 key={i}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className="glass-card"
                 style={{ padding: 24, textAlign: 'center' }}
               >
@@ -182,47 +269,16 @@ export default function ScoutsBSA() {
           </motion.div>
 
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 28 }}
           >
-            {[
-              {
-                icon: '🏕️',
-                title: 'Summer Camp',
-                desc: 'A week-long adventure with hundreds of Scouts. Learn advanced skills, earn merit badges, and make friends from other troops.'
-              },
-              {
-                icon: '🌍',
-                title: 'National & World Jamborees',
-                desc: 'Attend massive gatherings of thousands of Scouts. Experience international culture and competition at the highest level.'
-              },
-              {
-                icon: '🤝',
-                title: 'Community Service Projects',
-                desc: 'Make a real impact on your community. Clean parks, build trails, help the homeless, and earn Eagle project requirements.'
-              },
-              {
-                icon: '🏆',
-                title: 'Competitions & Awards',
-                desc: 'Compete in merit badge contests, outdoor skills competitions, and earn recognition for your accomplishments.'
-              },
-              {
-                icon: '🎒',
-                title: 'High-Adventure Trips',
-                desc: 'Take on challenging expeditions like backpacking, rock climbing, kayaking, and wilderness survival courses.'
-              },
-              {
-                icon: '📚',
-                title: 'Merit Badge Programs',
-                desc: 'Earn over 140 badges across outdoor skills, STEM, arts, and leadership. Build a well-rounded resume.'
-              }
-            ].map((event, i) => (
+            {ORGANIZED_EVENTS.map((event, i) => (
               <motion.div
                 key={i}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className="glass-card"
                 style={{ padding: 32 }}
               >
@@ -251,14 +307,14 @@ export default function ScoutsBSA() {
           </motion.div>
 
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}
           >
             <motion.div
-              variants={itemVariants}
+              variants={ITEM_VARIANTS}
               className="glass-card"
               style={{ padding: 40, background: 'linear-gradient(135deg, var(--accent-dim) 0%, rgba(0, 214, 143, 0.05) 100%)' }}
             >
@@ -270,17 +326,13 @@ export default function ScoutsBSA() {
             </motion.div>
 
             <motion.div
-              variants={itemVariants}
+              variants={ITEM_VARIANTS}
               className="glass-card"
               style={{ padding: 40, background: 'linear-gradient(135deg, var(--accent-dim) 0%, rgba(0, 214, 143, 0.05) 100%)' }}
             >
               <h3 style={{ color: 'var(--accent)', marginBottom: 24, textAlign: 'center' }}>The Scout Law</h3>
               <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, listStyle: 'none', padding: 0, margin: 0 }}>
-                {[
-                  'Trustworthy', 'Loyal', 'Helpful', 'Friendly',
-                  'Courteous', 'Kind', 'Obedient', 'Cheerful',
-                  'Thrifty', 'Brave', 'Clean', 'Reverent'
-                ].map((value, i) => (
+                {SCOUT_LAW_VALUES.map((value, i) => (
                   <li key={i} style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                     <span style={{ color: 'var(--accent)', fontWeight: 600 }}>✓</span> {value}
                   </li>
@@ -304,23 +356,16 @@ export default function ScoutsBSA() {
           </motion.div>
 
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 28 }}
           >
-            {[
-              { icon: Target, title: 'Build Skills for Life', desc: 'Learn practical outdoor, leadership, and technical skills that will serve you for a lifetime.' },
-              { icon: Users, title: 'Make Lifelong Friends', desc: 'Build strong friendships with peers who share your values and interests.' },
-              { icon: Award, title: 'Achieve Your Goals', desc: 'Work toward meaningful achievements like merit badges and the prestigious Eagle Scout rank.' },
-              { icon: Heart, title: 'Serve Your Community', desc: 'Make a real difference through community service and leadership projects.' },
-              { icon: Zap, title: 'Adventure & Excitement', desc: 'Experience thrilling outdoor adventures from camping to rock climbing and kayaking.' },
-              { icon: MapPin, title: 'Explore the World', desc: 'Travel to summer camps, jamborees, and high-adventure destinations.' }
-            ].map((item, i) => (
+            {WHY_JOIN_ITEMS.map((item, i) => (
               <motion.div
                 key={i}
-                variants={itemVariants}
+                variants={ITEM_VARIANTS}
                 className="glass-card"
                 style={{ padding: 28 }}
               >
@@ -345,7 +390,7 @@ export default function ScoutsBSA() {
               padding: 48,
               textAlign: 'center',
               background: 'linear-gradient(135deg, var(--accent-dim) 0%, rgba(0, 214, 143, 0.05) 100%)',
-              border: '2px solid var(--accent-border)'
+              border: '2px solid var(--accent-border)',
             }}
           >
             <h2 style={{ marginBottom: 24 }}>Ready to Begin Your Scouting Journey?</h2>
@@ -357,7 +402,10 @@ export default function ScoutsBSA() {
                 className="btn btn-primary"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => { navigate('/contact'); scrollToTop(); }}
+                onClick={() => {
+                  navigate('/contact');
+                  scrollToTop();
+                }}
               >
                 Join Troop 242 <ChevronRight size={18} style={{ marginLeft: 8 }} />
               </motion.button>
@@ -365,7 +413,10 @@ export default function ScoutsBSA() {
                 className="btn btn-secondary"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => { navigate('/new-scout'); scrollToTop(); }} 
+                onClick={() => {
+                  navigate('/new-scout');
+                  scrollToTop();
+                }}
               >
                 New Scout Guide
               </motion.button>
