@@ -19,6 +19,7 @@ import {
   isActivityFull,
   formatValidationErrors
 } from '../utils/leaderValidation';
+import { sanitizeCsvCell } from '../utils/csvSanitization';
 
 export default function LeaderDashboard() {
   const navigate = useNavigate();
@@ -448,16 +449,19 @@ export default function LeaderDashboard() {
       ['Name', 'Email', 'Rank', 'Status', 'Join Date', 'Phone', 'Notes'],
       ...scoutsData.map(s => [s.name, s.email, s.rank, s.status, s.joinDate, s.phone, s.notes])
     ]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .map(row => row.map(cell => sanitizeCsvCell(cell)).join(','))
       .join('\n');
 
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv));
+    element.setAttribute('href', url);
     element.setAttribute('download', `scouts-${new Date().toISOString().split('T')[0]}.csv`);
     element.style.display = 'none';
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+    URL.revokeObjectURL(url);
     showSuccess('Scouts exported to CSV!');
   }, [scoutsData, showSuccess]);
 
