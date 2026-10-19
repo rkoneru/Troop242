@@ -44,6 +44,8 @@ function DidYouKnowCarousel() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
+            aria-live="polite"
+            aria-atomic="true"
             style={{ fontSize: '1.3rem', lineHeight: 1.8, color: 'var(--text-muted)', marginBottom: 32, minHeight: 80 }}
           >
             {facts[currentFact]}
@@ -52,7 +54,9 @@ function DidYouKnowCarousel() {
           {/* Navigation Controls */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginBottom: 24 }}>
             <motion.button
+              type="button"
               onClick={prevFact}
+              aria-label="Previous fact"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               style={{
@@ -68,11 +72,13 @@ function DidYouKnowCarousel() {
                 cursor: 'pointer'
               }}
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={20} aria-hidden="true" />
             </motion.button>
 
             <motion.button
+              type="button"
               onClick={nextFact}
+              aria-label="Next fact"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               style={{
@@ -88,7 +94,7 @@ function DidYouKnowCarousel() {
                 cursor: 'pointer'
               }}
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={20} aria-hidden="true" />
             </motion.button>
           </div>
 
