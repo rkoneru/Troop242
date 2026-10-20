@@ -99,7 +99,8 @@ function ProtectedRoute({ children, allowedRoles = null }) {
 
 function AppRoutes() {
   return (
-    <Routes>
+    <main id="main-content" tabIndex={-1} style={{ outline: 'none' }}>
+      <Routes>
         {/* Pages with global header/footer */}
         <Route path="/" element={<><Header /><Home /><Footer /></>} />
         <Route path="/ranks" element={<><Header /><Ranks /><Footer /></>} />
@@ -137,6 +138,7 @@ function AppRoutes() {
         <Route path="/scout-portal" element={<ScoutToolsPortal />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </main>
   );
 }
 
