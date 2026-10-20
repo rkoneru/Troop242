@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Check, X } from 'lucide-react';
@@ -24,15 +24,19 @@ export default function SkillsTrackerWizard() {
 
   // Load progress from Firestore with localStorage fallback (migration)
   useEffect(() => {
-    if (!user) {
-      setIsLoading(false);
-      return;
-    }
+    let isMounted = true;
 
     const loadProgress = async () => {
+      if (!user) {
+        if (isMounted) setIsLoading(false);
+        return;
+      }
+
       try {
         const snap = await getDoc(doc(db, 'progress', user.uid));
         const data = snap.data() || {};
+
+        if (!isMounted) return;
 
         if (data.trackedSkills) {
           // Firestore data exists, use it
@@ -71,11 +75,17 @@ export default function SkillsTrackerWizard() {
       } catch (error) {
         console.error('Error loading skill progress:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadProgress();
+
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   // Detect mobile on mount
@@ -125,28 +135,43 @@ export default function SkillsTrackerWizard() {
     }
   };
 
-  // Compute progress
+  // Performance Optimization: Memoize progress calculation for all categories to eliminate redundant
+  // nested array iterations across all categories whenever non-skill states (notes, search query, selected category) change.
+  const categoryProgressList = useMemo(() => {
+    if (!SKILL_CATEGORIES) return [];
+    return SKILL_CATEGORIES.map((cat, catIdx) => {
+      const total = cat.skills.length;
+      let completed = 0;
+      for (let skillIdx = 0; skillIdx < total; skillIdx++) {
+        if (trackedSkills[`${catIdx}-${skillIdx}`]) {
+          completed++;
+        }
+      }
+      return { completed, total };
+    });
+  }, [trackedSkills]);
+
   const getCategoryProgress = (catIdx) => {
-    const total = SKILL_CATEGORIES[catIdx].skills.length;
-    const completed = SKILL_CATEGORIES[catIdx].skills.reduce((count, _, skillIdx) => {
-      return trackedSkills[`${catIdx}-${skillIdx}`] ? count + 1 : count;
-    }, 0);
-    return { completed, total };
+    return categoryProgressList[catIdx] || { completed: 0, total: 0 };
   };
 
-  // Search functionality
-  const searchAllSkills = () => {
+  // Performance Optimization: Memoize search results to eliminate redundant 3x array traversals
+  // across all skill categories on every render frame when search results are visible.
+  const searchResults = useMemo(() => {
+    const trimmed = searchQuery.trim().toLowerCase();
+    if (!trimmed || !SKILL_CATEGORIES) return [];
+
     const results = [];
     SKILL_CATEGORIES.forEach((cat, catIdx) => {
       cat.skills.forEach((skill, skillIdx) => {
         const skillName = typeof skill === 'string' ? skill : skill.name;
-        if (skillName.toLowerCase().includes(searchQuery.toLowerCase())) {
+        if (skillName.toLowerCase().includes(trimmed)) {
           results.push({ name: skillName, categoryIdx: catIdx, skillIdx, categoryName: cat.category });
         }
       });
     });
     return results;
-  };
+  }, [searchQuery]);
 
   // Guard against loading state
   if (isLoading) {
@@ -254,7 +279,7 @@ export default function SkillsTrackerWizard() {
 
           {/* Search Results */}
           <AnimatePresence>
-            {showSearchResults && searchAllSkills().length > 0 && (
+            {showSearchResults && searchResults.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -273,7 +298,7 @@ export default function SkillsTrackerWizard() {
                   zIndex: 50,
                 }}
               >
-                {searchAllSkills().map((skill, idx) => (
+                {searchResults.map((skill, idx) => (
                   <motion.button
                     key={idx}
                     onClick={() => {
@@ -317,7 +342,7 @@ export default function SkillsTrackerWizard() {
                 ))}
               </motion.div>
             )}
-            {showSearchResults && searchAllSkills().length === 0 && searchQuery && (
+            {showSearchResults && searchResults.length === 0 && searchQuery && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
