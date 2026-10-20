@@ -608,7 +608,7 @@ export default function LeaderDashboard() {
 
     const body = lines.join('\n');
     const mailtoUrl = `mailto:troop242sanford@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailtoUrl, '_blank');
+    window.open(mailtoUrl, '_blank', 'noopener,noreferrer');
   }, [allItems]);
 
   const ActivityCard = ({ activity }) => (
