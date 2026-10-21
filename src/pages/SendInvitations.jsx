@@ -153,6 +153,8 @@ export default function SendInvitations() {
 
             {error && (
               <motion.div
+                role="alert"
+                aria-live="polite"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 style={{
@@ -171,6 +173,8 @@ export default function SendInvitations() {
 
             {success && !generatedInvite && (
               <motion.div
+                role="status"
+                aria-live="polite"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 style={{
@@ -190,6 +194,8 @@ export default function SendInvitations() {
             {/* Generated Invite Display */}
             {generatedInvite && (
               <motion.div
+                role="status"
+                aria-live="polite"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{
@@ -208,11 +214,12 @@ export default function SendInvitations() {
                 </p>
 
                 <div style={{ marginBottom: 12 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  <label htmlFor="generated-reg-link" style={{ display: 'block', marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     Registration Link:
                   </label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input
+                      id="generated-reg-link"
                       type="text"
                       readOnly
                       value={generatedInvite.registrationUrl}
@@ -228,6 +235,8 @@ export default function SendInvitations() {
                       }}
                     />
                     <button
+                      type="button"
+                      aria-label={copiedId === 'link' ? 'Copied registration link' : 'Copy registration link'}
                       onClick={() => copyToClipboard(generatedInvite.registrationUrl, 'link')}
                       style={{
                         padding: '8px 12px',
@@ -244,18 +253,19 @@ export default function SendInvitations() {
                         whiteSpace: 'nowrap'
                       }}
                     >
-                      {copiedId === 'link' ? <Check size={14} /> : <Copy size={14} />}
+                      {copiedId === 'link' ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
                       {copiedId === 'link' ? 'Copied' : 'Copy'}
                     </button>
                   </div>
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
-                  <label style={{ display: 'block', marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  <label htmlFor="generated-invite-code" style={{ display: 'block', marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     Invitation Code:
                   </label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input
+                      id="generated-invite-code"
                       type="text"
                       readOnly
                       value={generatedInvite.code}
@@ -274,6 +284,8 @@ export default function SendInvitations() {
                       }}
                     />
                     <button
+                      type="button"
+                      aria-label={copiedId === 'code' ? 'Copied invitation code' : 'Copy invitation code'}
                       onClick={() => copyToClipboard(generatedInvite.code, 'code')}
                       style={{
                         padding: '8px 12px',
@@ -290,7 +302,7 @@ export default function SendInvitations() {
                         whiteSpace: 'nowrap'
                       }}
                     >
-                      {copiedId === 'code' ? <Check size={14} /> : <Copy size={14} />}
+                      {copiedId === 'code' ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
                       {copiedId === 'code' ? 'Copied' : 'Copy'}
                     </button>
                   </div>
@@ -298,6 +310,7 @@ export default function SendInvitations() {
 
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button
+                    type="button"
                     onClick={() => sendViaEmail(generatedInvite.email, generatedInvite.code)}
                     style={{
                       flex: 1,
@@ -315,9 +328,10 @@ export default function SendInvitations() {
                       gap: 4
                     }}
                   >
-                    <Mail size={14} /> Send via Email
+                    <Mail size={14} aria-hidden="true" /> Send via Email
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       const message = `Hi ${generatedInvite.email}!\n\nYou're invited to join Troop 242!\n\nRegistration Link: ${generatedInvite.registrationUrl}\n\nInvitation Code: ${generatedInvite.code}`;
                       if (navigator.share) {
@@ -345,11 +359,12 @@ export default function SendInvitations() {
                       gap: 4
                     }}
                   >
-                    <Share2 size={14} /> Share
+                    <Share2 size={14} aria-hidden="true" /> Share
                   </button>
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setGeneratedInvite(null)}
                   style={{
                     width: '100%',
@@ -372,11 +387,14 @@ export default function SendInvitations() {
             {!generatedInvite && (
               <form onSubmit={handleSendInvitation} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                  <label htmlFor="send-invite-email" style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                     Email Address
                   </label>
                   <input
+                    id="send-invite-email"
                     type="email"
+                    required
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="person@example.com"
@@ -394,10 +412,11 @@ export default function SendInvitations() {
 
                 {profile?.role === 'admin' && (
                   <div>
-                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    <label htmlFor="send-invite-role" style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                       Invite as
                     </label>
                     <select
+                      id="send-invite-role"
                       value={inviteType}
                       onChange={(e) => setInviteType(e.target.value)}
                       style={{
@@ -433,7 +452,7 @@ export default function SendInvitations() {
                     gap: 8
                   }}
                 >
-                  <Mail size={18} />
+                  <Mail size={18} aria-hidden="true" />
                   Create Invitation
                 </button>
               </form>
@@ -471,6 +490,8 @@ export default function SendInvitations() {
                         </p>
                       </div>
                       <button
+                        type="button"
+                        aria-label={copiedId === inv.code ? `Copied code for ${inv.email}` : `Copy code ${inv.code} for ${inv.email}`}
                         onClick={() => copyToClipboard(inv.code)}
                         style={{
                           padding: '6px 12px',
@@ -489,11 +510,11 @@ export default function SendInvitations() {
                       >
                         {copiedId === inv.code ? (
                           <>
-                            <Check size={14} /> Copied
+                            <Check size={14} aria-hidden="true" /> Copied
                           </>
                         ) : (
                           <>
-                            <Copy size={14} /> {inv.code}
+                            <Copy size={14} aria-hidden="true" /> {inv.code}
                           </>
                         )}
                       </button>
