@@ -1,0 +1,3 @@
+## 2026-03-31 - Hoisting static structures and memoization in Home.jsx
+**Learning:** Hoisting Framer Motion animation variants (`CONTAINER_VARIANTS`, `ITEM_VARIANTS`) and static content arrays (`SCOUT_RANKS`, `FEATURED_MERIT_CATEGORIES`) out of component scope prevents unnecessary object/array allocations per render frame. Preserving element keys on animated timers ensures Framer Motion state triggers properly while avoiding render cycle waste.
+**Action:** When optimizing React page components that feature Framer Motion staggered grid layouts, always check for component-level variant objects and inline mapped arrays that can be hoisted or memoized.

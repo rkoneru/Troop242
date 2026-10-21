@@ -102,6 +102,34 @@ function DidYouKnowCarousel() {
   );
 }
 
+// Static animation variants hoisted to module scope to eliminate per-render allocations
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+};
+
+// Static arrays hoisted to module scope to eliminate array allocations per render frame
+const SCOUT_RANKS = ['Scout', 'Tenderfoot', '2nd Class', '1st Class', 'Star', 'Life', 'Eagle'];
+
+const FEATURED_MERIT_CATEGORIES = [
+  { emoji: '🏕️', title: 'Outdoor Skills', count: '15 badges' },
+  { emoji: '🚣', title: 'Water Activities', count: '11 badges' },
+  { emoji: '🧗', title: 'Climbing & Adventure', count: '9 badges' },
+  { emoji: '💻', title: 'Technology & Innovation', count: '15 badges' },
+  { emoji: '🎨', title: 'Arts & Crafts', count: '15 badges' },
+  { emoji: '🔬', title: 'Science & Nature', count: '15 badges' },
+  { emoji: '🤝', title: 'Community Service', count: '15 badges' },
+  { emoji: '🦅', title: 'Eagle Required', count: '13 badges' }
+];
+
 // Flip Card Component
 function WhyUsCard({ icon: Icon, title, desc }) {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -233,18 +261,15 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [events]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
+  // Memoize Why Join items to prevent re-allocation on every render frame
+  const whyUsItems = useMemo(() => [
+    { icon: Users, title: 'Brotherhood & Belonging', desc: 'More than a troop — a family. Weekly meetings, campouts, and service projects build lifelong friendships and mutual respect.' },
+    { icon: Shield, title: `${stats.yearsServing} Years of Excellence`, desc: `Troop 242 has served Sanford, FL for ${stats.yearsServing}+ years under dedicated adult leaders and a strong charter organization.` },
+    { icon: Heart, title: 'Community Service', desc: 'Give back to Sanford and Central Florida. Eagle projects, food drives, park cleanups, and more — scouts lead real change.' },
+    { icon: Zap, title: '145+ Merit Badges', desc: 'Explore STEM, outdoor survival, leadership, arts, and more. Our experienced leaders guide you through every badge with hands-on sessions.' },
+    { icon: Award, title: `${stats.eagleScouts} Eagle Scouts`, desc: `A proven track record — ${stats.eagleScouts} Eagle Scout alumni from Troop 242. Our mentorship program keeps you on the path from Scout to Eagle.` },
+    { icon: MapPin, title: 'Florida Keys Adventures', desc: 'Annual spring campouts in the Florida Keys. Snorkeling, kayaking, fishing and wilderness camping with your troop brothers.' }
+  ], [stats.yearsServing, stats.eagleScouts]);
 
   return (
     <>
@@ -260,7 +285,7 @@ export default function Home() {
           <motion.div
             className="flex flex--col flex--center"
             style={{ textAlign: 'center', gap: 24 }}
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             animate="visible"
           >
@@ -279,12 +304,12 @@ export default function Home() {
             </motion.h1>
 
             {/* Subheading */}
-            <motion.p variants={itemVariants} style={{ fontSize: 'clamp(1rem, 4vw, 1.25rem)', color: 'var(--text-muted)', maxWidth: '95vw', margin: '0 auto' }}>
+            <motion.p variants={ITEM_VARIANTS} style={{ fontSize: 'clamp(1rem, 4vw, 1.25rem)', color: 'var(--text-muted)', maxWidth: '95vw', margin: '0 auto' }}>
               Adventure · Brotherhood · Eagle Scout Excellence
             </motion.p>
 
             {/* CTAs */}
-            <motion.div variants={itemVariants} className="flex flex--center flex--wrap">
+            <motion.div variants={ITEM_VARIANTS} className="flex flex--center flex--wrap">
               <motion.button
                 className="btn btn-primary"
                 whileHover={{ scale: 1.05 }}
@@ -306,7 +331,7 @@ export default function Home() {
               {/* Stats Highlights */}
               {(() => {
                 return (
-                  <motion.div variants={itemVariants} className="grid grid--cols-3" style={{ gap: 70, maxWidth: 1000, margin: '0 auto', marginTop: 110 }}>
+                  <motion.div variants={ITEM_VARIANTS} className="grid grid--cols-3" style={{ gap: 70, maxWidth: 1000, margin: '0 auto', marginTop: 110 }}>
                     <div style={{ textAlign: 'center' }}>
                       <div className="stat-counter">{stats.eagleScouts}</div>
                       <p style={{ fontSize: 'clamp(0.8rem, 2vw, 0.9rem)', color: 'var(--text-muted)' }}>Eagle Scouts</p>
@@ -366,20 +391,12 @@ export default function Home() {
 
           <motion.div
             className="grid grid--cols-3"
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
           >
-            {[
-              { icon: Users, title: 'Brotherhood & Belonging', desc: 'More than a troop — a family. Weekly meetings, campouts, and service projects build lifelong friendships and mutual respect.' },
-              { icon: Shield, title: `${stats.yearsServing} Years of Excellence`, desc: `Troop 242 has served Sanford, FL for ${stats.yearsServing}+ years under dedicated adult leaders and a strong charter organization.` },
-              { icon: Heart, title: 'Community Service', desc: 'Give back to Sanford and Central Florida. Eagle projects, food drives, park cleanups, and more — scouts lead real change.' },
-              { icon: Zap, title: '145+ Merit Badges', desc: 'Explore STEM, outdoor survival, leadership, arts, and more. Our experienced leaders guide you through every badge with hands-on sessions.' },
-              { icon: Award, title: `${stats.eagleScouts} Eagle Scouts`, desc: `A proven track record — ${stats.eagleScouts} Eagle Scout alumni from Troop 242. Our mentorship program keeps you on the path from Scout to Eagle.` },
-              { icon: MapPin, title: 'Florida Keys Adventures', desc: 'Annual spring campouts in the Florida Keys. Snorkeling, kayaking, fishing and wilderness camping with your troop brothers.' }
-              
-            ].map((item, i) => (
+            {whyUsItems.map((item, i) => (
               <WhyUsCard key={i} icon={item.icon} title={item.title} desc={item.desc} />
             ))}
           </motion.div>
@@ -395,7 +412,7 @@ export default function Home() {
 
           <motion.div
             className="grid grid--cols-4"
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
@@ -407,7 +424,7 @@ export default function Home() {
               return (
                 <motion.div
                   key={i}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className={`event-card-flip ${event.featured ? 'featured' : ''}`}
                   style={{ height: 300 }}
                 >
@@ -546,7 +563,7 @@ export default function Home() {
 
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: '-100px' }}>
             <div className="rank-timeline" style={{ gap: 60, flexWrap: 'wrap' }}>
-              {['Scout', 'Tenderfoot', '2nd Class', '1st Class', 'Star', 'Life', 'Eagle'].map((rank, i) => (
+              {SCOUT_RANKS.map((rank, i) => (
                 <div key={i} className="flex flex--col" style={{ alignItems: 'center', gap: 12 }}>
                   <motion.div
                     className="rank-timeline__node"
@@ -581,22 +598,13 @@ export default function Home() {
 
           <motion.div
             className="grid grid--cols-4"
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
           >
-            {[
-              { emoji: '🏕️', title: 'Outdoor Skills', count: '15 badges' },
-              { emoji: '🚣', title: 'Water Activities', count: '11 badges' },
-              { emoji: '🧗', title: 'Climbing & Adventure', count: '9 badges' },
-              { emoji: '💻', title: 'Technology & Innovation', count: '15 badges' },
-              { emoji: '🎨', title: 'Arts & Crafts', count: '15 badges' },
-              { emoji: '🔬', title: 'Science & Nature', count: '15 badges' },
-              { emoji: '🤝', title: 'Community Service', count: '15 badges' },
-              { emoji: '🦅', title: 'Eagle Required', count: '13 badges' }
-            ].map((cat, i) => (
-              <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: 24, textAlign: 'center', cursor: 'pointer' }} whileHover={{ scale: 1.05 }} onClick={() => { navigate('/badges'); scrollToTop(); }}>
+            {FEATURED_MERIT_CATEGORIES.map((cat, i) => (
+              <motion.div key={i} variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 24, textAlign: 'center', cursor: 'pointer' }} whileHover={{ scale: 1.05 }} onClick={() => { navigate('/badges'); scrollToTop(); }}>
                 <div style={{ fontSize: '3rem', marginBottom: 12 }}>{cat.emoji}</div>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: 8 }}>{cat.title}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{cat.count}</p>
@@ -629,7 +637,7 @@ export default function Home() {
 
           <motion.div
             className="grid grid--cols-3"
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
@@ -639,7 +647,7 @@ export default function Home() {
               { icon: MapPin, title: 'Where', detail: 'Sanford, FL', subtext: 'Central Florida location' },
               { icon: Mail, title: 'Contact', detail: 'troop242sanford@gmail.com', subtext: 'Questions? Reach out!' }
             ].map((item, i) => (
-              <motion.div key={i} variants={itemVariants} className="glass-card" style={{ padding: 32, textAlign: 'center' }}>
+              <motion.div key={i} variants={ITEM_VARIANTS} className="glass-card" style={{ padding: 32, textAlign: 'center' }}>
                 <item.icon size={48} style={{ color: 'var(--accent)', marginBottom: 16, margin: '0 auto 16px' }} />
                 <h3 style={{ marginBottom: 8 }}>{item.title}</h3>
                 <p style={{ fontSize: '1.1rem', marginBottom: 8, color: 'var(--text-primary)', fontWeight: 600 }}>{item.detail}</p>
