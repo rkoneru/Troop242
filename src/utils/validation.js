@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 // Email validation regex
 const _EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[\d\s+()]+$/;
+const PHONE_REGEX = /^[\d\s+()\.-]+$/;
 
 /**
  * User/Authentication Schemas
