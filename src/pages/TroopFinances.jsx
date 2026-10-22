@@ -1,37 +1,34 @@
-import { DollarSign, TrendingUp, Users, AlertCircle, Plus, Edit2, Trash2, ArrowLeft } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { DollarSign, TrendingUp, Users, AlertCircle, Trash2, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { saveData, loadData, generateId } from '../utils/adminData';
 
 export default function TroopFinances() {
   const navigate = useNavigate();
 
   // Auth guard
-  const [user, setUser] = useState(null);
-  useEffect(() => {
+  const [user] = useState(() => {
     const stored = sessionStorage.getItem('loggedInUser');
-    if (!stored) {
-      navigate('/member-login');
-      return;
-    }
+    if (!stored) return null;
     try {
       const parsed = JSON.parse(stored);
-      if (parsed.profile !== 'leader') {
-        navigate('/member-login');
-        return;
-      }
+      return parsed.profile === 'leader' ? parsed : null;
     } catch {
-      navigate('/member-login');
-      return;
+      return null;
     }
-  }, [navigate]);
+  });
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/member-login');
+    }
+  }, [user, navigate]);
 
   // State
   const [selectedTab, setSelectedTab] = useState('dashboard');
   const [dues, setDues] = useState(() => loadData('troopDues', []));
   const [payments, setPayments] = useState(() => loadData('troopPayments', []));
-  const [scouts, setScouts] = useState(() => loadData('troopScouts', [
+  const [scouts] = useState(() => loadData('troopScouts', [
     { id: 1, name: 'John Smith', rank: 'Star Scout', email: 'john@example.com' },
     { id: 2, name: 'Mike Johnson', rank: 'Life Scout', email: 'mike@example.com' },
     { id: 3, name: 'Sarah Davis', rank: 'First Class', email: 'sarah@example.com' },
@@ -41,20 +38,28 @@ export default function TroopFinances() {
 
   const [newDueForm, setNewDueForm] = useState({ scoutId: '', amount: '', dueDate: '', description: '' });
   const [newPaymentForm, setNewPaymentForm] = useState({ scoutId: '', amount: '', paymentDate: '', method: 'cash', notes: '' });
-  const [editingDue, setEditingDue] = useState(null);
 
-  // Calculate statistics
-  const totalDues = dues.reduce((sum, due) => sum + parseFloat(due.amount || 0), 0);
-  const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
-  const outstandingDues = totalDues - totalPaid;
-  const scoutsWithDues = new Set(dues.map(d => d.scoutId)).size;
-  const paidScouts = new Set(payments.map(p => p.scoutId)).size;
+  // Memoized top-level financial aggregations to avoid redundant reductions on re-renders
+  const { totalDues, totalPaid, outstandingDues, scoutsWithDues, paidScouts } = useMemo(() => {
+    const totalDues = dues.reduce((sum, due) => sum + parseFloat(due.amount || 0), 0);
+    const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
+    const outstandingDues = totalDues - totalPaid;
+    const scoutsWithDues = new Set(dues.map(d => d.scoutId)).size;
+    const paidScouts = new Set(payments.map(p => p.scoutId)).size;
+    return { totalDues, totalPaid, outstandingDues, scoutsWithDues, paidScouts };
+  }, [dues, payments]);
+
+  // Memoized map of scout ID -> scout name for fast O(1) lookup
+  const scoutNameMap = useMemo(() => {
+    const map = new Map();
+    scouts.forEach(s => map.set(String(s.id), s.name));
+    return map;
+  }, [scouts]);
 
   // Get scout name by ID
-  const getScoutName = (scoutId) => {
-    const scout = scouts.find(s => s.id == scoutId);
-    return scout ? scout.name : 'Unknown';
-  };
+  const getScoutName = useCallback((scoutId) => {
+    return scoutNameMap.get(String(scoutId)) || 'Unknown';
+  }, [scoutNameMap]);
 
   // Handlers
   const handleAddDue = () => {
@@ -101,24 +106,42 @@ export default function TroopFinances() {
     saveData('troopPayments', updated);
   };
 
-  // Get dues for a scout
-  const getScoutDues = (scoutId) => {
-    return dues.filter(d => d.scoutId == scoutId);
-  };
+  // Memoized per-scout financial totals and list lookups to replace O(N*M) filtering inside render loops
+  const scoutFinancialsMap = useMemo(() => {
+    const duesMap = new Map();
+    const paymentsMap = new Map();
+    const duesTotalMap = new Map();
+    const paymentsTotalMap = new Map();
 
-  // Get payments for a scout
-  const getScoutPayments = (scoutId) => {
-    return payments.filter(p => p.scoutId == scoutId);
-  };
+    for (const due of dues) {
+      const key = String(due.scoutId);
+      if (!duesMap.has(key)) duesMap.set(key, []);
+      duesMap.get(key).push(due);
+      duesTotalMap.set(key, (duesTotalMap.get(key) || 0) + parseFloat(due.amount || 0));
+    }
+
+    for (const payment of payments) {
+      const key = String(payment.scoutId);
+      if (!paymentsMap.has(key)) paymentsMap.set(key, []);
+      paymentsMap.get(key).push(payment);
+      paymentsTotalMap.set(key, (paymentsTotalMap.get(key) || 0) + parseFloat(payment.amount || 0));
+    }
+
+    return { duesMap, paymentsMap, duesTotalMap, paymentsTotalMap };
+  }, [dues, payments]);
+
+  // Get dues for a scout
+  const getScoutDues = useCallback((scoutId) => {
+    return scoutFinancialsMap.duesMap.get(String(scoutId)) || [];
+  }, [scoutFinancialsMap]);
 
   // Calculate scout balance
-  const getScoutBalance = (scoutId) => {
-    const scoutDues = getScoutDues(scoutId);
-    const scoutPayments = getScoutPayments(scoutId);
-    const dueAmount = scoutDues.reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
-    const paidAmount = scoutPayments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+  const getScoutBalance = useCallback((scoutId) => {
+    const key = String(scoutId);
+    const dueAmount = scoutFinancialsMap.duesTotalMap.get(key) || 0;
+    const paidAmount = scoutFinancialsMap.paymentsTotalMap.get(key) || 0;
     return dueAmount - paidAmount;
-  };
+  }, [scoutFinancialsMap]);
 
   if (!user) return null;
 
@@ -167,9 +190,7 @@ export default function TroopFinances() {
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
         {/* Dashboard Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
@@ -216,7 +237,7 @@ export default function TroopFinances() {
               {scoutsWithDues}
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 32, borderBottom: '1px solid var(--divider)', paddingBottom: 16, flexWrap: 'wrap' }}>
@@ -284,11 +305,7 @@ export default function TroopFinances() {
 
         {/* DASHBOARD TAB */}
         {selectedTab === 'dashboard' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 24 }}>
               {/* Summary Cards */}
               <div className="glass-card" style={{ padding: 24 }}>
@@ -341,21 +358,15 @@ export default function TroopFinances() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* DUES TAB */}
         {selectedTab === 'dues' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div>
             {/* Add Due Form */}
-            <motion.div
+            <div
               className="glass-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
               style={{ padding: 32, marginBottom: 32 }}
             >
               <h3 style={{ color: 'var(--text-primary)', marginBottom: 24, marginTop: 0 }}>➕ Add New Due</h3>
@@ -438,7 +449,7 @@ export default function TroopFinances() {
               >
                 ➕ Add Due
               </button>
-            </motion.div>
+            </div>
 
             {/* Dues List */}
             <h3 style={{ color: 'var(--text-primary)', marginBottom: 20 }}>All Dues</h3>
@@ -449,11 +460,9 @@ export default function TroopFinances() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 20 }}>
                 {dues.map((due) => (
-                  <motion.div
+                  <div
                     key={due.id}
                     className="glass-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
                     style={{ padding: 24 }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
@@ -495,25 +504,19 @@ export default function TroopFinances() {
                         <Trash2 size={14} style={{ marginRight: 4 }} /> Delete
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
-          </motion.div>
+          </div>
         )}
 
         {/* PAYMENTS TAB */}
         {selectedTab === 'payments' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div>
             {/* Add Payment Form */}
-            <motion.div
+            <div
               className="glass-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
               style={{ padding: 32, marginBottom: 32 }}
             >
               <h3 style={{ color: 'var(--text-primary)', marginBottom: 24, marginTop: 0 }}>➕ Record Payment</h3>
@@ -614,7 +617,7 @@ export default function TroopFinances() {
               >
                 💳 Record Payment
               </button>
-            </motion.div>
+            </div>
 
             {/* Payments List */}
             <h3 style={{ color: 'var(--text-primary)', marginBottom: 20 }}>Payment History</h3>
@@ -625,11 +628,9 @@ export default function TroopFinances() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 20 }}>
                 {payments.map((payment) => (
-                  <motion.div
+                  <div
                     key={payment.id}
                     className="glass-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
                     style={{ padding: 24 }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
@@ -681,20 +682,16 @@ export default function TroopFinances() {
                     >
                       <Trash2 size={14} style={{ marginRight: 4 }} /> Delete
                     </button>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
-          </motion.div>
+          </div>
         )}
 
         {/* SCOUTS TAB */}
         {selectedTab === 'scouts' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div>
             <h3 style={{ color: 'var(--text-primary)', marginBottom: 20 }}>Scout Balances</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 20 }}>
               {scouts.map((scout) => {
@@ -703,11 +700,9 @@ export default function TroopFinances() {
                 const isPaid = scoutBalance <= 0;
 
                 return (
-                  <motion.div
+                  <div
                     key={scout.id}
                     className="glass-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
                     style={{
                       padding: 24,
                       border: isPaid ? '2px solid #52b788' : '1px solid var(--divider)'
@@ -763,11 +758,11 @@ export default function TroopFinances() {
                         </span>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>
