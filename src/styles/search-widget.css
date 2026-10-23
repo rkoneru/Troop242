@@ -65,12 +65,18 @@
   transition: all var(--transition-fast);
 }
 
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .search-input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
+.btn-clear-query,
 .btn-close-search {
   background: transparent;
   border: none;
@@ -85,6 +91,7 @@
   transition: color var(--transition-fast);
 }
 
+.btn-clear-query:hover,
 .btn-close-search:hover {
   color: var(--text-primary);
 }
