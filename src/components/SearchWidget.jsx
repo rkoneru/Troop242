@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowRight, ExternalLink } from 'lucide-react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { search } from '../utils/SearchIndex';
 import '../styles/search-widget.css';
 
@@ -72,13 +72,16 @@ export default function SearchWidget() {
     <>
       {/* Floating Search Button */}
       <motion.button
+        type="button"
         className="search-fab"
         onClick={() => setOpen(true)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         aria-label="Open search (Ctrl+K)"
+        aria-haspopup="dialog"
+        aria-expanded={open}
       >
-        <Search size={18} />
+        <Search size={18} aria-hidden="true" />
         <span>Search</span>
       </motion.button>
 
@@ -94,6 +97,9 @@ export default function SearchWidget() {
           >
             <motion.div
               className="search-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Search site content"
               initial={{ opacity: 0, y: -40, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -102,29 +108,48 @@ export default function SearchWidget() {
             >
               {/* Search Input */}
               <div className="search-input-wrapper">
-                <Search size={20} style={{ color: 'var(--accent)' }} />
+                <Search size={20} style={{ color: 'var(--accent)' }} aria-hidden="true" />
                 <input
                   ref={inputRef}
+                  type="search"
+                  id="search-widget-input"
                   className="search-input"
                   placeholder="Search ranks, badges, events, skills..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  aria-label="Search site content"
+                  aria-controls="search-results"
                 />
+                {query && (
+                  <button
+                    type="button"
+                    className="btn-clear-query"
+                    onClick={() => {
+                      setQuery('');
+                      inputRef.current?.focus();
+                    }}
+                    aria-label="Clear search query"
+                  >
+                    <X size={16} aria-hidden="true" />
+                  </button>
+                )}
                 <button
+                  type="button"
                   className="btn-close-search"
                   onClick={() => setOpen(false)}
                   aria-label="Close search"
                 >
-                  <X size={20} />
+                  <X size={20} aria-hidden="true" />
                 </button>
               </div>
 
               {/* Search Results */}
               {results.length > 0 && (
-                <div className="search-results">
+                <div id="search-results" className="search-results" aria-live="polite">
                   {results.map((result, i) => (
                     <button
                       key={i}
+                      type="button"
                       className="search-result-item"
                       onClick={() => handleResultClick(result)}
                     >
@@ -134,7 +159,7 @@ export default function SearchWidget() {
                         <div className="search-result-excerpt">{result.excerpt.slice(0, 80)}...</div>
                       </div>
                       <span className="search-result-category">{result.category}</span>
-                      <ArrowRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                      <ArrowRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} aria-hidden="true" />
                     </button>
                   ))}
                 </div>
@@ -142,7 +167,7 @@ export default function SearchWidget() {
 
               {/* Empty State */}
               {query.length >= 2 && results.length === 0 && (
-                <div className="search-empty">
+                <div className="search-empty" aria-live="polite">
                   No results for "{query}" — try "Eagle", "camping", or "merit badge"
                 </div>
               )}
@@ -155,8 +180,13 @@ export default function SearchWidget() {
                     {['Eagle Scout', 'Spring Campout', 'First Aid Badge', 'Camping'].map((suggestion, i) => (
                       <button
                         key={i}
+                        type="button"
                         className="search-suggestion-btn"
-                        onClick={() => setQuery(suggestion)}
+                        onClick={() => {
+                          setQuery(suggestion);
+                          inputRef.current?.focus();
+                        }}
+                        aria-label={`Search for ${suggestion}`}
                       >
                         {suggestion}
                       </button>
