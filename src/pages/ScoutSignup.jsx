@@ -1,11 +1,25 @@
 
 import { CheckCircle, MapPin, Calendar, Users } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { collection, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../contexts/AuthContext';
+
+// Hoisted static Framer Motion animation variants to avoid allocation on re-render
+const CONTAINER_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function ScoutSignup() {
   const navigate = useNavigate();
@@ -40,13 +54,32 @@ export default function ScoutSignup() {
     loadActivities();
   }, [loading]);
 
-  const isSignedUp = (activityId) => {
-    return activities
-      .find(a => a.id === activityId)
-      ?.signedUp?.some(s => s.uid === user?.uid) || false;
-  };
+  const userId = user?.uid;
 
-  const handleSignup = async (activityId) => {
+  // Memoize Set of activity IDs where current user is signed up
+  // Reduces lookup from O(N) array search per activity card to O(1) Set lookup
+  const userSignedUpIds = useMemo(() => {
+    if (!userId || !activities.length) return new Set();
+    const set = new Set();
+    activities.forEach(activity => {
+      if (activity.signedUp?.some(s => s.uid === userId)) {
+        set.add(activity.id);
+      }
+    });
+    return set;
+  }, [activities, userId]);
+
+  // Memoized O(1) signup check callback
+  const isSignedUp = useCallback((activityId) => {
+    return userSignedUpIds.has(activityId);
+  }, [userSignedUpIds]);
+
+  // Memoize filtered user signups list
+  const userSignups = useMemo(() => {
+    return activities.filter(a => userSignedUpIds.has(a.id));
+  }, [activities, userSignedUpIds]);
+
+  const handleSignup = useCallback(async (activityId) => {
     if (!user || !profile) {
       navigate('/member-login');
       return;
@@ -54,7 +87,7 @@ export default function ScoutSignup() {
 
     try {
       const activity = activities.find(a => a.id === activityId);
-      if (!activity || isSignedUp(activityId)) return;
+      if (!activity || userSignedUpIds.has(activityId)) return;
 
       await updateDoc(doc(db, 'activities', activityId), {
         signedUp: arrayUnion({
@@ -78,9 +111,9 @@ export default function ScoutSignup() {
       console.error('Error signing up:', err);
       setError('Failed to sign up for activity');
     }
-  };
+  }, [user, profile, activities, userSignedUpIds, navigate]);
 
-  const handleCancel = async (activityId) => {
+  const handleCancel = useCallback(async (activityId) => {
     if (!user) return;
 
     try {
@@ -108,20 +141,7 @@ export default function ScoutSignup() {
       console.error('Error canceling signup:', err);
       setError('Failed to cancel signup');
     }
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
+  }, [user, activities]);
 
   if (isLoading) {
     return (
@@ -132,8 +152,6 @@ export default function ScoutSignup() {
       </section>
     );
   }
-
-  const userSignups = activities.filter(a => isSignedUp(a.id));
 
   return (
     <>
@@ -205,7 +223,7 @@ export default function ScoutSignup() {
 
           {/* Activities Grid */}
           <motion.div
-            variants={containerVariants}
+            variants={CONTAINER_VARIANTS}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
@@ -220,7 +238,7 @@ export default function ScoutSignup() {
               return (
                 <motion.div
                   key={activity.id}
-                  variants={itemVariants}
+                  variants={ITEM_VARIANTS}
                   className="glass-card"
                   style={{
                     padding: 24,
