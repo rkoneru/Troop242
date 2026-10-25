@@ -98,8 +98,11 @@ export default function ReferralLinks() {
             <h2 style={{ marginBottom: 16 }}>Generate Invitation Codes</h2>
             <div style={{ display: 'flex', gap: 12 }}>
               <button
+                type="button"
                 onClick={() => handleGenerateCode('leader')}
                 disabled={generatingFor === 'leader'}
+                aria-busy={generatingFor === 'leader'}
+                aria-label="Generate new leader invitation code"
                 style={{
                   flex: 1,
                   padding: '12px 20px',
@@ -118,11 +121,14 @@ export default function ReferralLinks() {
                   opacity: generatingFor === 'leader' ? 0.7 : 1
                 }}
               >
-                <Plus size={18} /> {generatingFor === 'leader' ? 'Generating...' : 'New Leader Code'}
+                <Plus size={18} aria-hidden="true" /> {generatingFor === 'leader' ? 'Generating...' : 'New Leader Code'}
               </button>
               <button
+                type="button"
                 onClick={() => handleGenerateCode('scout')}
                 disabled={generatingFor === 'scout'}
+                aria-busy={generatingFor === 'scout'}
+                aria-label="Generate new scout invitation code"
                 style={{
                   flex: 1,
                   padding: '12px 20px',
@@ -141,7 +147,7 @@ export default function ReferralLinks() {
                   opacity: generatingFor === 'scout' ? 0.7 : 1
                 }}
               >
-                <Plus size={18} /> {generatingFor === 'scout' ? 'Generating...' : 'New Scout Code'}
+                <Plus size={18} aria-hidden="true" /> {generatingFor === 'scout' ? 'Generating...' : 'New Scout Code'}
               </button>
             </div>
           </div>
@@ -178,7 +184,9 @@ export default function ReferralLinks() {
                           </p>
                         </div>
                         <button
+                          type="button"
                           onClick={() => handleRevokeCode(link.code)}
+                          aria-label={`Revoke invitation code ${link.code}`}
                           style={{
                             padding: '8px 12px',
                             background: 'rgba(239, 68, 68, 0.2)',
@@ -192,17 +200,21 @@ export default function ReferralLinks() {
                             gap: 6
                           }}
                         >
-                          <Trash2 size={14} /> Revoke
+                          <Trash2 size={14} aria-hidden="true" /> Revoke
                         </button>
                       </div>
 
                       {/* URL Display */}
                       <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        <label
+                          htmlFor={`reg-link-${link.code}`}
+                          style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                        >
                           Registration Link
                         </label>
                         <div style={{ display: 'flex', gap: 8 }}>
                           <input
+                            id={`reg-link-${link.code}`}
                             type="text"
                             readOnly
                             value={link.url}
@@ -218,7 +230,9 @@ export default function ReferralLinks() {
                             }}
                           />
                           <button
+                            type="button"
                             onClick={() => copyToClipboard(link.url, `url-${link.code}`)}
+                            aria-label={copiedId === `url-${link.code}` ? `Registration link for ${link.role} copied` : `Copy registration link for ${link.role}`}
                             style={{
                               padding: '12px 16px',
                               background: copiedId === `url-${link.code}` ? colors.color : colors.borderColor,
@@ -234,7 +248,7 @@ export default function ReferralLinks() {
                               whiteSpace: 'nowrap'
                             }}
                           >
-                            {copiedId === `url-${link.code}` ? <Check size={16} /> : <Copy size={16} />}
+                            {copiedId === `url-${link.code}` ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
                             {copiedId === `url-${link.code}` ? 'Copied' : 'Copy'}
                           </button>
                         </div>
@@ -242,11 +256,15 @@ export default function ReferralLinks() {
 
                       {/* Code Display */}
                       <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        <label
+                          htmlFor={`manual-code-${link.code}`}
+                          style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}
+                        >
                           Code (if sharing manually)
                         </label>
                         <div style={{ display: 'flex', gap: 8 }}>
                           <input
+                            id={`manual-code-${link.code}`}
                             type="text"
                             readOnly
                             value={link.code}
@@ -265,7 +283,9 @@ export default function ReferralLinks() {
                             }}
                           />
                           <button
+                            type="button"
                             onClick={() => copyToClipboard(link.code, `code-${link.code}`)}
+                            aria-label={copiedId === `code-${link.code}` ? `Invitation code ${link.code} copied` : `Copy invitation code ${link.code}`}
                             style={{
                               padding: '12px 16px',
                               background: copiedId === `code-${link.code}` ? colors.color : colors.borderColor,
@@ -281,7 +301,7 @@ export default function ReferralLinks() {
                               whiteSpace: 'nowrap'
                             }}
                           >
-                            {copiedId === `code-${link.code}` ? <Check size={16} /> : <Copy size={16} />}
+                            {copiedId === `code-${link.code}` ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
                             {copiedId === `code-${link.code}` ? 'Copied' : 'Copy'}
                           </button>
                         </div>
@@ -290,7 +310,9 @@ export default function ReferralLinks() {
                       {/* Action Buttons */}
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button
+                          type="button"
                           onClick={() => sendViaEmail(link.role, link.code, link.url)}
+                          aria-label={`Send ${link.role} invitation via email`}
                           style={{
                             flex: 1,
                             padding: '10px 16px',
@@ -308,9 +330,10 @@ export default function ReferralLinks() {
                             transition: 'all 0.2s'
                           }}
                         >
-                          <Mail size={16} /> Send via Email
+                          <Mail size={16} aria-hidden="true" /> Send via Email
                         </button>
                         <button
+                          type="button"
                           onClick={() => {
                             const message = `Join Troop 242 as a ${link.role}!\n\n${link.url}`;
                             if (navigator.share) {
@@ -322,6 +345,7 @@ export default function ReferralLinks() {
                               copyToClipboard(message, `share-${link.code}`);
                             }
                           }}
+                          aria-label={`Share ${link.role} invitation`}
                           style={{
                             flex: 1,
                             padding: '10px 16px',
@@ -339,7 +363,7 @@ export default function ReferralLinks() {
                             transition: 'all 0.2s'
                           }}
                         >
-                          <Share2 size={16} /> Share
+                          <Share2 size={16} aria-hidden="true" /> Share
                         </button>
                       </div>
                     </motion.div>
