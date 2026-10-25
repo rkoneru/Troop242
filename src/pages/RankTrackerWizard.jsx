@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Copy, ExternalLink, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
@@ -40,13 +40,30 @@ export default function RankTrackerWizard() {
     loadProgress();
   }, [user]);
 
-  // Handlers
-  const toggleRequirement = async (rankIdx, reqIdx) => {
+  // Performance Optimization: Pre-calculate completed requirement count for each rank
+  // Avoids O(N x M) nested loops over requirements during re-renders (e.g. expanding notes or typing)
+  const rankProgressCounts = useMemo(() => {
+    return RANKS.map((rank, rankIdx) => {
+      let count = 0;
+      rank.requirements.forEach((_, reqIdx) => {
+        if (rankChecks[`${rankIdx}-${reqIdx}`]) count++;
+      });
+      return count;
+    });
+  }, [rankChecks]);
+
+  // Performance Optimization: Derived current rank progress metrics
+  const currentRank = RANKS[selectedRank];
+  const completedCount = rankProgressCounts[selectedRank] || 0;
+  const allComplete = completedCount === currentRank.requirements.length;
+
+  // Handlers - Memoized to prevent unnecessary re-creations across re-renders
+  const toggleRequirement = useCallback(async (rankIdx, reqIdx) => {
     const key = `${rankIdx}-${reqIdx}`;
     const updated = { ...rankChecks, [key]: !rankChecks[key] };
     setRankChecks(updated);
 
-    // Save to Firestore
+    // Save to Firestore asynchronously outside state updater function
     if (user) {
       try {
         await setDoc(
@@ -58,14 +75,14 @@ export default function RankTrackerWizard() {
         console.error('Error saving progress:', error);
       }
     }
-  };
+  }, [rankChecks, user]);
 
-  const saveNotes = async (rankIdx, reqIdx, noteText) => {
+  const saveNotes = useCallback(async (rankIdx, reqIdx, noteText) => {
     const key = `${rankIdx}-${reqIdx}`;
     const updated = { ...notes, [key]: noteText };
     setNotes(updated);
 
-    // Save to Firestore
+    // Save to Firestore asynchronously outside state updater function
     if (user) {
       try {
         await setDoc(
@@ -77,13 +94,13 @@ export default function RankTrackerWizard() {
         console.error('Error saving notes:', error);
       }
     }
-  };
+  }, [notes, user]);
 
-  const selectRank = (rankIdx) => {
+  const selectRank = useCallback((rankIdx) => {
     setSelectedRank(rankIdx);
-  };
+  }, []);
 
-  const generateScoutbookSummary = () => {
+  const generateScoutbookSummary = useCallback(() => {
     const rank = RANKS[selectedRank];
     const completedReqs = [];
     const notesText = [];
@@ -98,7 +115,7 @@ export default function RankTrackerWizard() {
       }
     });
 
-    const summary = `RANK ADVANCEMENT SUMMARY - ${rank.name.toUpperCase()}
+    return `RANK ADVANCEMENT SUMMARY - ${rank.name.toUpperCase()}
 
 Completed Requirements:
 ${completedReqs.join('\n')}
@@ -113,17 +130,15 @@ Next Steps:
 2. Log into Scoutbook.org
 3. Enter requirements in your Scout profile
 4. Schedule Board of Review with your Scoutmaster`;
+  }, [selectedRank, rankChecks, notes]);
 
-    return summary;
-  };
-
-  const copyToClipboard = () => {
+  const copyToClipboard = useCallback(() => {
     const summary = generateScoutbookSummary();
     navigator.clipboard.writeText(summary).then(() => {
       setCopiedToClipboard(true);
       setTimeout(() => setCopiedToClipboard(false), 2000);
     });
-  };
+  }, [generateScoutbookSummary]);
 
   if (isLoading) {
     return (
@@ -136,15 +151,6 @@ Next Steps:
   }
 
   if (!user) return null;
-
-  const currentRank = RANKS[selectedRank];
-
-  // Count completed requirements in current rank
-  let completedCount = 0;
-  currentRank.requirements.forEach((_, idx) => {
-    if (rankChecks[`${selectedRank}-${idx}`]) completedCount++;
-  });
-  const allComplete = completedCount === currentRank.requirements.length;
 
   return (
     <>
@@ -198,10 +204,7 @@ Next Steps:
             }}
           >
             {RANKS.map((rank, idx) => {
-              let rankComplete = 0;
-              rank.requirements.forEach((_, reqIdx) => {
-                if (rankChecks[`${idx}-${reqIdx}`]) rankComplete++;
-              });
+              const rankComplete = rankProgressCounts[idx] || 0;
               const isSelected = selectedRank === idx;
 
               return (
