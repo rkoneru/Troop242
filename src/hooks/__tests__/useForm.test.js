@@ -207,4 +207,20 @@ describe('useForm', () => {
 
     expect(result.current.isSubmitting).toBe(false);
   });
+
+  it('should maintain callback reference stability across renders when state changes', () => {
+    const { result } = renderHook(() =>
+      useForm(initialValues, mockOnSubmit)
+    );
+
+    const initialSetFieldValue = result.current.setFieldValue;
+    const initialSetFieldError = result.current.setFieldError;
+
+    act(() => {
+      result.current.setFieldValue('email', 'test@example.com');
+    });
+
+    expect(result.current.setFieldValue).toBe(initialSetFieldValue);
+    expect(result.current.setFieldError).toBe(initialSetFieldError);
+  });
 });
