@@ -18,6 +18,9 @@ export function useForm(initialValues, onSubmit, validate) {
   const [touched, setTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Performance optimization: Provide explicit dependency arrays to all useCallback hooks
+  // to ensure function references remain stable across re-renders and prevent unnecessary child updates.
+
   const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
     const fieldValue = type === 'checkbox' ? checked : value;
@@ -35,7 +38,7 @@ export function useForm(initialValues, onSubmit, validate) {
         return newErrors;
       });
     }
-  });
+  }, [errors]);
 
   const handleBlur = useCallback((e) => {
     const { name } = e.target;
@@ -54,7 +57,7 @@ export function useForm(initialValues, onSubmit, validate) {
         }));
       }
     }
-  });
+  }, [validate, values]);
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
@@ -84,28 +87,28 @@ export function useForm(initialValues, onSubmit, validate) {
     } finally {
       setIsSubmitting(false);
     }
-  });
+  }, [validate, values, initialValues, onSubmit]);
 
   const resetForm = useCallback(() => {
     setValues(initialValues);
     setErrors({});
     setTouched({});
     setIsSubmitting(false);
-  });
+  }, [initialValues]);
 
   const setFieldValue = useCallback((name, value) => {
     setValues(prev => ({
       ...prev,
       [name]: value,
     }));
-  });
+  }, []);
 
   const setFieldError = useCallback((name, error) => {
     setErrors(prev => ({
       ...prev,
       [name]: error,
     }));
-  });
+  }, []);
 
   return {
     values,
