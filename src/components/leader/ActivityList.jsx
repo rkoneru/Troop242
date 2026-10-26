@@ -4,6 +4,7 @@
  * Extracted from LeaderDashboard for reusability
  */
 
+import { useState } from 'react';
 import { MapPin, Users, Calendar, Trash2, Edit2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -13,8 +14,10 @@ export default function ActivityList({
   onDelete,
   onEdit,
   onShowRoster,
-  expandedRosters = {},
+  expandedRosters,
 }) {
+  const [localExpandedRosters, setLocalExpandedRosters] = useState({});
+
   if (items.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -22,6 +25,17 @@ export default function ActivityList({
       </div>
     );
   }
+
+  const isExpanded = (id) =>
+    expandedRosters !== undefined ? expandedRosters[id] : localExpandedRosters[id];
+
+  const handleToggleRoster = (id) => {
+    if (onShowRoster) {
+      onShowRoster(id);
+    } else {
+      setLocalExpandedRosters((prev) => ({ ...prev, [id]: !prev[id] }));
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -87,18 +101,21 @@ export default function ActivityList({
           {(item.signedUp?.length || 0) > 0 && (
             <div className="mt-3 border-t pt-3">
               <button
-                onClick={() => onShowRoster?.(item.id)}
+                type="button"
+                onClick={() => handleToggleRoster(item.id)}
                 className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                aria-expanded={Boolean(isExpanded(item.id))}
               >
-                {expandedRosters[item.id] ? '▼ Hide Roster' : '▶ Show Roster'}
+                {isExpanded(item.id) ? '▼ Hide Roster' : '▶ Show Roster'}
               </button>
 
-              {expandedRosters[item.id] && (
+              {isExpanded(item.id) && (
                 <div className="mt-2 bg-gray-50 p-3 rounded">
                   <ul className="text-sm space-y-1">
                     {item.signedUp?.map((scout, idx) => (
                       <li key={idx} className="text-gray-700">
-                        • {scout.name || 'Unknown'}
+                        <span aria-hidden="true">• </span>
+                        {scout.name || 'Unknown'}
                       </li>
                     ))}
                   </ul>
