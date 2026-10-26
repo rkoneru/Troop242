@@ -109,12 +109,14 @@ export default function Calendar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"
+                aria-label="Subscribe to Troop 242 Google Calendar (opens in a new tab)"
               >
                 Subscribe to Calendar
               </a>
               <a
                 href="mailto:troop242sanford@gmail.com?subject=Calendar%20Question"
                 className="btn btn-outline"
+                aria-label="Email Troop 242 regarding calendar questions"
               >
                 Email Us
               </a>
@@ -219,7 +221,9 @@ export default function Calendar() {
 
                     {user && profile?.role === 'scout' && (
                       <button
+                        type="button"
                         onClick={() => toggleRsvp(event.id)}
+                        aria-label={myRsvps[event.id] ? `Remove interest for ${event.title}` : `Mark interest for ${event.title}`}
                         style={{
                           marginTop: 'auto',
                           padding: '10px 16px',
@@ -321,10 +325,19 @@ export default function Calendar() {
             <h2 style={{ textAlign: 'center', marginBottom: 40 }}>What to Bring</h2>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div
+              role="tablist"
+              aria-label="Packing list categories"
+              style={{ display: 'flex', gap: 8, marginBottom: 32, justifyContent: 'center', flexWrap: 'wrap' }}
+            >
               {['meetings', 'campouts', 'hikes'].map(tab => (
                 <motion.button
                   key={tab}
+                  type="button"
+                  role="tab"
+                  id={`packing-tab-${tab}`}
+                  aria-selected={activeTab === tab}
+                  aria-controls={`packing-panel-${tab}`}
                   onClick={() => setActiveTab(tab)}
                   style={{
                     padding: '10px 20px',
@@ -349,6 +362,9 @@ export default function Calendar() {
             {/* Packing List */}
             <motion.div
               key={activeTab}
+              id={`packing-panel-${activeTab}`}
+              role="tabpanel"
+              aria-labelledby={`packing-tab-${activeTab}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
@@ -402,6 +418,7 @@ export default function Calendar() {
               rel="noopener noreferrer"
               className="btn btn-primary"
               style={{ fontSize: '1.1rem', padding: '16px 32px' }}
+              aria-label="Add Troop 242 calendar to your Google Calendar (opens in a new tab)"
             >
               Add to Your Calendar
             </a>
