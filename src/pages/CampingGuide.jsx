@@ -175,6 +175,7 @@ export default function CampingGuide() {
               <a href="https://www.scouting.org/programs/scouts-bsa/advancement-and-awards/camping/"
                  target="_blank"
                  rel="noopener noreferrer"
+                 aria-label="Scouting.org Camping Resources (opens in a new tab)"
                  className="resource-link">
                 Scouting.org Camping Resources
               </a>
@@ -182,29 +183,44 @@ export default function CampingGuide() {
           </div>
 
           <div className="checklist-container">
-            {campingChecklist.map((section, idx) => (
-              <div key={idx} className="checklist-item">
-                <button
-                  className="checklist-header"
-                  onClick={() => toggleSection(idx)}
-                >
-                  <span className="toggle-icon">
-                    {expandedSection === idx ? '▼' : '▶'}
-                  </span>
-                  <h3>{section.category}</h3>
-                </button>
+            {campingChecklist.map((section, idx) => {
+              const isExpanded = expandedSection === idx;
+              const contentId = `checklist-panel-${idx}`;
+              const headerId = `checklist-header-${idx}`;
 
-                {expandedSection === idx && (
-                  <div className="checklist-content">
-                    <ul>
-                      {section.items.map((item, itemIdx) => (
-                        <li key={itemIdx}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ))}
+              return (
+                <div key={idx} className="checklist-item">
+                  <button
+                    type="button"
+                    id={headerId}
+                    className="checklist-header"
+                    aria-expanded={isExpanded}
+                    aria-controls={contentId}
+                    onClick={() => toggleSection(idx)}
+                  >
+                    <span className="toggle-icon" aria-hidden="true">
+                      {isExpanded ? '▼' : '▶'}
+                    </span>
+                    <h3>{section.category}</h3>
+                  </button>
+
+                  {isExpanded && (
+                    <div
+                      id={contentId}
+                      role="region"
+                      aria-labelledby={headerId}
+                      className="checklist-content"
+                    >
+                      <ul>
+                        {section.items.map((item, itemIdx) => (
+                          <li key={itemIdx}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -296,7 +312,12 @@ export default function CampingGuide() {
             <a href="mailto:troop242sanford@gmail.com" className="btn btn-primary">
               📧 Contact Scoutmaster
             </a>
-            <button className="btn btn-secondary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              aria-label="Scroll back to top of page"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
               Back to Top
             </button>
           </div>
