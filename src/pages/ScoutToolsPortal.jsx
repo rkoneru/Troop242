@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import '../styles/ScoutToolsPortal.css';
 
@@ -431,7 +431,23 @@ export default function ScoutToolsPortal() {
     setSidebarOpen(false);
   };
 
-  const visibleCards = dashFilter === 'all' ? DASHBOARD_CARDS : DASHBOARD_CARDS.filter(c => c.cat === dashFilter);
+  // Memoize dashboard cards filtering to avoid re-evaluating on every render
+  const visibleCards = useMemo(
+    () => (dashFilter === 'all' ? DASHBOARD_CARDS : DASHBOARD_CARDS.filter(c => c.cat === dashFilter)),
+    [dashFilter]
+  );
+
+  // Memoize Florida Field Guide filtering (136 items) to prevent unneeded array allocations on re-renders
+  const filteredFieldGuide = useMemo(
+    () => FIELD_GUIDE.filter(c => fieldGuideFilter === 'all' || c.cat === fieldGuideFilter),
+    [fieldGuideFilter]
+  );
+
+  // Memoize sorted patrols list to avoid in-place state mutation during render and redundant sorting
+  const sortedPatrols = useMemo(
+    () => [...patrols].sort((a, b) => b.points - a.points),
+    [patrols]
+  );
 
   // Render functions for each panel
   const renderPanel = () => {
@@ -618,7 +634,7 @@ export default function ScoutToolsPortal() {
         ))}
       </div>
       <div className="guide-grid">
-        {FIELD_GUIDE.filter(c=>fieldGuideFilter==='all'||c.cat===fieldGuideFilter).map((card,i)=>(
+        {filteredFieldGuide.map((card,i)=>(
           <div key={i} className="guide-card" onClick={()=>setSelectedGuideCard(card)} style={{cursor:'pointer'}}>
             <div className="guide-emoji">{card.emoji}</div>
             <div className="guide-name">{card.name}</div>
@@ -770,7 +786,7 @@ export default function ScoutToolsPortal() {
         </div>
       </div>
       <div className="score-table">
-        {patrols.sort((a,b)=>b.points-a.points).map((p,i)=>(
+        {sortedPatrols.map((p,i)=>(
           <div key={i} className="score-row">
             <div className="score-rank">{'🥇🥈🥉'[i]||i+1}</div>
             <div className="score-patrol">{p.name}</div>
