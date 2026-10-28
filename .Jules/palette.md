@@ -1,0 +1,3 @@
+## 2026-03-22 - Cross-Browser Search Clear Input Accessibility
+**Learning:** Native webkit search cancel buttons (`::-webkit-search-cancel-button`) lack consistent screen reader accessibility and keyboard focus trapping in custom modal dialogs. Replacing native webkit clear buttons with an accessible dedicated custom clear button (`.btn-clear-query`) that resets search state and refocuses the search input ensures a reliable micro-UX across browsers.
+**Action:** Always hide `::-webkit-search-cancel-button` in CSS when implementing custom clear buttons inside search dialog input wrappers, and maintain keyboard focus on the input after resetting text.
