@@ -71,6 +71,12 @@
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.btn-clear-query,
 .btn-close-search {
   background: transparent;
   border: none;
