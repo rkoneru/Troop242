@@ -4,6 +4,7 @@
  * Extracted from LeaderDashboard for reusability
  */
 
+import { useState } from 'react';
 import { MapPin, Users, Calendar, Trash2, Edit2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -15,6 +16,8 @@ export default function ActivityList({
   onShowRoster,
   expandedRosters = {},
 }) {
+  const [localExpanded, setLocalExpanded] = useState({});
+
   if (items.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -23,91 +26,107 @@ export default function ActivityList({
     );
   }
 
+  const toggleRoster = (id) => {
+    if (onShowRoster) onShowRoster(id);
+    else setLocalExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <div className="space-y-3">
-      {items.map((item) => (
-        <motion.div
-          key={item.id}
-          className="card p-4"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex-1">
-              <h4 className="font-semibold text-lg">{item.title}</h4>
+      {items.map((item) => {
+        const isExpanded = expandedRosters[item.id] ?? localExpanded[item.id];
+        return (
+          <motion.div
+            key={item.id}
+            className="card p-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex-1">
+                <h4 className="font-semibold text-lg">{item.title}</h4>
 
-              <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Calendar size={16} />
-                  {new Date(item.date).toLocaleDateString()} {item.time}
+                <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Calendar size={16} aria-hidden="true" />
+                    {new Date(item.date).toLocaleDateString()} {item.time}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin size={16} aria-hidden="true" />
+                    {item.location}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users size={16} aria-hidden="true" />
+                    {item.signedUp?.length || 0} / {item.spots}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <MapPin size={16} />
-                  {item.location}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users size={16} />
-                  {item.signedUp?.length || 0} / {item.spots}
-                </div>
+
+                <p className="text-gray-700 mt-2">{item.description}</p>
+
+                {item.dues > 0 && (
+                  <div className="mt-2 text-sm font-semibold text-green-600">
+                    Dues: ${item.dues.toFixed(2)}
+                  </div>
+                )}
               </div>
 
-              <p className="text-gray-700 mt-2">{item.description}</p>
-
-              {item.dues > 0 && (
-                <div className="mt-2 text-sm font-semibold text-green-600">
-                  Dues: ${item.dues.toFixed(2)}
-                </div>
-              )}
+              {/* Actions */}
+              <div className="flex gap-2">
+                {onEdit && (
+                  <button
+                    type="button"
+                    onClick={() => onEdit(item)}
+                    className="btn-icon text-blue-600 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                    title="Edit"
+                    aria-label={`Edit ${item.title}`}
+                  >
+                    <Edit2 size={18} aria-hidden="true" />
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={() => onDelete(item.id)}
+                    className="btn-icon text-red-600 hover:text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                    title="Delete"
+                    aria-label={`Delete ${item.title}`}
+                  >
+                    <Trash2 size={18} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-2">
-              {onEdit && (
+            {/* Roster Toggle */}
+            {(item.signedUp?.length || 0) > 0 && (
+              <div className="mt-3 border-t pt-3">
                 <button
-                  onClick={() => onEdit(item)}
-                  className="btn-icon text-blue-600 hover:text-blue-700"
-                  title="Edit"
+                  type="button"
+                  onClick={() => toggleRoster(item.id)}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1"
+                  aria-expanded={Boolean(isExpanded)}
+                  aria-controls={`roster-${item.id}`}
                 >
-                  <Edit2 size={18} />
+                  {isExpanded ? '▼ Hide Roster' : '▶ Show Roster'}
                 </button>
-              )}
-              {onDelete && (
-                <button
-                  onClick={() => onDelete(item.id)}
-                  className="btn-icon text-red-600 hover:text-red-700"
-                  title="Delete"
-                >
-                  <Trash2 size={18} />
-                </button>
-              )}
-            </div>
-          </div>
 
-          {/* Roster Toggle */}
-          {(item.signedUp?.length || 0) > 0 && (
-            <div className="mt-3 border-t pt-3">
-              <button
-                onClick={() => onShowRoster?.(item.id)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
-              >
-                {expandedRosters[item.id] ? '▼ Hide Roster' : '▶ Show Roster'}
-              </button>
-
-              {expandedRosters[item.id] && (
-                <div className="mt-2 bg-gray-50 p-3 rounded">
-                  <ul className="text-sm space-y-1">
-                    {item.signedUp?.map((scout, idx) => (
-                      <li key={idx} className="text-gray-700">
-                        • {scout.name || 'Unknown'}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </motion.div>
-      ))}
+                {isExpanded && (
+                  <div id={`roster-${item.id}`} className="mt-2 bg-gray-50 p-3 rounded">
+                    <ul className="text-sm space-y-1">
+                      {item.signedUp?.map((scout, idx) => (
+                        <li key={idx} className="text-gray-700">
+                          <span aria-hidden="true">• </span>
+                          {scout.name || 'Unknown'}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        );
+      })}
     </div>
   );
 }

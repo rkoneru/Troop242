@@ -1,0 +1,3 @@
+## 2026-03-21 - Accessible Action Buttons and Controlled Roster State in ActivityList
+**Learning:** When reusable list items feature interactive action icons (e.g. edit/delete) and toggleable collapsables (e.g. rosters), providing explicit `type="button"`, focus-visible indicators, and dynamic `aria-label` attributes ensures full screen reader clarity. Furthermore, incorporating an internal state fallback for collapsible disclosures allows the component to operate reliably both when controlled by parent props and uncontrolled.
+**Action:** Always add `type="button"`, focus-visible styles, dynamic `aria-label`s, and internal state fallback for disclosure components.
