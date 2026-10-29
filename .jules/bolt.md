@@ -1,0 +1,3 @@
+## 2025-05-18 - Avoid JS timer state updates for CSS keyframe animations
+**Learning:** React components containing SVG graphics with CSS keyframe animations do not require JS timer state updates (`setInterval` or `setTick`). Any `useState` update loop in such components forces unneeded full React VDOM reconciliations and DOM diffing every frame or interval without contributing to rendering.
+**Action:** When inspecting animation components using CSS `@keyframes`, remove unnecessary `setInterval`/`useState` tick loops to let the browser compositor thread run animations at 60 FPS with 0% React re-rendering overhead.

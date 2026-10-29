@@ -1,6 +1,4 @@
 
-import { useEffect, useRef, useState } from "react";
-
 /* ══════════════════════════════════════════════════════════
    TROOP 242 · CAMPING TENT ANIMATION
    Style: 3D clay/low-poly cartoon — matching uploaded manual
@@ -134,16 +132,6 @@ function Tree({ x=0, y=0, s=1, dark=false }) {
   );
 }
 
-/* ── LOW-POLY MOUNTAIN ── */
-function Mountain({ pts, colors }) {
-  return (
-    <>
-      {colors.map((col,i)=>(
-        <polygon key={i} points={pts[i]} fill={col}/>
-      ))}
-    </>
-  );
-}
 
 /* ── GRASS TUFT ── */
 function Grass({ x=0, y=0, s=1, color="#3A9A3A" }) {
@@ -218,14 +206,9 @@ function Tent({ x=0, y=0, s=1, c1="#D4660A", c2="#A84808", c3="#E8880A" }) {
 }
 
 /* ══ MAIN COMPONENT ══ */
+// Optimized: All animations are driven natively by GPU-accelerated CSS keyframes.
+// Unused timer state re-renders (setTick) were removed to avoid 20 unneeded React renders/sec.
 export default function CampingAnimation() {
-  const [tick, setTick] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 50);
-    return () => clearInterval(id);
-  }, []);
-
   return (
     <div style={{
       width: "100vw",
