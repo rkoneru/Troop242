@@ -136,6 +136,7 @@ describe('Validation Schemas', () => {
       const data = {
         name: 'John Scout',
         email: 'scout@example.com',
+        rank: 'Star',
       };
       const result = validate(data, userSchemas.scoutProfile);
       expect(result.valid).toBe(true);
