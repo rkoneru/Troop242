@@ -14,6 +14,7 @@ export default function Appearance() {
   const [currentFramework, setCurrentFramework] = useState(() => {
     return localStorage.getItem('troopFramework') || 'glass';
   });
+  const [statusMessage, setStatusMessage] = useState('');
 
   const applyTheme = (themeName) => {
     const theme = THEMES[themeName];
@@ -31,11 +32,15 @@ export default function Appearance() {
   const handleThemeChange = (themeName) => {
     setCurrentTheme(themeName);
     applyTheme(themeName);
+    const name = THEMES[themeName]?.name || themeName;
+    setStatusMessage(`Theme set to ${name}`);
   };
 
   const handleFrameworkChange = (frameworkName) => {
     setCurrentFramework(frameworkName);
     applyFramework(frameworkName);
+    const name = FRAMEWORKS[frameworkName]?.name || frameworkName;
+    setStatusMessage(`UI Framework set to ${name}`);
   };
 
   const containerVariants = {
@@ -66,6 +71,11 @@ export default function Appearance() {
             <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
               Customize your Troop 242 website experience with your preferred color theme
             </p>
+            {statusMessage && (
+              <div role="status" aria-live="polite" className="sr-only">
+                {statusMessage}
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
@@ -85,6 +95,8 @@ export default function Appearance() {
             </p>
 
             <motion.div
+              role="radiogroup"
+              aria-label="General Color Themes"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -94,8 +106,12 @@ export default function Appearance() {
               {Object.entries(THEMES)
                 .filter(([key]) => ['current', 'white'].includes(key))
                 .map(([key, theme]) => (
-                <motion.div
+                <motion.button
                   key={key}
+                  type="button"
+                  role="radio"
+                  aria-checked={currentTheme === key}
+                  aria-label={`${theme.name} theme: ${theme.description}`}
                   variants={itemVariants}
                   className="glass-card"
                   onClick={() => handleThemeChange(key)}
@@ -104,13 +120,19 @@ export default function Appearance() {
                     cursor: 'pointer',
                     border: currentTheme === key ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
                     transition: 'all 0.3s ease',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    width: '100%',
+                    textAlign: 'left',
+                    font: 'inherit',
+                    color: 'inherit',
+                    background: 'transparent'
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   {/* Theme Preview */}
                   <div
+                    aria-hidden="true"
                     style={{
                       width: '100%',
                       height: '120px',
@@ -167,7 +189,7 @@ export default function Appearance() {
                       <span>Selected</span>
                     </motion.div>
                   )}
-                </motion.div>
+                </motion.button>
               ))}
             </motion.div>
           </motion.div>
@@ -189,6 +211,8 @@ export default function Appearance() {
             </p>
 
             <motion.div
+              role="radiogroup"
+              aria-label="Scout Color Themes"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -198,8 +222,12 @@ export default function Appearance() {
               {Object.entries(THEMES)
                 .filter(([key]) => ['green', 'tan', 'blue', 'brown', 'gold', 'red'].includes(key))
                 .map(([key, theme]) => (
-                <motion.div
+                <motion.button
                   key={key}
+                  type="button"
+                  role="radio"
+                  aria-checked={currentTheme === key}
+                  aria-label={`${theme.name} theme: ${theme.description}`}
                   variants={itemVariants}
                   className="glass-card"
                   onClick={() => handleThemeChange(key)}
@@ -208,13 +236,19 @@ export default function Appearance() {
                     cursor: 'pointer',
                     border: currentTheme === key ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
                     transition: 'all 0.3s ease',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    width: '100%',
+                    textAlign: 'left',
+                    font: 'inherit',
+                    color: 'inherit',
+                    background: 'transparent'
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   {/* Theme Preview */}
                   <div
+                    aria-hidden="true"
                     style={{
                       width: '100%',
                       height: '120px',
@@ -271,7 +305,7 @@ export default function Appearance() {
                       <span>Selected</span>
                     </motion.div>
                   )}
-                </motion.div>
+                </motion.button>
               ))}
             </motion.div>
           </motion.div>
@@ -293,6 +327,8 @@ export default function Appearance() {
             </p>
 
             <motion.div
+              role="radiogroup"
+              aria-label="UI Frameworks"
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -302,8 +338,12 @@ export default function Appearance() {
               {Object.entries(FRAMEWORKS)
                 .filter(([key]) => !['clay', 'skeu', 'brutal'].includes(key))
                 .map(([key, framework]) => (
-                <motion.div
+                <motion.button
                   key={key}
+                  type="button"
+                  role="radio"
+                  aria-checked={currentFramework === key}
+                  aria-label={`${framework.name} framework: ${framework.description}`}
                   variants={itemVariants}
                   className="glass-card"
                   onClick={() => handleFrameworkChange(key)}
@@ -312,13 +352,19 @@ export default function Appearance() {
                     cursor: 'pointer',
                     border: currentFramework === key ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
                     transition: 'all 0.3s ease',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    width: '100%',
+                    textAlign: 'left',
+                    font: 'inherit',
+                    color: 'inherit',
+                    background: 'transparent'
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   {/* Framework Preview */}
                   <div
+                    aria-hidden="true"
                     style={{
                       width: '100%',
                       height: '120px',
@@ -377,7 +423,7 @@ export default function Appearance() {
                       <span>Selected</span>
                     </motion.div>
                   )}
-                </motion.div>
+                </motion.button>
               ))}
             </motion.div>
           </motion.div>
