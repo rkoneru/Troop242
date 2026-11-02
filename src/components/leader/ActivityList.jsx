@@ -4,6 +4,7 @@
  * Extracted from LeaderDashboard for reusability
  */
 
+import { useState } from 'react';
 import { MapPin, Users, Calendar, Trash2, Edit2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -15,6 +16,8 @@ export default function ActivityList({
   onShowRoster,
   expandedRosters = {},
 }) {
+  const [localExpanded, setLocalExpanded] = useState({});
+
   if (items.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -22,6 +25,17 @@ export default function ActivityList({
       </div>
     );
   }
+
+  const handleToggleRoster = (id) => {
+    if (onShowRoster) {
+      onShowRoster(id);
+    } else {
+      setLocalExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+    }
+  };
+
+  const isExpanded = (id) =>
+    onShowRoster ? !!expandedRosters[id] : !!localExpanded[id];
 
   return (
     <div className="space-y-3">
@@ -38,15 +52,15 @@ export default function ActivityList({
 
               <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
-                  <Calendar size={16} />
+                  <Calendar size={16} aria-hidden="true" />
                   {new Date(item.date).toLocaleDateString()} {item.time}
                 </div>
                 <div className="flex items-center gap-1">
-                  <MapPin size={16} />
+                  <MapPin size={16} aria-hidden="true" />
                   {item.location}
                 </div>
                 <div className="flex items-center gap-1">
-                  <Users size={16} />
+                  <Users size={16} aria-hidden="true" />
                   {item.signedUp?.length || 0} / {item.spots}
                 </div>
               </div>
@@ -64,20 +78,24 @@ export default function ActivityList({
             <div className="flex gap-2">
               {onEdit && (
                 <button
+                  type="button"
                   onClick={() => onEdit(item)}
-                  className="btn-icon text-blue-600 hover:text-blue-700"
+                  className="btn-icon text-blue-600 hover:text-blue-700 focus-visible:ring-2 focus-visible:outline-none"
+                  aria-label={`Edit ${item.title}`}
                   title="Edit"
                 >
-                  <Edit2 size={18} />
+                  <Edit2 size={18} aria-hidden="true" />
                 </button>
               )}
               {onDelete && (
                 <button
+                  type="button"
                   onClick={() => onDelete(item.id)}
-                  className="btn-icon text-red-600 hover:text-red-700"
+                  className="btn-icon text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:outline-none"
+                  aria-label={`Delete ${item.title}`}
                   title="Delete"
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={18} aria-hidden="true" />
                 </button>
               )}
             </div>
@@ -87,18 +105,22 @@ export default function ActivityList({
           {(item.signedUp?.length || 0) > 0 && (
             <div className="mt-3 border-t pt-3">
               <button
-                onClick={() => onShowRoster?.(item.id)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                type="button"
+                onClick={() => handleToggleRoster(item.id)}
+                className="text-sm text-blue-600 hover:text-blue-700 font-semibold focus-visible:ring-2 focus-visible:outline-none rounded"
+                aria-expanded={isExpanded(item.id)}
+                aria-controls={`roster-${item.id}`}
               >
-                {expandedRosters[item.id] ? '▼ Hide Roster' : '▶ Show Roster'}
+                {isExpanded(item.id) ? '▼ Hide Roster' : '▶ Show Roster'}
               </button>
 
-              {expandedRosters[item.id] && (
-                <div className="mt-2 bg-gray-50 p-3 rounded">
+              {isExpanded(item.id) && (
+                <div id={`roster-${item.id}`} className="mt-2 bg-gray-50 p-3 rounded">
                   <ul className="text-sm space-y-1">
                     {item.signedUp?.map((scout, idx) => (
                       <li key={idx} className="text-gray-700">
-                        • {scout.name || 'Unknown'}
+                        <span aria-hidden="true">• </span>
+                        {scout.name || 'Unknown'}
                       </li>
                     ))}
                   </ul>
