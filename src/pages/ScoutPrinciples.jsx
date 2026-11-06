@@ -63,7 +63,7 @@ export default function ScoutPrinciples() {
           >
             <div className="glass-card" style={{ padding: 48, marginBottom: 60 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                <Heart size={40} style={{ color: 'var(--accent)' }} />
+                <Heart size={40} style={{ color: 'var(--accent)' }} aria-hidden="true" />
                 <h2 style={{ margin: 0 }}>The Scout Oath</h2>
               </div>
 
@@ -128,7 +128,7 @@ export default function ScoutPrinciples() {
           >
             <div className="glass-card" style={{ padding: 48, marginBottom: 60 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                <Scale size={40} style={{ color: 'var(--accent)' }} />
+                <Scale size={40} style={{ color: 'var(--accent)' }} aria-hidden="true" />
                 <h2 style={{ margin: 0 }}>The Scout Law</h2>
               </div>
 
@@ -237,7 +237,7 @@ export default function ScoutPrinciples() {
           >
             <div className="glass-card" style={{ padding: 48 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                <Leaf size={40} style={{ color: 'var(--accent)' }} />
+                <Leaf size={40} style={{ color: 'var(--accent)' }} aria-hidden="true" />
                 <h2 style={{ margin: 0 }}>The Outdoor Code</h2>
               </div>
 
@@ -303,15 +303,21 @@ export default function ScoutPrinciples() {
             </p>
 
             {/* Flashcard */}
-            <motion.div
+            <button
+              type="button"
+              className="w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-2xl"
               style={{
-                width: '100%',
                 height: '280px',
                 cursor: 'pointer',
                 perspective: '1000px',
-                marginBottom: 32
+                marginBottom: 32,
+                background: 'transparent',
+                border: 'none',
+                padding: 0
               }}
               onClick={() => setIsFlipped(!isFlipped)}
+              aria-label={`${isFlipped ? 'Hide' : 'Reveal'} definition for Scout Law #${currentCardIndex + 1}: ${SCOUT_LAW_TERMS[currentCardIndex].term}`}
+              aria-pressed={isFlipped}
             >
               <motion.div
                 initial={false}
@@ -376,12 +382,17 @@ export default function ScoutPrinciples() {
                   </p>
                 </div>
               </motion.div>
-            </motion.div>
+            </button>
 
             {/* Navigation */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
               <motion.button
-                onClick={() => setCurrentCardIndex((currentCardIndex - 1 + SCOUT_LAW_TERMS.length) % SCOUT_LAW_TERMS.length)}
+                type="button"
+                aria-label="Previous Scout Law card"
+                onClick={() => {
+                  setIsFlipped(false);
+                  setCurrentCardIndex((currentCardIndex - 1 + SCOUT_LAW_TERMS.length) % SCOUT_LAW_TERMS.length);
+                }}
                 style={{
                   background: 'var(--accent)',
                   color: 'white',
@@ -396,17 +407,22 @@ export default function ScoutPrinciples() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <ChevronLeft size={16} /> Previous
+                <ChevronLeft size={16} aria-hidden="true" /> Previous
               </motion.button>
 
-              <div style={{ textAlign: 'center' }}>
+              <div style={{ textAlign: 'center' }} role="status" aria-live="polite">
                 <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.9rem' }}>
                   Card {currentCardIndex + 1} of {SCOUT_LAW_TERMS.length}
                 </p>
               </div>
 
               <motion.button
-                onClick={() => setCurrentCardIndex((currentCardIndex + 1) % SCOUT_LAW_TERMS.length)}
+                type="button"
+                aria-label="Next Scout Law card"
+                onClick={() => {
+                  setIsFlipped(false);
+                  setCurrentCardIndex((currentCardIndex + 1) % SCOUT_LAW_TERMS.length);
+                }}
                 style={{
                   background: 'var(--accent)',
                   color: 'white',
@@ -421,7 +437,7 @@ export default function ScoutPrinciples() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Next <ChevronRight size={16} />
+                Next <ChevronRight size={16} aria-hidden="true" />
               </motion.button>
             </div>
           </motion.div>
